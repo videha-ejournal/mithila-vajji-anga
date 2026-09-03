@@ -1,0 +1,134 @@
+[
+  {
+    "id": "panji-1",
+    "shelf": "Decoding the Panji",
+    "sequence": "Volume I",
+    "title": "Decoding the Panji of Mithila",
+    "subtitle": "Surprising Insights from India and Nepal’s Oldest Social Network",
+    "creator": "Gajendra Thakur · Videha",
+    "extent": "ISBN 9798180232212",
+    "description": "A theoretical and documentary introduction to Panji as genealogy, kinship system, social memory, administrative practice, and a long-duration archive linking Mithila in India and Nepal.",
+    "structure": ["Genealogy as a field", "Descent systems and mūla", "Kinship algebra and exogamy", "Panji as administration", "Khaṇḍa and village case studies", "Social, linguistic and intellectual analysis"]
+  },
+  {
+    "id": "panji-2",
+    "shelf": "Decoding the Panji",
+    "sequence": "Volume II · Khaṇḍa 1",
+    "title": "Decoding the Panji of Mithila — Volume II",
+    "subtitle": "Genome Mapping Volume I: Khaṇḍa 1 · Index-Linked Edition",
+    "creator": "Gajendra Thakur · Videha",
+    "extent": "ISBN 978-93-6012-526-4",
+    "description": "A methodical decoding of the Panji entry, settlement markers, descent and maternal networks, followed by working indexes for people, places, titles, occupations, and editorial signs.",
+    "structure": ["The basic Panji entry", "Village and settlement formulae", "Paternal and maternal networks", "Social and intellectual history", "Village, name and title indexes", "Appendices and editorial symbols"]
+  },
+  {
+    "id": "panji-3",
+    "shelf": "Decoding the Panji",
+    "sequence": "Volume III · Khaṇḍa 2",
+    "title": "Decoding the Panji of Mithila — Volume III",
+    "subtitle": "A Complete Index-wise Decoding of Genome Mapping Volume I: Khaṇḍa 2 · Based on Uptip Panji",
+    "creator": "Gajendra Thakur · Videha",
+    "extent": "324 pages · 79,665 words · ISBN 978-93-6068-808-0",
+    "description": "An index-controlled reading of the Uptip Panji, its formulae, historical span, village corridors, titles, and genealogical entries from the early framing chapters through detailed decoding.",
+    "structure": ["Panji as memory and map", "What is Uptip?", "How to read entries and symbols", "Time frame, 450–2009 CE", "Village-corridor decoding", "Index control map"]
+  },
+  {
+    "id": "panji-4",
+    "shelf": "Decoding the Panji",
+    "sequence": "Volume IV",
+    "title": "Decoding the Panji of Mithila — Volume IV",
+    "subtitle": "Based on the Nagram Panji",
+    "creator": "Gajendra Thakur · Videha",
+    "extent": "186,956 words · ISBN 978-93-6123-509-2",
+    "description": "A large-scale decoding of the Nagram Panji, beginning with editorial method and genealogical grammar and proceeding through village-rooted entries with a cumulative index logic.",
+    "structure": ["Source files and editorial method", "Transliteration and abbreviations", "Nagram genealogical archive", "Genealogical grammar", "Village-root sections", "Coverage matrices and cumulative index"]
+  },
+  {
+    "id": "panji-5",
+    "shelf": "Decoding the Panji",
+    "sequence": "Volume V",
+    "title": "Decoding the Panji of Mithila — Volume V",
+    "subtitle": "Based on Volume II Panji: Genealogical Mapping of Mithila, 450–2009 CE",
+    "creator": "Gajendra Thakur · Videha",
+    "extent": "87,311 words · ISBN 978-93-5933-373-1",
+    "description": "A branch-by-branch decoding of compressed Panji records, with attention to names, marriages, titles, locations, scholarly identities, and modern continuations across the regional network.",
+    "structure": ["Grammar of Panji notation", "Mūla, gotra and pravara", "Marriage and daughter links", "Village and branch sequences", "Scholarly titles and identities", "Modern geographical continuations"]
+  },
+  {
+    "id": "panji-6",
+    "shelf": "Decoding the Panji",
+    "sequence": "Volume VI",
+    "title": "Decoding the Panji of Mithila — Volume VI",
+    "subtitle": "Based on Dushan Panji · Chapters 1–30 · Appendices A–K",
+    "creator": "Gajendra Thakur · Videha",
+    "extent": "238 pages · 56,423 words · ISBN 978-93-5933-623-7",
+    "description": "An ethically framed study of Dushan Panji as a difficult archive of social memory, read within the wider Panji system and decoded without reproducing inherited stigma as judgment.",
+    "structure": ["Seven kinds of Panji", "Dushan Panji and social memory", "Ethical reading rules", "Gotras, mūlas and entry method", "Women, widowhood and female-line memory", "Entries 1–97 and appendices"]
+  },
+  {
+    "id": "parallel-philosophy",
+    "shelf": "Parallel Research",
+    "sequence": "Philosophy",
+    "title": "Gajendra Thakur’s Parallel Philosophy",
+    "subtitle": "A Re-reading of Indian, Western, Socio-Political, Religious, and Modern Philosophy through Mithila’s Parallel Tradition",
+    "creator": "Gajendra Thakur · Videha · ISSN 2229-547X",
+    "extent": "493 pages · 104,851 words",
+    "description": "A comparative philosophical programme that places Mithila’s parallel intellectual tradition in conversation with Indian and Western philosophy, social thought, religious inquiry, and modernity.",
+    "structure": ["Indian philosophical traditions", "Western philosophical traditions", "Socio-political thought", "Religious philosophy", "Modern philosophy", "Mithila’s parallel method"]
+  },
+  {
+    "id": "parallel-history",
+    "shelf": "Parallel Research",
+    "sequence": "Volumes 1–100",
+    "title": "A Parallel History of Mithilā & Maithilī Literature",
+    "subtitle": "With critical appreciations of representative Maithili writers",
+    "creator": "Gajendra Thakur · Videha · 2026",
+    "extent": "100-volume cumulative work · 3,270 pages · 970,853 words",
+    "description": "A century-scale literary history organized as one hundred cumulative volumes, combining linguistic and script history, literary movements, genre studies, institutional critique, and close readings of representative writers.",
+    "structure": ["Language and Mithilakshara traditions", "Early and medieval literary worlds", "Vidyapati and Brajabuli", "Modern genres and movements", "Representative writers", "Videha and the Parallel Literature movement"]
+  },
+  {
+    "id": "atmatattvaviveka",
+    "shelf": "Sanskrit–Maithili Philosophical Texts",
+    "sequence": "Nyāya · Self and metaphysics",
+    "title": "Ātmatattvaviveka",
+    "subtitle": "Original Sanskrit by Udayanācārya · Sanskrit-to-Maithili translation by Gajendra Thakur",
+    "creator": "Videha · first edition 2004 · enlarged edition 2026",
+    "extent": "259 pages · 85,568 words",
+    "description": "A complete Maithili translation of Udayana’s inquiry into the self, accompanied by an enlarged critical introduction on poetics, translation theory, philosophical debate, and editorial architecture.",
+    "structure": ["A text’s homecoming", "Indian poetics", "Indian translation traditions", "Western translation theory", "Metaphysical debate", "Glossarial and editorial apparatus"]
+  },
+  {
+    "id": "bhamati",
+    "shelf": "Sanskrit–Maithili Philosophical Texts",
+    "sequence": "Advaita Vedānta · Commentary",
+    "title": "Bhāmatī",
+    "subtitle": "Vācaspati Miśra’s commentary on Śaṅkara’s Brahmasūtra Bhāṣya · Sanskrit-to-Maithili translation by Gajendra Thakur",
+    "creator": "Videha · first edition 2004",
+    "extent": "215 pages · 64,452 words",
+    "description": "A Maithili translation and contextual study of the Bhāmatī tradition, addressing superimposition, theories of error, the self-luminosity of consciousness, and the opening Brahmasūtras.",
+    "structure": ["Vācaspati Miśra in context", "Bhāmatī and Vivaraṇa schools", "Adhyāsa and theories of error", "Self and consciousness", "Opening Brahmasūtras", "Subject index"]
+  },
+  {
+    "id": "nyayakusumanjali",
+    "shelf": "Sanskrit–Maithili Philosophical Texts",
+    "sequence": "Nyāya · Natural theology",
+    "title": "Nyāyakusumāñjali",
+    "subtitle": "Original Sanskrit by Udayanācārya · Sanskrit-to-Maithili translation by Gajendra Thakur",
+    "creator": "Videha",
+    "extent": "464 pages · 141,650 words",
+    "description": "A complete Maithili translation of Udayana’s five-bouquet argument, supported by critical study of Navya-Nyāya terminology, poetics, hermeneutics, translation, and research apparatus.",
+    "structure": ["Historical position of the work", "Five-bouquet thematic map", "Navya-Nyāya terminology", "Indian poetics", "Hermeneutics and translation", "Glossaries and research questions"]
+  },
+  {
+    "id": "tattvacintamani",
+    "shelf": "Sanskrit–Maithili Philosophical Texts",
+    "sequence": "Navya-Nyāya · Epistemology",
+    "title": "Tattvacintāmaṇi",
+    "subtitle": "Original Sanskrit by Gaṅgeśa Upādhyāya · Sanskrit-to-Maithili translation by Gajendra Thakur",
+    "creator": "Videha",
+    "extent": "1,552 pages · 336,691 words · ISBN 978-93-6123-729-4",
+    "description": "A large-format Maithili translation of Gaṅgeśa’s foundational Navya-Nyāya work, organized through the means of knowledge and furnished with substantial philosophical introductions.",
+    "structure": ["Perception", "Inference and pervasion", "Inference of God", "Comparison", "Verbal testimony", "Technical philosophical introductions"]
+  }
+]

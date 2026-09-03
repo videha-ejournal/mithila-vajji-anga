@@ -5,6 +5,8 @@ A responsive, accessible historical research portal for the connected histories 
 ## Structure
 
 - `app/page.tsx` — page content, search, filters, and navigation
+- `app/research-data.json` — the 178-chapter historical programme, including completed Chapter 1–35 coverage for Volume II
+- `app/library-data.json` — the Panji, parallel research, and Sanskrit–Maithili philosophy shelves
 - `app/globals.css` — visual system and responsive layout
 - `app/layout.tsx` — site metadata and document shell
 - `public/` — static assets, including the favicon
