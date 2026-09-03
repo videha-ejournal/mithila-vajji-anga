@@ -5,7 +5,6 @@ const projectPath = repository && !repository.endsWith('.github.io') ? `/${repos
 
 const nextConfig: NextConfig = {
   output: 'export',
-  basePath: process.env.GITHUB_ACTIONS ? projectPath : '',
   assetPrefix: process.env.GITHUB_ACTIONS ? projectPath : '',
   trailingSlash: true,
   images: { unoptimized: true },
