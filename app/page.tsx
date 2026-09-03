@@ -27,9 +27,18 @@ const sources = [
   { kind: 'Modern scholarship', title: 'Critical editions and historical studies', text: 'Record edition, translation, argument, and historiographic context so that every claim remains traceable.' },
 ];
 
+const volumes = [
+  { numeral: 'I', title: 'Prehistory and Protohistory', pages: 'pp. 1–66', chapters: 'Chapters 1–4', themes: ['Archaeology', 'Food production', 'Iron-using horizons', 'Environment & settlement'] },
+  { numeral: 'II', title: 'Ancient Mithila, Vajji and Anga', pages: 'pp. 67–203', chapters: 'Chapters 5–11', themes: ['Videha & Janaka', 'Vajji & Vaishali', 'Anga & Champa', 'Licchavi Nepal'] },
+  { numeral: 'III', title: 'Medieval Period', pages: 'pp. 204–322', chapters: 'Chapters 12–16', themes: ['Tirabhukti', 'Karnatas & Simraongarh', 'Oiniwar rule', 'Two Vidyapatis'] },
+  { numeral: 'IV', title: 'Modern Period', pages: 'pp. 323–441', chapters: 'Chapters 17–21', themes: ['Darbhanga Raj', 'Agrarian society', 'Print & nationalism', 'Nepal Tarai to 1951'] },
+  { numeral: 'V', title: 'Contemporary Period', pages: 'pp. 442–616', chapters: 'Chapters 22–28', themes: ['India–Nepal borderland', 'Maithili & Angika', 'Kosi & Madhesh', 'Connected histories'] },
+];
+
 const archiveItems = [
   ...chronology.map((item) => ({ type: 'Chronology', title: item.title, detail: `${item.date} · ${item.region}`, target: '#chronology', haystack: `${item.title} ${item.text} ${item.date} ${item.region}` })),
   ...regions.map((item) => ({ type: 'Region', title: item.name, detail: item.eyebrow, target: `#${item.id}`, haystack: `${item.name} ${item.text} ${item.themes.join(' ')}` })),
+  ...volumes.map((item) => ({ type: `Volume ${item.numeral}`, title: item.title, detail: `${item.chapters} · ${item.pages}`, target: '#volumes', haystack: `${item.title} ${item.chapters} ${item.themes.join(' ')}` })),
   { type: 'Source group', title: 'Textual traditions', detail: 'Vedic · Buddhist · Jain · Epic', target: '#sources', haystack: 'Janaka Licchavi Videha Campa primary sources Vedic Buddhist Jain epic textual traditions' },
   { type: 'Geography', title: 'India–Nepal context', detail: 'Bihar · Madhesh · Tarai', target: '#context', haystack: 'India Nepal Bihar Madhesh Tarai border Mithila Videha geography' },
 ];
@@ -89,8 +98,14 @@ export default function Home() {
         </section>
 
         <section id="volumes" className="section volumes-section">
-          <div className="section-heading"><div><p className="kicker">CUMULATIVE HISTORICAL VOLUMES</p><h2>A shelf designed to grow</h2></div><p>Use this area for successive research volumes, revised editions, catalogues, maps, and documentary appendices.</p></div>
-          <div className="shelf"><article className="volume featured"><p>FOUNDATION VOLUME</p><h3>Mithila–Vajji–Anga</h3><span>Connected histories of the eastern Gangetic world</span><a href="#sources">View editorial framework <ChevronRight size={17}/></a></article><article className="volume"><p>FORTHCOMING</p><h3>Volume II</h3><span>Reserved for the next cumulative historical study</span></article><article className="volume"><p>ARCHIVE SERIES</p><h3>Sources & Notes</h3><span>Translations, inscriptions, site records, and bibliographies</span></article></div>
+          <div className="section-heading"><div><p className="kicker">CUMULATIVE HISTORICAL VOLUMES</p><h2>A shelf designed to grow</h2></div><p>The 2026 edition is a five-volume sequence covering the region from prehistory to the contemporary period through a source-controlled method.</p></div>
+          <article className="book-overview">
+            <div><p>2026 · FIVE-VOLUME WORK</p><h3>History of Mithila, Vajji &amp; Anga<br/><em>in India &amp; Nepal</em></h3><span>From Prehistory to the Contemporary Period</span></div>
+            <dl><div><dt>Author</dt><dd>Gajendra Thakur</dd></div><div><dt>Extent</dt><dd>28 chapters · 698-page edition</dd></div><div><dt>Research home</dt><dd>Videha eJournal · ISSN 2229-547X</dd></div></dl>
+            <p>The work separates archaeological, philological, archival, environmental, linguistic, and institutional evidence according to what each source can establish.</p>
+          </article>
+          <div className="shelf pdf-shelf">{volumes.map((volume) => <article className="volume" key={volume.numeral}><p>VOLUME {volume.numeral} · {volume.pages}</p><h3>{volume.title}</h3><span>{volume.chapters}</span><ul>{volume.themes.map((theme) => <li key={theme}>{theme}</li>)}</ul></article>)}</div>
+          <div className="research-apparatus"><div><p>RESEARCH APPARATUS</p><h3>Navigate the evidence</h3></div><ul><li><strong>Consolidated chronology</strong><span>from p. 617</span></li><li><strong>Glossary &amp; place-name concordance</strong><span>from p. 635</span></li><li><strong>General source register</strong><span>from p. 654</span></li><li><strong>Index</strong><span>from p. 679</span></li></ul><a href="#sources">Read the source method <ChevronRight size={17}/></a></div>
         </section>
 
         <section className="about-strip"><p className="kicker">ABOUT THE PROJECT</p><h2>Videha identity, researched with breadth and care.</h2><p>This portal is conceived as part of the wider Videha historical research ecosystem: regionally rooted, cross-border in scope, and transparent about the difference between evidence, tradition, and interpretation.</p><a className="primary-button light" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Visit videha.co.in <ExternalLink size={17}/></a></section>
