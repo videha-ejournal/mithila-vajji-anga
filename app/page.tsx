@@ -35,10 +35,17 @@ const volumes = [
   { numeral: 'V', title: 'Contemporary Period', pages: 'pp. 442–616', chapters: 'Chapters 22–28', themes: ['India–Nepal borderland', 'Maithili & Angika', 'Kosi & Madhesh', 'Connected histories'] },
 ];
 
+const volumeTwoCompleted = [
+  { part: 'Part I', range: 'Chapters 1–5', title: 'Land, environment and human landscapes', topics: 'Physical foundations · settlement · subsistence · food · mobility' },
+  { part: 'Part II', range: 'Chapters 6–18', title: 'Early historic society', topics: 'Videha, Vajji and Anga · households · economy · learning · health' },
+  { part: 'Part III', range: 'Chapters 19–25', title: 'Religion, ritual and cultural formation', topics: 'Vedic landscapes · Buddhism · Jainism · sacred geography · life-cycle rites' },
+];
+
 const archiveItems = [
   ...chronology.map((item) => ({ type: 'Chronology', title: item.title, detail: `${item.date} · ${item.region}`, target: '#chronology', haystack: `${item.title} ${item.text} ${item.date} ${item.region}` })),
   ...regions.map((item) => ({ type: 'Region', title: item.name, detail: item.eyebrow, target: `#${item.id}`, haystack: `${item.name} ${item.text} ${item.themes.join(' ')}` })),
   ...volumes.map((item) => ({ type: `Volume ${item.numeral}`, title: item.title, detail: `${item.chapters} · ${item.pages}`, target: '#volumes', haystack: `${item.title} ${item.chapters} ${item.themes.join(' ')}` })),
+  { type: 'Cumulative manuscript', title: 'Volume II · Socio-Cultural-Economic History', detail: 'Chapters 1–25 complete · 150-chapter plan', target: '#volume-two', haystack: 'Volume II socio cultural economic history cumulative chapters 1 25 complete 150 chapter plan landscape settlement households trade Vaishali Anga Champa Buddhism Jainism ritual sacred geography festivals death ancestors' },
   { type: 'Source group', title: 'Textual traditions', detail: 'Vedic · Buddhist · Jain · Epic', target: '#sources', haystack: 'Janaka Licchavi Videha Campa primary sources Vedic Buddhist Jain epic textual traditions' },
   { type: 'Geography', title: 'India–Nepal context', detail: 'Bihar · Madhesh · Tarai', target: '#context', haystack: 'India Nepal Bihar Madhesh Tarai border Mithila Videha geography' },
 ];
@@ -106,6 +113,27 @@ export default function Home() {
           </article>
           <div className="shelf pdf-shelf">{volumes.map((volume) => <article className="volume" key={volume.numeral}><p>VOLUME {volume.numeral} · {volume.pages}</p><h3>{volume.title}</h3><span>{volume.chapters}</span><ul>{volume.themes.map((theme) => <li key={theme}>{theme}</li>)}</ul></article>)}</div>
           <div className="research-apparatus"><div><p>RESEARCH APPARATUS</p><h3>Navigate the evidence</h3></div><ul><li><strong>Consolidated chronology</strong><span>from p. 617</span></li><li><strong>Glossary &amp; place-name concordance</strong><span>from p. 635</span></li><li><strong>General source register</strong><span>from p. 654</span></li><li><strong>Index</strong><span>from p. 679</span></li></ul><a href="#sources">Read the source method <ChevronRight size={17}/></a></div>
+          <article id="volume-two" className="cumulative-volume">
+            <div className="cumulative-intro">
+              <p>NEW TO THE RESEARCH SHELF · VOLUME II</p>
+              <h3>Socio-Cultural-Economic History</h3>
+              <span>From Prehistory to the Contemporary Period</span>
+              <p className="cumulative-summary">A companion to the political and connected-history work, centred on how people lived, produced, exchanged, worshipped, learned, migrated, created, and negotiated hierarchy and ecological risk across Mithila, Vajji and Anga in India and Nepal.</p>
+            </div>
+            <div className="cumulative-status" aria-label="Volume II completion status">
+              <div><span>Completed</span><strong>25 chapters</strong></div>
+              <div><span>Approved plan</span><strong>150 chapters</strong></div>
+              <div><span>Current file</span><strong>364 pages</strong></div>
+              <div><span>Planned extent</span><strong>900–1,200 pages</strong></div>
+              <div className="progress-track" aria-hidden="true"><span /></div>
+              <small>Chapters 1–25 contain full text and chapter bibliographies. Chapters 26–150 are plan entries, not completed chapters.</small>
+            </div>
+            <div className="completed-parts">
+              <p>COMPLETED PARTS IN THE CURRENT CUMULATIVE MANUSCRIPT</p>
+              {volumeTwoCompleted.map((item) => <div key={item.part}><span>{item.part}<br/><small>{item.range}</small></span><h4>{item.title}</h4><p>{item.topics}</p></div>)}
+            </div>
+            <div className="method-note"><strong>Governing method</strong><p>Historical-geographical names are treated as overlapping, changing frames. Archaeological, textual, material, archival, oral, ethnographic, and statistical evidence is matched to period and claim type; mythology, memory, ritual tradition, and administrative evidence remain analytically distinct.</p></div>
+          </article>
         </section>
 
         <section className="about-strip"><p className="kicker">ABOUT THE PROJECT</p><h2>Videha identity, researched with breadth and care.</h2><p>This portal is conceived as part of the wider Videha historical research ecosystem: regionally rooted, cross-border in scope, and transparent about the difference between evidence, tradition, and interpretation.</p><a className="primary-button light" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Visit videha.co.in <ExternalLink size={17}/></a></section>
