@@ -1,145 +1,130 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowRight, BookOpen, ChevronRight, ExternalLink, FileText, Menu, Search, X } from 'lucide-react';
+import Image from 'next/image';
+import { BookOpen, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDashed, ExternalLink, FileText, Landmark, Layers3, Library, MapPin, Menu, Search, X } from 'lucide-react';
+import researchData from './research-data.json';
 
-const regions = [
-  { id: 'mithila', name: 'Mithila', eyebrow: 'VIDEHA HEARTLAND', period: 'c. 1200 BCE — present', text: 'Texts, dynasties, learned traditions, and the long cultural geography of the northern Gangetic plain.', accent: 'ochre', themes: ['Videha kingship', 'Maithil scholarship', 'Karnata & Oiniwar courts'] },
-  { id: 'vajji', name: 'Vajji', eyebrow: 'REPUBLICAN CONFEDERACY', period: 'c. 700 — 400 BCE', text: 'The Licchavis, Videhans, and allied clans examined through literary, political, and archaeological evidence.', accent: 'green', themes: ['Gana-sangha polity', 'Vaishali', 'Buddhist & Jain traditions'] },
-  { id: 'anga', name: 'Anga', eyebrow: 'EASTERN JANAPADA', period: 'c. 800 — 300 BCE', text: 'Trade, state formation, and the eastern corridors linking Campa, Magadha, and the wider subcontinent.', accent: 'blue', themes: ['Campa', 'Riverine exchange', 'Magadhan expansion'] },
-];
+type Chapter = { id:string; number:number; title:string; collection:string; volume:string; part:string; status:'Complete'|'Planned'; pages:string; summary:string; sections:string[] };
+type Tab = 'chronology'|'places'|'chapters'|'sources';
+const chapters = [...researchData.political, ...researchData.social] as Chapter[];
 
 const chronology = [
-  { date: 'c. 1200–800 BCE', region: 'Mithila', title: 'Videha in the later Vedic horizon', text: 'Texts associate the eastward movement of Vedic culture with Videha and the courtly world remembered around Janaka.' },
-  { date: 'c. 800–600 BCE', region: 'Anga', title: 'Anga emerges in the eastern janapada landscape', text: 'Literary traditions place Anga among the important polities of the lower and middle Gangetic east.' },
-  { date: 'c. 700–500 BCE', region: 'Vajji', title: 'Formation of the Vajji confederacy', text: 'Licchavis, Videhans, and other groups appear within a shared republican or oligarchic political order.' },
-  { date: '6th–5th c. BCE', region: 'Vajji', title: 'Vaishali in Buddhist and Jain traditions', text: 'The city becomes a major setting for accounts of Mahavira, the Buddha, monastic institutions, and political debate.' },
-  { date: 'c. 5th c. BCE', region: 'Anga', title: 'Anga and Magadha', text: 'Traditions of conquest by Bimbisara situate Anga within the expansion of Magadhan power.' },
-  { date: '11th–14th c. CE', region: 'Mithila', title: 'Karnata rule in Mithila', text: 'The Simraungadh-centered polity links the plains north and south of today’s India–Nepal border.' },
-  { date: '14th–16th c. CE', region: 'Mithila', title: 'Oiniwar courts and scholarly production', text: 'Courtly patronage supports distinctive intellectual and literary traditions in Sanskrit and Maithili.' },
-  { date: '16th–18th c. CE', region: 'Mithila', title: 'Khandavala / Darbhanga Raj formation', text: 'A new landed and political order develops through Mughal-era grants and regional consolidation.' },
-  { date: '1816 CE onward', region: 'Context', title: 'A modern border across an older cultural region', text: 'The India–Nepal boundary formalizes political jurisdictions while Maithil networks continue across the Tarai and Bihar.' },
+  { year:-1800, date:'c. 1800–1000 BCE', region:'Comparative context', title:'Early iron-working horizons', evidence:'Archaeological range', text:'Central Ganga and eastern Vindhya excavations provide comparative evidence, but cannot automatically date iron use in Mithila, the Nepal Tarai, or Anga.' },
+  { year:-1500, date:'Second millennium BCE', region:'Middle Ganga', title:'Early farming and mixed subsistence', evidence:'Archaeological range', text:'Chirand and related sites preserve early food-producing horizons; radiocarbon results require stratigraphic caution.' },
+  { year:-900, date:'Later Vedic period', region:'Videha', title:'Videgha Mathava and the Sadanira', evidence:'Textual tradition · dating disputed', text:'The Satapatha Brahmana represents an eastward movement to the Sadanira. It is a textual geography, not a modern border survey.' },
+  { year:-650, date:'Later Vedic / early Upanishadic horizon', region:'Videha', title:'Janaka’s learned court', evidence:'Textual-historical horizon', text:'The Brihadaranyaka Upanishad remembers Janaka, Yajnavalkya, Gargi, Maitreyi, and learned visitors within a layered textual tradition.' },
+  { year:-550, date:'Mid-first millennium BCE', region:'Anga · Vajji', title:'Eastern states and renunciant networks', evidence:'Textual-political horizon', text:'Anga and Champa appear among major eastern centres while Buddhist and Jain itineraries connect Vaishali, Champa, Rajagriha, and Mithila.' },
+  { year:-500, date:'c. sixth–fifth centuries BCE', region:'Vajji · Videha', title:'Buddha and Mahavira traditions', evidence:'Conventional chronology · debated', text:'Lives and communities associated with the Buddha and Mahavira place the region within the eastern Gangetic world of debate, patronage, and renunciation.' },
+  { year:-450, date:'Mid-first millennium BCE', region:'Vajji', title:'The Vajjian corporate polity', evidence:'Normative Buddhist textual evidence', text:'Buddhist narrative associates Vajjian resilience with assemblies, concord, established rules, elders, shrines, and protection of renunciants.' },
+  { year:-350, date:'About a century after the Buddha', region:'Vaishali', title:'Second Buddhist Council tradition', evidence:'Cross-school Vinaya tradition', text:'Several traditions remember a disciplinary dispute at Vaishali; details, absolute date, and relation to schism remain debated.' },
+  { year:-250, date:'Third century BCE', region:'North Bihar', title:'Ashokan monumental presence', evidence:'Inscriptional and archaeological', text:'Inscribed pillars in Champaran and the uninscribed Ashokan pillar at Kolhua anchor a major monumental corridor.' },
+  { year:400, date:'Early fifth century CE', region:'Vaishali', title:'Faxian’s itinerary', evidence:'Historical itinerary', text:'Chinese Buddhist travel literature records a remembered sacred landscape, not eyewitness evidence for the Buddha’s lifetime.' },
+  { year:464, date:'464 CE', region:'Licchavi Nepal', title:'Manadeva’s Changu Narayan pillar', evidence:'Secure inscriptional anchor', text:'The inscription records genealogy, royal ideology, Queen Rajyavati, and campaigns; its conversion depends on identification of the Saka era.' },
+  { year:635, date:'Seventh century CE', region:'Vaishali', title:'Xuanzang visits the region', evidence:'Historical itinerary', text:'Xuanzang describes Vaishali as largely ruined, with a complex Buddhist and non-Buddhist religious landscape.' },
+  { year:1097, date:'c. 1097–1324/25', region:'Mithila', title:'Karnata rule and Simraongarh', evidence:'Partly disputed chronology', text:'The Karnata horizon links Mithila’s north and south plains; early and terminal dates vary by reconstruction.' },
+  { year:1236, date:'1236', region:'Tirhut', title:'Dharmasvamin in Tirhut', evidence:'Near-contemporary travel-biographical evidence', text:'Dharmasvamin stays near the Karnata capital and encounters Ramasimhadeva.' },
+  { year:1325, date:'1324–25', region:'Mithila', title:'Tughluq conquest horizon', evidence:'Multi-source reconstruction', text:'The displacement of Harisimhadeva is reconstructed across Persianate, Nepalese, and regional sources.' },
+  { year:1453, date:'1453', region:'Saharsa', title:'Kandaha inscriptional horizon', evidence:'Dated inscription', text:'The Narasimha inscription at Kandaha Sun Temple supplies a firm late-medieval anchor.' },
+  { year:1580, date:'c. 1580', region:'Bihar · Tirhut · Munger', title:'Mughal provincial reorganization', evidence:'Administrative-historical anchor', text:'Akbar’s reorganization places Bihar within a subah and records Tirhut and Munger in the provincial hierarchy.' },
+  { year:1665, date:'1665–66', region:'Mithila · Morang', title:'Khandavala documentary horizon', evidence:'Dated Mughal documents', text:'A farman and letter anchor Mahinath Thakur’s enlarged hereditary rights and service on the Morang frontier.' },
+  { year:1765, date:'1765', region:'Bihar', title:'Company receives the diwani', evidence:'Dated documentary anchor', text:'The East India Company receives the diwani of Bengal, Bihar, and Orissa, creating a new sovereign revenue claim.' },
+  { year:1793, date:'22 March 1793', region:'Bihar', title:'Permanent Settlement', evidence:'Primary legal-administrative', text:'The government revenue demand is fixed in perpetuity for recognized proprietors, while subordinate rents and social ranks remain unsettled.' },
+  { year:1816, date:'1815–16', region:'India–Nepal borderland', title:'Treaty of Sugauli', evidence:'Treaty anchor', text:'The treaty and its ratification reshape sovereignty and the modern boundary framework without erasing older regional connections.' },
+  { year:1875, date:'1 November 1875', region:'North Bihar', title:'Tirhut Railway opens', evidence:'Official railway record', text:'The Dalsinghsarai–Samastipur–Darbhanga famine line opens to public traffic after emergency construction.' },
+  { year:1917, date:'1917', region:'Mithila', title:'Institutional recognition of Maithili', evidence:'University record', text:'Calcutta University recognizes Maithili within higher study and as an MA examination language.' },
+  { year:1934, date:'15 January 1934', region:'Bihar · Nepal', title:'The Bihar–Nepal earthquake', evidence:'Scientific and administrative', text:'The earthquake devastates the cross-border region and prompts scientific field investigation and large-scale relief.' },
+  { year:1947, date:'15 August 1947', region:'India · Nepal', title:'Different political transitions', evidence:'Political anchor', text:'British rule ends in India while Rana oligarchy continues in Nepal, producing two transitions across one connected borderland.' },
+  { year:1950, date:'31 July 1950', region:'India–Nepal borderland', title:'Treaty of Peace and Friendship', evidence:'Treaty anchor', text:'The treaty establishes a consequential framework for residence, property, trade, and movement.' },
+  { year:1954, date:'25 April 1954', region:'Kosi basin', title:'India–Nepal Kosi Agreement', evidence:'Bilateral agreement', text:'The agreement authorizes a barrage, embankments, canals, protective works, and associated arrangements in Nepal.' },
+  { year:1966, date:'1965–68', region:'Mithila', title:'Mithila painting enters the paper market', evidence:'Institutional and art-historical', text:'Drought and food insecurity form the context for a handicrafts intervention; handmade paper reaches Madhubani and a new market develops.' },
+  { year:2004, date:'7 January 2004', region:'India', title:'Maithili enters the Eighth Schedule', evidence:'Constitutional anchor', text:'The Ninety-second Amendment gives Maithili constitutional recognition in India.' },
+  { year:2008, date:'18 August 2008', region:'Kosi · Nepal · Bihar', title:'Kusaha breach and Kosi avulsion', evidence:'Contemporary disaster record', text:'The eastern afflux embankment breaches in Sunsari and the Kosi shifts into an older channel belt, causing a transboundary disaster.' },
+  { year:2015, date:'20 September 2015', region:'Nepal · Madhesh', title:'Nepal’s federal constitution', evidence:'Constitutional anchor', text:'Federalism is institutionalized amid major Madhesh protests and disputes over representation and provincial design.' },
+  { year:2022, date:'2 April 2022', region:'Jayanagar–Kurtha', title:'Cross-border passenger rail returns', evidence:'Official bilateral infrastructure', text:'The broad-gauge passenger section restores India–Nepal railway connectivity in a new form.' },
+  { year:2026, date:'2026', region:'Mithila · Vajji · Anga', title:'A cumulative research ecosystem', evidence:'Current editorial programme', text:'The five-volume connected history and the expanding socio-cultural-economic companion are organized for source-controlled public research.' },
 ];
 
-const sources = [
-  { kind: 'Primary traditions', title: 'Vedic, Buddhist, Jain, and epic corpora', text: 'Read as layered textual traditions whose composition, transmission, and geography require separate evaluation.' },
-  { kind: 'Material record', title: 'Archaeology, inscriptions, coins, and sites', text: 'Use dated material evidence to test, refine, or limit narratives derived from texts and later chronicles.' },
-  { kind: 'Modern scholarship', title: 'Critical editions and historical studies', text: 'Record edition, translation, argument, and historiographic context so that every claim remains traceable.' },
+const eras = [
+  { name:'Prehistory', from:-1800, to:-801 }, { name:'Ancient', from:-800, to:599 }, { name:'Medieval', from:600, to:1525 },
+  { name:'Early modern', from:1526, to:1764 }, { name:'Colonial', from:1765, to:1946 }, { name:'Post-1950', from:1947, to:1999 }, { name:'Contemporary', from:2000, to:2026 },
 ];
 
-const volumes = [
-  { numeral: 'I', title: 'Prehistory and Protohistory', pages: 'pp. 1–66', chapters: 'Chapters 1–4', themes: ['Archaeology', 'Food production', 'Iron-using horizons', 'Environment & settlement'] },
-  { numeral: 'II', title: 'Ancient Mithila, Vajji and Anga', pages: 'pp. 67–203', chapters: 'Chapters 5–11', themes: ['Videha & Janaka', 'Vajji & Vaishali', 'Anga & Champa', 'Licchavi Nepal'] },
-  { numeral: 'III', title: 'Medieval Period', pages: 'pp. 204–322', chapters: 'Chapters 12–16', themes: ['Tirabhukti', 'Karnatas & Simraongarh', 'Oiniwar rule', 'Two Vidyapatis'] },
-  { numeral: 'IV', title: 'Modern Period', pages: 'pp. 323–441', chapters: 'Chapters 17–21', themes: ['Darbhanga Raj', 'Agrarian society', 'Print & nationalism', 'Nepal Tarai to 1951'] },
-  { numeral: 'V', title: 'Contemporary Period', pages: 'pp. 442–616', chapters: 'Chapters 22–28', themes: ['India–Nepal borderland', 'Maithili & Angika', 'Kosi & Madhesh', 'Connected histories'] },
+const places = [
+  { id:'janakpur', name:'Janakpur / Janakpurdham', country:'Nepal', region:'Mithila · Madhesh', period:'Ancient memory to present', text:'A major centre of Sita–Rama pilgrimage and living Mithila identity; modern localization must be distinguished from ancient textual geography.', links:'Political ch. 6 · Social plan ch. 66, 72' },
+  { id:'simraongarh', name:'Simraongarh', country:'Nepal', region:'Karnata Mithila', period:'c. 11th–14th centuries', text:'A fortified and hydraulic landscape associated with the Karnata polity and the cross-border plains of historical Mithila.', links:'Political ch. 13' },
+  { id:'vaishali', name:'Vaishali / Basarh', country:'India', region:'Vajji', period:'Early historic to present', text:'Archaeology, Buddhist and Jain traditions, and Gupta-period sealings make Vaishali a central but methodologically layered research site.', links:'Political ch. 7, 9, 10 · Social ch. 13, 20, 21' },
+  { id:'kolhua', name:'Kolhua', country:'India', region:'Vaishali', period:'Mauryan and later', text:'The uninscribed Ashokan pillar and monastic remains form a material anchor distinct from later constitutional legend.', links:'Political ch. 7, 10' },
+  { id:'darbhanga', name:'Darbhanga', country:'India', region:'Mithila', period:'Early modern to contemporary', text:'A major estate, educational, print, political, and cultural centre; Darbhanga Raj was a zamindari institution, not a princely state.', links:'Political ch. 17–20' },
+  { id:'champa', name:'Champa / Champanagar', country:'India', region:'Anga', period:'Early historic and later', text:'The Champanagar–Nathnagar archaeological zone near Bhagalpur preserves a multi-phase sequence and the remembered urban centre of Anga.', links:'Political ch. 8 · Social ch. 14' },
+  { id:'bhagalpur', name:'Bhagalpur', country:'India', region:'Anga corridor', period:'Ancient to contemporary', text:'A Ganga-connected centre of archaeology, silk, colonial administration, language history, and regional exchange.', links:'Political ch. 8, 18, 24 · Social plan ch. 82' },
+  { id:'chirand', name:'Chirand', country:'India', region:'Middle Ganga', period:'Prehistory and protohistory', text:'An excavated settlement used to study early food production and mixed subsistence, with explicit caution around radiocarbon stratigraphy.', links:'Political ch. 2' },
+  { id:'munger', name:'Munger / Mudgagiri', country:'India', region:'Anga–eastern Bihar', period:'Early medieval to modern', text:'A political and administrative node appearing in inscriptions, Mughal fiscal geography, and the eastern Ganga corridor.', links:'Political ch. 12, 16' },
+  { id:'patna', name:'Patna', country:'India', region:'Middle Ganga', period:'Ancient to contemporary', text:'A modern orientation point and institutional centre connecting the study region to wider Gangetic political and archival systems.', links:'Political ch. 1, 17–20' },
+  { id:'purnia', name:'Purnia', country:'India', region:'Eastern Mithila frontier', period:'Colonial to contemporary', text:'Settlement surveys, river history, mobility, and the eastern Kosi landscape make Purnia important to agrarian and environmental history.', links:'Political ch. 18, 19, 26' },
+  { id:'birgunj', name:'Raxaul–Birgunj corridor', country:'India & Nepal', region:'Borderland', period:'19th century to present', text:'A principal road, rail, customs, labour, and migration corridor whose formal infrastructure overlays older regional movement.', links:'Political ch. 21, 23' },
 ];
 
-const volumeTwoCompleted = [
-  { part: 'Part I', range: 'Chapters 1–5', title: 'Land, environment and human landscapes', topics: 'Physical foundations · settlement · subsistence · food · mobility' },
-  { part: 'Part II', range: 'Chapters 6–18', title: 'Early historic society', topics: 'Videha, Vajji and Anga · households · economy · learning · health' },
-  { part: 'Part III', range: 'Chapters 19–25', title: 'Religion, ritual and cultural formation', topics: 'Vedic landscapes · Buddhism · Jainism · sacred geography · life-cycle rites' },
+const sourceGroups = [
+  { title:'Archaeology and environment', examples:'Excavation reports · radiocarbon series · archaeobotany · geomorphology', rule:'Material sequence does not automatically identify ethnicity, polity, or a textual event.' },
+  { title:'Texts and philology', examples:'Vedic · Upanishadic · Buddhist · Jain · epic · literary corpora', rule:'Composition, recension, transmission, genre, and remembered geography are evaluated separately.' },
+  { title:'Inscriptions, coins and manuscripts', examples:'Copper plates · pillars · sealings · coinage · colophons', rule:'Dated objects anchor claims, while panegyric and institutional purpose still require interpretation.' },
+  { title:'Archives and law', examples:'Revenue records · settlement reports · treaties · statutes · gazetteers', rule:'Official records document administration and classification, not neutral or total descriptions of society.' },
+  { title:'Living and modern evidence', examples:'Census · oral traditions · ethnography · photographs · statistics', rule:'Modern identity, memory, and administrative categories are not projected backward without period evidence.' },
 ];
-
-const archiveItems = [
-  ...chronology.map((item) => ({ type: 'Chronology', title: item.title, detail: `${item.date} · ${item.region}`, target: '#chronology', haystack: `${item.title} ${item.text} ${item.date} ${item.region}` })),
-  ...regions.map((item) => ({ type: 'Region', title: item.name, detail: item.eyebrow, target: `#${item.id}`, haystack: `${item.name} ${item.text} ${item.themes.join(' ')}` })),
-  ...volumes.map((item) => ({ type: `Volume ${item.numeral}`, title: item.title, detail: `${item.chapters} · ${item.pages}`, target: '#volumes', haystack: `${item.title} ${item.chapters} ${item.themes.join(' ')}` })),
-  { type: 'Cumulative manuscript', title: 'Volume II · Socio-Cultural-Economic History', detail: 'Chapters 1–25 complete · 150-chapter plan', target: '#volume-two', haystack: 'Volume II socio cultural economic history cumulative chapters 1 25 complete 150 chapter plan landscape settlement households trade Vaishali Anga Champa Buddhism Jainism ritual sacred geography festivals death ancestors' },
-  { type: 'Source group', title: 'Textual traditions', detail: 'Vedic · Buddhist · Jain · Epic', target: '#sources', haystack: 'Janaka Licchavi Videha Campa primary sources Vedic Buddhist Jain epic textual traditions' },
-  { type: 'Geography', title: 'India–Nepal context', detail: 'Bihar · Madhesh · Tarai', target: '#context', haystack: 'India Nepal Bihar Madhesh Tarai border Mithila Videha geography' },
-];
+const formatYear = (year:number) => year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState('All');
-  const results = useMemo(() => query.trim().length < 2 ? [] : archiveItems.filter((item) => item.haystack.toLowerCase().includes(query.toLowerCase())).slice(0, 6), [query]);
-  const visibleChronology = filter === 'All' ? chronology : chronology.filter((item) => item.region === filter);
-  const closeMenu = () => setMenuOpen(false);
+  const [menuOpen,setMenuOpen] = useState(false);
+  const [activeTab,setActiveTab] = useState<Tab>('chronology');
+  const [year,setYear] = useState(-550);
+  const [query,setQuery] = useState('');
+  const [collection,setCollection] = useState('All collections');
+  const [volume,setVolume] = useState('All volumes');
+  const [status,setStatus] = useState('All statuses');
+  const [selectedChapter,setSelectedChapter] = useState('political-7');
+  const [selectedPlace,setSelectedPlace] = useState('vaishali');
+  const nearestIndex = useMemo(() => chronology.reduce((best,item,index) => Math.abs(item.year-year) < Math.abs(chronology[best].year-year) ? index : best,0),[year]);
+  const selectedEvent = chronology[nearestIndex];
+  const selectedEra = eras.find((era)=>year>=era.from&&year<=era.to) ?? eras[0];
+  const volumeOptions = useMemo(()=>['All volumes',...Array.from(new Set(chapters.filter(c=>collection==='All collections'||c.collection===collection).map(c=>c.volume)))],[collection]);
+  const filteredChapters = useMemo(()=>chapters.filter(c=>(collection==='All collections'||c.collection===collection)&&(volume==='All volumes'||c.volume===volume)&&(status==='All statuses'||c.status===status)&&(`${c.title} ${c.part} ${c.summary} ${c.sections.join(' ')}`.toLowerCase().includes(query.toLowerCase()))),[collection,volume,status,query]);
+  const filteredPlaces = useMemo(()=>places.filter(p=>`${p.name} ${p.country} ${p.region} ${p.text}`.toLowerCase().includes(query.toLowerCase())),[query]);
+  const filteredChronology = useMemo(()=>chronology.filter(item=>item.year>=selectedEra.from&&item.year<=selectedEra.to&&`${item.title} ${item.region} ${item.text}`.toLowerCase().includes(query.toLowerCase())),[selectedEra,query]);
+  const chapterDetail = chapters.find(c=>c.id===selectedChapter) ?? chapters[0];
+  const placeDetail = places.find(p=>p.id===selectedPlace) ?? places[0];
+  const changeEvent = (direction:number) => { const next=Math.max(0,Math.min(chronology.length-1,nearestIndex+direction)); setYear(chronology[next].year); };
+  const chooseTab = (tab:Tab) => { setActiveTab(tab); setQuery(''); };
 
-  return (
-    <>
-      <a className="skip-link" href="#main">Skip to content</a>
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="Mithila–Vajji–Anga home"><span className="brand-mark" aria-hidden="true">𑒧</span><span><strong>Mithila–Vajji–Anga</strong><small>A Videha research project</small></span></a>
-        <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle navigation">{menuOpen ? <X /> : <Menu />}</button>
-        <nav className={menuOpen ? 'nav open' : 'nav'} aria-label="Primary navigation">
-          <a onClick={closeMenu} href="#regions">Regions</a><a onClick={closeMenu} href="#chronology">Chronology</a><a onClick={closeMenu} href="#context">Context</a><a onClick={closeMenu} href="#sources">Sources</a><a onClick={closeMenu} href="#volumes">Volumes</a>
-          <a className="videha-link" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha ↗</a>
-        </nav>
-      </header>
+  return <>
+    <a className="skip-link" href="#explorer">Skip to explorer</a>
+    <header className="topbar">
+      <a className="identity" href="#top" aria-label="Mithila–Vajji–Anga home"><span className="mark" aria-hidden="true">𑒧</span><span><strong>Mithila–Vajji–Anga</strong><small>Videha historical research</small></span></a>
+      <button className="menu-toggle" onClick={()=>setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle menu">{menuOpen?<X/>:<Menu/>}</button>
+      <nav className={menuOpen?'open':''} aria-label="Primary navigation"><a href="#explorer">Explore</a><button onClick={()=>{chooseTab('chapters');location.hash='explorer'}}>Volumes</button><button onClick={()=>{chooseTab('sources');location.hash='explorer'}}>Sources</button><a href="#about">About</a><a className="videha" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink size={15}/></a></nav>
+    </header>
 
-      <main id="main">
-        <section id="top" className="hero">
-          <div className="hero-copy"><p className="kicker">HISTORIES OF THE EASTERN GANGETIC WORLD</p><h1>Three regions.<br/><em>One connected history.</em></h1><p className="lede">A growing research archive for the political, cultural, and intellectual worlds of Mithila, Vajji, and Anga—read across the modern borders of India and Nepal.</p><div className="hero-actions"><a className="primary-button" href="#chronology">Explore the chronology <ArrowRight size={18}/></a><a className="text-link" href="#sources"><BookOpen size={17}/> Browse the sources</a></div></div>
-          <aside className="research-search" aria-label="Search the archive">
-            <p className="folio">RESEARCH INDEX · 01</p><h2>Search across the archive</h2>
-            <label className="search-box"><Search aria-hidden="true" size={19}/><span className="sr-only">Search names, places, periods, or sources</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, place, period, source…"/></label>
-            {query.trim().length >= 2 ? <div className="search-results" aria-live="polite">{results.length ? results.map((item) => <a key={`${item.type}-${item.title}`} href={item.target}><span>{item.type}</span><strong>{item.title}</strong><small>{item.detail}</small></a>) : <p>No indexed entry yet. Try a broader term.</p>}</div> : <><p className="search-note">Try “Janaka”, “Licchavi”, “Campa”, or “Tirhuta”.</p><div className="index-line"><span>Chronology</span><strong>{chronology.length} entries</strong></div><div className="index-line"><span>Research regions</span><strong>3 dossiers</strong></div><div className="index-line"><span>Geographic frame</span><strong>India · Nepal</strong></div></>}
-          </aside>
-        </section>
+    <main id="top">
+      <section className="intro"><div><p className="eyebrow">SOURCE-CONTROLLED REGIONAL ATLAS</p><h1>Explore Mithila, Vajji and Anga</h1><p>Move through time, browse places, and open every chapter in two cumulative research programmes spanning India and Nepal.</p></div><dl><div><dt>Chronology</dt><dd>{chronology.length} anchors</dd></div><div><dt>Research index</dt><dd>{chapters.length} chapters</dd></div><div><dt>Completed text</dt><dd>53 chapters</dd></div></dl></section>
 
-        <section id="regions" className="section regions-section">
-          <div className="section-heading"><div><p className="kicker">REGIONAL DOSSIERS</p><h2>Begin with a region</h2></div><p>Each dossier combines a working chronology, thematic essays, places, people, and a transparent trail back to primary and secondary sources.</p></div>
-          <div className="region-grid">{regions.map((region, index) => <article id={region.id} key={region.name} className={`region-card ${region.accent}`}><div className="card-number">0{index + 1}</div><p className="eyebrow">{region.eyebrow}</p><h3>{region.name}</h3><p className="period">{region.period}</p><p>{region.text}</p><ul>{region.themes.map((theme) => <li key={theme}>{theme}</li>)}</ul><a href="#chronology">Trace in chronology <ArrowRight size={17}/></a></article>)}</div>
-        </section>
+      <section className="time-control" aria-label="Historical period controls"><div className="year-control"><span>YEAR</span><button onClick={()=>changeEvent(-1)} aria-label="Previous historical anchor"><ChevronLeft/></button><label><span className="sr-only">Selected year</span><input type="number" min="-1800" max="2026" value={year} onChange={e=>setYear(Number(e.target.value))}/><small>{formatYear(year)}</small></label><button onClick={()=>changeEvent(1)} aria-label="Next historical anchor"><ChevronRight/></button></div><input className="year-range" aria-label="Timeline from 1800 BCE to 2026 CE" type="range" min="-1800" max="2026" value={year} onChange={e=>setYear(Number(e.target.value))}/><a href="#selected-detail">Open {formatYear(selectedEvent.year)} <ChevronRight size={16}/></a><div className="era-row">{eras.map(era=><button key={era.name} className={selectedEra.name===era.name?'active':''} onClick={()=>setYear(chronology.find(c=>c.year>=era.from&&c.year<=era.to)?.year??era.from)}>{era.name}</button>)}</div></section>
 
-        <section id="chronology" className="section chronology-section">
-          <div className="section-heading"><div><p className="kicker">WORKING CHRONOLOGY</p><h2>Time, evidence, and change</h2></div><p>Dates are working ranges, not claims of false precision. Filters reveal regional strands while retaining the larger connected history.</p></div>
-          <fieldset className="filter-row"><legend className="sr-only">Filter chronology by region</legend>{['All','Mithila','Vajji','Anga','Context'].map((name) => <button type="button" className={filter === name ? 'active' : ''} onClick={() => setFilter(name)} key={name} aria-pressed={filter === name}>{name}</button>)}</fieldset>
-          <div className="timeline">{visibleChronology.map((item) => <article key={item.title} className="timeline-item"><time>{item.date}</time><div className="timeline-dot" aria-hidden="true"/><div><span>{item.region}</span><h3>{item.title}</h3><p>{item.text}</p></div></article>)}</div>
-          <p className="chronology-note"><strong>Editorial note:</strong> Entries are concise research signposts. Each should be expanded with citations, competing interpretations, and confidence notes as the archive grows.</p>
-        </section>
+      <section id="explorer" className="workspace">
+        <aside className="filter-panel"><div className="panel-title"><Layers3 size={18}/><span>Research controls</span></div><label>Collection<select value={collection} onChange={e=>{setCollection(e.target.value);setVolume('All volumes')}}><option>All collections</option><option>Political &amp; connected history</option><option>Socio-cultural-economic history</option></select></label><label>Volume<select value={volume} onChange={e=>setVolume(e.target.value)}>{volumeOptions.map(v=><option key={v}>{v}</option>)}</select></label><label>Status<select value={status} onChange={e=>setStatus(e.target.value)}><option>All statuses</option><option>Complete</option><option>Planned</option></select></label><label className="search-field"><span>Search the archive</span><div><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Place, person, subject…"/></div></label><article className="story-card"><p>THE STORY · PREHISTORY → TODAY</p><strong>{selectedEvent.title}</strong><span>{selectedEvent.date} · anchor {nearestIndex+1} of {chronology.length}</span><div><button onClick={()=>changeEvent(-1)}><ChevronLeft size={15}/> Earlier</button><button onClick={()=>changeEvent(1)}>Later <ChevronRight size={15}/></button></div></article><article className="status-card"><h2>Archive at a glance</h2><p><Check size={16}/> 28-chapter connected history complete</p><p><Check size={16}/> Volume II chapters 1–25 complete</p><p><CircleDashed size={16}/> Volume II chapters 26–150 planned</p></article></aside>
 
-        <section id="context" className="context-section">
-          <div className="context-title"><p className="kicker">CONNECTED GEOGRAPHIES</p><h2>Before the border,<br/>beyond the border</h2></div>
-          <div className="context-grid"><article><span>01</span><h3>North Bihar</h3><p>Darbhanga, Madhubani, Sitamarhi, Muzaffarpur, Vaishali, Bhagalpur, and adjoining districts hold distinct layers of the archive.</p></article><article><span>02</span><h3>Nepal Tarai</h3><p>Janakpur and the wider Madhesh are integral to the historical and living geography of Mithila, not a peripheral appendix.</p></article><article><span>03</span><h3>Eastern corridors</h3><p>The Ganga, Kosi, Gandak, and their routes connect courts, monasteries, settlements, and trading centers across the region.</p></article></div>
-          <div className="context-callout"><strong>Research principle</strong><p>Modern boundaries are essential context, but they should not be projected unchanged onto ancient or medieval political and cultural landscapes.</p></div>
-        </section>
+        <div className="browse-panel"><div className="tabbar" role="tablist" aria-label="Research views"><button role="tab" aria-selected={activeTab==='chronology'} className={activeTab==='chronology'?'active':''} onClick={()=>chooseTab('chronology')}><CalendarDays/> Chronology <span>{chronology.length}</span></button><button role="tab" aria-selected={activeTab==='places'} className={activeTab==='places'?'active':''} onClick={()=>chooseTab('places')}><MapPin/> Places <span>{places.length}</span></button><button role="tab" aria-selected={activeTab==='chapters'} className={activeTab==='chapters'?'active':''} onClick={()=>chooseTab('chapters')}><BookOpen/> Chapters <span>{chapters.length}</span></button><button role="tab" aria-selected={activeTab==='sources'} className={activeTab==='sources'?'active':''} onClick={()=>chooseTab('sources')}><Library/> Sources <span>5</span></button></div>
 
-        <section id="sources" className="section sources-section">
-          <div className="section-heading"><div><p className="kicker">SOURCE ROOM</p><h2>Claims with a visible trail</h2></div><p>A durable historical resource distinguishes source type, date, textual layer, provenance, scholarly interpretation, and uncertainty.</p></div>
-          <div className="source-list">{sources.map((source, index) => <article key={source.title}><div className="source-icon"><FileText size={22}/></div><div><span>{source.kind}</span><h3>{source.title}</h3><p>{source.text}</p></div><b>0{index + 1}</b></article>)}</div>
-          <div className="bibliography"><div><p className="kicker">BIBLIOGRAPHY FRAMEWORK</p><h3>Built for citations, not just reading lists</h3></div><ul><li>Primary source or artefact</li><li>Edition, translation, or catalogue</li><li>Modern scholarly discussion</li><li>Archive note and confidence level</li></ul><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Continue research at Videha <ExternalLink size={16}/></a></div>
-        </section>
+          {activeTab==='chronology'&&<div className="tab-content chronology-view"><div className="map-stage"><Image unoptimized src="./assets/orientation-map-page.png" width={720} height={1080} alt="Modern reference map locating Kathmandu, Simraungadh, Janakpur, Darbhanga, Vaishali, Purnia, Patna and Bhagalpur"/><p>Editorial map from Work I (2026) · Natural Earth / GeoNames · no ancient or medieval frontier is implied</p></div><div className="result-heading"><div><span>{selectedEra.name}</span><h2>{filteredChronology.length} chronological anchors</h2></div><small>Evidence status accompanies every entry</small></div><div className="record-list">{filteredChronology.map(item=><button key={`${item.year}-${item.title}`} className={item.title===selectedEvent.title?'selected':''} onClick={()=>setYear(item.year)}><time>{item.date}</time><span><strong>{item.title}</strong><small>{item.region} · {item.evidence}</small></span><ChevronRight/></button>)}</div></div>}
+          {activeTab==='places'&&<div className="tab-content"><div className="result-heading"><div><span>CONNECTED GEOGRAPHIES</span><h2>{filteredPlaces.length} places and corridors</h2></div><small>India · Nepal · borderland</small></div><div className="place-grid">{filteredPlaces.map(place=><button key={place.id} className={place.id===selectedPlace?'selected':''} onClick={()=>setSelectedPlace(place.id)}><MapPin/><span><strong>{place.name}</strong><small>{place.country} · {place.region}</small></span><ChevronRight/></button>)}</div></div>}
+          {activeTab==='chapters'&&<div className="tab-content"><div className="result-heading"><div><span>COMPLETE RESEARCH INDEX</span><h2>{filteredChapters.length} chapters</h2></div><small>53 complete · 125 planned</small></div><div className="chapter-list">{filteredChapters.map(chapter=><article key={chapter.id} className={chapter.id===selectedChapter?'selected':''}><div><span className="chapter-number">{chapter.collection.startsWith('Political')?'A':'B'}{String(chapter.number).padStart(3,'0')}</span><button onClick={()=>setSelectedChapter(chapter.id)}><strong>{chapter.title}</strong><small>{chapter.collection} · {chapter.volume}</small></button><em className={chapter.status.toLowerCase()}>{chapter.status}</em></div><details><summary>Chapter contents <ChevronDown size={16}/></summary><p>{chapter.summary}</p>{chapter.sections.length>0&&<ol>{chapter.sections.map(section=><li key={section}>{section}</li>)}</ol>}</details></article>)}</div></div>}
+          {activeTab==='sources'&&<div className="tab-content"><div className="result-heading"><div><span>SOURCE ROOM</span><h2>Five evidence families</h2></div><small>Claims remain traceable and qualified</small></div><div className="source-grid">{sourceGroups.map((source,index)=><article key={source.title}><span>0{index+1}</span><FileText/><h3>{source.title}</h3><p>{source.examples}</p><small>{source.rule}</small></article>)}</div><div className="apparatus"><h3>Publication apparatus</h3><ul><li>Consolidated chronology <b>p. 617</b></li><li>Glossary and place-name concordance <b>p. 635</b></li><li>General source register <b>p. 654</b></li><li>Index <b>p. 679</b></li></ul></div></div>}
+        </div>
 
-        <section id="volumes" className="section volumes-section">
-          <div className="section-heading"><div><p className="kicker">CUMULATIVE HISTORICAL VOLUMES</p><h2>A shelf designed to grow</h2></div><p>The 2026 edition is a five-volume sequence covering the region from prehistory to the contemporary period through a source-controlled method.</p></div>
-          <article className="book-overview">
-            <div><p>2026 · FIVE-VOLUME WORK</p><h3>History of Mithila, Vajji &amp; Anga<br/><em>in India &amp; Nepal</em></h3><span>From Prehistory to the Contemporary Period</span></div>
-            <dl><div><dt>Author</dt><dd>Gajendra Thakur</dd></div><div><dt>Extent</dt><dd>28 chapters · 698-page edition</dd></div><div><dt>Research home</dt><dd>Videha eJournal · ISSN 2229-547X</dd></div></dl>
-            <p>The work separates archaeological, philological, archival, environmental, linguistic, and institutional evidence according to what each source can establish.</p>
-          </article>
-          <div className="shelf pdf-shelf">{volumes.map((volume) => <article className="volume" key={volume.numeral}><p>VOLUME {volume.numeral} · {volume.pages}</p><h3>{volume.title}</h3><span>{volume.chapters}</span><ul>{volume.themes.map((theme) => <li key={theme}>{theme}</li>)}</ul></article>)}</div>
-          <div className="research-apparatus"><div><p>RESEARCH APPARATUS</p><h3>Navigate the evidence</h3></div><ul><li><strong>Consolidated chronology</strong><span>from p. 617</span></li><li><strong>Glossary &amp; place-name concordance</strong><span>from p. 635</span></li><li><strong>General source register</strong><span>from p. 654</span></li><li><strong>Index</strong><span>from p. 679</span></li></ul><a href="#sources">Read the source method <ChevronRight size={17}/></a></div>
-          <article id="volume-two" className="cumulative-volume">
-            <div className="cumulative-intro">
-              <p>NEW TO THE RESEARCH SHELF · VOLUME II</p>
-              <h3>Socio-Cultural-Economic History</h3>
-              <span>From Prehistory to the Contemporary Period</span>
-              <p className="cumulative-summary">A companion to the political and connected-history work, centred on how people lived, produced, exchanged, worshipped, learned, migrated, created, and negotiated hierarchy and ecological risk across Mithila, Vajji and Anga in India and Nepal.</p>
-            </div>
-            <div className="cumulative-status" aria-label="Volume II completion status">
-              <div><span>Completed</span><strong>25 chapters</strong></div>
-              <div><span>Approved plan</span><strong>150 chapters</strong></div>
-              <div><span>Current file</span><strong>364 pages</strong></div>
-              <div><span>Planned extent</span><strong>900–1,200 pages</strong></div>
-              <div className="progress-track" aria-hidden="true"><span /></div>
-              <small>Chapters 1–25 contain full text and chapter bibliographies. Chapters 26–150 are plan entries, not completed chapters.</small>
-            </div>
-            <div className="completed-parts">
-              <p>COMPLETED PARTS IN THE CURRENT CUMULATIVE MANUSCRIPT</p>
-              {volumeTwoCompleted.map((item) => <div key={item.part}><span>{item.part}<br/><small>{item.range}</small></span><h4>{item.title}</h4><p>{item.topics}</p></div>)}
-            </div>
-            <div className="method-note"><strong>Governing method</strong><p>Historical-geographical names are treated as overlapping, changing frames. Archaeological, textual, material, archival, oral, ethnographic, and statistical evidence is matched to period and claim type; mythology, memory, ritual tradition, and administrative evidence remain analytically distinct.</p></div>
-          </article>
-        </section>
+        <aside id="selected-detail" className="detail-panel">{activeTab==='chronology'&&<><p className="detail-kicker">SELECTED HISTORICAL ANCHOR</p><span className="detail-icon"><CalendarDays/></span><h2>{selectedEvent.title}</h2><p className="detail-meta">{selectedEvent.date} · {selectedEvent.region}</p><p>{selectedEvent.text}</p><div className="evidence"><strong>Evidence status</strong><span>{selectedEvent.evidence}</span></div><div className="detail-actions"><button onClick={()=>changeEvent(-1)}><ChevronLeft/> Earlier</button><button onClick={()=>changeEvent(1)}>Later <ChevronRight/></button></div></>}{activeTab==='places'&&<><p className="detail-kicker">SELECTED PLACE</p><span className="detail-icon"><MapPin/></span><h2>{placeDetail.name}</h2><p className="detail-meta">{placeDetail.country} · {placeDetail.period}</p><p>{placeDetail.text}</p><div className="evidence"><strong>Research links</strong><span>{placeDetail.links}</span></div></>}{activeTab==='chapters'&&<><p className="detail-kicker">SELECTED CHAPTER</p><span className="detail-icon"><BookOpen/></span><h2>{chapterDetail.title}</h2><p className="detail-meta">{chapterDetail.collection}<br/>{chapterDetail.volume} · {chapterDetail.pages}</p><p>{chapterDetail.summary}</p><div className="evidence"><strong>Status</strong><span>{chapterDetail.status}{chapterDetail.sections.length?` · ${chapterDetail.sections.length} indexed sections`:''}</span></div>{chapterDetail.sections.length>0&&<details className="detail-contents"><summary>View section index <ChevronDown size={16}/></summary><ol>{chapterDetail.sections.map(section=><li key={section}>{section}</li>)}</ol></details>}</>}{activeTab==='sources'&&<><p className="detail-kicker">EDITORIAL METHOD</p><span className="detail-icon"><Landmark/></span><h2>Evidence before assertion</h2><p>Archaeological, philological, archival, environmental, linguistic, institutional, oral, and statistical evidence is used according to period and claim type.</p><div className="evidence"><strong>Governing distinction</strong><span>Tradition, mythology, memory, material evidence, and administration are related—but never treated as interchangeable.</span></div><a className="detail-link" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Continue at Videha <ExternalLink size={16}/></a></>}</aside>
+      </section>
 
-        <section className="about-strip"><p className="kicker">ABOUT THE PROJECT</p><h2>Videha identity, researched with breadth and care.</h2><p>This portal is conceived as part of the wider Videha historical research ecosystem: regionally rooted, cross-border in scope, and transparent about the difference between evidence, tradition, and interpretation.</p><a className="primary-button light" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Visit videha.co.in <ExternalLink size={17}/></a></section>
-      </main>
-
-      <footer><a className="brand footer-brand" href="#top"><span className="brand-mark" aria-hidden="true">𑒧</span><span><strong>Mithila–Vajji–Anga</strong><small>A Videha research project</small></span></a><p>Research portal prototype · Dates and summaries are editorial starting points requiring source-level review.</p><div><a href="#sources">Sources</a><a href="#volumes">Volumes</a><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha</a></div></footer>
-    </>
-  );
+      <section id="about" className="about"><div><p>THE TWO-VOLUME RESEARCH ECOSYSTEM</p><h2>One portal, two complementary histories</h2></div><div className="book-pair"><article><span>WORK I · COMPLETE</span><h3>Political &amp; Connected History</h3><p>Five internal volumes · 28 chapters · 698 pages, from prehistory to the contemporary period.</p></article><article><span>WORK II · IN PROGRESS</span><h3>Socio-Cultural-Economic History</h3><p>150-chapter plan · Chapters 1–25 complete · 364-page current cumulative manuscript.</p></article></div></section>
+    </main>
+    <footer><a className="identity" href="#top"><span className="mark" aria-hidden="true">𑒧</span><span><strong>Mithila–Vajji–Anga</strong><small>A Videha research project</small></span></a><p>Dates, borders, and identifications are presented with their evidence status. The archive grows with the manuscripts.</p><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">www.videha.co.in <ExternalLink size={15}/></a></footer>
+  </>;
 }
