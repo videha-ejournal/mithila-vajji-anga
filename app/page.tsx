@@ -30,6 +30,7 @@ import libraryData from './library-data.json';
 import deepData from './deep-data.json';
 import collectionDetailsData from './collection-details.json';
 import coverData from './cover-data.json';
+import ResearchExpansion from './research-expansion';
 
 type Chapter = {
   id: string;
@@ -1042,6 +1043,7 @@ export default function Home() {
           >
             Library
           </button>
+          <a href="#research-wing">Research wing</a>
           <a href="#about">About</a>
           <a
             className="videha"
@@ -1135,6 +1137,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <ResearchExpansion />
 
         <section
           className="cover-showcase"

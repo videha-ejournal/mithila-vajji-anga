@@ -1,0 +1,1064 @@
+.research-expansion {
+  margin: 1rem clamp(1rem, 3vw, 2.5rem) 2rem;
+  scroll-margin-top: 80px;
+}
+
+.wing-header {
+  padding: clamp(2rem, 5vw, 4.5rem);
+  color: #fff;
+  background: linear-gradient(125deg, #101a2d 0%, #1c3152 58%, #6f3710 140%);
+  border-radius: 9px 9px 0 0;
+}
+
+.wing-header > p,
+.room-heading p,
+.room-kicker {
+  margin: 0;
+  color: #e9bc6e;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+}
+
+.wing-header h2 {
+  max-width: 820px;
+  margin: 0.65rem 0 1.8rem;
+  font:
+    500 clamp(2.4rem, 5vw, 5rem) / 0.98 Georgia,
+    serif;
+}
+
+.wing-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wing-status a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.7rem;
+  color: #e7edf6;
+  text-decoration: none;
+  border: 1px solid #ffffff38;
+  border-radius: 999px;
+  font-size: 0.76rem;
+}
+
+.wing-status svg {
+  width: 16px;
+  color: #efbd62;
+}
+
+.wing-room {
+  padding: clamp(1.4rem, 4vw, 3.5rem);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 0;
+  scroll-margin-top: 86px;
+}
+
+.wing-room:last-child {
+  border-radius: 0 0 9px 9px;
+}
+
+.room-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.room-heading > span {
+  flex: none;
+  color: #a2500c;
+  font:
+    600 1.05rem Georgia,
+    serif;
+}
+
+.room-heading p {
+  color: #a2500c;
+}
+
+.room-heading h3 {
+  margin: 0.25rem 0 0;
+  font:
+    600 clamp(1.65rem, 3vw, 3rem) / 1.04 Georgia,
+    serif;
+}
+
+/* 01 — book exhibitions */
+.exhibition-layout {
+  display: grid;
+  grid-template-columns: 255px minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.exhibition-index {
+  max-height: 720px;
+  overflow: auto;
+  padding-right: 0.35rem;
+  scrollbar-color: #a9854b transparent;
+}
+
+.exhibition-index button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.exhibition-index button:hover,
+.exhibition-index button:focus,
+.exhibition-index button.active {
+  background: #fff4d8;
+}
+
+.exhibition-index button.active {
+  box-shadow: inset 4px 0 var(--saffron);
+}
+
+.exhibition-index img {
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  background: #ddd;
+}
+
+.exhibition-index span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.exhibition-index b {
+  color: #9a4d10;
+  font-size: 0.7rem;
+}
+
+.exhibition-index strong {
+  overflow: hidden;
+  font:
+    600 0.88rem/1.18 Georgia,
+    serif;
+  text-overflow: ellipsis;
+}
+
+.exhibition-stage {
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  padding: clamp(1.3rem, 3vw, 3rem);
+  color: #fff;
+  background: radial-gradient(circle at 24% 30%, #344b70, #111c30 55%, #08111f);
+  border-radius: 8px;
+}
+
+.exhibition-cover {
+  align-self: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.exhibition-cover > img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 540px;
+  object-fit: contain;
+  filter: drop-shadow(16px 22px 20px #000a);
+}
+
+.cover-side-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.cover-side-controls button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #ffffff10;
+  border: 1px solid #ffffff42;
+  border-radius: 50%;
+}
+
+.cover-side-controls span {
+  min-width: 100px;
+  color: #c6d0df;
+  font-size: 0.76rem;
+}
+
+.exhibition-copy {
+  align-self: center;
+}
+
+.exhibition-copy h4 {
+  margin: 0.55rem 0 0.4rem;
+  font:
+    500 clamp(2rem, 3.6vw, 3.7rem) / 1 Georgia,
+    serif;
+}
+
+.exhibition-subtitle {
+  color: #efc375 !important;
+  font-weight: 700;
+}
+
+.exhibition-copy > p:not(.room-kicker) {
+  color: #c5d0df;
+}
+
+.exhibition-copy dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 1.2rem 0;
+  background: #ffffff25;
+}
+
+.exhibition-copy dl div {
+  padding: 0.7rem;
+  background: #111f36;
+}
+
+.exhibition-copy dt {
+  color: #9eacc0;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.exhibition-copy dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+}
+
+.exhibition-copy h5 {
+  margin: 1rem 0 0.4rem;
+  color: #efc375;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.exhibition-copy ol {
+  columns: 2;
+  padding-left: 1.15rem;
+  color: #cbd4e1;
+  font-size: 0.78rem;
+}
+
+.exhibition-copy details {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #ffffff2c;
+}
+
+.exhibition-copy summary {
+  color: #efc375;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.exhibition-copy details ul {
+  max-height: 280px;
+  overflow: auto;
+  margin: 0.7rem 0 0;
+  padding-left: 1.2rem;
+  color: #b8c4d4;
+  font-size: 0.72rem;
+}
+
+.exhibition-copy details li {
+  margin: 0.25rem 0;
+}
+
+.exhibition-copy details li.level-1 {
+  color: #fff;
+  font-weight: 800;
+}
+
+/* 02 — layered map */
+.map-room {
+  background: #f4efe4;
+}
+
+.map-controls-expanded {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.map-controls-expanded label {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.map-controls-expanded input {
+  width: 100%;
+  accent-color: var(--saffron);
+}
+
+.map-controls-expanded label b {
+  min-width: 72px;
+  color: #7e3c09;
+  font:
+    600 0.9rem Georgia,
+    serif;
+  text-align: right;
+}
+
+.map-controls-expanded > div,
+.graph-tools > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.map-controls-expanded > div button,
+.graph-tools > div button {
+  padding: 0.45rem 0.65rem;
+  color: #58615b;
+  background: #fff;
+  border: 1px solid #d2c8b3;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.map-controls-expanded > div button.active,
+.graph-tools > div button.active {
+  color: #fff;
+  background: var(--navy);
+  border-color: var(--navy);
+}
+
+.expanded-map-layout,
+.graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 1rem;
+}
+
+.expanded-map {
+  position: relative;
+  min-height: 580px;
+  overflow: hidden;
+  background: #e9e3d7;
+  border: 1px solid #d4cab8;
+  border-radius: 7px;
+}
+
+.expanded-map > img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  object-position: center 20%;
+  filter: sepia(0.15) contrast(0.96);
+}
+
+.expanded-map > button {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  max-width: 110px;
+  padding: 0;
+  text-align: center;
+  color: #19253a;
+  background: transparent;
+  border: 0;
+  font-size: 0.66rem;
+  font-weight: 900;
+  transform: translate(-50%, -50%);
+  text-shadow:
+    0 1px #fff,
+    1px 0 #fff,
+    0 -1px #fff,
+    -1px 0 #fff;
+}
+
+.expanded-map > button span {
+  width: 15px;
+  height: 15px;
+  background: #b7580d;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 7px #0008;
+}
+
+.expanded-map > button.active span {
+  background: #173e72;
+  outline: 4px solid #e4b75f99;
+}
+
+.expanded-map > small {
+  position: absolute;
+  z-index: 2;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  padding: 0.45rem;
+  color: #fff;
+  background: #0f1d31dc;
+  font-size: 0.66rem;
+  text-align: center;
+}
+
+.expanded-map-layout aside,
+.graph-layout aside {
+  padding: 1.2rem;
+  color: #fff;
+  background: var(--navy);
+  border-radius: 7px;
+}
+
+.expanded-map-layout aside > svg,
+.graph-layout aside > svg {
+  color: #e9bc6e;
+}
+
+.expanded-map-layout aside > p:first-of-type,
+.graph-layout aside > p:first-of-type {
+  margin: 1rem 0 0.35rem;
+  color: #e9bc6e;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.expanded-map-layout aside h4,
+.graph-layout aside h4 {
+  margin: 0;
+  font:
+    500 1.7rem Georgia,
+    serif;
+}
+
+.expanded-map-layout aside > p:last-of-type,
+.graph-layout aside > p:last-of-type {
+  color: #bbc6d5;
+  font-size: 0.84rem;
+}
+
+.expanded-map-layout aside dl {
+  padding: 0.8rem 0;
+  border-top: 1px solid #ffffff25;
+  border-bottom: 1px solid #ffffff25;
+}
+
+.expanded-map-layout aside dt {
+  color: #96a6bb;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.expanded-map-layout aside dd {
+  margin: 0.15rem 0 0.65rem;
+  font-size: 0.78rem;
+}
+
+.expanded-map-layout aside > strong {
+  color: #e9bc6e;
+  font-size: 0.75rem;
+}
+
+/* 03 — research graph */
+.graph-room {
+  background: #fff;
+}
+
+.graph-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.graph-tools label {
+  min-width: min(420px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.7rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.graph-tools label svg {
+  width: 18px;
+  color: #8d938f;
+}
+
+.graph-tools input {
+  width: 100%;
+  padding: 0.7rem 0;
+  border: 0;
+  outline: 0;
+}
+
+.knowledge-graph {
+  position: relative;
+  min-height: 620px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #f9f2df, #ece4d3);
+  border: 1px solid #d7cab1;
+  border-radius: 8px;
+}
+
+.knowledge-graph svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.knowledge-graph line {
+  stroke: #7d725e55;
+  stroke-width: 0.22;
+  vector-effect: non-scaling-stroke;
+}
+
+.knowledge-graph line.active {
+  stroke: #b5570c;
+  stroke-width: 0.55;
+}
+
+.knowledge-graph > button {
+  position: absolute;
+  z-index: 2;
+  min-width: 76px;
+  max-width: 122px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.42rem 0.55rem;
+  color: #fff;
+  background: #173454;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  box-shadow: 0 3px 9px #18223442;
+  transform: translate(-50%, -50%);
+}
+
+.knowledge-graph > button.texts {
+  background: #83400d;
+}
+
+.knowledge-graph > button.places {
+  background: #23604b;
+}
+
+.knowledge-graph > button.ideas {
+  color: #30230e;
+  background: #e2ae4b;
+}
+
+.knowledge-graph > button.selected {
+  outline: 5px solid #d46c1475;
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.knowledge-graph > button.dim {
+  opacity: 0.12;
+}
+
+.knowledge-graph > button span {
+  font:
+    600 0.75rem/1.1 Georgia,
+    serif;
+}
+
+.knowledge-graph > button small {
+  margin-top: 0.15rem;
+  font-size: 0.58rem;
+  opacity: 0.76;
+}
+
+.graph-layout aside h5 {
+  margin: 1.2rem 0 0.5rem;
+  color: #e9bc6e;
+  font-size: 0.67rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.graph-layout aside ul {
+  max-height: 300px;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.graph-layout aside li button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  color: #fff;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #ffffff1d;
+}
+
+.graph-layout aside li span {
+  color: #98a8bd;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.graph-layout aside li b {
+  font:
+    600 0.85rem Georgia,
+    serif;
+}
+
+/* 04 — multiscript reader */
+.reader-room {
+  color: #fff;
+  background: #12233c;
+}
+
+.reader-room .room-heading p {
+  color: #e9bc6e;
+}
+
+.reader-room .room-heading > span {
+  color: #e9bc6e;
+}
+
+.reader-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  max-width: 680px;
+  background: #ffffff24;
+}
+
+.reader-tabs button {
+  padding: 0.72rem;
+  color: #c5cfdd;
+  background: #172b48;
+  border: 0;
+  font-weight: 800;
+}
+
+.reader-tabs button.active {
+  color: #17233a;
+  background: #edc16f;
+}
+
+.reader-page {
+  position: relative;
+  max-width: 900px;
+  min-height: 360px;
+  margin-top: 1px;
+  padding: clamp(2rem, 5vw, 4.5rem);
+  color: #262a27;
+  background: #f6f0df;
+  box-shadow: inset 8px 0 #c66a14;
+}
+
+.reader-page > svg {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  color: #ad6a25;
+}
+
+.reader-page .script-label {
+  margin: 0;
+  color: #9a4e10;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.reader-page h4 {
+  max-width: 760px;
+  margin: 0.7rem 0 1.1rem;
+  font:
+    600 clamp(2rem, 4vw, 3.8rem)/1.05 Georgia,
+    serif;
+}
+
+.reader-page > p:not(.script-label) {
+  max-width: 760px;
+  font:
+    1.18rem/1.8 Georgia,
+    serif;
+}
+
+.reader-page.tirhuta h4,
+.tirhuta-text {
+  font-family: 'Noto Sans Tirhuta', 'Segoe UI Historic', serif !important;
+}
+
+.reader-page.tirhuta h4 {
+  font-size: clamp(1.8rem, 4vw, 3.3rem);
+}
+
+.reader-page > small {
+  display: block;
+  max-width: 700px;
+  margin-top: 1.4rem;
+  color: #6a706b;
+}
+
+.word-gloss {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.4rem;
+}
+
+.word-gloss span {
+  padding: 0.5rem 0.65rem;
+  background: #fff;
+  border: 1px solid #ddd2bd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.word-gloss b {
+  display: block;
+  color: #8d470e;
+  font-size: 0.98rem;
+}
+
+/* 05 — classroom */
+.classroom-room {
+  background: #f3eee3;
+}
+
+.classroom-panorama {
+  margin: 0;
+  overflow: hidden;
+  background: #ded4be;
+  border: 1px solid #d2c5aa;
+  border-radius: 7px;
+}
+
+.classroom-panorama img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.classroom-panorama figcaption {
+  padding: 0.75rem 1rem;
+  color: #5f665f;
+  font-size: 0.76rem;
+}
+
+.classroom-grid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.research-cycle,
+.narrated-timeline {
+  padding: 1.2rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+
+.research-cycle h4,
+.narrated-timeline > h4,
+.classroom-download h4 {
+  margin: 0 0 1rem;
+  font:
+    600 1.45rem Georgia,
+    serif;
+}
+
+.research-cycle > div {
+  display: grid;
+  gap: 0;
+}
+
+.research-cycle > div span {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line);
+  font-weight: 800;
+}
+
+.research-cycle > div span b {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--navy);
+  border-radius: 50%;
+  font-size: 0.68rem;
+}
+
+.research-cycle > p {
+  margin: 1rem 0 0;
+  color: #677069;
+  font-size: 0.78rem;
+}
+
+.narrated-timeline article {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.narrated-timeline article.playing {
+  background: #fff5dc;
+}
+
+.narrated-timeline article > button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #a54e0a;
+  border: 0;
+  border-radius: 50%;
+}
+
+.narrated-timeline article > button svg {
+  width: 18px;
+}
+
+.narrated-timeline article span {
+  color: #a54e0a;
+  font-size: 0.67rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.narrated-timeline article h5 {
+  margin: 0.12rem 0;
+  font:
+    600 1rem Georgia,
+    serif;
+}
+
+.narrated-timeline article p {
+  margin: 0;
+  color: #687069;
+  font-size: 0.76rem;
+}
+
+.classroom-download {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding: 1.4rem;
+  color: #fff;
+  background: var(--navy);
+  border-radius: 7px;
+}
+
+.classroom-download > div {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+}
+
+.classroom-download svg {
+  grid-row: 1 / 4;
+  color: #e9bc6e;
+}
+
+.classroom-download p {
+  margin: 0;
+  color: #e9bc6e;
+  font-size: 0.67rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.classroom-download h4 {
+  margin: 0.25rem 0;
+}
+
+.classroom-download span {
+  color: #b9c5d4;
+  font-size: 0.78rem;
+}
+
+.classroom-download > a {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.75rem 0.9rem;
+  color: #17233a;
+  text-decoration: none;
+  background: #efc476;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+@media (max-width: 1050px) {
+  .exhibition-layout {
+    grid-template-columns: 1fr;
+  }
+  .exhibition-index {
+    display: flex;
+    max-height: none;
+    overflow-x: auto;
+  }
+  .exhibition-index button {
+    flex: 0 0 220px;
+  }
+  .expanded-map-layout,
+  .graph-layout {
+    grid-template-columns: 1fr;
+  }
+  .expanded-map-layout aside,
+  .graph-layout aside {
+    min-height: 230px;
+  }
+}
+
+@media (max-width: 780px) {
+  .research-expansion {
+    margin: 0.7rem;
+  }
+  .exhibition-stage {
+    grid-template-columns: 1fr;
+  }
+  .exhibition-cover > img {
+    max-height: 430px;
+  }
+  .map-controls-expanded,
+  .graph-tools,
+  .classroom-grid {
+    grid-template-columns: 1fr;
+  }
+  .graph-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .expanded-map {
+    min-height: 500px;
+  }
+  .knowledge-graph {
+    min-height: 560px;
+  }
+  .knowledge-graph > button {
+    min-width: 64px;
+    max-width: 90px;
+    padding: 0.35rem;
+  }
+  .knowledge-graph > button span {
+    font-size: 0.66rem;
+  }
+  .reader-page {
+    padding: 2rem 1.2rem;
+  }
+  .classroom-download {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .classroom-download > a {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .wing-header,
+  .wing-room {
+    padding: 1.15rem;
+  }
+  .wing-header h2 {
+    font-size: 2.4rem;
+  }
+  .wing-status {
+    display: grid;
+  }
+  .exhibition-stage {
+    min-height: 0;
+    padding: 1rem;
+  }
+  .exhibition-copy dl,
+  .reader-tabs {
+    grid-template-columns: 1fr 1fr;
+  }
+  .exhibition-copy ol {
+    columns: 1;
+  }
+  .map-controls-expanded label {
+    grid-template-columns: 1fr auto;
+  }
+  .map-controls-expanded label input {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .expanded-map {
+    min-height: 430px;
+  }
+  .knowledge-graph {
+    min-height: 470px;
+  }
+  .knowledge-graph > button {
+    min-width: 48px;
+    max-width: 72px;
+    padding: 0.25rem;
+  }
+  .knowledge-graph > button span {
+    font-size: 0.57rem;
+  }
+  .knowledge-graph > button small {
+    display: none;
+  }
+  .reader-page > p:not(.script-label) {
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research-expansion * {
+    scroll-behavior: auto !important;
+  }
+}
