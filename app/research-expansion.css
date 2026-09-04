@@ -781,6 +781,33 @@
   margin-top: 1.4rem;
   color: #6a706b;
 }
+.reader-debate {
+  max-width: 760px;
+  margin: 1rem 0;
+  padding: 1rem 1.1rem;
+  border-left: 4px solid #b56a28;
+  background: #fffaf0;
+}
+.reader-debate strong {
+  color: #82410f;
+  font-size: .72rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.reader-debate p {
+  margin: .45rem 0 0;
+  font: 1rem/1.65 Georgia, serif;
+}
+.reader-structure {
+  max-width: 760px;
+  margin: 1.2rem 0;
+  padding: .85rem 1rem;
+  border: 1px solid #d3b783;
+  background: #fffdf7;
+}
+.reader-structure summary { cursor: pointer; color: #71380f; font-weight: 800; }
+.reader-structure ol { columns: 2; gap: 2rem; padding-left: 1.25rem; }
+.reader-structure li { margin: .4rem 0; break-inside: avoid; }
 .reader-notice { max-width: 760px; padding: 1rem; border: 1px solid #d3b783; background: #fffaf0; }
 .reader-notice a { color: #8c410e; font-weight: 800; }
 .reader-copy { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1.2rem; padding: .55rem .75rem; border: 1px solid #aa6b2d; background: transparent; color: #71380f; font-weight: 800; }

@@ -27,9 +27,23 @@ import ideasVolumeTwoData from './ideas-volume2.json';
 type Work = (typeof libraryData)[number];
 type MapLayer = 'Polities' | 'Learning' | 'Sacred' | 'Trade' | 'Archives';
 type ReadingMode = 'English' | 'Maithili (Devanagari)' | 'Maithili (Tirhuta)';
+type ReaderPassage = {
+  id: string;
+  number: number;
+  title: string;
+  summary: string;
+  part: string;
+  source: string;
+  volume: string;
+  status: string;
+  sections?: string[];
+  purvapaksha?: string;
+  uttarapaksha?: string;
+  synthesis?: string;
+};
 type VolumeTwoIdea = (typeof ideasVolumeTwoData)[number];
 const volumeTwoIdeas = ideasVolumeTwoData as VolumeTwoIdea[];
-const readerPassages = [
+const readerPassages: ReaderPassage[] = [
   ...deepData.philosophyChapters.map((idea) => ({
     id: `reader-v1-${idea.id}`,
     number: idea.number,
@@ -39,6 +53,10 @@ const readerPassages = [
     source: `Gajendra Thakur’s Parallel Philosophy · Volume I · Chapter ${idea.number}`,
     volume: 'Volume I',
     status: 'Complete',
+    sections: idea.sections,
+    purvapaksha: idea.purvapaksha,
+    uttarapaksha: idea.uttarapaksha,
+    synthesis: idea.synthesis,
   })),
   ...volumeTwoIdeas.map((idea) => ({
     ...idea,
@@ -48,6 +66,38 @@ const readerPassages = [
 ];
 const readerCompleteCount = readerPassages.filter((item) => item.status === 'Complete').length;
 const readerPlannedCount = readerPassages.length - readerCompleteCount;
+
+function chunkForTranslation(text: string, limit = 900) {
+  const chunks: string[] = [];
+  let remaining = text.trim();
+  while (remaining) {
+    if (remaining.length <= limit) {
+      chunks.push(remaining);
+      break;
+    }
+    const paragraph = remaining.lastIndexOf('\n\n', limit);
+    const sentence = remaining.lastIndexOf('. ', limit);
+    const space = remaining.lastIndexOf(' ', limit);
+    const cut = Math.max(paragraph, sentence + 1, space, Math.floor(limit * .65));
+    chunks.push(remaining.slice(0, cut).trim());
+    remaining = remaining.slice(cut).trim();
+  }
+  return chunks;
+}
+
+async function googleEnglishToMaithili(text: string) {
+  const translated: string[] = [];
+  for (const chunk of chunkForTranslation(text)) {
+    const params = new URLSearchParams({ client: 'gtx', sl: 'en', tl: 'mai', dt: 't', q: chunk });
+    const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
+    if (!response.ok) throw new Error(`Translation service returned ${response.status}`);
+    const payload = await response.json() as [[string][]];
+    const result = payload[0].map((segment: [string]) => segment[0]).join('').trim();
+    if (!result) throw new Error('No translation returned');
+    translated.push(result);
+  }
+  return translated.join('\n\n');
+}
 
 const mapPlaces: Array<{
   id: string;
@@ -483,9 +533,17 @@ export default function ResearchExpansion() {
   const graphNode =
     graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
   const readerIdea = readerPassages[readerIndex] ?? readerPassages[0];
+  const readerEnglishText = [
+    readerIdea.title,
+    readerIdea.summary,
+    readerIdea.purvapaksha && `Pūrvapakṣa\n${readerIdea.purvapaksha}`,
+    readerIdea.uttarapaksha && `Uttarapakṣa\n${readerIdea.uttarapaksha}`,
+    readerIdea.synthesis && `Parallel conclusion\n${readerIdea.synthesis}`,
+    readerIdea.sections?.length && `Chapter structure\n${readerIdea.sections.join('\n')}`,
+  ].filter(Boolean).join('\n\n');
   const filteredReaderPassages = useMemo(
     () => readerPassages.filter((item) =>
-      `${item.title} ${item.part} ${item.volume}`.toLowerCase().includes(readerSearch.toLowerCase())),
+      `${item.title} ${item.part} ${item.volume} ${item.summary} ${item.purvapaksha ?? ''} ${item.uttarapaksha ?? ''}`.toLowerCase().includes(readerSearch.toLowerCase())),
     [readerSearch],
   );
   const readerTranslation = readerTranslations[readerIdea.id] ?? '';
@@ -513,13 +571,8 @@ export default function ResearchExpansion() {
     const translate = async () => {
       setReaderTranslationState('loading');
       try {
-        const text = `${readerIdea.title}\n\n${readerIdea.summary}`;
-        const params = new URLSearchParams({ client: 'gtx', sl: 'en', tl: 'mai', dt: 't', q: text });
-        const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
-        if (!response.ok) throw new Error(`Translation service returned ${response.status}`);
-        const payload = await response.json() as [[string][]];
-        const result = payload[0].map((segment: [string]) => segment[0]).join('').trim();
-        if (!result) throw new Error('No translation returned');
+        const text = readerEnglishText;
+        const result = await googleEnglishToMaithili(text);
         if (!cancelled) {
           window.localStorage.setItem(cacheKey, result);
           setReaderTranslations((current) => ({ ...current, [readerIdea.id]: result }));
@@ -531,7 +584,7 @@ export default function ResearchExpansion() {
     };
     void translate();
     return () => { cancelled = true; };
-  }, [readingMode, readerIdea, readerTranslation]);
+  }, [readingMode, readerIdea, readerTranslation, readerEnglishText]);
   const relatedNodes = useMemo(() => {
     const selectedTerms = graphNodeTerms.get(graphNode.id) ?? new Set<string>();
     return graphNodes
@@ -595,8 +648,8 @@ export default function ResearchExpansion() {
       return [
         node.id,
         {
-          x: 50 + Math.cos(angle) * radiusX,
-          y: 47 + Math.sin(angle) * radiusY,
+          x: Number((50 + Math.cos(angle) * radiusX).toFixed(4)),
+          y: Number((47 + Math.sin(angle) * radiusY).toFixed(4)),
         },
       ];
     }),
@@ -1116,6 +1169,10 @@ export default function ResearchExpansion() {
               <p className="script-label">SUPPLIED ENGLISH READING</p>
               <h4>{readerIdea.title}</h4>
               <p>{readerIdea.summary}</p>
+              {readerIdea.purvapaksha && <div className="reader-debate"><strong>Pūrvapakṣa</strong><p>{readerIdea.purvapaksha}</p></div>}
+              {readerIdea.uttarapaksha && <div className="reader-debate"><strong>Uttarapakṣa</strong><p>{readerIdea.uttarapaksha}</p></div>}
+              {readerIdea.synthesis && <div className="reader-debate"><strong>Parallel conclusion</strong><p>{readerIdea.synthesis}</p></div>}
+              {!!readerIdea.sections?.length && <details className="reader-structure"><summary>Chapter structure</summary><ol>{readerIdea.sections.map((section) => <li key={section}>{section}</li>)}</ol></details>}
               <small>{readerIdea.volume} · Chapter {readerIdea.number} · {readerIdea.source}</small>
             </>
           )}
@@ -1124,7 +1181,7 @@ export default function ResearchExpansion() {
           )}
           {readingMode !== 'English' && readerIdea.status !== 'Planned' && readerTranslationState === 'loading' && <p className="reader-notice">Translating the selected English passage into Maithili with Google Translate…</p>}
           {readingMode !== 'English' && readerIdea.status !== 'Planned' && readerTranslationState === 'error' && (
-            <div className="reader-notice"><p>Google Translate could not be reached from this browser.</p><a href={`https://translate.google.com/?sl=en&tl=mai&text=${encodeURIComponent(`${readerIdea.title}\n\n${readerIdea.summary}`)}&op=translate`} target="_blank" rel="noreferrer">Open this passage in Google Translate</a></div>
+            <div className="reader-notice"><p>Google Translate could not be reached from this browser.</p><a href={`https://translate.google.com/?sl=en&tl=mai&text=${encodeURIComponent(readerEnglishText)}&op=translate`} target="_blank" rel="noreferrer">Open this passage in Google Translate</a></div>
           )}
           {readingMode === 'Maithili (Devanagari)' && readerTranslation && (
             <><p className="script-label">GOOGLE TRANSLATE · ENGLISH → MAITHILI</p><p lang="mai">{readerTranslation}</p><small>Machine translation for reading assistance; scholarly review is recommended.</small></>
@@ -1133,7 +1190,7 @@ export default function ResearchExpansion() {
             <><p className="script-label">VIDEHA CONVERTER · MAITHILI DEVANAGARI → TIRHUTA</p><p className="tirhuta-text" lang="mai-Tirh">{_toTirhuta(readerTranslation)}</p><small>Converted from the Google Maithili result. Unicode Tirhuta rendering depends on font support.</small></>
           )}
           {(readingMode === 'English' || readerTranslation) && (
-            <button className="reader-copy" onClick={async () => { const text = readingMode === 'English' ? `${readerIdea.title}\n\n${readerIdea.summary}` : readingMode === 'Maithili (Tirhuta)' ? _toTirhuta(readerTranslation) : readerTranslation; await navigator.clipboard.writeText(text); setReaderCopied(true); }}><Copy /> {readerCopied ? 'Copied' : 'Copy passage'}</button>
+            <button className="reader-copy" onClick={async () => { const text = readingMode === 'English' ? readerEnglishText : readingMode === 'Maithili (Tirhuta)' ? _toTirhuta(readerTranslation) : readerTranslation; await navigator.clipboard.writeText(text); setReaderCopied(true); }}><Copy /> {readerCopied ? 'Copied' : 'Copy passage'}</button>
           )}
         </div>
         <div className="reader-pagination">

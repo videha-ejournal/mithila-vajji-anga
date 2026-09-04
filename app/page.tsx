@@ -191,6 +191,8 @@ const chapters = [
   ...researchData.political,
   ...researchData.social,
 ] as Chapter[];
+const completedHistoryCount = chapters.filter((chapter) => chapter.status === 'Complete').length;
+const plannedHistoryCount = chapters.length - completedHistoryCount;
 const works = libraryData as Work[];
 const philosophyChapters = deepData.philosophyChapters as PhilosophyChapter[];
 const ideas: IdeaRecord[] = [
@@ -1654,7 +1656,7 @@ export default function Home() {
             <article className="status-card">
               <h2>Archive at a glance</h2>
               <p className="archive-count-line">
-                <Check size={16} /> 178 historical chapters indexed · {chapters.filter((chapter) => chapter.status === 'Complete').length} completed history chapters
+                <Check size={16} /> 178 historical chapters indexed · {completedHistoryCount} completed history chapters
               </p>
               <p>
                 <Check size={16} /> 172 philosophy ideas indexed · {completedIdeaCount} complete · {plannedIdeaCount} planned
@@ -1718,7 +1720,7 @@ export default function Home() {
                 onClick={() => chooseTab('ideas')}
               >
                 <GitBranch /> Ideas &amp; debates{' '}
-                <span>{philosophyChapters.length}</span>
+                <span>{ideas.length}</span>
               </button>
               <button
                 role="tab"
@@ -1825,7 +1827,7 @@ export default function Home() {
                     <span>COMPLETE RESEARCH INDEX</span>
                     <h2>{filteredChapters.length} chapters</h2>
                   </div>
-                  <small>79 complete · 99 planned</small>
+                  <small>{completedHistoryCount} complete · {plannedHistoryCount} planned</small>
                 </div>
                 <div className="chapter-list">
                   {filteredChapters.map((chapter) => (
@@ -2384,12 +2386,6 @@ export default function Home() {
                   </ol>
                 </details>
                   </>
-                )}
-                {!ideaDetail.purvapaksha && ideaDetail.status !== 'Planned' && (
-                  <div className="debate-card synthesis">
-                    <strong>English record supplied</strong>
-                    <p>This entry presents the English chapter title and source-grounded English synopsis only.</p>
-                  </div>
                 )}
                 {ideaDetail.status === 'Planned' && (
                   <div className="debate-card purva">
