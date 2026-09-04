@@ -18,6 +18,9 @@ import {
 import coverData from './cover-data.json';
 import libraryData from './library-data.json';
 import collectionDetailsData from './collection-details.json';
+import deepData from './deep-data.json';
+import learningData from './learning-data.json';
+import researchData from './research-data.json';
 
 type Work = (typeof libraryData)[number];
 type MapLayer = 'Polities' | 'Learning' | 'Sacred' | 'Trade' | 'Archives';
@@ -124,159 +127,136 @@ const mapPlaces: Array<{
   },
 ];
 
-const graphNodes = [
-  {
-    id: 'janaka',
-    label: 'Janaka',
-    type: 'People',
-    x: 10,
-    y: 16,
-    note: 'Royal interlocutor in Videha traditions of philosophical assembly.',
-  },
-  {
-    id: 'yajnavalkya',
-    label: 'Yājñavalkya',
-    type: 'People',
-    x: 30,
-    y: 8,
-    note: 'Philosopher associated with the Bṛhadāraṇyaka Upaniṣad.',
-  },
-  {
-    id: 'gargi',
-    label: 'Gārgī',
-    type: 'People',
-    x: 48,
-    y: 18,
-    note: 'Interlocutor remembered for cosmological questioning.',
-  },
-  {
-    id: 'vacaspati',
-    label: 'Vācaspati Miśra',
-    type: 'People',
-    x: 72,
-    y: 9,
-    note: 'Mithila-linked philosopher and author of the Bhāmatī.',
-  },
-  {
-    id: 'udayana',
-    label: 'Udayanācārya',
-    type: 'People',
-    x: 90,
-    y: 20,
-    note: 'Nyāya thinker associated with Ātmatattvaviveka and Nyāyakusumāñjali.',
-  },
-  {
-    id: 'brihad',
-    label: 'Bṛhadāraṇyaka',
-    type: 'Texts',
-    x: 21,
-    y: 34,
-    note: 'An Upaniṣadic arena for questions about self, knowledge, and reality.',
-  },
-  {
-    id: 'bhamati',
-    label: 'Bhāmatī',
-    type: 'Texts',
-    x: 67,
-    y: 34,
-    note: 'A commentary central to the Bhāmatī tradition of Advaita.',
-  },
-  {
-    id: 'nyayakusuma',
-    label: 'Nyāyakusumāñjali',
-    type: 'Texts',
-    x: 88,
-    y: 42,
-    note: 'Udayana’s structured Nyāya arguments, translated into Maithili.',
-  },
-  {
-    id: 'mithila',
-    label: 'Mithila',
-    type: 'Places',
-    x: 38,
-    y: 53,
-    note: 'A historical region whose names and boundaries change across periods.',
-  },
-  {
-    id: 'vaishali',
-    label: 'Vaiśālī',
-    type: 'Places',
-    x: 12,
-    y: 60,
-    note: 'A Vajjian political and sacred centre.',
-  },
-  {
-    id: 'champa',
-    label: 'Campā',
-    type: 'Places',
-    x: 86,
-    y: 64,
-    note: 'A major Anga centre within eastern routes and traditions.',
-  },
-  {
-    id: 'pramana',
-    label: 'Pramāṇa',
-    type: 'Ideas',
-    x: 54,
-    y: 46,
-    note: 'Methods and warrants through which knowledge becomes justified.',
-  },
-  {
-    id: 'debate',
-    label: 'Pūrvapakṣa / Uttara',
-    type: 'Ideas',
-    x: 63,
-    y: 63,
-    note: 'An objection-and-response architecture for disciplined inquiry.',
-  },
-  {
-    id: 'panji',
-    label: 'Panji archive',
-    type: 'Texts',
-    x: 29,
-    y: 70,
-    note: 'Genealogical records connecting descent, marriage, titles, and villages.',
-  },
-  {
-    id: 'maithili',
-    label: 'Maithili',
-    type: 'Ideas',
-    x: 48,
-    y: 82,
-    note: 'A living language of literature, philosophy, translation, and public culture.',
-  },
-  {
-    id: 'gajendra',
-    label: 'Gajendra Thakur',
-    type: 'People',
-    x: 70,
-    y: 83,
-    note: 'Editor, translator, and author building the cumulative Videha research ecosystem.',
-  },
-] as const;
+type GraphType = 'People' | 'Texts' | 'Places' | 'Ideas';
+type GraphNode = {
+  id: string;
+  label: string;
+  type: GraphType;
+  note: string;
+  source: string;
+  collectionKey: string;
+};
 
-const graphEdges: Array<[string, string, string]> = [
-  ['janaka', 'yajnavalkya', 'dialogue'],
-  ['janaka', 'gargi', 'assembly'],
-  ['yajnavalkya', 'brihad', 'text'],
-  ['gargi', 'brihad', 'text'],
-  ['vacaspati', 'bhamati', 'authorship'],
-  ['udayana', 'nyayakusuma', 'authorship'],
-  ['bhamati', 'pramana', 'argument'],
-  ['nyayakusuma', 'pramana', 'argument'],
-  ['mithila', 'janaka', 'memory'],
-  ['mithila', 'vacaspati', 'scholastic tradition'],
-  ['mithila', 'panji', 'archive'],
-  ['vaishali', 'mithila', 'regional network'],
-  ['champa', 'mithila', 'regional network'],
-  ['pramana', 'debate', 'method'],
-  ['panji', 'maithili', 'language'],
-  ['maithili', 'gajendra', 'editorial work'],
-  ['gajendra', 'bhamati', 'translation'],
-  ['gajendra', 'nyayakusuma', 'translation'],
-  ['gajendra', 'panji', 'decoding'],
-  ['gajendra', 'debate', 'parallel philosophy'],
+const completeHistoryChapters = [
+  ...researchData.political,
+  ...researchData.social,
+].filter((chapter) => chapter.status === 'Complete');
+
+const graphNodes: GraphNode[] = [
+  ...deepData.people.map((person) => ({
+    id: `person-${person.id}`,
+    label: person.name,
+    type: 'People' as const,
+    note: `${person.description} Field: ${person.field}. Era: ${person.era}.`,
+    source: person.source,
+    collectionKey: 'parallel-history',
+  })),
+  ...libraryData.map((work) => ({
+    id: `text-${work.id}`,
+    label: work.title,
+    type: 'Texts' as const,
+    note: `${work.description} ${work.structure.join(' ')}`,
+    source: `${work.creator} · ${work.sequence} · ${work.extent}`,
+    collectionKey: work.id,
+  })),
+  ...completeHistoryChapters.map((chapter) => ({
+    id: `text-history-${chapter.id}`,
+    label: `History chapter ${chapter.number}: ${chapter.title}`,
+    type: 'Texts' as const,
+    note: `${chapter.summary} ${chapter.sections.join(' ')}`,
+    source: `${chapter.collection} · ${chapter.volume} · ${chapter.part} · ${chapter.pages}`,
+    collectionKey: 'history',
+  })),
+  ...deepData.philosophyChapters.map((chapter) => ({
+    id: `text-philosophy-${chapter.id}`,
+    label: `Parallel Philosophy ${chapter.number}: ${chapter.title}`,
+    type: 'Texts' as const,
+    note: `${chapter.summary} Pūrvapakṣa: ${chapter.purvapaksha}. Uttarapakṣa: ${chapter.uttarapaksha}.`,
+    source: `Gajendra Thakur’s Parallel Philosophy · ${chapter.part} · Chapter ${chapter.number}`,
+    collectionKey: 'parallel-philosophy',
+  })),
+  ...learningData.panji.map((entry) => ({
+    id: `text-panji-${entry.id}`,
+    label: `${entry.volume}: ${entry.heading}`,
+    type: 'Texts' as const,
+    note: `${entry.context}. ${entry.canSupport}`,
+    source: entry.source,
+    collectionKey: `panji-${entry.volume.replace(/\D/g, '')}`,
+  })),
+  ...learningData.places.map((place) => ({
+    id: `place-${place.id}`,
+    label: place.name,
+    type: 'Places' as const,
+    note: `${place.context} ${place.frame} ${place.admin} ${place.countryCode}`,
+    source: `${place.source} · GeoNames ${place.geonameId}`,
+    collectionKey: 'history',
+  })),
+  ...learningData.comparators.map((idea) => ({
+    id: `idea-${idea.id}`,
+    label: idea.name,
+    type: 'Ideas' as const,
+    note: `${idea.question} Pūrvapakṣa: ${idea.purvapaksha}. Uttarapakṣa: ${idea.uttarapaksha}. ${idea.synthesis}`,
+    source: idea.source,
+    collectionKey: 'parallel-philosophy',
+  })),
 ];
+
+const graphStopWords = new Set([
+  'about',
+  'after',
+  'also',
+  'among',
+  'because',
+  'been',
+  'before',
+  'being',
+  'between',
+  'chapter',
+  'could',
+  'from',
+  'history',
+  'indexed',
+  'into',
+  'mithila',
+  'parallel',
+  'source',
+  'their',
+  'these',
+  'this',
+  'through',
+  'under',
+  'volume',
+  'were',
+  'what',
+  'when',
+  'where',
+  'which',
+  'while',
+  'with',
+  'within',
+  'would',
+]);
+
+const graphTerms = (value: string) =>
+  new Set(
+    value
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((term) => term.length > 3 && !graphStopWords.has(term)),
+  );
+
+const graphNodeTerms = new globalThis.Map(
+  graphNodes.map((node) => [node.id, graphTerms(`${node.label} ${node.note}`)]),
+);
+
+const graphCounts = Object.fromEntries(
+  (['People', 'Texts', 'Places', 'Ideas'] as GraphType[]).map((type) => [
+    type,
+    graphNodes.filter((node) => node.type === type).length,
+  ]),
+) as Record<GraphType, number>;
 
 const maithiliPassage =
   'विदेह प्रश्न, वाद-विवाद आ ज्ञानक भूमि रहल अछि। मिथिलाक पञ्जी परिवार, गाम आ स्मृतिक सम्बन्ध सुरक्षित रखैत अछि। संस्कृत ग्रन्थक मैथिली अनुवाद पुरान विचारकेँ जीवित संवादमे आनैत अछि।';
@@ -415,7 +395,8 @@ export default function ResearchExpansion() {
   const [selectedPlace, setSelectedPlace] = useState('vaishali');
   const [graphType, setGraphType] = useState('All');
   const [graphSearch, setGraphSearch] = useState('');
-  const [selectedNode, setSelectedNode] = useState('mithila');
+  const [graphPage, setGraphPage] = useState(0);
+  const [selectedNode, setSelectedNode] = useState(graphNodes[0].id);
   const [readingMode, setReadingMode] = useState<ReadingMode>('English');
   const [narrating, setNarrating] = useState<number | null>(null);
 
@@ -446,29 +427,87 @@ export default function ResearchExpansion() {
     mapPlaces.find((item) => item.id === selectedPlace) ??
     visiblePlaces[0] ??
     mapPlaces[0];
-  const graphNode =
-    graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
-  const relatedNodes = graphEdges
-    .filter(([a, b]) => a === graphNode.id || b === graphNode.id)
-    .map(([a, b, relation]) => ({
-      relation,
-      node: graphNodes.find(
-        (node) => node.id === (a === graphNode.id ? b : a),
-      )!,
-    }));
-  const visibleNodeIds = useMemo(
+  const filteredGraphNodes = useMemo(
     () =>
-      new Set(
-        graphNodes
-          .filter((node) => graphType === 'All' || node.type === graphType)
-          .filter((node) =>
-            `${node.label} ${node.note}`
-              .toLowerCase()
-              .includes(graphSearch.toLowerCase()),
-          )
-          .map((node) => node.id),
+      graphNodes.filter(
+        (node) =>
+          (graphType === 'All' || node.type === graphType) &&
+          `${node.label} ${node.note} ${node.source}`
+            .toLowerCase()
+            .includes(graphSearch.toLowerCase()),
       ),
     [graphType, graphSearch],
+  );
+  const graphNode =
+    graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
+  const relatedNodes = useMemo(() => {
+    const selectedTerms = graphNodeTerms.get(graphNode.id) ?? new Set<string>();
+    return graphNodes
+      .filter((node) => node.id !== graphNode.id)
+      .map((node) => {
+        const terms = graphNodeTerms.get(node.id) ?? new Set<string>();
+        const shared = [...selectedTerms]
+          .filter((term) => terms.has(term))
+          .sort((a, b) => b.length - a.length);
+        const directCollection =
+          node.id === `text-${graphNode.collectionKey}` ||
+          graphNode.id === `text-${node.collectionKey}`;
+        const sameCollection =
+          graphNode.collectionKey === node.collectionKey &&
+          graphNode.collectionKey !== 'history';
+        const score =
+          (directCollection ? 100 : 0) +
+          (sameCollection ? 7 : 0) +
+          shared.reduce((total, term) => total + Math.min(term.length, 12), 0) +
+          (node.type !== graphNode.type ? 2 : 0);
+        const relation = directCollection
+          ? 'catalogued in'
+          : sameCollection && shared[0]
+            ? `same indexed work · ${shared[0]}`
+            : shared[0]
+              ? `shared indexed term · ${shared[0]}`
+              : 'same indexed work';
+        return { node, relation, score, shared };
+      })
+      .filter(
+        (item) =>
+          item.score >= 7 && (item.shared.length > 0 || item.score >= 100),
+      )
+      .sort(
+        (a, b) => b.score - a.score || a.node.label.localeCompare(b.node.label),
+      )
+      .slice(0, 20);
+  }, [graphNode]);
+  const graphPageCount = Math.max(1, Math.ceil(filteredGraphNodes.length / 48));
+  const directoryNodes = filteredGraphNodes.slice(
+    graphPage * 48,
+    graphPage * 48 + 48,
+  );
+  const sceneNodes = [
+    graphNode,
+    ...relatedNodes.map((item) => item.node),
+    ...directoryNodes.slice(0, 10),
+  ]
+    .filter(
+      (node, index, nodes) =>
+        nodes.findIndex((candidate) => candidate.id === node.id) === index,
+    )
+    .slice(0, 28);
+  const scenePositions = new globalThis.Map(
+    sceneNodes.map((node, index) => {
+      if (index === 0) return [node.id, { x: 50, y: 47 }];
+      const angle =
+        ((index - 1) / Math.max(1, sceneNodes.length - 1)) * Math.PI * 2;
+      const radiusX = index % 2 ? 39 : 29;
+      const radiusY = index % 2 ? 37 : 27;
+      return [
+        node.id,
+        {
+          x: 50 + Math.cos(angle) * radiusX,
+          y: 47 + Math.sin(angle) * radiusY,
+        },
+      ];
+    }),
   );
 
   const selectWork = (id: string) => {
@@ -763,7 +802,10 @@ export default function ResearchExpansion() {
             <span className="sr-only">Search the knowledge graph</span>
             <input
               value={graphSearch}
-              onChange={(event) => setGraphSearch(event.target.value)}
+              onChange={(event) => {
+                setGraphSearch(event.target.value);
+                setGraphPage(0);
+              }}
               placeholder="Find a person, text, place, or idea"
             />
           </label>
@@ -772,12 +814,68 @@ export default function ResearchExpansion() {
               <button
                 key={type}
                 className={graphType === type ? 'active' : ''}
-                onClick={() => setGraphType(type)}
+                onClick={() => {
+                  setGraphType(type);
+                  setGraphPage(0);
+                }}
               >
-                {type}
+                {type}{' '}
+                <b>
+                  {type === 'All'
+                    ? graphNodes.length
+                    : graphCounts[type as GraphType]}
+                </b>
               </button>
             ))}
           </div>
+        </div>
+        <div className="graph-inventory" aria-label="Knowledge graph inventory">
+          {(Object.keys(graphCounts) as GraphType[]).map((type) => (
+            <button
+              key={type}
+              className={graphType === type ? 'active' : ''}
+              onClick={() => {
+                setGraphType(type);
+                setGraphPage(0);
+              }}
+            >
+              <strong>{graphCounts[type]}</strong>
+              <span>{type}</span>
+            </button>
+          ))}
+          <p>
+            Showing {filteredGraphNodes.length} of {graphNodes.length} indexed
+            records
+          </p>
+        </div>
+        <div className="graph-directory" aria-label="Searchable graph records">
+          {directoryNodes.map((node) => (
+            <button
+              key={node.id}
+              className={`${node.type.toLowerCase()} ${node.id === selectedNode ? 'selected' : ''}`}
+              onClick={() => setSelectedNode(node.id)}
+            >
+              <small>{node.type}</small>
+              <b>{node.label}</b>
+            </button>
+          ))}
+        </div>
+        <div className="graph-pagination">
+          <button
+            disabled={graphPage === 0}
+            onClick={() => setGraphPage(graphPage - 1)}
+          >
+            <ChevronLeft /> Previous 48
+          </button>
+          <strong>
+            Page {graphPage + 1} of {graphPageCount}
+          </strong>
+          <button
+            disabled={graphPage >= graphPageCount - 1}
+            onClick={() => setGraphPage(graphPage + 1)}
+          >
+            Next 48 <ChevronRight />
+          </button>
         </div>
         <div className="graph-layout">
           <div
@@ -789,10 +887,10 @@ export default function ResearchExpansion() {
               preserveAspectRatio="none"
               aria-hidden="true"
             >
-              {graphEdges.map(([a, b], index) => {
-                const first = graphNodes.find((node) => node.id === a)!;
-                const second = graphNodes.find((node) => node.id === b)!;
-                const related = a === selectedNode || b === selectedNode;
+              {relatedNodes.map(({ node }, index) => {
+                const first = scenePositions.get(graphNode.id)!;
+                const second = scenePositions.get(node.id);
+                if (!second) return null;
                 return (
                   <line
                     key={index}
@@ -800,39 +898,55 @@ export default function ResearchExpansion() {
                     y1={first.y}
                     x2={second.x}
                     y2={second.y}
-                    className={related ? 'active' : ''}
+                    className="active"
                   />
                 );
               })}
             </svg>
-            {graphNodes.map((node) => (
-              <button
-                key={node.id}
-                style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                className={`${node.type.toLowerCase()} ${node.id === selectedNode ? 'selected' : ''} ${visibleNodeIds.has(node.id) ? '' : 'dim'}`}
-                onClick={() => setSelectedNode(node.id)}
-              >
-                <span>{node.label}</span>
-                <small>{node.type}</small>
-              </button>
-            ))}
+            {sceneNodes.map((node) => {
+              const position = scenePositions.get(node.id)!;
+              return (
+                <button
+                  key={node.id}
+                  style={{ left: `${position.x}%`, top: `${position.y}%` }}
+                  className={`${node.type.toLowerCase()} ${node.id === selectedNode ? 'selected' : ''}`}
+                  onClick={() => setSelectedNode(node.id)}
+                >
+                  <span>{node.label}</span>
+                  <small>{node.type}</small>
+                </button>
+              );
+            })}
           </div>
           <aside>
             <GitFork />
             <p>{graphNode.type}</p>
             <h4>{graphNode.label}</h4>
             <p>{graphNode.note}</p>
+            <dl>
+              <dt>Source</dt>
+              <dd>{graphNode.source}</dd>
+              <dt>Relations shown</dt>
+              <dd>{relatedNodes.length}</dd>
+            </dl>
             <h5>Connected records</h5>
-            <ul>
-              {relatedNodes.map(({ relation, node }) => (
-                <li key={`${relation}-${node.id}`}>
-                  <button onClick={() => setSelectedNode(node.id)}>
-                    <span>{relation}</span>
-                    <b>{node.label}</b>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {relatedNodes.length ? (
+              <ul>
+                {relatedNodes.map(({ relation, node }) => (
+                  <li key={`${relation}-${node.id}`}>
+                    <button onClick={() => setSelectedNode(node.id)}>
+                      <span>{relation}</span>
+                      <b>{node.label}</b>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <small>
+                No strong indexed-term relation was inferred. Search the full
+                directory instead of inventing a connection.
+              </small>
+            )}
           </aside>
         </div>
       </article>
