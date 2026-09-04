@@ -23,6 +23,7 @@ import deepData from './deep-data.json';
 import learningData from './learning-data.json';
 import researchData from './research-data.json';
 import ideasVolumeTwoData from './ideas-volume2.json';
+import readerMaithiliData from './reader-maithili.json';
 
 type Work = (typeof libraryData)[number];
 type MapLayer = 'Polities' | 'Learning' | 'Sacred' | 'Trade' | 'Archives';
@@ -66,38 +67,7 @@ const readerPassages: ReaderPassage[] = [
 ];
 const readerCompleteCount = readerPassages.filter((item) => item.status === 'Complete').length;
 const readerPlannedCount = readerPassages.length - readerCompleteCount;
-
-function chunkForTranslation(text: string, limit = 900) {
-  const chunks: string[] = [];
-  let remaining = text.trim();
-  while (remaining) {
-    if (remaining.length <= limit) {
-      chunks.push(remaining);
-      break;
-    }
-    const paragraph = remaining.lastIndexOf('\n\n', limit);
-    const sentence = remaining.lastIndexOf('. ', limit);
-    const space = remaining.lastIndexOf(' ', limit);
-    const cut = Math.max(paragraph, sentence + 1, space, Math.floor(limit * .65));
-    chunks.push(remaining.slice(0, cut).trim());
-    remaining = remaining.slice(cut).trim();
-  }
-  return chunks;
-}
-
-async function googleEnglishToMaithili(text: string) {
-  const translated: string[] = [];
-  for (const chunk of chunkForTranslation(text)) {
-    const params = new URLSearchParams({ client: 'gtx', sl: 'en', tl: 'mai', dt: 't', q: chunk });
-    const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
-    if (!response.ok) throw new Error(`Translation service returned ${response.status}`);
-    const payload = await response.json() as [[string][]];
-    const result = payload[0].map((segment: [string]) => segment[0]).join('').trim();
-    if (!result) throw new Error('No translation returned');
-    translated.push(result);
-  }
-  return translated.join('\n\n');
-}
+const readerMaithili = readerMaithiliData as Record<string, string>;
 
 const mapPlaces: Array<{
   id: string;
@@ -479,8 +449,6 @@ export default function ResearchExpansion() {
   const [readingMode, setReadingMode] = useState<ReadingMode>('English');
   const [readerIndex, setReaderIndex] = useState(0);
   const [readerSearch, setReaderSearch] = useState('');
-  const [readerTranslations, setReaderTranslations] = useState<Record<string, string>>({});
-  const [readerTranslationState, setReaderTranslationState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [readerCopied, setReaderCopied] = useState(false);
   const [narrating, setNarrating] = useState<number | null>(null);
   const [lessonIndex, setLessonIndex] = useState(0);
@@ -546,45 +514,11 @@ export default function ResearchExpansion() {
       `${item.title} ${item.part} ${item.volume} ${item.summary} ${item.purvapaksha ?? ''} ${item.uttarapaksha ?? ''}`.toLowerCase().includes(readerSearch.toLowerCase())),
     [readerSearch],
   );
-  const readerTranslation = readerTranslations[readerIdea.id] ?? '';
+  const readerTranslation = readerMaithili[readerIdea.id] ?? '';
 
   useEffect(() => {
     queueMicrotask(() => setReaderCopied(false));
-    if (readingMode === 'English' || readerIdea.status === 'Planned') {
-      queueMicrotask(() => setReaderTranslationState('idle'));
-      return;
-    }
-    const cacheKey = `videha-reader-${readerIdea.id}`;
-    const cached = window.localStorage.getItem(cacheKey);
-    if (cached) {
-      queueMicrotask(() => {
-        setReaderTranslations((current) => ({ ...current, [readerIdea.id]: cached }));
-        setReaderTranslationState('ready');
-      });
-      return;
-    }
-    if (readerTranslation) {
-      queueMicrotask(() => setReaderTranslationState('ready'));
-      return;
-    }
-    let cancelled = false;
-    const translate = async () => {
-      setReaderTranslationState('loading');
-      try {
-        const text = readerEnglishText;
-        const result = await googleEnglishToMaithili(text);
-        if (!cancelled) {
-          window.localStorage.setItem(cacheKey, result);
-          setReaderTranslations((current) => ({ ...current, [readerIdea.id]: result }));
-          setReaderTranslationState('ready');
-        }
-      } catch {
-        if (!cancelled) setReaderTranslationState('error');
-      }
-    };
-    void translate();
-    return () => { cancelled = true; };
-  }, [readingMode, readerIdea, readerTranslation, readerEnglishText]);
+  }, [readingMode, readerIdea]);
   const relatedNodes = useMemo(() => {
     const selectedTerms = graphNodeTerms.get(graphNode.id) ?? new Set<string>();
     return graphNodes
@@ -1179,12 +1113,9 @@ export default function ResearchExpansion() {
           {readingMode !== 'English' && readerIdea.status === 'Planned' && (
             <div className="reader-notice"><p className="script-label">PLANNED</p><h4>{readerIdea.title}</h4><p>No completed English chapter is claimed. When the chapter is supplied, this same record will receive its Google Maithili translation and Tirhuta conversion.</p></div>
           )}
-          {readingMode !== 'English' && readerIdea.status !== 'Planned' && readerTranslationState === 'loading' && <p className="reader-notice">Translating the selected English passage into Maithili with Google Translate…</p>}
-          {readingMode !== 'English' && readerIdea.status !== 'Planned' && readerTranslationState === 'error' && (
-            <div className="reader-notice"><p>Google Translate could not be reached from this browser.</p><a href={`https://translate.google.com/?sl=en&tl=mai&text=${encodeURIComponent(readerEnglishText)}&op=translate`} target="_blank" rel="noreferrer">Open this passage in Google Translate</a></div>
-          )}
+          {readingMode !== 'English' && readerIdea.status !== 'Planned' && !readerTranslation && <p className="reader-notice">The maintained Maithili reading is not yet available for this chapter.</p>}
           {readingMode === 'Maithili (Devanagari)' && readerTranslation && (
-            <><p className="script-label">GOOGLE TRANSLATE · ENGLISH → MAITHILI</p><p lang="mai">{readerTranslation}</p><small>Machine translation for reading assistance; scholarly review is recommended.</small></>
+            <><p className="script-label">GOOGLE TRANSLATE · ENGLISH → MAITHILI</p><p lang="mai">{readerTranslation}</p><small>Machine translation prepared for reliable offline reading; scholarly review is recommended.</small></>
           )}
           {readingMode === 'Maithili (Tirhuta)' && readerTranslation && (
             <><p className="script-label">VIDEHA CONVERTER · MAITHILI DEVANAGARI → TIRHUTA</p><p className="tirhuta-text" lang="mai-Tirh">{_toTirhuta(readerTranslation)}</p><small>Converted from the Google Maithili result. Unicode Tirhuta rendering depends on font support.</small></>
