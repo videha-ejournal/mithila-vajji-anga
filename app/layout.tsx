@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import './research-expansion.css';
+import './learning-lab.css';
 
 export const metadata: Metadata = {
   title: 'Mithila–Vajji–Anga | Videha Historical Research',
