@@ -118,6 +118,55 @@ type Tab =
   | 'people'
   | 'ideas'
   | 'sources';
+type ContrastMode = 'off' | 'dark' | 'light';
+type ColourFilter = 'off' | 'gray' | 'invert';
+type AssistivePrefs = {
+  scale: number;
+  contrast: ContrastMode;
+  filter: ColourFilter;
+  spacing: boolean;
+  readableWidth: boolean;
+  highlightLinks: boolean;
+  hideImages: boolean;
+  stopMotion: boolean;
+  largeTargets: boolean;
+  largeCursor: boolean;
+  readerView: boolean;
+};
+const defaultAssistivePrefs: AssistivePrefs = {
+  scale: 100,
+  contrast: 'off',
+  filter: 'off',
+  spacing: false,
+  readableWidth: false,
+  highlightLinks: false,
+  hideImages: false,
+  stopMotion: false,
+  largeTargets: false,
+  largeCursor: false,
+  readerView: false,
+};
+const translationLanguages = [
+  ['mai', 'Maithili · मैथिली'],
+  ['hi', 'Hindi · हिन्दी'],
+  ['bn', 'Bengali · বাংলা'],
+  ['ne', 'Nepali · नेपाली'],
+  ['sa', 'Sanskrit · संस्कृतम्'],
+  ['as', 'Assamese · অসমীয়া'],
+  ['gu', 'Gujarati · ગુજરાતી'],
+  ['mr', 'Marathi · मराठी'],
+  ['or', 'Odia · ଓଡ଼ିଆ'],
+  ['pa', 'Punjabi · ਪੰਜਾਬੀ'],
+  ['ta', 'Tamil · தமிழ்'],
+  ['te', 'Telugu · తెలుగు'],
+  ['ur', 'Urdu · اردو'],
+  ['fr', 'French · Français'],
+  ['de', 'German · Deutsch'],
+  ['es', 'Spanish · Español'],
+  ['zh-CN', 'Mandarin Chinese · 中文'],
+  ['ja', 'Japanese · 日本語'],
+  ['ar', 'Arabic · العربية'],
+] as const;
 const chapters = [
   ...researchData.political,
   ...researchData.social,
@@ -820,8 +869,9 @@ export default function Home() {
   const [coverPlaying, setCoverPlaying] = useState(true);
   const [siteListening, setSiteListening] = useState(false);
   const [assistiveOpen, setAssistiveOpen] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
-  const [largeText, setLargeText] = useState(false);
+  const [translateOpen, setTranslateOpen] = useState(false);
+  const [translationTarget, setTranslationTarget] = useState('mai');
+  const [assistivePrefs, setAssistivePrefs] = useState(defaultAssistivePrefs);
   const shownCovers = useMemo(
     () =>
       coverCategory === 'All'
@@ -844,12 +894,45 @@ export default function Home() {
     return () => window.clearInterval(timer);
   }, [coverPlaying, shownCovers.length]);
   useEffect(() => {
-    document.body.classList.toggle('high-contrast', highContrast);
-    document.body.classList.toggle('large-text', largeText);
-    return () => {
-      document.body.classList.remove('high-contrast', 'large-text');
+    try {
+      const saved = localStorage.getItem('mvaAssistivePrefs');
+      if (saved) {
+        const parsed = { ...defaultAssistivePrefs, ...JSON.parse(saved) };
+        queueMicrotask(() => setAssistivePrefs(parsed));
+      }
+    } catch {}
+  }, []);
+  useEffect(() => {
+    const classes = {
+      'contrast-dark': assistivePrefs.contrast === 'dark',
+      'contrast-light': assistivePrefs.contrast === 'light',
+      'filter-gray': assistivePrefs.filter === 'gray',
+      'filter-invert': assistivePrefs.filter === 'invert',
+      'extra-spacing': assistivePrefs.spacing,
+      'readable-width': assistivePrefs.readableWidth,
+      'highlight-links': assistivePrefs.highlightLinks,
+      'hide-images': assistivePrefs.hideImages,
+      'stop-motion': assistivePrefs.stopMotion,
+      'large-targets': assistivePrefs.largeTargets,
+      'large-cursor': assistivePrefs.largeCursor,
+      'reader-view': assistivePrefs.readerView,
     };
-  }, [highContrast, largeText]);
+    document.documentElement.style.fontSize = `${assistivePrefs.scale}%`;
+    Object.entries(classes).forEach(([name, enabled]) =>
+      document.body.classList.toggle(name, enabled),
+    );
+    try {
+      localStorage.setItem('mvaAssistivePrefs', JSON.stringify(assistivePrefs));
+    } catch {}
+    return () => {
+      document.documentElement.style.fontSize = '';
+      Object.keys(classes).forEach((name) => document.body.classList.remove(name));
+    };
+  }, [assistivePrefs]);
+  const updateAssistive = <K extends keyof AssistivePrefs>(
+    key: K,
+    value: AssistivePrefs[K],
+  ) => setAssistivePrefs((current) => ({ ...current, [key]: value }));
   const listenToPage = () => {
     if (!('speechSynthesis' in window)) return;
     if (siteListening) {
@@ -863,6 +946,14 @@ export default function Home() {
     utterance.onend = () => setSiteListening(false);
     setSiteListening(true);
     window.speechSynthesis.speak(utterance);
+  };
+  const openTranslation = (target = translationTarget) => {
+    const current = new URL(window.location.href);
+    const translatedHost = `${current.hostname.replace(/-/g, '--').replace(/\./g, '-')}.translate.goog`;
+    const separator = current.search ? '&' : '?';
+    const translated = `https://${translatedHost}${current.pathname}${current.search}${separator}_x_tr_sl=en&_x_tr_tl=${encodeURIComponent(target)}&_x_tr_hl=${encodeURIComponent(target)}&_x_tr_pto=wapp`;
+    const opened = window.open(translated, '_blank', 'noopener,noreferrer');
+    if (!opened) window.location.href = translated;
   };
   const nearestIndex = useMemo(
     () =>
@@ -1058,6 +1149,21 @@ export default function Home() {
       <a className="skip-link" href="#explorer">
         Skip to explorer
       </a>
+      <nav className="research-shortcuts" aria-label="Research controls">
+        <strong>Research controls</strong>
+        <a href="#explorer">Explore</a>
+        <button onClick={() => chooseTab('ideas')}>Ideas <span>{ideas.length}</span></button>
+        <button onClick={() => chooseTab('chapters')}>Histories <span>{chapters.length}</span></button>
+        <button onClick={() => chooseTab('people')}>People <span>{people.length}</span></button>
+        <button onClick={() => chooseTab('chronology')}>Chronology <span>{chronology.length}</span></button>
+        <button onClick={() => chooseTab('places')}>Places</button>
+        <button onClick={() => chooseTab('library')}>Library <span>{works.length}</span></button>
+        <button onClick={() => chooseTab('sources')}>Sources</button>
+        <a href="#wing-2">Historical map</a>
+        <a href="#wing-4">English reader</a>
+        <a href="#wing-5">Classroom</a>
+        <a href="#learning-lab">Learning lab</a>
+      </nav>
       <header className="topbar">
         <a
           className="identity"
@@ -1132,32 +1238,54 @@ export default function Home() {
         <button onClick={listenToPage} aria-pressed={siteListening}>
           {siteListening ? <Pause /> : <Volume2 />} सुनू · Listen
         </button>
-        <a href="https://www.videha.co.in/maithili-translator.html" target="_blank" rel="noreferrer">
+        <button onClick={() => setTranslateOpen(!translateOpen)} aria-expanded={translateOpen} aria-controls="mva-translate-panel">
           <Languages /> Translate with AI <span>(ए.आइ. द्वारा अनुवाद करू)</span>
-        </a>
+        </button>
+        {translateOpen && (
+          <dialog open className="translate-panel" id="mva-translate-panel" aria-label="Choose translation language">
+            <div className="tool-panel-heading"><strong>Translate this English page</strong><button onClick={() => setTranslateOpen(false)} aria-label="Close translator"><X /></button></div>
+            <p><b>Source language:</b> English</p>
+            <div className="translate-quick">
+              {[['mai','Maithili'],['hi','Hindi'],['bn','Bengali'],['ne','Nepali']].map(([code, label]) => <button key={code} onClick={() => openTranslation(code)}>{label}</button>)}
+            </div>
+            <label>
+              <span>Translate into</span>
+              <select value={translationTarget} onChange={(event) => setTranslationTarget(event.target.value)}>
+                {translationLanguages.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+              </select>
+            </label>
+            <button className="translate-go" onClick={() => openTranslation()}>Translate in a new tab</button>
+            <small>Free machine translation may contain errors. The original English page remains authoritative.</small>
+          </dialog>
+        )}
         <button onClick={() => setAssistiveOpen(!assistiveOpen)} aria-expanded={assistiveOpen}>
           <Accessibility /> सहायक तकनीक · Assistive Tech
         </button>
         {assistiveOpen && (
-          <div className="assistive-panel">
-            <strong>Reading controls</strong>
-            <button onClick={() => setLargeText(!largeText)} aria-pressed={largeText}>Larger text</button>
-            <button onClick={() => setHighContrast(!highContrast)} aria-pressed={highContrast}>High contrast</button>
-            <a href="#explorer">Skip to research explorer</a>
-          </div>
+          <dialog open className="assistive-panel" aria-label="Assistive technology settings">
+            <div className="tool-panel-heading"><strong>सहायक तकनीक · Assistive Tech</strong><button onClick={() => setAssistiveOpen(false)} aria-label="Close assistive technology settings"><X /></button></div>
+            <h4>Vision</h4>
+            <div className="assistive-row"><span>Text size</span><div><button onClick={() => updateAssistive('scale', Math.max(80, assistivePrefs.scale - 10))}>A−</button><b>{assistivePrefs.scale}%</b><button onClick={() => updateAssistive('scale', Math.min(200, assistivePrefs.scale + 10))}>A+</button></div></div>
+            <div className="assistive-row"><span>High contrast</span><div>{([['off','Normal'],['dark','Dark'],['light','Light']] as const).map(([mode,label]) => <button key={mode} aria-pressed={assistivePrefs.contrast === mode} onClick={() => updateAssistive('contrast', mode)}>{label}</button>)}</div></div>
+            <div className="assistive-row"><span>Colour filter</span><div>{([['off','Normal'],['gray','Gray'],['invert','Invert']] as const).map(([mode,label]) => <button key={mode} aria-pressed={assistivePrefs.filter === mode} onClick={() => updateAssistive('filter', mode)}>{label}</button>)}</div></div>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.hideImages} onClick={() => updateAssistive('hideImages', !assistivePrefs.hideImages)}>Hide images</button>
+            <h4>Reading and cognition</h4>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.readerView} onClick={() => updateAssistive('readerView', !assistivePrefs.readerView)}>Reader view</button>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.spacing} onClick={() => updateAssistive('spacing', !assistivePrefs.spacing)}>Increase line, word, and letter spacing</button>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.readableWidth} onClick={() => updateAssistive('readableWidth', !assistivePrefs.readableWidth)}>Readable line width</button>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.highlightLinks} onClick={() => updateAssistive('highlightLinks', !assistivePrefs.highlightLinks)}>Highlight links</button>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.stopMotion} onClick={() => updateAssistive('stopMotion', !assistivePrefs.stopMotion)}>Stop animation and motion</button>
+            <h4>Motor and screen-reader support</h4>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.largeTargets} onClick={() => updateAssistive('largeTargets', !assistivePrefs.largeTargets)}>Large buttons and links</button>
+            <button className="assistive-toggle" aria-pressed={assistivePrefs.largeCursor} onClick={() => updateAssistive('largeCursor', !assistivePrefs.largeCursor)}>Large cursor</button>
+            <button className="assistive-toggle" onClick={listenToPage}>Read the complete page aloud</button>
+            <a href="https://www.nvaccess.org/download/" target="_blank" rel="noreferrer">Download free NVDA screen reader <ExternalLink /></a>
+            <a href="https://www.videha.co.in/script-converter.html" target="_blank" rel="noreferrer">Devanagari ↔ Braille converter <ExternalLink /></a>
+            <button className="assistive-reset" onClick={() => setAssistivePrefs(defaultAssistivePrefs)}>Reset all settings</button>
+            <small>Preferences are saved on this device. The site remains keyboard-operable and uses semantic landmarks.</small>
+          </dialog>
         )}
       </div>
-
-      <nav className="research-shortcuts" aria-label="Research controls">
-        <strong>Research controls</strong>
-        <a href="#explorer">Explore</a>
-        <button onClick={() => chooseTab('ideas')}>
-          Ideas <span>{ideas.length}</span>
-        </button>
-        <button onClick={() => chooseTab('chapters')}>
-          Histories <span>{chapters.length}</span>
-        </button>
-      </nav>
 
       <main id="top">
         <section className="intro">

@@ -26,11 +26,21 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.5;
 }
-body.large-text { font-size: 19px; }
-body.high-contrast { --paper: #fff; --surface: #fff; --ink: #000; --muted: #242424; --line: #555; --navy: #000; --navy-2: #111; --saffron: #9a3f00; }
+body.contrast-dark { --paper: #000; --surface: #000; --ink: #fff36b; --muted: #fff; --line: #fff36b; --navy: #000; --navy-2: #111; --saffron: #fff36b; --gold: #fff36b; --green: #003d2c; }
+body.contrast-light { --paper: #fff; --surface: #fff; --ink: #000; --muted: #111; --line: #000; --navy: #000; --navy-2: #111; --saffron: #7a2500; }
+body.filter-gray main { filter: grayscale(1); }
+body.filter-invert main { filter: invert(1) hue-rotate(180deg); }
+body.extra-spacing main { line-height: 1.9; letter-spacing: .035em; word-spacing: .1em; }
+body.readable-width main p, body.readable-width main li { max-width: 70ch; text-align: left !important; }
+body.highlight-links a { text-decoration: underline 3px !important; text-underline-offset: 3px; background: #fff36b !important; color: #000 !important; }
+body.hide-images main img { display: none !important; }
+body.stop-motion *, body.stop-motion *::before, body.stop-motion *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+body.large-targets button, body.large-targets a { min-height: 44px; min-width: 44px; }
+body.large-cursor, body.large-cursor * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M6 3v31l9-8 7 15 7-4-8-14 12-1z' fill='black' stroke='white' stroke-width='3'/%3E%3C/svg%3E") 6 3, auto !important; }
+body.reader-view .research-studio, body.reader-view .cover-showcase, body.reader-view .research-expansion, body.reader-view .learning-lab, body.reader-view .about, body.reader-view .provenance { display: none !important; }
 button,
 input,
 select {
@@ -73,8 +83,7 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem);
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 30;
   box-shadow: 0 2px 8px #0002;
 }
@@ -148,17 +157,19 @@ button {
 }
 .research-shortcuts {
   position: sticky;
-  top: 72px;
-  z-index: 24;
+  top: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.55rem;
   padding: 0.55rem 1rem;
   background: #fffdf8f5;
   border-bottom: 1px solid #d7caa9;
   box-shadow: 0 4px 12px #101a2d12;
   backdrop-filter: blur(12px);
+  overflow-x: auto;
+  white-space: nowrap;
 }
 .videha-tools {
   position: relative;
@@ -170,8 +181,7 @@ button {
   background: #efe4cc;
   border-bottom: 1px solid #d4c29d;
 }
-.videha-tools > button,
-.videha-tools > a {
+.videha-tools > button {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -183,22 +193,44 @@ button {
   font-weight: 850;
 }
 .videha-tools svg { width: 16px; }
-.assistive-panel {
+.assistive-panel,
+.translate-panel {
   position: absolute;
   z-index: 45;
   top: calc(100% + .25rem);
   right: clamp(1rem, 4vw, 4rem);
   display: grid;
   gap: .4rem;
-  min-width: 220px;
-  padding: .8rem;
-  background: white;
+  width: min(390px, 94vw);
+  max-height: 72vh;
+  overflow-y: auto;
+  padding: .9rem;
+  background: #faf6ee;
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: 0 12px 32px #0003;
+  margin: 0;
+  color: #23201b;
 }
-.assistive-panel button,
-.assistive-panel a { border: 1px solid var(--line); background: #fff; padding: .5rem; text-align: left; text-decoration: none; }
+.translate-panel { left: 50%; right: auto; transform: translateX(-50%); }
+.tool-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: .6rem; color: #7b1d1d; }
+.tool-panel-heading > button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; background: transparent; }
+.translate-panel p { margin: .6rem 0; font-size: .82rem; }
+.translate-quick { display: flex; flex-wrap: wrap; gap: .35rem; }
+.translate-quick button, .translate-go, .assistive-panel button, .assistive-panel a { border: 1px solid #8b1a1a; border-radius: 18px; background: #fff; color: #681414; padding: .42rem .65rem; text-align: left; text-decoration: none; font-size: .78rem; }
+.translate-panel label { display: grid; gap: .3rem; margin-top: .7rem; font-size: .75rem; font-weight: 800; }
+.translate-panel select { width: 100%; padding: .55rem; background: white; border: 1px solid #c49a3c; }
+.translate-go { margin-top: .55rem; background: #8b1a1a; color: white; font-weight: 850; }
+.translate-panel small, .assistive-panel > small { display: block; margin-top: .65rem; color: #655b4c; line-height: 1.5; }
+.assistive-panel h4 { margin: .75rem 0 .35rem; padding-bottom: .2rem; color: #9a7127; border-bottom: 1px solid #dfcfad; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; }
+.assistive-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; font-size: .78rem; font-weight: 750; }
+.assistive-row > div { display: flex; align-items: center; gap: .25rem; }
+.assistive-row button { padding: .3rem .5rem; }
+.assistive-row button[aria-pressed='true'], .assistive-toggle[aria-pressed='true'] { background: #8b1a1a; color: white; }
+.assistive-toggle { width: 100%; margin: .15rem 0; }
+.assistive-panel a { display: flex; align-items: center; justify-content: space-between; margin: .2rem 0; }
+.assistive-panel a svg { width: 14px; }
+.assistive-reset { margin-top: .7rem !important; background: #23201b !important; color: white !important; }
 .back-to-top {
   position: fixed;
   right: 1rem;
@@ -1410,10 +1442,11 @@ footer p {
     justify-content: flex-start;
   }
   .research-shortcuts {
-    top: 68px;
+    top: 0;
     justify-content: flex-start;
     overflow-x: auto;
   }
+  .assistive-panel { right: .5rem; }
   .research-shortcuts strong { display: none; }
   .supplied-manuscripts {
     align-items: flex-start;
