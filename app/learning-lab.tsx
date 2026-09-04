@@ -1,18 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import type { SyntheticEvent } from 'react';
 import {
   Archive,
   ArrowDown,
+  ArrowLeft,
+  ArrowRight,
   ArrowUp,
-  BookOpenCheck,
   Check,
-  ChevronRight,
   CircleHelp,
-  ClipboardCheck,
   Download,
-  Footprints,
   GitCompareArrows,
   MapPinned,
   NotebookPen,
@@ -20,12 +17,12 @@ import {
   Search,
   Sparkles,
   Trophy,
-  Volume2,
   X,
 } from 'lucide-react';
 import researchData from './research-data.json';
 import libraryData from './library-data.json';
 import deepData from './deep-data.json';
+import learningData from './learning-data.json';
 
 type ActivityId =
   | 'archive'
@@ -40,7 +37,6 @@ type ActivityId =
   | 'architecture'
   | 'daily'
   | 'classification';
-
 type NotebookEntry = {
   id: string;
   title: string;
@@ -48,632 +44,177 @@ type NotebookEntry = {
   source: string;
   created: string;
 };
-
-type DailyProgress = {
-  lastDay: string;
-  streak: number;
-};
-
-type ArchiveRecord = {
-  id: string;
-  kind: string;
-  title: string;
-  text: string;
-  source: string;
-};
+type DailyProgress = { lastDay: string; streak: number };
 
 const activities: Array<{
   id: ActivityId;
   number: number;
   label: string;
   note: string;
-  core?: boolean;
+  count?: number;
 }> = [
   {
     id: 'archive',
     number: 1,
     label: 'Ask the Archive',
-    note: 'Grounded answers from indexed records',
-    core: true,
+    note: 'Search the complete index',
   },
   {
     id: 'detective',
     number: 2,
     label: 'Source Detective',
-    note: 'Match claims to usable evidence',
-    core: true,
+    note: 'Trace excerpts to record types',
+    count: learningData.detective.length,
   },
   {
     id: 'debate',
     number: 3,
     label: 'Pūrvapakṣa Debate',
-    note: 'Build and test an objection',
-    core: true,
+    note: 'Objection, answer, synthesis',
+    count: learningData.debates.length,
   },
   {
     id: 'journey',
     number: 4,
     label: 'Map Journey',
-    note: 'Travel a narrated historical route',
-    core: true,
+    note: 'Every location opens',
+    count: learningData.places.length,
   },
   {
     id: 'notebook',
     number: 5,
     label: 'Research Notebook',
-    note: 'Save and export research notes',
-    core: true,
+    note: 'Save and export notes',
   },
   {
     id: 'identity',
     number: 6,
     label: 'Who am I?',
-    note: 'Identify historical figures from clues',
+    note: 'Figures from literary history',
+    count: learningData.identities.length,
   },
   {
     id: 'chronology',
     number: 7,
     label: 'Build a Chronology',
-    note: 'Arrange evidence horizons in order',
+    note: 'Dated source passages',
+    count: learningData.chronology.length,
   },
   {
     id: 'panji',
     number: 8,
     label: 'Panji Laboratory',
-    note: 'Decode a fictional practice record',
+    note: 'Real manuscript headings',
+    count: learningData.panji.length,
   },
   {
     id: 'comparator',
     number: 9,
     label: 'Concept Comparator',
-    note: 'Compare methods and questions',
+    note: 'Parallel Philosophy index',
+    count: learningData.comparators.length,
   },
   {
     id: 'architecture',
     number: 10,
     label: 'Architecture Viewer',
-    note: 'Read structural layers and cautions',
+    note: 'Material-landscape index',
+    count: learningData.architecture.length,
   },
   {
     id: 'daily',
     number: 11,
     label: 'Daily Challenge',
-    note: 'One rotating question each day',
+    note: 'Daily entry plus full bank',
+    count: learningData.daily.length,
   },
   {
     id: 'classification',
     number: 12,
     label: 'Memory or Evidence?',
-    note: 'Classify the basis of a statement',
+    note: 'Classify indexed records',
+    count: learningData.classification.length,
   },
 ];
 
-const archiveRecords: ArchiveRecord[] = [
-  ...researchData.political.map((chapter) => ({
-    id: chapter.id,
+const archiveRecords = [
+  ...researchData.political.map((c) => ({
+    id: c.id,
     kind: 'History chapter',
-    title: chapter.title,
-    text: `${chapter.summary} ${chapter.sections.join(' ')}`,
-    source: `${chapter.collection} · ${chapter.volume} · ${chapter.part} · ${chapter.pages}`,
+    title: c.title,
+    text: `${c.summary} ${c.sections.join(' ')}`,
+    source: `${c.collection} · ${c.volume} · ${c.part} · ${c.pages}`,
   })),
-  ...researchData.social.map((chapter) => ({
-    id: chapter.id,
+  ...researchData.social.map((c) => ({
+    id: c.id,
     kind: 'History chapter',
-    title: chapter.title,
-    text: `${chapter.summary} ${chapter.sections.join(' ')}`,
-    source: `${chapter.collection} · ${chapter.volume} · ${chapter.part} · ${chapter.pages}`,
+    title: c.title,
+    text: `${c.summary} ${c.sections.join(' ')}`,
+    source: `${c.collection} · ${c.volume} · ${c.part} · ${c.pages}`,
   })),
-  ...libraryData.map((work) => ({
-    id: work.id,
+  ...libraryData.map((w) => ({
+    id: w.id,
     kind: 'Book',
-    title: work.title,
-    text: `${work.description} ${work.structure.join(' ')}`,
-    source: `${work.creator} · ${work.sequence} · ${work.extent}`,
+    title: w.title,
+    text: `${w.description} ${w.structure.join(' ')}`,
+    source: `${w.creator} · ${w.sequence} · ${w.extent}`,
   })),
-  ...deepData.people.map((person) => ({
-    id: person.id,
+  ...deepData.people.map((p) => ({
+    id: p.id,
     kind: 'Person',
-    title: person.name,
-    text: `${person.description} ${person.field} ${person.era}`,
-    source: person.source,
+    title: p.name,
+    text: `${p.description} ${p.field} ${p.era}`,
+    source: p.source,
   })),
-  ...deepData.philosophyChapters.map((chapter) => ({
-    id: chapter.id,
+  ...deepData.philosophyChapters.map((c) => ({
+    id: c.id,
     kind: 'Philosophy chapter',
-    title: chapter.title,
-    text: `${chapter.summary} Pūrvapakṣa: ${chapter.purvapaksha}. Uttarapakṣa: ${chapter.uttarapaksha}. ${chapter.synthesis}`,
-    source: `Parallel Philosophy · ${chapter.part} · Chapter ${chapter.number}`,
-  })),
-];
-
-const detectiveQuestions = [
-  {
-    claim:
-      'An inscription records that a named donor supported a monument at a specific place.',
-    answer: 'Inscription',
-    options: [
-      'Later legend',
-      'Inscription',
-      'Modern boundary map',
-      'Genealogical analogy',
-    ],
-    why: 'An inscription can directly support the recorded name, act, and location, while interpretation still requires date and context.',
-  },
-  {
-    claim:
-      'A settlement contained brick structures during a securely excavated occupational phase.',
-    answer: 'Archaeology',
-    options: [
-      'Archaeology',
-      'Epic memory',
-      'Modern census',
-      'Philosophical commentary',
-    ],
-    why: 'Stratified excavation and material analysis can support the presence and phase of structures.',
-  },
-  {
-    claim:
-      'A Panji entry connects a lineage, marriage link, title, and village notation.',
-    answer: 'Panji manuscript',
-    options: [
-      'Temple reconstruction',
-      'Panji manuscript',
-      'Royal eulogy alone',
-      'Present-day map',
-    ],
-    why: 'The manuscript entry is the direct source for its own recorded relationship, though it does not automatically prove every remembered event.',
-  },
-  {
-    claim:
-      'A community presently performs a ritual associated with Sita and Janakpur.',
-    answer: 'Living tradition',
-    options: [
-      'Living tradition',
-      'Coins alone',
-      'Grammar treatise',
-      'Carbon date alone',
-    ],
-    why: 'Observation and documentation of living practice support the present ritual, not the absolute antiquity claimed for it.',
-  },
-  {
-    claim:
-      'Vaiśālī appears in Buddhist itineraries as a place connected with teaching and community memory.',
-    answer: 'Textual tradition',
-    options: [
-      'Textual tradition',
-      'Modern state border',
-      'Architectural drawing',
-      'Family tree',
-    ],
-    why: 'The textual tradition supports its own remembered itinerary; archaeology answers different questions.',
-  },
-];
-
-const debateCases = [
-  {
-    topic: 'Can a later literary memory serve historical research?',
-    objection: 'Later texts cannot provide any historical evidence.',
-    proof:
-      'Date the textual layers and compare them with independent material and textual evidence.',
-    response:
-      'Use the text as evidence for remembered geography and ideas while avoiding automatic conversion into event chronology.',
-    weak: [
-      'Assume every detail is literal history.',
-      'Reject the text because it contains poetry.',
-      'Use modern boundaries to settle the question.',
-    ],
-  },
-  {
-    topic: 'Can Panji records illuminate social history?',
-    objection: 'Genealogies only list names and cannot reveal institutions.',
-    proof:
-      'Compare recurring formulas, marriage links, titles, villages, and editorial layers across entries.',
-    response:
-      'Patterns can illuminate recorded social organization, provided silence and inherited hierarchy remain visible.',
-    weak: [
-      'Treat every omission as proof.',
-      'Convert lineage into biological certainty.',
-      'Ignore the manuscript’s editorial history.',
-    ],
-  },
-  {
-    topic: 'Does translation preserve philosophical argument?',
-    objection: 'Technical philosophy loses all precision outside Sanskrit.',
-    proof:
-      'Compare key terms, inferential structure, commentary, gloss, and disputed renderings passage by passage.',
-    response:
-      'A documented translation can preserve argument while exposing places where Maithili requires explanation or a retained technical term.',
-    weak: [
-      'Replace every technical term with a slogan.',
-      'Hide uncertain choices.',
-      'Translate from a summary instead of the source.',
-    ],
-  },
-];
-
-const journeyStops = [
-  {
-    name: 'Janakpur',
-    x: 47,
-    y: 15,
-    frame: 'Videha memory and living sacred geography',
-    narration:
-      'Begin at Janakpur, where textual memory, pilgrimage, and modern cultural life meet across the India–Nepal region.',
-    question: 'Which caution best governs this stop?',
-    options: [
-      'A living tradition proves an exact ancient date',
-      'Textual memory and living practice answer different historical questions',
-      'Modern borders define ancient Videha',
-    ],
-    correct: 1,
-  },
-  {
-    name: 'Simraungadh',
-    x: 31,
-    y: 28,
-    frame: 'Karnata polity and the Nepal Tarai',
-    narration:
-      'Move west to Simraungadh, a medieval political centre whose archaeology and dynastic history connect Mithila with the Tarai.',
-    question: 'Which evidence is most relevant to its political history?',
-    options: [
-      'Dynastic records and archaeology',
-      'A modern language survey alone',
-      'A fictional genealogy',
-    ],
-    correct: 0,
-  },
-  {
-    name: 'Darbhanga',
-    x: 45,
-    y: 43,
-    frame: 'Court, manuscripts, print, and learning',
-    narration:
-      'Darbhanga represents later courtly institutions, manuscript preservation, scholarship, and the transformation of learning through print.',
-    question: 'Which process belongs here?',
-    options: [
-      'Only prehistoric settlement',
-      'Courtly and print-era archival formation',
-      'A single unchanging boundary',
-    ],
-    correct: 1,
-  },
-  {
-    name: 'Vaiśālī',
-    x: 25,
-    y: 57,
-    frame: 'Vajjian polity and sacred itineraries',
-    narration:
-      'At Vaiśālī, political traditions intersect with Buddhist and Jain itineraries and an archaeological landscape.',
-    question: 'Why combine texts and archaeology?',
-    options: [
-      'They are identical forms of proof',
-      'Each can test different aspects of the historical reconstruction',
-      'One makes the other unnecessary',
-    ],
-    correct: 1,
-  },
-  {
-    name: 'Pāṭaliputra',
-    x: 33,
-    y: 72,
-    frame: 'Imperial and commercial corridor',
-    narration:
-      'Pāṭaliputra links these regions to middle Ganga political power, mobility, exchange, and administrative history.',
-    question: 'What does a route demonstrate most securely?',
-    options: [
-      'A permanent cultural border',
-      'Connectivity and movement',
-      'The date of every tradition',
-    ],
-    correct: 1,
-  },
-  {
-    name: 'Campā',
-    x: 78,
-    y: 82,
-    frame: 'Anga, trade, and religious networks',
-    narration:
-      'The journey concludes at Campā in Anga, an eastern centre tied to political memory, trade, Buddhist traditions, and Jain traditions.',
-    question: 'Which description is most careful?',
-    options: [
-      'Campā belongs to several intersecting historical networks',
-      'Campā had only one historical role',
-      'No source criticism is needed',
-    ],
-    correct: 0,
-  },
-];
-
-const identityFigures = [
-  {
-    name: 'Gārgī Vācaknavī',
-    clues: [
-      'I appear in a remembered philosophical assembly.',
-      'My questions press toward the structure underlying the world.',
-      'I debate Yājñavalkya in an Upaniṣadic tradition.',
-    ],
-    choices: ['Gārgī Vācaknavī', 'Vidyāpati', 'Gaṅgeśa Upādhyāya', 'Faxian'],
-  },
-  {
-    name: 'Vācaspati Miśra',
-    clues: [
-      'I belong to Mithila’s scholastic memory.',
-      'My works range across more than one philosophical school.',
-      'Bhāmatī is associated with my commentary.',
-    ],
-    choices: ['Udayanācārya', 'Vācaspati Miśra', 'Janaka', 'Mahāvīra'],
-  },
-  {
-    name: 'Gaṅgeśa Upādhyāya',
-    clues: [
-      'I am central to Navya-Nyāya.',
-      'My work reorganizes epistemological analysis.',
-      'Tattvacintāmaṇi is attributed to me.',
-    ],
-    choices: ['Gaṅgeśa Upādhyāya', 'Yājñavalkya', 'Aśoka', 'Jyotirishwar'],
-  },
-  {
-    name: 'Vidyāpati',
-    clues: [
-      'I am remembered across literary, courtly, and devotional contexts.',
-      'My language history reaches Maithili and Brajabuli discussions.',
-      'Songs associated with my name travelled far beyond Mithila.',
-    ],
-    choices: ['Gārgī Vācaknavī', 'Vidyāpati', 'Vācaspati Miśra', 'Buddha'],
-  },
-];
-
-const chronologyItems = [
-  { id: 'vedic', date: -800, label: 'Later Vedic Videha traditions' },
-  { id: 'vajji', date: -500, label: 'Vajji, Anga, and renunciant networks' },
-  {
-    id: 'ashoka',
-    date: -250,
-    label: 'Mauryan monumental and inscriptional horizon',
-  },
-  { id: 'simraun', date: 1100, label: 'Karnata Simraungadh' },
-  { id: 'print', date: 1900, label: 'Modern print and literary institutions' },
-  {
-    id: 'videha',
-    date: 2004,
-    label: 'Videha digital and translation initiatives',
-  },
-];
-
-const panjiTokens = [
-  {
-    token: 'मूल: उदाहरणपुर',
-    label: 'Mūla',
-    meaning:
-      'A fictional root designation used here only to demonstrate record grammar.',
-  },
-  {
-    token: 'गोत्र: काश्यप',
-    label: 'Gotra',
-    meaning:
-      'A lineage category that must not be treated as modern genetic evidence.',
-  },
-  {
-    token: 'ग्राम: उत्तरगाम',
-    label: 'Village',
-    meaning:
-      'An invented settlement marker showing how place information can enter an entry.',
-  },
-  {
-    token: 'कन्या-संबन्ध: दक्षिणगाम',
-    label: 'Marriage link',
-    meaning:
-      'A fictional affinal connection illustrating how another settlement may enter the record.',
-  },
-  {
-    token: 'उपाधि: पाठक',
-    label: 'Title',
-    meaning:
-      'A recorded social or scholarly title whose meaning may change across periods.',
-  },
-];
-
-const concepts = [
-  {
-    id: 'pramana',
-    name: 'Pramāṇa',
-    question: 'What warrants knowledge?',
-    method:
-      'Analysis of perception, inference, testimony, and other proposed means of knowledge.',
-    caution:
-      'Schools disagree over the number, scope, and independence of pramāṇas.',
-  },
-  {
-    id: 'purvapaksha',
-    name: 'Pūrvapakṣa',
-    question: 'What is the strongest serious objection?',
-    method: 'Reconstruct the opposing position before replying.',
-    caution: 'A weak or caricatured objection cannot test the conclusion.',
-  },
-  {
-    id: 'uttarapaksha',
-    name: 'Uttarapakṣa',
-    question: 'What answer survives the objection?',
-    method: 'Respond to the actual premises and evidence raised.',
-    caution:
-      'A reply that changes the question leaves the objection unanswered.',
-  },
-  {
-    id: 'adhyasa',
-    name: 'Adhyāsa',
-    question: 'How does superimposition structure error?',
-    method: 'Examine subject, object, memory, appearance, and attribution.',
-    caution:
-      'Different Advaita traditions explain locus and mechanism differently.',
-  },
-  {
-    id: 'vyapti',
-    name: 'Vyāpti',
-    question: 'How does inference depend on an invariant relation?',
-    method:
-      'Test positive and negative instances, counterexamples, and limiting conditions.',
-    caution:
-      'A repeated association alone does not establish unrestricted pervasion.',
-  },
-  {
-    id: 'panji',
-    name: 'Panji memory',
-    question: 'How does a register organize remembered social relations?',
-    method:
-      'Decode formulas, lineages, marriage links, settlements, titles, and editorial layers.',
-    caution:
-      'Recorded genealogy is neither complete social reality nor direct genome data.',
-  },
-];
-
-const architectureTypes = [
-  {
-    id: 'stupa',
-    name: 'Stupa complex',
-    period: 'Ancient and later sacred landscapes',
-    parts: [
-      'Mound or dome',
-      'Circumambulatory path',
-      'Railing or boundary',
-      'Votive additions',
-    ],
-    caution:
-      'Visible remains may combine several construction and restoration phases.',
-  },
-  {
-    id: 'temple',
-    name: 'Temple complex',
-    period: 'Medieval to modern continuities',
-    parts: [
-      'Sanctum',
-      'Mandapa or hall',
-      'Threshold sequence',
-      'Subsidiary shrines',
-    ],
-    caution:
-      'A present building cannot be assigned wholesale to the earliest tradition associated with the site.',
-  },
-  {
-    id: 'monastery',
-    name: 'Monastic complex',
-    period: 'Institutional religious landscapes',
-    parts: [
-      'Cells',
-      'Central court',
-      'Assembly or worship space',
-      'Water and service areas',
-    ],
-    caution:
-      'Function should follow excavated plan, finds, and comparisons rather than shape alone.',
-  },
-  {
-    id: 'fort',
-    name: 'Fortified settlement',
-    period: 'Political and urban landscapes',
-    parts: [
-      'Defensive circuit',
-      'Gateways',
-      'Habitation zones',
-      'Water management',
-    ],
-    caution:
-      'Ramparts can be rebuilt repeatedly; each phase requires separate dating.',
-  },
-];
-
-const classificationQuestions = [
-  {
-    statement:
-      'A festival is documented in present-day Janakpur through observation and community testimony.',
-    answer: 'Living tradition',
-    options: [
-      'Living tradition',
-      'Archaeology',
-      'Inscription',
-      'Modern inference',
-    ],
-  },
-  {
-    statement:
-      'A later text remembers Janaka’s court as a setting for philosophical questioning.',
-    answer: 'Textual memory',
-    options: [
-      'Textual memory',
-      'Excavated event record',
-      'Modern census',
-      'Genetic proof',
-    ],
-  },
-  {
-    statement:
-      'A sealed occupational layer contains datable ceramics and structural remains.',
-    answer: 'Material evidence',
-    options: [
-      'Royal memory',
-      'Material evidence',
-      'Living tradition',
-      'Literary style',
-    ],
-  },
-  {
-    statement:
-      'A historian proposes that two corridors interacted because multiple independent sources show movement between them.',
-    answer: 'Historical reconstruction',
-    options: [
-      'Inscription alone',
-      'Historical reconstruction',
-      'Myth alone',
-      'Modern border',
-    ],
-  },
-];
-
-const dailyQuestions = [
-  ...detectiveQuestions,
-  ...classificationQuestions.map((item) => ({
-    claim: item.statement,
-    answer: item.answer,
-    options: item.options,
-    why: `The statement is best classified as ${item.answer.toLowerCase()} based on the evidence it describes.`,
+    title: c.title,
+    text: `${c.summary} Pūrvapakṣa: ${c.purvapaksha}. Uttarapakṣa: ${c.uttarapaksha}. ${c.synthesis}`,
+    source: `Parallel Philosophy · ${c.part} · Chapter ${c.number}`,
   })),
 ];
 
 const formatDate = (date: number) =>
   date < 0 ? `${Math.abs(date)} BCE` : `${date} CE`;
+const truncate = (value: string, length = 220) =>
+  value.length > length ? `${value.slice(0, length).trim()}…` : value;
 
 export default function LearningLab() {
   const [activity, setActivity] = useState<ActivityId>('archive');
-  const [askInput, setAskInput] = useState(
-    'How do Panji records support social history?',
-  );
-  const [askedQuestion, setAskedQuestion] = useState(
-    'How do Panji records support social history?',
-  );
+  const [ask, setAsk] = useState('Panji social history');
+  const [query, setQuery] = useState('Panji social history');
   const [detectiveIndex, setDetectiveIndex] = useState(0);
   const [detectiveChoice, setDetectiveChoice] = useState('');
-  const [detectiveScore, setDetectiveScore] = useState(0);
   const [debateIndex, setDebateIndex] = useState(0);
-  const [debateProof, setDebateProof] = useState('');
-  const [debateResponse, setDebateResponse] = useState('');
-  const [debateChecked, setDebateChecked] = useState(false);
+  const [debateReveal, setDebateReveal] = useState(false);
   const [journeyIndex, setJourneyIndex] = useState(0);
-  const [journeyChoice, setJourneyChoice] = useState<number | null>(null);
+  const [placeSearch, setPlaceSearch] = useState('');
   const [identityIndex, setIdentityIndex] = useState(0);
+  const [identitySearch, setIdentitySearch] = useState('');
   const [clueCount, setClueCount] = useState(1);
   const [identityChoice, setIdentityChoice] = useState('');
-  const [orderedChronology, setOrderedChronology] = useState(() => [
-    chronologyItems[2],
-    chronologyItems[0],
-    chronologyItems[5],
-    chronologyItems[3],
-    chronologyItems[1],
-    chronologyItems[4],
-  ]);
+  const [chronologySearch, setChronologySearch] = useState('');
+  const [chronologyPage, setChronologyPage] = useState(0);
+  const [orderedChronology, setOrderedChronology] = useState(() =>
+    [0, 22, 45, 68, 91, 114, 137, 159]
+      .map((i) => learningData.chronology[i])
+      .reverse(),
+  );
   const [chronologyChecked, setChronologyChecked] = useState(false);
-  const [panjiToken, setPanjiToken] = useState(0);
-  const [conceptA, setConceptA] = useState('pramana');
-  const [conceptB, setConceptB] = useState('purvapaksha');
-  const [architectureId, setArchitectureId] = useState('stupa');
+  const [panjiIndex, setPanjiIndex] = useState(0);
+  const [panjiSearch, setPanjiSearch] = useState('');
+  const [panjiVolume, setPanjiVolume] = useState('All volumes');
+  const [conceptA, setConceptA] = useState(learningData.comparators[0].id);
+  const [conceptB, setConceptB] = useState(learningData.comparators[1].id);
+  const [conceptSearch, setConceptSearch] = useState('');
+  const [architectureId, setArchitectureId] = useState(
+    learningData.architecture[0].id,
+  );
+  const [architectureSearch, setArchitectureSearch] = useState('');
+  const [dailyIndex, setDailyIndex] = useState(
+    () => Math.floor(Date.now() / 86400000) % learningData.daily.length,
+  );
   const [dailyChoice, setDailyChoice] = useState('');
   const [classificationIndex, setClassificationIndex] = useState(0);
   const [classificationChoice, setClassificationChoice] = useState('');
@@ -684,7 +225,7 @@ export default function LearningLab() {
     if (typeof window === 'undefined') return [];
     try {
       return JSON.parse(
-        window.localStorage.getItem('videha-research-notebook') ?? '[]',
+        localStorage.getItem('videha-research-notebook') ?? '[]',
       ) as NotebookEntry[];
     } catch {
       return [];
@@ -694,7 +235,7 @@ export default function LearningLab() {
     if (typeof window === 'undefined') return { lastDay: '', streak: 0 };
     try {
       return JSON.parse(
-        window.localStorage.getItem('videha-daily-progress') ??
+        localStorage.getItem('videha-daily-progress') ??
           '{"lastDay":"","streak":0}',
       ) as DailyProgress;
     } catch {
@@ -702,25 +243,25 @@ export default function LearningLab() {
     }
   });
 
-  useEffect(() => {
-    window.localStorage.setItem(
-      'videha-research-notebook',
-      JSON.stringify(notes),
-    );
-  }, [notes]);
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      'videha-daily-progress',
-      JSON.stringify(dailyProgress),
-    );
-  }, [dailyProgress]);
+  useEffect(
+    () =>
+      localStorage.setItem('videha-research-notebook', JSON.stringify(notes)),
+    [notes],
+  );
+  useEffect(
+    () =>
+      localStorage.setItem(
+        'videha-daily-progress',
+        JSON.stringify(dailyProgress),
+      ),
+    [dailyProgress],
+  );
 
   const archiveResults = useMemo(() => {
-    const terms = askedQuestion
+    const terms = query
       .toLowerCase()
       .split(/[^a-zāīūṛṅñṭḍṇśṣṃḥ]+/u)
-      .filter((term) => term.length > 2);
+      .filter((t) => t.length > 2);
     return archiveRecords
       .map((record) => ({
         record,
@@ -735,39 +276,110 @@ export default function LearningLab() {
           0,
         ),
       }))
-      .filter((item) => item.score > 0)
+      .filter((x) => x.score > 0)
       .sort((a, b) => b.score - a.score)
-      .slice(0, 6)
-      .map((item) => item.record);
-  }, [askedQuestion]);
+      .slice(0, 12)
+      .map((x) => x.record);
+  }, [query]);
+  const filteredPlaces = useMemo(
+    () =>
+      learningData.places.filter((p) =>
+        `${p.name} ${p.admin} ${p.countryCode} ${p.context}`
+          .toLowerCase()
+          .includes(placeSearch.toLowerCase()),
+      ),
+    [placeSearch],
+  );
+  const filteredIdentities = useMemo(
+    () =>
+      learningData.identities.filter((p) =>
+        `${p.name} ${p.clues.join(' ')} ${p.source}`
+          .toLowerCase()
+          .includes(identitySearch.toLowerCase()),
+      ),
+    [identitySearch],
+  );
+  const filteredChronology = useMemo(
+    () =>
+      learningData.chronology.filter((x) =>
+        `${x.displayDate} ${x.label} ${x.source}`
+          .toLowerCase()
+          .includes(chronologySearch.toLowerCase()),
+      ),
+    [chronologySearch],
+  );
+  const filteredPanji = useMemo(
+    () =>
+      learningData.panji.filter(
+        (x) =>
+          (panjiVolume === 'All volumes' || x.volume === panjiVolume) &&
+          `${x.heading} ${x.context} ${x.source}`
+            .toLowerCase()
+            .includes(panjiSearch.toLowerCase()),
+      ),
+    [panjiSearch, panjiVolume],
+  );
+  const filteredConcepts = useMemo(
+    () =>
+      learningData.comparators.filter((x) =>
+        `${x.name} ${x.question} ${x.source}`
+          .toLowerCase()
+          .includes(conceptSearch.toLowerCase()),
+      ),
+    [conceptSearch],
+  );
+  const filteredArchitecture = useMemo(
+    () =>
+      learningData.architecture.filter((x) =>
+        `${x.name} ${x.period} ${x.source}`
+          .toLowerCase()
+          .includes(architectureSearch.toLowerCase()),
+      ),
+    [architectureSearch],
+  );
 
-  const addNote = (title: string, body: string, source: string) => {
-    const entry: NotebookEntry = {
-      id: `${title}-${body.length}-${notes.length}`,
-      title,
-      body,
-      source,
-      created: `Entry ${notes.length + 1}`,
-    };
-    setNotes((current) => [entry, ...current]);
-  };
+  const place = learningData.places[journeyIndex];
+  const identity =
+    filteredIdentities[identityIndex] ?? learningData.identities[0];
+  const panji = learningData.panji[panjiIndex];
+  const conceptOne =
+    learningData.comparators.find((x) => x.id === conceptA) ??
+    learningData.comparators[0];
+  const conceptTwo =
+    learningData.comparators.find((x) => x.id === conceptB) ??
+    learningData.comparators[1];
+  const architecture =
+    learningData.architecture.find((x) => x.id === architectureId) ??
+    learningData.architecture[0];
+  const detective = learningData.detective[detectiveIndex];
+  const debate = learningData.debates[debateIndex];
+  const daily = learningData.daily[dailyIndex];
+  const classification = learningData.classification[classificationIndex];
+  const todayKey = today.toISOString().slice(0, 10);
+  const chronologyCorrect = orderedChronology.every(
+    (item, i) => i === 0 || orderedChronology[i - 1].date <= item.date,
+  );
 
-  const submitAsk = (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setAskedQuestion(askInput.trim());
-  };
-
+  const addNote = (title: string, body: string, source: string) =>
+    setNotes((current) => [
+      {
+        id: `${Date.now()}-${title}`,
+        title,
+        body,
+        source,
+        created: new Date().toLocaleDateString(),
+      },
+      ...current,
+    ]);
   const exportNotes = () => {
-    const content = notes
+    const body = notes
       .map(
-        (note, index) =>
-          `${index + 1}. ${note.title}\n${note.body}\nSource: ${note.source}\nSaved: ${note.created}\n`,
+        (n, i) =>
+          `${i + 1}. ${n.title}\n${n.body}\nSource: ${n.source}\nSaved: ${n.created}\n`,
       )
       .join('\n');
     const href = URL.createObjectURL(
-      new Blob([`VIDEHA RESEARCH NOTEBOOK\n\n${content}`], {
-        type: 'text/plain',
-      }),
+      new Blob([`VIDEHA RESEARCH NOTEBOOK\n\n${body}`], { type: 'text/plain' }),
     );
     const link = document.createElement('a');
     link.href = href;
@@ -775,44 +387,23 @@ export default function LearningLab() {
     link.click();
     URL.revokeObjectURL(href);
   };
-
   const moveChronology = (index: number, direction: number) => {
-    const next = [...orderedChronology];
     const destination = index + direction;
-    if (destination < 0 || destination >= next.length) return;
+    if (destination < 0 || destination >= orderedChronology.length) return;
+    const next = [...orderedChronology];
     [next[index], next[destination]] = [next[destination], next[index]];
     setOrderedChronology(next);
     setChronologyChecked(false);
   };
-
-  const speakStop = () => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(
-      journeyStops[journeyIndex].narration,
+  const nextIdentity = (direction: number) => {
+    if (!filteredIdentities.length) return;
+    setIdentityIndex(
+      (identityIndex + direction + filteredIdentities.length) %
+        filteredIdentities.length,
     );
-    utterance.rate = 0.9;
-    window.speechSynthesis.speak(utterance);
+    setIdentityChoice('');
+    setClueCount(1);
   };
-
-  const currentDetective = detectiveQuestions[detectiveIndex];
-  const currentDebate = debateCases[debateIndex];
-  const currentStop = journeyStops[journeyIndex];
-  const currentIdentity = identityFigures[identityIndex];
-  const selectedConceptA = concepts.find((item) => item.id === conceptA)!;
-  const selectedConceptB = concepts.find((item) => item.id === conceptB)!;
-  const selectedArchitecture = architectureTypes.find(
-    (item) => item.id === architectureId,
-  )!;
-  const dailyIndex =
-    Math.floor(today.getTime() / 86400000) % dailyQuestions.length;
-  const daily = dailyQuestions[dailyIndex];
-  const todayKey = today.toISOString().slice(0, 10);
-  const classification = classificationQuestions[classificationIndex];
-  const chronologyCorrect = orderedChronology.every(
-    (item, index) =>
-      index === 0 || orderedChronology[index - 1].date <= item.date,
-  );
 
   return (
     <section
@@ -820,38 +411,43 @@ export default function LearningLab() {
       id="learning-lab"
       aria-labelledby="learning-lab-title"
     >
-      <header className="lab-header">
-        <div>
-          <p>INTERACTIVE VIDEHA LEARNING LAB</p>
-          <h2 id="learning-lab-title">
-            Question, test, compare, and keep a research trail
-          </h2>
-        </div>
-        <dl>
-          <div>
-            <dt>Core research tools</dt>
-            <dd>5</dd>
-          </div>
-          <div>
-            <dt>Activities</dt>
-            <dd>12</dd>
-          </div>
-          <div>
-            <dt>Notebook entries</dt>
-            <dd>{notes.length}</dd>
-          </div>
-        </dl>
-      </header>
-
       <div className="lab-shell">
-        <aside className="lab-navigation">
-          <p>CORE WORKFLOW</p>
-          {activities
-            .filter((item) => item.core)
-            .map((item) => (
+        <header className="lab-intro">
+          <div>
+            <span className="lab-kicker">
+              VIDEHA INTERACTIVE RESEARCH COMMONS
+            </span>
+            <h2 id="learning-lab-title">
+              Read, test, compare, and keep the trail.
+            </h2>
+            <p>
+              Twelve source-led activities built from the indexed books and
+              attached author manuscripts. Every large bank is searchable or
+              sequentially browseable; no fictional practice records remain.
+            </p>
+          </div>
+          <div className="lab-stat-grid">
+            <strong>
+              <b>{learningData.places.length}</b> mapped places
+            </strong>
+            <strong>
+              <b>{learningData.chronology.length}</b> dated passages
+            </strong>
+            <strong>
+              <b>{learningData.panji.length}</b> Panji headings
+            </strong>
+            <strong>
+              <b>{learningData.comparators.length}</b> comparisons
+            </strong>
+          </div>
+        </header>
+        <div className="lab-layout">
+          <nav className="lab-nav" aria-label="Interactive research activities">
+            {activities.map((item) => (
               <button
                 key={item.id}
                 className={activity === item.id ? 'active' : ''}
+                aria-current={activity === item.id ? 'page' : undefined}
                 onClick={() => setActivity(item.id)}
               >
                 <b>{String(item.number).padStart(2, '0')}</b>
@@ -859,938 +455,996 @@ export default function LearningLab() {
                   <strong>{item.label}</strong>
                   <small>{item.note}</small>
                 </span>
-                <ChevronRight />
+                {item.count ? <em>{item.count}</em> : null}
               </button>
             ))}
-          <p>CHALLENGES &amp; LABS</p>
-          {activities
-            .filter((item) => !item.core)
-            .map((item) => (
-              <button
-                key={item.id}
-                className={activity === item.id ? 'active' : ''}
-                onClick={() => setActivity(item.id)}
-              >
-                <b>{String(item.number).padStart(2, '0')}</b>
-                <span>
-                  <strong>{item.label}</strong>
-                  <small>{item.note}</small>
-                </span>
-                <ChevronRight />
-              </button>
-            ))}
-        </aside>
-
-        <main className="lab-workbench">
-          {activity === 'archive' && (
-            <section
-              className="lab-activity ask-archive"
-              aria-labelledby="lab-archive-title"
-            >
-              <div className="activity-heading">
-                <Archive />
-                <div>
-                  <p>01 · SOURCE-GROUNDED Q&amp;A</p>
-                  <h3 id="lab-archive-title">Ask the Archive</h3>
-                  <span>
-                    Searches the site’s chapter, book, person, and philosophy
-                    indexes. Results show their source record.
-                  </span>
+          </nav>
+          <main className="lab-workbench">
+            {activity === 'archive' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<Archive />}
+                  code="01 · INDEXED SEARCH"
+                  title="Ask the Archive"
+                  note={`${archiveRecords.length} indexed books, chapters, figures, and arguments`}
+                />
+                <form
+                  className="archive-search"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setQuery(ask.trim());
+                  }}
+                >
+                  <label htmlFor="archive-query">
+                    Research question or keyword
+                  </label>
+                  <div>
+                    <input
+                      id="archive-query"
+                      value={ask}
+                      onChange={(e) => setAsk(e.target.value)}
+                    />
+                    <button>
+                      <Search /> Search
+                    </button>
+                  </div>
+                </form>
+                <div className="archive-results">
+                  {archiveResults.length ? (
+                    archiveResults.map((r) => (
+                      <article key={r.id}>
+                        <span>{r.kind}</span>
+                        <h4>{r.title}</h4>
+                        <p>{truncate(r.text)}</p>
+                        <small>{r.source}</small>
+                        <button
+                          onClick={() => addNote(r.title, r.text, r.source)}
+                        >
+                          <NotebookPen /> Save
+                        </button>
+                      </article>
+                    ))
+                  ) : (
+                    <Empty text="Try a book title, person, place, method, or chapter subject." />
+                  )}
                 </div>
-              </div>
-              <form onSubmit={submitAsk}>
-                <label>
-                  <span className="sr-only">Question for the archive</span>
-                  <Search />
-                  <input
-                    value={askInput}
-                    onChange={(event) => setAskInput(event.target.value)}
-                    placeholder="Ask about a person, place, text, event, or idea"
-                  />
-                </label>
-                <button type="submit">Search records</button>
-              </form>
-              <div className="starter-questions">
-                {[
-                  'What does the Panji record?',
-                  'Who was Gārgī?',
-                  'How are Vajji and Vaiśālī connected?',
-                  'What is pūrvapakṣa?',
-                  'Where does Campā appear?',
-                ].map((question) => (
+              </section>
+            )}
+
+            {activity === 'detective' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<Search />}
+                  code="02 · SOURCE-TYPE BANK"
+                  title="Source Detective"
+                  note={`${learningData.detective.length} source-traceable excerpts`}
+                />
+                <Pager
+                  index={detectiveIndex}
+                  total={learningData.detective.length}
+                  previous={() => {
+                    setDetectiveIndex(
+                      (detectiveIndex - 1 + learningData.detective.length) %
+                        learningData.detective.length,
+                    );
+                    setDetectiveChoice('');
+                  }}
+                  next={() => {
+                    setDetectiveIndex(
+                      (detectiveIndex + 1) % learningData.detective.length,
+                    );
+                    setDetectiveChoice('');
+                  }}
+                />
+                <Question
+                  item={detective}
+                  choice={detectiveChoice}
+                  setChoice={setDetectiveChoice}
+                />
+              </section>
+            )}
+
+            {activity === 'debate' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<GitCompareArrows />}
+                  code="03 · PARALLEL PHILOSOPHY"
+                  title="Pūrvapakṣa Debate Game"
+                  note={`${learningData.debates.length} chapter-grounded debates`}
+                />
+                <Pager
+                  index={debateIndex}
+                  total={learningData.debates.length}
+                  previous={() => {
+                    setDebateIndex(
+                      (debateIndex - 1 + learningData.debates.length) %
+                        learningData.debates.length,
+                    );
+                    setDebateReveal(false);
+                  }}
+                  next={() => {
+                    setDebateIndex(
+                      (debateIndex + 1) % learningData.debates.length,
+                    );
+                    setDebateReveal(false);
+                  }}
+                />
+                <div className="debate-board">
+                  <article>
+                    <span>TOPIC</span>
+                    <h4>{debate.topic}</h4>
+                    <small>{debate.source}</small>
+                  </article>
+                  <article className="objection">
+                    <span>PŪRVAPAKṢA</span>
+                    <p>{debate.objection}</p>
+                  </article>
                   <button
-                    key={question}
-                    onClick={() => {
-                      setAskInput(question);
-                      setAskedQuestion(question);
-                    }}
+                    className="primary-lab-action"
+                    onClick={() => setDebateReveal(!debateReveal)}
                   >
-                    {question}
+                    {debateReveal
+                      ? 'Hide answer'
+                      : 'Reveal uttarapakṣa and synthesis'}
                   </button>
-                ))}
-              </div>
-              <div className="archive-answer">
-                <p>ARCHIVE RESPONSE</p>
-                <h4>{askedQuestion}</h4>
-                {archiveResults.length ? (
-                  <>
-                    <p>
-                      The closest indexed records are listed below. Read them
-                      together because different records may represent textual
-                      memory, material evidence, genealogy, or later
-                      interpretation.
-                    </p>
-                    <div className="archive-results">
-                      {archiveResults.map((record) => (
-                        <article key={`${record.kind}-${record.id}`}>
-                          <span>{record.kind}</span>
-                          <h5>{record.title}</h5>
-                          <p>
-                            {record.text.slice(0, 330)}
-                            {record.text.length > 330 ? '…' : ''}
-                          </p>
-                          <small>{record.source}</small>
+                  {debateReveal && (
+                    <div className="debate-reveal">
+                      <h5>Chapter frame</h5>
+                      <p>{debate.proof}</p>
+                      <h5>Uttarapakṣa</h5>
+                      <p>{debate.response}</p>
+                      <h5>Synthesis</h5>
+                      <p>{debate.synthesis}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {activity === 'journey' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<MapPinned />}
+                  code="04 · CLICKABLE GAZETTEER"
+                  title="Map Journey"
+                  note={`${learningData.places.length} places; every marker and list item opens`}
+                />
+                <Banner>
+                  Historical context comes from the attached history volumes.
+                  Coordinates come from GeoNames (CC BY 4.0) for modern
+                  orientation; they do not prove ancient boundaries or
+                  identifications.
+                </Banner>
+                <Filter
+                  label="Find a place"
+                  value={placeSearch}
+                  setValue={setPlaceSearch}
+                  placeholder="Name, region, country, or context"
+                />
+                <div className="map-lab-grid">
+                  <div
+                    className="journey-map"
+                    aria-label="Clickable orientation map"
+                  >
+                    <div className="map-river one" />
+                    <div className="map-river two" />
+                    {learningData.places.map((p, i) => {
+                      const left = ((p.longitude - 81) / 10.5) * 100;
+                      const top = ((30.8 - p.latitude) / 9.8) * 100;
+                      return (
+                        <button
+                          key={p.id}
+                          style={{
+                            left: `${Math.max(2, Math.min(98, left))}%`,
+                            top: `${Math.max(2, Math.min(98, top))}%`,
+                          }}
+                          className={journeyIndex === i ? 'active' : ''}
+                          aria-label={`Open ${p.name}`}
+                          title={p.name}
+                          onClick={() => setJourneyIndex(i)}
+                        >
+                          <span>{i + 1}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="place-directory">
+                    <div className="place-list">
+                      {filteredPlaces.map((p) => {
+                        const i = learningData.places.findIndex(
+                          (x) => x.id === p.id,
+                        );
+                        return (
                           <button
-                            onClick={() =>
-                              addNote(
-                                record.title,
-                                record.text.slice(0, 600),
-                                record.source,
-                              )
-                            }
+                            key={p.id}
+                            className={journeyIndex === i ? 'active' : ''}
+                            onClick={() => setJourneyIndex(i)}
                           >
-                            <NotebookPen /> Save to notebook
+                            <b>{p.name}</b>
+                            <small>
+                              {p.admin} · {p.countryCode}
+                            </small>
                           </button>
-                        </article>
-                      ))}
+                        );
+                      })}
+                    </div>
+                    <article className="place-reading">
+                      <span>
+                        {journeyIndex + 1} / {learningData.places.length}
+                      </span>
+                      <h4>{place.name}</h4>
+                      <p>{place.frame}</p>
+                      <p>{place.context}</p>
+                      <dl>
+                        <dt>Coordinates</dt>
+                        <dd>
+                          {place.latitude.toFixed(4)},{' '}
+                          {place.longitude.toFixed(4)}
+                        </dd>
+                        <dt>Record source</dt>
+                        <dd>{place.source}</dd>
+                        <dt>GeoNames ID</dt>
+                        <dd>{place.geonameId}</dd>
+                      </dl>
+                      <button
+                        onClick={() =>
+                          addNote(place.name, place.context, place.source)
+                        }
+                      >
+                        <NotebookPen /> Save place note
+                      </button>
+                    </article>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {activity === 'notebook' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<NotebookPen />}
+                  code="05 · PRIVATE BROWSER NOTEBOOK"
+                  title="Research Notebook"
+                  note="Entries remain on this device until exported or deleted"
+                />
+                <div className="notebook-compose">
+                  <label>
+                    Title
+                    <input
+                      value={noteTitle}
+                      onChange={(e) => setNoteTitle(e.target.value)}
+                      placeholder="Research question"
+                    />
+                  </label>
+                  <label>
+                    Note
+                    <textarea
+                      value={noteBody}
+                      onChange={(e) => setNoteBody(e.target.value)}
+                      placeholder="Argument, comparison, reference, or question"
+                    />
+                  </label>
+                  <div>
+                    <button
+                      disabled={!noteTitle.trim() || !noteBody.trim()}
+                      onClick={() => {
+                        addNote(noteTitle, noteBody, 'Personal research note');
+                        setNoteTitle('');
+                        setNoteBody('');
+                      }}
+                    >
+                      Save note
+                    </button>
+                    <button disabled={!notes.length} onClick={exportNotes}>
+                      <Download /> Export
+                    </button>
+                  </div>
+                </div>
+                <div className="notebook-list">
+                  {notes.length ? (
+                    notes.map((n) => (
+                      <article key={n.id}>
+                        <span>{n.created}</span>
+                        <h4>{n.title}</h4>
+                        <p>{n.body}</p>
+                        <small>{n.source}</small>
+                        <button
+                          aria-label={`Delete ${n.title}`}
+                          onClick={() =>
+                            setNotes((current) =>
+                              current.filter((x) => x.id !== n.id),
+                            )
+                          }
+                        >
+                          <X />
+                        </button>
+                      </article>
+                    ))
+                  ) : (
+                    <Empty text="Save a result from any activity or write a note above." />
+                  )}
+                </div>
+              </section>
+            )}
+
+            {activity === 'identity' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<CircleHelp />}
+                  code="06 · LITERARY-HISTORY CATALOG"
+                  title="Who am I?"
+                  note={`${learningData.identities.length} indexed historical and literary figures`}
+                />
+                <Filter
+                  label="Filter figures"
+                  value={identitySearch}
+                  setValue={(value) => {
+                    setIdentitySearch(value);
+                    setIdentityIndex(0);
+                    setIdentityChoice('');
+                    setClueCount(1);
+                  }}
+                  placeholder="Name, era, field, description"
+                />
+                {filteredIdentities.length ? (
+                  <>
+                    <Pager
+                      index={identityIndex}
+                      total={filteredIdentities.length}
+                      previous={() => nextIdentity(-1)}
+                      next={() => nextIdentity(1)}
+                    />
+                    <div className="identity-game">
+                      <div className="clue-stack">
+                        {identity.clues.slice(0, clueCount).map((clue, i) => (
+                          <p key={i}>
+                            <b>{String(i + 1).padStart(2, '0')}</b>
+                            {clue}
+                          </p>
+                        ))}
+                        {clueCount < identity.clues.length && (
+                          <button onClick={() => setClueCount(clueCount + 1)}>
+                            Reveal another clue
+                          </button>
+                        )}
+                      </div>
+                      <div className="answer-grid">
+                        {identity.choices.map((o) => (
+                          <Answer
+                            key={o}
+                            option={o}
+                            answer={identity.name}
+                            choice={identityChoice}
+                            setChoice={setIdentityChoice}
+                          />
+                        ))}
+                      </div>
+                      {identityChoice && (
+                        <Explanation
+                          correct={identityChoice === identity.name}
+                          answer={identity.name}
+                          text="The clues reproduce the catalogued field, era, and biographical description."
+                          source={identity.source}
+                        />
+                      )}
                     </div>
                   </>
                 ) : (
-                  <div className="lab-empty">
-                    <CircleHelp />
-                    <h5>No close indexed match</h5>
-                    <p>
-                      Try a name, place, book title, or concept already
-                      represented in the archive.
-                    </p>
-                  </div>
+                  <Empty text="No figures match this filter." />
                 )}
-              </div>
-            </section>
-          )}
+              </section>
+            )}
 
-          {activity === 'detective' && (
-            <section className="lab-activity" aria-labelledby="detective-title">
-              <div className="activity-heading">
-                <ClipboardCheck />
-                <div>
-                  <p>02 · EVIDENCE QUIZ</p>
-                  <h3 id="detective-title">Source Detective</h3>
-                  <span>
-                    Choose the evidence that can directly support the stated
-                    claim.
-                  </span>
-                </div>
-              </div>
-              <div className="quiz-progress">
-                <span>
-                  Case {detectiveIndex + 1} of {detectiveQuestions.length}
-                </span>
-                <b>{detectiveScore} correct</b>
-              </div>
-              <div className="question-card">
-                <p>CLAIM</p>
-                <h4>{currentDetective.claim}</h4>
-                <div className="answer-grid">
-                  {currentDetective.options.map((option) => (
-                    <button
-                      key={option}
-                      disabled={Boolean(detectiveChoice)}
-                      className={
-                        detectiveChoice
-                          ? option === currentDetective.answer
-                            ? 'correct'
-                            : option === detectiveChoice
-                              ? 'incorrect'
-                              : ''
-                          : ''
-                      }
-                      onClick={() => {
-                        setDetectiveChoice(option);
-                        if (option === currentDetective.answer)
-                          setDetectiveScore((score) => score + 1);
-                      }}
-                    >
-                      {option}
-                    </button>
+            {activity === 'chronology' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<ArrowDown />}
+                  code="07 · DATED SOURCE PASSAGES"
+                  title="Build a Chronology"
+                  note={`${learningData.chronology.length} dated passages plus an eight-item ordering challenge`}
+                />
+                <Banner>
+                  Dates and statements are extracted from the attached history
+                  manuscripts. A listed date records what the cited passage
+                  says; it is not silently upgraded into independent proof.
+                </Banner>
+                <h4 className="subhead">Ordering challenge</h4>
+                <ol className="chronology-builder">
+                  {orderedChronology.map((item, i) => (
+                    <li key={item.id}>
+                      <b>{i + 1}</b>
+                      <span>{item.label}</span>
+                      <div>
+                        <button
+                          disabled={i === 0}
+                          onClick={() => moveChronology(i, -1)}
+                        >
+                          <ArrowUp />
+                        </button>
+                        <button
+                          disabled={i === orderedChronology.length - 1}
+                          onClick={() => moveChronology(i, 1)}
+                        >
+                          <ArrowDown />
+                        </button>
+                      </div>
+                      {chronologyChecked && (
+                        <time>{formatDate(item.date)}</time>
+                      )}
+                    </li>
                   ))}
-                </div>
-                {detectiveChoice && (
-                  <div className="answer-explanation">
-                    <strong>
-                      {detectiveChoice === currentDetective.answer
-                        ? 'Supported choice'
-                        : 'Reconsider the evidence type'}
-                    </strong>
-                    <p>{currentDetective.why}</p>
-                    <button
-                      onClick={() => {
-                        setDetectiveIndex(
-                          (detectiveIndex + 1) % detectiveQuestions.length,
-                        );
-                        setDetectiveChoice('');
-                      }}
-                    >
-                      Next case <ChevronRight />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {activity === 'debate' && (
-            <section className="lab-activity" aria-labelledby="debate-title">
-              <div className="activity-heading">
-                <BookOpenCheck />
-                <div>
-                  <p>03 · ARGUMENT WORKSHOP</p>
-                  <h3 id="debate-title">Pūrvapakṣa Debate Game</h3>
-                  <span>
-                    Construct an answer that meets the objection without
-                    changing the question.
-                  </span>
-                </div>
-              </div>
-              <div className="debate-builder">
-                <p>QUESTION</p>
-                <h4>{currentDebate.topic}</h4>
-                <article>
-                  <span>01</span>
-                  <div>
-                    <b>Pūrvapakṣa</b>
-                    <p>{currentDebate.objection}</p>
-                  </div>
-                </article>
-                <label>
-                  <b>02 · Choose a proof test</b>
-                  <select
-                    value={debateProof}
-                    onChange={(event) => {
-                      setDebateProof(event.target.value);
-                      setDebateChecked(false);
-                    }}
-                  >
-                    <option value="">Select the relevant test</option>
-                    {[currentDebate.proof, ...currentDebate.weak]
-                      .sort()
-                      .map((option) => (
-                        <option key={option}>{option}</option>
-                      ))}
-                  </select>
-                </label>
-                <label>
-                  <b>03 · Choose the Uttarapakṣa</b>
-                  <select
-                    value={debateResponse}
-                    onChange={(event) => {
-                      setDebateResponse(event.target.value);
-                      setDebateChecked(false);
-                    }}
-                  >
-                    <option value="">Select the strongest response</option>
-                    {[currentDebate.response, ...currentDebate.weak]
-                      .reverse()
-                      .map((option) => (
-                        <option key={option}>{option}</option>
-                      ))}
-                  </select>
-                </label>
+                </ol>
                 <button
                   className="primary-lab-action"
-                  disabled={!debateProof || !debateResponse}
-                  onClick={() => setDebateChecked(true)}
+                  onClick={() => setChronologyChecked(true)}
                 >
-                  Test the argument
+                  Check order
                 </button>
-                {debateChecked && (
+                {chronologyChecked && (
                   <div
-                    className={`debate-verdict ${debateProof === currentDebate.proof && debateResponse === currentDebate.response ? 'correct' : 'incorrect'}`}
+                    className={`compact-verdict ${chronologyCorrect ? 'correct' : 'incorrect'}`}
                   >
-                    {debateProof === currentDebate.proof &&
-                    debateResponse === currentDebate.response ? (
-                      <Check />
-                    ) : (
-                      <X />
-                    )}
-                    <div>
-                      <strong>
-                        {debateProof === currentDebate.proof &&
-                        debateResponse === currentDebate.response
-                          ? 'The response survives this test'
-                          : 'The objection remains unanswered'}
-                      </strong>
-                      <p>
-                        {debateProof === currentDebate.proof &&
-                        debateResponse === currentDebate.response
-                          ? 'The evidence test matches the claim, and the response preserves the distinction raised by the objection.'
-                          : 'Choose a test that examines the evidence directly and a response that answers the objection as stated.'}
-                      </p>
-                      <button
-                        onClick={() => {
-                          setDebateIndex(
-                            (debateIndex + 1) % debateCases.length,
-                          );
-                          setDebateProof('');
-                          setDebateResponse('');
-                          setDebateChecked(false);
-                        }}
-                      >
-                        Try another debate
-                      </button>
-                    </div>
+                    {chronologyCorrect ? <Check /> : <RotateCcw />}
+                    <span>
+                      {chronologyCorrect
+                        ? 'Correctly ordered.'
+                        : 'Dates are revealed; reorder and check again.'}
+                    </span>
                   </div>
                 )}
-              </div>
-            </section>
-          )}
+                <h4 className="subhead">Full chronology index</h4>
+                <Filter
+                  label="Search chronology"
+                  value={chronologySearch}
+                  setValue={(value) => {
+                    setChronologySearch(value);
+                    setChronologyPage(0);
+                  }}
+                  placeholder="Date, event, word, or source"
+                />
+                <div className="chronology-index">
+                  {filteredChronology
+                    .slice(chronologyPage * 20, chronologyPage * 20 + 20)
+                    .map((item) => (
+                      <article key={item.id}>
+                        <time>{item.displayDate}</time>
+                        <p>{item.label}</p>
+                        <small>{item.source}</small>
+                        <button
+                          onClick={() =>
+                            addNote(item.displayDate, item.label, item.source)
+                          }
+                        >
+                          <NotebookPen /> Save
+                        </button>
+                      </article>
+                    ))}
+                </div>
+                <PageStrip
+                  page={chronologyPage}
+                  pages={Math.max(1, Math.ceil(filteredChronology.length / 20))}
+                  setPage={setChronologyPage}
+                />
+              </section>
+            )}
 
-          {activity === 'journey' && (
-            <section className="lab-activity" aria-labelledby="journey-title">
-              <div className="activity-heading">
-                <MapPinned />
-                <div>
-                  <p>04 · NARRATED ROUTE</p>
-                  <h3 id="journey-title">Map Journey</h3>
-                  <span>
-                    Answer at each stop to unlock the connected historical
-                    route.
-                  </span>
-                </div>
-              </div>
-              <div className="journey-map">
-                <svg
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  <polyline
-                    points={journeyStops
-                      .map((stop) => `${stop.x},${stop.y}`)
-                      .join(' ')}
+            {activity === 'panji' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<Archive />}
+                  code="08 · SIX-VOLUME MANUSCRIPT INDEX"
+                  title="Panji Decoding Laboratory"
+                  note={`${learningData.panji.length} actual headings; no fictional genealogy`}
+                />
+                <Banner>
+                  These headings are extracted from the six author manuscripts.
+                  The laboratory teaches document structure and evidentiary
+                  limits without displaying or inferring private lineage data.
+                </Banner>
+                <div className="dual-filters">
+                  <Filter
+                    label="Find a heading"
+                    value={panjiSearch}
+                    setValue={setPanjiSearch}
+                    placeholder="Practice, term, chapter, ethics…"
                   />
-                </svg>
-                {journeyStops.map((stop, index) => (
-                  <button
-                    key={stop.name}
-                    disabled={index > journeyIndex}
-                    className={
-                      index === journeyIndex
-                        ? 'active'
-                        : index < journeyIndex
-                          ? 'complete'
-                          : ''
-                    }
-                    style={{ left: `${stop.x}%`, top: `${stop.y}%` }}
-                    onClick={() =>
-                      index <= journeyIndex && setJourneyIndex(index)
-                    }
-                  >
-                    <span>{index < journeyIndex ? <Check /> : index + 1}</span>
-                    {stop.name}
-                  </button>
-                ))}
-              </div>
-              <div className="journey-stop">
-                <div>
-                  <p>
-                    STOP {journeyIndex + 1} · {currentStop.frame}
-                  </p>
-                  <h4>{currentStop.name}</h4>
-                  <p>{currentStop.narration}</p>
-                  <button onClick={speakStop}>
-                    <Volume2 /> Listen
-                  </button>
-                </div>
-                <div>
-                  <strong>{currentStop.question}</strong>
-                  {currentStop.options.map((option, index) => (
-                    <button
-                      key={option}
-                      className={
-                        journeyChoice !== null
-                          ? index === currentStop.correct
-                            ? 'correct'
-                            : index === journeyChoice
-                              ? 'incorrect'
-                              : ''
-                          : ''
-                      }
-                      onClick={() => setJourneyChoice(index)}
+                  <label>
+                    Volume
+                    <select
+                      value={panjiVolume}
+                      onChange={(e) => setPanjiVolume(e.target.value)}
                     >
-                      {option}
-                    </button>
-                  ))}
-                  {journeyChoice === currentStop.correct &&
-                    journeyIndex < journeyStops.length - 1 && (
-                      <button
-                        className="next-stop"
-                        onClick={() => {
-                          setJourneyIndex(journeyIndex + 1);
-                          setJourneyChoice(null);
-                        }}
-                      >
-                        Unlock next stop <Footprints />
-                      </button>
-                    )}
-                  {journeyChoice === currentStop.correct &&
-                    journeyIndex === journeyStops.length - 1 && (
-                      <strong className="journey-complete">
-                        <Trophy /> Route completed
-                      </strong>
-                    )}
+                      <option>All volumes</option>
+                      {[1, 2, 3, 4, 5, 6].map((n) => (
+                        <option key={n}>Volume {n}</option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
-              </div>
-            </section>
-          )}
-
-          {activity === 'notebook' && (
-            <section className="lab-activity" aria-labelledby="notebook-title">
-              <div className="activity-heading">
-                <NotebookPen />
-                <div>
-                  <p>05 · PRIVATE BROWSER NOTEBOOK</p>
-                  <h3 id="notebook-title">Research Notebook</h3>
-                  <span>
-                    Entries remain on this device until exported or deleted.
-                  </span>
-                </div>
-              </div>
-              <div className="notebook-compose">
-                <label>
-                  Title
-                  <input
-                    value={noteTitle}
-                    onChange={(event) => setNoteTitle(event.target.value)}
-                    placeholder="Research question or observation"
-                  />
-                </label>
-                <label>
-                  Note
-                  <textarea
-                    value={noteBody}
-                    onChange={(event) => setNoteBody(event.target.value)}
-                    placeholder="Record an argument, comparison, quotation reference, or question"
-                  />
-                </label>
-                <div>
-                  <button
-                    disabled={!noteTitle.trim() || !noteBody.trim()}
-                    onClick={() => {
-                      addNote(noteTitle, noteBody, 'Personal research note');
-                      setNoteTitle('');
-                      setNoteBody('');
-                    }}
-                  >
-                    Save note
-                  </button>
-                  <button disabled={!notes.length} onClick={exportNotes}>
-                    <Download /> Export notebook
-                  </button>
-                </div>
-              </div>
-              <div className="notebook-list">
-                {notes.length ? (
-                  notes.map((note) => (
-                    <article key={note.id}>
-                      <span>{note.created}</span>
-                      <h4>{note.title}</h4>
-                      <p>{note.body}</p>
-                      <small>{note.source}</small>
-                      <button
-                        aria-label={`Delete ${note.title}`}
-                        onClick={() =>
-                          setNotes((current) =>
-                            current.filter((item) => item.id !== note.id),
-                          )
-                        }
-                      >
-                        <X />
-                      </button>
-                    </article>
-                  ))
-                ) : (
-                  <div className="lab-empty">
-                    <NotebookPen />
-                    <h5>No saved notes yet</h5>
-                    <p>
-                      Search Ask the Archive and save a result, or write a note
-                      above.
-                    </p>
+                <div className="panji-lab">
+                  <div className="panji-record">
+                    {filteredPanji.map((item) => {
+                      const i = learningData.panji.findIndex(
+                        (x) => x.id === item.id,
+                      );
+                      return (
+                        <button
+                          key={item.id}
+                          className={panjiIndex === i ? 'active' : ''}
+                          onClick={() => setPanjiIndex(i)}
+                        >
+                          <small>
+                            {item.volume} · level {item.level}
+                          </small>
+                          {item.heading}
+                        </button>
+                      );
+                    })}
                   </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {activity === 'identity' && (
-            <section className="lab-activity" aria-labelledby="identity-title">
-              <div className="activity-heading">
-                <CircleHelp />
-                <div>
-                  <p>06 · HISTORICAL FIGURES</p>
-                  <h3 id="identity-title">Who am I?</h3>
-                  <span>Reveal only as many clues as you need.</span>
-                </div>
-              </div>
-              <div className="identity-game">
-                <div className="clue-stack">
-                  {currentIdentity.clues
-                    .slice(0, clueCount)
-                    .map((clue, index) => (
-                      <p key={clue}>
-                        <b>{String(index + 1).padStart(2, '0')}</b>
-                        {clue}
-                      </p>
-                    ))}
-                  {clueCount < currentIdentity.clues.length && (
-                    <button onClick={() => setClueCount(clueCount + 1)}>
-                      Reveal another clue
-                    </button>
-                  )}
-                </div>
-                <div className="answer-grid">
-                  {currentIdentity.choices.map((choice) => (
-                    <button
-                      key={choice}
-                      disabled={Boolean(identityChoice)}
-                      className={
-                        identityChoice
-                          ? choice === currentIdentity.name
-                            ? 'correct'
-                            : choice === identityChoice
-                              ? 'incorrect'
-                              : ''
-                          : ''
-                      }
-                      onClick={() => setIdentityChoice(choice)}
-                    >
-                      {choice}
-                    </button>
-                  ))}
-                </div>
-                {identityChoice && (
-                  <div className="answer-explanation">
-                    <strong>
-                      {identityChoice === currentIdentity.name
-                        ? 'Correct identification'
-                        : `The figure is ${currentIdentity.name}`}
-                    </strong>
-                    <button
-                      onClick={() => {
-                        setIdentityIndex(
-                          (identityIndex + 1) % identityFigures.length,
-                        );
-                        setIdentityChoice('');
-                        setClueCount(1);
-                      }}
-                    >
-                      Next figure
-                    </button>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {activity === 'chronology' && (
-            <section
-              className="lab-activity"
-              aria-labelledby="chronology-lab-title"
-            >
-              <div className="activity-heading">
-                <ArrowDown />
-                <div>
-                  <p>07 · ORDERING LAB</p>
-                  <h3 id="chronology-lab-title">Build a Chronology</h3>
-                  <span>
-                    Move the evidence horizons from earliest to latest.
-                  </span>
-                </div>
-              </div>
-              <ol className="chronology-builder">
-                {orderedChronology.map((item, index) => (
-                  <li key={item.id}>
-                    <b>{index + 1}</b>
-                    <span>{item.label}</span>
-                    <div>
-                      <button
-                        aria-label={`Move ${item.label} earlier`}
-                        disabled={index === 0}
-                        onClick={() => moveChronology(index, -1)}
-                      >
-                        <ArrowUp />
-                      </button>
-                      <button
-                        aria-label={`Move ${item.label} later`}
-                        disabled={index === orderedChronology.length - 1}
-                        onClick={() => moveChronology(index, 1)}
-                      >
-                        <ArrowDown />
-                      </button>
-                    </div>
-                    {chronologyChecked && <time>{formatDate(item.date)}</time>}
-                  </li>
-                ))}
-              </ol>
-              <button
-                className="primary-lab-action"
-                onClick={() => setChronologyChecked(true)}
-              >
-                Check order
-              </button>
-              {chronologyChecked && (
-                <div
-                  className={`compact-verdict ${chronologyCorrect ? 'correct' : 'incorrect'}`}
-                >
-                  {chronologyCorrect ? <Check /> : <RotateCcw />}
-                  <span>
-                    {chronologyCorrect
-                      ? 'The chronology is correctly ordered.'
-                      : 'Some evidence horizons remain out of sequence. Dates are now revealed.'}
-                  </span>
-                </div>
-              )}
-            </section>
-          )}
-
-          {activity === 'panji' && (
-            <section className="lab-activity" aria-labelledby="panji-lab-title">
-              <div className="activity-heading">
-                <Archive />
-                <div>
-                  <p>08 · FICTIONAL PRACTICE RECORD</p>
-                  <h3 id="panji-lab-title">Panji Decoding Laboratory</h3>
-                  <span>
-                    No personal genealogy appears in this demonstration.
-                  </span>
-                </div>
-              </div>
-              <div className="panji-lab">
-                <div className="panji-record">
-                  <p>अभ्यास-पञ्जी · केवल पद्धति प्रदर्शन</p>
-                  {panjiTokens.map((item, index) => (
-                    <button
-                      key={item.token}
-                      className={panjiToken === index ? 'active' : ''}
-                      onClick={() => setPanjiToken(index)}
-                    >
-                      {item.token}
-                    </button>
-                  ))}
-                </div>
-                <div className="panji-reading">
-                  <span>SELECTED FIELD</span>
-                  <h4>{panjiTokens[panjiToken].label}</h4>
-                  <p>{panjiTokens[panjiToken].meaning}</p>
-                  <dl>
-                    <dt>What it can support</dt>
-                    <dd>
-                      The fact that this category or formula appears in the
-                      demonstration record.
-                    </dd>
-                    <dt>What it cannot prove alone</dt>
-                    <dd>
-                      Modern identity, biological descent, exact social
-                      practice, or the full history of a community.
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {activity === 'comparator' && (
-            <section
-              className="lab-activity"
-              aria-labelledby="comparator-title"
-            >
-              <div className="activity-heading">
-                <GitCompareArrows />
-                <div>
-                  <p>09 · SIDE-BY-SIDE INQUIRY</p>
-                  <h3 id="comparator-title">
-                    Philosophical Concept Comparator
-                  </h3>
-                  <span>
-                    Compare questions, methods, and cautions without collapsing
-                    differences.
-                  </span>
-                </div>
-              </div>
-              <div className="compare-selectors">
-                <label>
-                  First concept
-                  <select
-                    value={conceptA}
-                    onChange={(event) => setConceptA(event.target.value)}
-                  >
-                    {concepts.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Second concept
-                  <select
-                    value={conceptB}
-                    onChange={(event) => setConceptB(event.target.value)}
-                  >
-                    {concepts.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="concept-comparison">
-                {[selectedConceptA, selectedConceptB].map((item) => (
-                  <article key={item.id}>
-                    <p>CONCEPT</p>
-                    <h4>{item.name}</h4>
-                    <strong>{item.question}</strong>
-                    <h5>Method</h5>
-                    <p>{item.method}</p>
-                    <h5>Research caution</h5>
-                    <p>{item.caution}</p>
+                  <div className="panji-reading">
+                    <span>SELECTED MANUSCRIPT HEADING</span>
+                    <h4>{panji.heading}</h4>
+                    <p>{panji.context}</p>
+                    <dl>
+                      <dt>What the index can support</dt>
+                      <dd>{panji.canSupport}</dd>
+                      <dt>What it cannot prove alone</dt>
+                      <dd>{panji.cannotProve}</dd>
+                      <dt>Manuscript source</dt>
+                      <dd>{panji.source}</dd>
+                    </dl>
                     <button
                       onClick={() =>
-                        addNote(
-                          `Comparison note: ${item.name}`,
-                          `${item.question} ${item.method} Caution: ${item.caution}`,
-                          'Videha concept comparator',
-                        )
+                        addNote(panji.heading, panji.context, panji.source)
                       }
                     >
                       <NotebookPen /> Save
                     </button>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
+                  </div>
+                </div>
+              </section>
+            )}
 
-          {activity === 'architecture' && (
-            <section
-              className="lab-activity"
-              aria-labelledby="architecture-title"
-            >
-              <div className="activity-heading">
-                <Sparkles />
-                <div>
-                  <p>10 · STRUCTURAL READING</p>
-                  <h3 id="architecture-title">
-                    Architecture Reconstruction Viewer
-                  </h3>
-                  <span>
-                    A schematic teaching aid for reading remains, not a claim
-                    about one excavated building.
-                  </span>
+            {activity === 'comparator' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<GitCompareArrows />}
+                  code="09 · PHILOSOPHICAL INDEX"
+                  title="Concept Comparator"
+                  note={`${learningData.comparators.length} chapter and section records`}
+                />
+                <Filter
+                  label="Filter both menus"
+                  value={conceptSearch}
+                  setValue={setConceptSearch}
+                  placeholder="Concept, chapter, section, question"
+                />
+                <div className="compare-selectors">
+                  <label>
+                    First record
+                    <select
+                      value={conceptA}
+                      onChange={(e) => setConceptA(e.target.value)}
+                    >
+                      {filteredConcepts.map((x) => (
+                        <option key={x.id} value={x.id}>
+                          {x.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    Second record
+                    <select
+                      value={conceptB}
+                      onChange={(e) => setConceptB(e.target.value)}
+                    >
+                      {filteredConcepts.map((x) => (
+                        <option key={x.id} value={x.id}>
+                          {x.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
-              </div>
-              <div className="architecture-tabs">
-                {architectureTypes.map((item) => (
-                  <button
-                    key={item.id}
-                    className={architectureId === item.id ? 'active' : ''}
-                    onClick={() => setArchitectureId(item.id)}
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </div>
-              <div className={`architecture-stage ${selectedArchitecture.id}`}>
-                <div
-                  className="architecture-diagram"
-                  aria-label={`Schematic diagram of ${selectedArchitecture.name}`}
-                >
-                  <span className="architecture-core"></span>
-                  <span className="architecture-ring"></span>
-                  <span className="architecture-entry"></span>
-                  <span className="architecture-field"></span>
-                </div>
-                <div>
-                  <p>{selectedArchitecture.period}</p>
-                  <h4>{selectedArchitecture.name}</h4>
-                  <ol>
-                    {selectedArchitecture.parts.map((part, index) => (
-                      <li key={part}>
-                        <b>{index + 1}</b>
-                        {part}
-                      </li>
-                    ))}
-                  </ol>
-                  <aside>
-                    <strong>Interpretive caution</strong>
-                    <p>{selectedArchitecture.caution}</p>
-                  </aside>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {activity === 'daily' && (
-            <section className="lab-activity" aria-labelledby="daily-title">
-              <div className="activity-heading">
-                <Trophy />
-                <div>
-                  <p>11 · ROTATES EACH CALENDAR DAY</p>
-                  <h3 id="daily-title">Daily Videha Challenge</h3>
-                  <span>
-                    Return tomorrow for a different evidence question.
-                  </span>
-                </div>
-              </div>
-              <div className="daily-card">
-                <div className="daily-meta">
-                  <time>
-                    {today.toLocaleDateString(undefined, {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </time>
-                  <strong>
-                    <Trophy /> {dailyProgress.streak} day streak
-                  </strong>
-                </div>
-                <h4>{daily.claim}</h4>
-                <div className="answer-grid">
-                  {daily.options.map((option) => (
-                    <button
-                      key={option}
-                      disabled={Boolean(dailyChoice)}
-                      className={
-                        dailyChoice
-                          ? option === daily.answer
-                            ? 'correct'
-                            : option === dailyChoice
-                              ? 'incorrect'
-                              : ''
-                          : ''
-                      }
-                      onClick={() => {
-                        setDailyChoice(option);
-                        if (
-                          option === daily.answer &&
-                          dailyProgress.lastDay !== todayKey
-                        ) {
-                          const yesterday = new Date(today.getTime() - 86400000)
-                            .toISOString()
-                            .slice(0, 10);
-                          setDailyProgress({
-                            lastDay: todayKey,
-                            streak:
-                              dailyProgress.lastDay === yesterday
-                                ? dailyProgress.streak + 1
-                                : 1,
-                          });
+                <div className="concept-comparison">
+                  {[conceptOne, conceptTwo].map((x) => (
+                    <article key={x.id}>
+                      <p>INDEXED INQUIRY</p>
+                      <h4>{x.name}</h4>
+                      <strong>{x.question}</strong>
+                      <h5>Pūrvapakṣa</h5>
+                      <p>{x.purvapaksha}</p>
+                      <h5>Uttarapakṣa</h5>
+                      <p>{x.uttarapaksha}</p>
+                      <h5>Synthesis</h5>
+                      <p>{x.synthesis}</p>
+                      <small>{x.source}</small>
+                      <button
+                        onClick={() =>
+                          addNote(
+                            `Comparison: ${x.name}`,
+                            `${x.question}\nPūrvapakṣa: ${x.purvapaksha}\nUttarapakṣa: ${x.uttarapaksha}`,
+                            x.source,
+                          )
                         }
-                      }}
-                    >
-                      {option}
-                    </button>
+                      >
+                        <NotebookPen /> Save
+                      </button>
+                    </article>
                   ))}
                 </div>
-                {dailyChoice && (
-                  <div className="answer-explanation">
-                    <strong>
-                      {dailyChoice === daily.answer
-                        ? 'Daily challenge completed'
-                        : `Best answer: ${daily.answer}`}
-                    </strong>
-                    <p>{daily.why}</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
+              </section>
+            )}
 
-          {activity === 'classification' && (
-            <section
-              className="lab-activity"
-              aria-labelledby="classification-title"
-            >
-              <div className="activity-heading">
-                <Search />
-                <div>
-                  <p>12 · CLAIM CLASSIFICATION</p>
-                  <h3 id="classification-title">Myth, Memory, or Evidence?</h3>
-                  <span>
-                    Identify what kind of support the statement actually
-                    describes.
-                  </span>
-                </div>
-              </div>
-              <div className="classification-card">
-                <span>
-                  {classificationIndex + 1} / {classificationQuestions.length}
-                </span>
-                <h4>{classification.statement}</h4>
-                <div className="answer-grid">
-                  {classification.options.map((option) => (
-                    <button
-                      key={option}
-                      disabled={Boolean(classificationChoice)}
-                      className={
-                        classificationChoice
-                          ? option === classification.answer
-                            ? 'correct'
-                            : option === classificationChoice
-                              ? 'incorrect'
-                              : ''
-                          : ''
-                      }
-                      onClick={() => setClassificationChoice(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-                {classificationChoice && (
-                  <div className="answer-explanation">
-                    <strong>
-                      {classificationChoice === classification.answer
-                        ? 'Classification supported'
-                        : `Best classification: ${classification.answer}`}
-                    </strong>
-                    <p>
-                      The wording determines the evidence class. It does not
-                      automatically validate broader claims about date,
-                      identity, or causation.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setClassificationIndex(
-                          (classificationIndex + 1) %
-                            classificationQuestions.length,
-                        );
-                        setClassificationChoice('');
-                      }}
-                    >
-                      Next statement
-                    </button>
+            {activity === 'architecture' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<Sparkles />}
+                  code="10 · MATERIAL & LANDSCAPE INDEX"
+                  title="Architecture Viewer"
+                  note={`${learningData.architecture.length} source headings with interpretive schematics`}
+                />
+                <Banner>
+                  Each diagram is an abstract reading aid attached to an actual
+                  book heading. It is not a reconstruction of a specific
+                  monument.
+                </Banner>
+                <Filter
+                  label="Find a structure or landscape"
+                  value={architectureSearch}
+                  setValue={setArchitectureSearch}
+                  placeholder="Temple, settlement, river, road, craft…"
+                />
+                <div className="architecture-browser">
+                  <div className="architecture-tabs">
+                    {filteredArchitecture.map((x) => (
+                      <button
+                        key={x.id}
+                        className={architectureId === x.id ? 'active' : ''}
+                        onClick={() => setArchitectureId(x.id)}
+                      >
+                        {x.name}
+                        <small>{x.period}</small>
+                      </button>
+                    ))}
                   </div>
-                )}
-              </div>
-            </section>
-          )}
-        </main>
+                  <div className={`architecture-stage ${architecture.family}`}>
+                    <div className="architecture-diagram">
+                      <span className="architecture-core" />
+                      <span className="architecture-ring" />
+                      <span className="architecture-entry" />
+                      <span className="architecture-field" />
+                    </div>
+                    <div>
+                      <p>{architecture.period}</p>
+                      <h4>{architecture.name}</h4>
+                      <ol>
+                        {architecture.parts.map((part, i) => (
+                          <li key={part}>
+                            <b>{i + 1}</b>
+                            {part}
+                          </li>
+                        ))}
+                      </ol>
+                      <aside>
+                        <strong>Interpretive caution</strong>
+                        <p>{architecture.caution}</p>
+                      </aside>
+                      <small>{architecture.source}</small>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {activity === 'daily' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<Trophy />}
+                  code="11 · DAILY + FULL QUESTION BANK"
+                  title="Daily Videha Challenge"
+                  note={`${learningData.daily.length} questions; today’s opens first, all are browseable`}
+                />
+                <Pager
+                  index={dailyIndex}
+                  total={learningData.daily.length}
+                  previous={() => {
+                    setDailyIndex(
+                      (dailyIndex - 1 + learningData.daily.length) %
+                        learningData.daily.length,
+                    );
+                    setDailyChoice('');
+                  }}
+                  next={() => {
+                    setDailyIndex((dailyIndex + 1) % learningData.daily.length);
+                    setDailyChoice('');
+                  }}
+                />
+                <div className="daily-card">
+                  <div className="daily-meta">
+                    <time>
+                      {today.toLocaleDateString(undefined, {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </time>
+                    <strong>
+                      <Trophy /> {dailyProgress.streak} day streak
+                    </strong>
+                  </div>
+                  <Question
+                    item={daily}
+                    choice={dailyChoice}
+                    setChoice={(option) => {
+                      setDailyChoice(option);
+                      if (
+                        option === daily.answer &&
+                        dailyProgress.lastDay !== todayKey
+                      ) {
+                        const yesterday = new Date(today.getTime() - 86400000)
+                          .toISOString()
+                          .slice(0, 10);
+                        setDailyProgress({
+                          lastDay: todayKey,
+                          streak:
+                            dailyProgress.lastDay === yesterday
+                              ? dailyProgress.streak + 1
+                              : 1,
+                        });
+                      }
+                    }}
+                  />
+                </div>
+              </section>
+            )}
+
+            {activity === 'classification' && (
+              <section className="lab-activity">
+                <Heading
+                  icon={<Search />}
+                  code="12 · EVIDENCE-TYPE BANK"
+                  title="Memory or Evidence?"
+                  note={`${learningData.classification.length} source-labelled classification questions`}
+                />
+                <Banner>
+                  This activity classifies the type of indexed site record. It
+                  does not pronounce on a proposition’s truth without reading
+                  its cited evidence.
+                </Banner>
+                <Pager
+                  index={classificationIndex}
+                  total={learningData.classification.length}
+                  previous={() => {
+                    setClassificationIndex(
+                      (classificationIndex -
+                        1 +
+                        learningData.classification.length) %
+                        learningData.classification.length,
+                    );
+                    setClassificationChoice('');
+                  }}
+                  next={() => {
+                    setClassificationIndex(
+                      (classificationIndex + 1) %
+                        learningData.classification.length,
+                    );
+                    setClassificationChoice('');
+                  }}
+                />
+                <Question
+                  item={classification}
+                  choice={classificationChoice}
+                  setChoice={setClassificationChoice}
+                />
+              </section>
+            )}
+          </main>
+        </div>
+        <footer className="lab-provenance">
+          <strong>Data provenance</strong>
+          <p>{Object.values(learningData.provenance).join(' · ')}</p>
+          <a href="https://www.geonames.org/" target="_blank" rel="noreferrer">
+            GeoNames attribution
+          </a>
+        </footer>
       </div>
     </section>
+  );
+}
+
+function Heading({
+  icon,
+  code,
+  title,
+  note,
+}: {
+  icon: React.ReactNode;
+  code: string;
+  title: string;
+  note: string;
+}) {
+  return (
+    <div className="activity-heading">
+      {icon}
+      <div>
+        <p>{code}</p>
+        <h3>{title}</h3>
+        <span>{note}</span>
+      </div>
+    </div>
+  );
+}
+function Pager({
+  index,
+  total,
+  previous,
+  next,
+}: {
+  index: number;
+  total: number;
+  previous: () => void;
+  next: () => void;
+}) {
+  return (
+    <div className="question-pager">
+      <button onClick={previous} aria-label="Previous">
+        <ArrowLeft />
+      </button>
+      <strong>
+        {index + 1} of {total}
+      </strong>
+      <button onClick={next} aria-label="Next">
+        <ArrowRight />
+      </button>
+    </div>
+  );
+}
+function Answer({
+  option,
+  answer,
+  choice,
+  setChoice,
+}: {
+  option: string;
+  answer: string;
+  choice: string;
+  setChoice: (value: string) => void;
+}) {
+  return (
+    <button
+      disabled={Boolean(choice)}
+      className={
+        choice
+          ? option === answer
+            ? 'correct'
+            : option === choice
+              ? 'incorrect'
+              : ''
+          : ''
+      }
+      onClick={() => setChoice(option)}
+    >
+      {option}
+    </button>
+  );
+}
+function Explanation({
+  correct,
+  answer,
+  text,
+  source,
+}: {
+  correct: boolean;
+  answer: string;
+  text: string;
+  source: string;
+}) {
+  return (
+    <div className={`answer-explanation ${correct ? 'correct' : 'incorrect'}`}>
+      <strong>{correct ? 'Correct' : `Best answer: ${answer}`}</strong>
+      <p>{text}</p>
+      <small>Source: {source}</small>
+    </div>
+  );
+}
+function Question({
+  item,
+  choice,
+  setChoice,
+}: {
+  item: {
+    claim: string;
+    answer: string;
+    options: string[];
+    why: string;
+    source: string;
+  };
+  choice: string;
+  setChoice: (value: string) => void;
+}) {
+  return (
+    <div className="question-card">
+      <h4>{item.claim}</h4>
+      <div className="answer-grid">
+        {item.options.map((o) => (
+          <Answer
+            key={o}
+            option={o}
+            answer={item.answer}
+            choice={choice}
+            setChoice={setChoice}
+          />
+        ))}
+      </div>
+      {choice && (
+        <Explanation
+          correct={choice === item.answer}
+          answer={item.answer}
+          text={item.why}
+          source={item.source}
+        />
+      )}
+    </div>
+  );
+}
+function Filter({
+  label,
+  value,
+  setValue,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  setValue: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <label className="lab-filter">
+      <Search />
+      <span>{label}</span>
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder={placeholder}
+      />
+    </label>
+  );
+}
+function Banner({ children }: { children: React.ReactNode }) {
+  return <p className="source-banner">{children}</p>;
+}
+function PageStrip({
+  page,
+  pages,
+  setPage,
+}: {
+  page: number;
+  pages: number;
+  setPage: (value: number) => void;
+}) {
+  return (
+    <div className="page-strip">
+      <button disabled={page === 0} onClick={() => setPage(page - 1)}>
+        <ArrowLeft /> Previous 20
+      </button>
+      <strong>
+        Page {page + 1} of {pages}
+      </strong>
+      <button disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>
+        Next 20 <ArrowRight />
+      </button>
+    </div>
+  );
+}
+function Empty({ text }: { text: string }) {
+  return (
+    <div className="lab-empty">
+      <CircleHelp />
+      <h5>Nothing to show</h5>
+      <p>{text}</p>
+    </div>
   );
 }
