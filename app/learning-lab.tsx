@@ -132,7 +132,7 @@ const activities: Array<{
     id: 'classification',
     number: 12,
     label: 'Memory or Evidence?',
-    note: 'Classify indexed records',
+    note: 'Historical passage and date Q&A',
     count: learningData.classification.length,
   },
 ];
@@ -823,7 +823,7 @@ export default function LearningLab() {
                         <Explanation
                           correct={identityChoice === identity.name}
                           answer={identity.name}
-                          text="The clues reproduce the catalogued field, era, and biographical description."
+                          text={identity.explanation}
                           source={identity.source}
                         />
                       )}
@@ -1205,14 +1205,14 @@ export default function LearningLab() {
               <section className="lab-activity">
                 <Heading
                   icon={<Search />}
-                  code="12 · EVIDENCE-TYPE BANK"
-                  title="Memory or Evidence?"
-                  note={`${learningData.classification.length} source-labelled classification questions`}
+                  code="12 · SOURCE-SPECIFIC HISTORICAL Q&A"
+                  title="Memory or Evidence? Historical Question Bank"
+                  note={`${learningData.classification.length} questions drawn from chapter synopses and dated manuscript passages`}
                 />
                 <Banner>
-                  This activity classifies the type of indexed site record. It
-                  does not pronounce on a proposition’s truth without reading
-                  its cited evidence.
+                  Identify the historical subject or recover the date explicitly
+                  associated with a manuscript passage. Every answer provides a
+                  chapter, page, or manuscript locator for verification.
                 </Banner>
                 <Pager
                   index={classificationIndex}

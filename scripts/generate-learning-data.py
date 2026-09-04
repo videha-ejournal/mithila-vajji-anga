@@ -237,19 +237,41 @@ def rotated_options(answer, pool, index, count=4):
 
 
 def build_identity(people):
-    names = [person["name"] for person in people]
     result = []
     for index, person in enumerate(people):
+        description = clean(person["description"])
+        masked = description
+        name_parts = [person["name"], *re.findall(r"[A-Za-zĀ-žḀ-ỿ]{4,}", person["name"])]
+        for name_part in sorted(set(name_parts), key=len, reverse=True):
+            masked = re.sub(re.escape(name_part), "this figure", masked, flags=re.IGNORECASE)
+        sentences = [clean(value) for value in re.split(r"(?<=[.!?…])\s+", masked) if len(clean(value)) >= 35]
+        if len(sentences) < 2:
+            sentences.extend(clean(value) for value in re.split(r"[;:]\s+", masked) if len(clean(value)) >= 35)
+        specific_clues = []
+        for sentence in sentences:
+            clue = short(sentence, 285)
+            if ascii_key(clue) not in {ascii_key(value) for value in specific_clues}:
+                specific_clues.append(clue)
+            if len(specific_clues) == 2:
+                break
+        clues = specific_clues[:2]
+        if len(clues) == 1:
+            clues.append(f"The catalog associates this figure especially with {person['field']}.")
+        clues.append(f"The documented period is {person['era']}.")
+        peers = [
+            candidate["name"]
+            for candidate in people
+            if candidate["name"] != person["name"]
+            and (candidate["field"] == person["field"] or candidate["era"] == person["era"])
+        ]
+        peers.extend(candidate["name"] for candidate in people if candidate["name"] != person["name"] and candidate["name"] not in peers)
         result.append(
             {
                 "id": person["id"],
                 "name": person["name"],
-                "clues": [
-                    f"My indexed field is {person['field']}.",
-                    f"My indexed era is {person['era']}.",
-                    short(person["description"], 260),
-                ],
-                "choices": rotated_options(person["name"], names, index),
+                "clues": clues[:3],
+                "choices": rotated_options(person["name"], [person["name"], *peers], index),
+                "explanation": short(description, 520),
                 "source": person["source"],
             }
         )
@@ -411,6 +433,50 @@ def build_questions(records):
     return result
 
 
+def build_historical_questions(research, chronology):
+    questions = []
+    chapters = [
+        chapter
+        for chapter in [*research["political"], *research["social"]]
+        if chapter["status"].casefold() == "complete"
+        and not re.search(r"forthcoming|approved chapter|full chapter text", chapter["summary"], re.IGNORECASE)
+    ]
+    chapter_titles = [chapter["title"] for chapter in chapters]
+    for index, chapter in enumerate(chapters[:70]):
+        passage = re.sub(rf"^\s*{re.escape(chapter['title'])}\s*", "", chapter["summary"], count=1, flags=re.IGNORECASE)
+        questions.append(
+            {
+                "id": f"historical-chapter-{index + 1}",
+                "claim": f"Which historical subject is being examined in this indexed passage? — {short(passage, 330)}",
+                "answer": chapter["title"],
+                "options": rotated_options(chapter["title"], chapter_titles, index),
+                "why": f"The passage is the synopsis of Chapter {chapter['number']}, “{chapter['title']}.”",
+                "source": f"{chapter['collection']} · {chapter['volume']} · {chapter['part']} · Chapter {chapter['number']} · {chapter['pages']}",
+            }
+        )
+    usable_dates = [
+        item
+        for item in chronology
+        if len(item["label"]) >= 100
+        and not item["label"].lstrip().startswith(("'", '"'))
+        and not re.search(r"Wikimedia|catalogued|bibliograph|Quaternary|University Press|\.{4,}|\bDiagram\s+\d+", item["label"], re.IGNORECASE)
+    ]
+    date_labels = list(dict.fromkeys(item["displayDate"] for item in usable_dates))
+    for index, item in enumerate(usable_dates[:50]):
+        redacted = re.sub(re.escape(item["displayDate"]), "[date omitted]", item["label"], flags=re.IGNORECASE)
+        questions.append(
+            {
+                "id": f"historical-date-{index + 1}",
+                "claim": f"According to the cited history passage, which date anchors this statement? — {redacted}",
+                "answer": item["displayDate"],
+                "options": rotated_options(item["displayDate"], date_labels, index),
+                "why": f"The manuscript passage explicitly gives {item['displayDate']}; the source locator below permits verification.",
+                "source": item["source"],
+            }
+        )
+    return questions
+
+
 def main():
     research = read_json("research-data.json")
     library = read_json("library-data.json")
@@ -419,6 +485,8 @@ def main():
     chunks = load_source_chunks()
     records = archive_records(research, library, deep["people"], deep["philosophyChapters"])
     questions = build_questions(records)
+    chronology = load_chronology(chunks)
+    historical_questions = build_historical_questions(research, chronology)
     data = {
         "provenance": {
             "history": "A History of Mithila, Vajji & Anga, Volumes I–II (attached author manuscripts)",
@@ -428,14 +496,14 @@ def main():
             "coordinates": "GeoNames geographical database, CC BY 4.0; modern orientation only",
         },
         "places": load_places(chunks),
-        "chronology": load_chronology(chunks),
+        "chronology": chronology,
         "identities": build_identity(deep["people"]),
         "panji": build_panji(collections),
         "comparators": build_comparators(deep["philosophyChapters"]),
         "architecture": build_architecture(research),
         "detective": questions,
         "daily": questions[:120],
-        "classification": questions[30:150],
+        "classification": historical_questions,
         "debates": [
             {
                 "id": chapter["id"],
