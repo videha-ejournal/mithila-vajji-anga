@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import {
   BookOpen,
@@ -19,6 +19,8 @@ import {
   Library,
   MapPin,
   Menu,
+  Pause,
+  Play,
   Search,
   Users,
   X,
@@ -27,6 +29,7 @@ import researchData from './research-data.json';
 import libraryData from './library-data.json';
 import deepData from './deep-data.json';
 import collectionDetailsData from './collection-details.json';
+import coverData from './cover-data.json';
 
 type Chapter = {
   id: string;
@@ -76,6 +79,15 @@ type CollectionDetail = {
   tables: number;
   items: { level: number; title: string }[];
 };
+type Cover = {
+  src: string;
+  title: string;
+  sequence: string;
+  category: string;
+  side: string;
+  width: number;
+  height: number;
+};
 type Tab =
   | 'chronology'
   | 'places'
@@ -95,6 +107,14 @@ const collectionDetails = collectionDetailsData as Record<
   string,
   CollectionDetail
 >;
+const covers = coverData as Cover[];
+const coverCategories = [
+  'All',
+  'Histories',
+  'Panji',
+  'Parallel research',
+  'Translations',
+];
 
 const chronology = [
   {
@@ -751,6 +771,30 @@ export default function Home() {
   const [selectedWork, setSelectedWork] = useState('panji-1');
   const [selectedPerson, setSelectedPerson] = useState('figure-1');
   const [selectedIdea, setSelectedIdea] = useState('philosophy-1');
+  const [coverIndex, setCoverIndex] = useState(0);
+  const [coverCategory, setCoverCategory] = useState('All');
+  const [coverPlaying, setCoverPlaying] = useState(true);
+  const shownCovers = useMemo(
+    () =>
+      coverCategory === 'All'
+        ? covers
+        : covers.filter((cover) => cover.category === coverCategory),
+    [coverCategory],
+  );
+  const currentCover = shownCovers[coverIndex] ?? shownCovers[0];
+  useEffect(() => {
+    if (
+      !coverPlaying ||
+      shownCovers.length < 2 ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    )
+      return;
+    const timer = window.setInterval(
+      () => setCoverIndex((index) => (index + 1) % shownCovers.length),
+      5200,
+    );
+    return () => window.clearInterval(timer);
+  }, [coverPlaying, shownCovers.length]);
   const nearestIndex = useMemo(
     () =>
       chronology.reduce(
@@ -892,6 +936,49 @@ export default function Home() {
           ?.scrollIntoView({ behavior: 'smooth' }),
       );
     }
+  };
+  const changeCover = (direction: number) => {
+    setCoverIndex(
+      (index) => (index + direction + shownCovers.length) % shownCovers.length,
+    );
+  };
+  const chooseCoverCategory = (category: string) => {
+    setCoverCategory(category);
+    setCoverIndex(0);
+  };
+  const openCoverCollection = (cover: Cover) => {
+    if (cover.title === 'A History of Mithila, Vajji and Anga') {
+      chooseTab('chapters');
+      return;
+    }
+    if (
+      cover.title === 'A Parallel History of Mithilā and Maithilī Literature'
+    ) {
+      openShelf('Parallel Research', 'parallel-history');
+      return;
+    }
+    if (cover.title.includes('Parallel Philosophy')) {
+      openShelf('Parallel Research', 'parallel-philosophy');
+      return;
+    }
+    if (cover.title === 'Decoding the Panji of Mithila') {
+      const roman = cover.sequence.replace('Volume ', '');
+      const volumeNumber =
+        ['I', 'II', 'III', 'IV', 'V', 'VI'].indexOf(roman) + 1;
+      openShelf('Decoding the Panji', `panji-${Math.max(1, volumeNumber)}`);
+      return;
+    }
+    const translationIds: Record<string, string> = {
+      Ātmatattvaviveka: 'atmatattvaviveka',
+      Bhāmatī: 'bhamati',
+      Nyāyakusumāñjali: 'nyayakusumanjali',
+      Tattvacintāmaṇi: 'tattvacintamani',
+      'Videha Philosophical Translations': 'atmatattvaviveka',
+    };
+    openShelf(
+      'Sanskrit–Maithili Philosophical Texts',
+      translationIds[cover.title] ?? 'atmatattvaviveka',
+    );
   };
 
   return (
@@ -1047,6 +1134,118 @@ export default function Home() {
               </button>
             </div>
           </div>
+        </section>
+
+        <section
+          className="cover-showcase"
+          aria-labelledby="cover-showcase-title"
+        >
+          <div className="cover-introduction">
+            <p>THE VIDEHA LIBRARY</p>
+            <h2 id="cover-showcase-title">The books behind the archive</h2>
+            <p>
+              Browse the covers of the histories, Panji studies, philosophical
+              research, and Sanskrit–Maithili translations that sustain this
+              growing digital research environment.
+            </p>
+            <div className="cover-filters" aria-label="Filter book covers">
+              {coverCategories.map((category) => (
+                <button
+                  key={category}
+                  className={coverCategory === category ? 'active' : ''}
+                  aria-pressed={coverCategory === category}
+                  onClick={() => chooseCoverCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <section
+            className="cover-carousel"
+            aria-roledescription="carousel"
+            aria-label="Book cover slideshow"
+          >
+            <div className="cover-stage">
+              <button
+                className="cover-arrow previous"
+                onClick={() => changeCover(-1)}
+                aria-label="Previous book cover"
+              >
+                <ChevronLeft />
+              </button>
+              <figure key={currentCover.src}>
+                <div
+                  className={`cover-image ${currentCover.width > currentCover.height ? 'spread' : ''}`}
+                >
+                  <Image
+                    unoptimized
+                    src={currentCover.src}
+                    width={currentCover.width}
+                    height={currentCover.height}
+                    alt={`${currentCover.title}, ${currentCover.sequence}, ${currentCover.side}`}
+                  />
+                </div>
+                <figcaption aria-live="polite">
+                  <span>
+                    {currentCover.category} · {currentCover.side}
+                  </span>
+                  <h3>{currentCover.title}</h3>
+                  <p>{currentCover.sequence}</p>
+                  <button onClick={() => openCoverCollection(currentCover)}>
+                    Open this collection <ChevronRight />
+                  </button>
+                </figcaption>
+              </figure>
+              <button
+                className="cover-arrow next"
+                onClick={() => changeCover(1)}
+                aria-label="Next book cover"
+              >
+                <ChevronRight />
+              </button>
+            </div>
+
+            <div className="cover-playback">
+              <button
+                onClick={() => setCoverPlaying((playing) => !playing)}
+                aria-label={
+                  coverPlaying
+                    ? 'Pause cover slideshow'
+                    : 'Play cover slideshow'
+                }
+              >
+                {coverPlaying ? <Pause /> : <Play />}
+                {coverPlaying ? 'Pause' : 'Play'}
+              </button>
+              <span>
+                {String(coverIndex + 1).padStart(2, '0')} /{' '}
+                {String(shownCovers.length).padStart(2, '0')}
+              </span>
+            </div>
+
+            <ul className="cover-thumbnails" aria-label="Choose a cover">
+              {shownCovers.map((cover, index) => (
+                <li key={`${cover.src}-${index}`}>
+                  <button
+                    className={index === coverIndex ? 'active' : ''}
+                    aria-current={index === coverIndex ? 'true' : undefined}
+                    aria-label={`Show ${cover.title}, ${cover.sequence}, ${cover.side}`}
+                    onClick={() => setCoverIndex(index)}
+                  >
+                    <Image
+                      unoptimized
+                      src={cover.src}
+                      width={cover.width}
+                      height={cover.height}
+                      alt=""
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
         </section>
 
         <section

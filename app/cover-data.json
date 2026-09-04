@@ -1,0 +1,209 @@
+[
+  {
+    "src": "./assets/book-covers/mithila-parallel-history-front-cover-6x9.webp",
+    "title": "A History of Mithila, Vajji and Anga",
+    "sequence": "Regional history",
+    "category": "Histories",
+    "side": "Front cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/mithila-parallel-history-back-cover-6x9.webp",
+    "title": "A History of Mithila, Vajji and Anga",
+    "sequence": "Regional history",
+    "category": "Histories",
+    "side": "Back cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/decoding-the-panji.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume I",
+    "category": "Panji",
+    "side": "Front cover",
+    "width": 1199,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/decoding-panji-ii-front.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume II",
+    "category": "Panji",
+    "side": "Front cover",
+    "width": 1024,
+    "height": 1536
+  },
+  {
+    "src": "./assets/book-covers/decoding-panji-ii-back.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume II",
+    "category": "Panji",
+    "side": "Back cover",
+    "width": 1024,
+    "height": 1536
+  },
+  {
+    "src": "./assets/book-covers/decoding-panji-vol-iii-spread.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume III",
+    "category": "Panji",
+    "side": "Full cover spread",
+    "width": 1400,
+    "height": 1033
+  },
+  {
+    "src": "./assets/book-covers/decoding-panji-vol-iv-spread.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume IV",
+    "category": "Panji",
+    "side": "Full cover spread",
+    "width": 1400,
+    "height": 1033
+  },
+  {
+    "src": "./assets/book-covers/decoding-panji-vol-v-spread.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume V",
+    "category": "Panji",
+    "side": "Full cover spread",
+    "width": 1400,
+    "height": 1033
+  },
+  {
+    "src": "./assets/book-covers/decoding-panji-vi-front.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume VI",
+    "category": "Panji",
+    "side": "Front cover",
+    "width": 1024,
+    "height": 1536
+  },
+  {
+    "src": "./assets/book-covers/decoding-panji-vi-back.webp",
+    "title": "Decoding the Panji of Mithila",
+    "sequence": "Volume VI",
+    "category": "Panji",
+    "side": "Back cover",
+    "width": 1024,
+    "height": 1536
+  },
+  {
+    "src": "./assets/book-covers/cover-front.webp",
+    "title": "A Parallel History of Mithilā and Maithilī Literature",
+    "sequence": "Volumes 1–100",
+    "category": "Parallel research",
+    "side": "Front cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/cover-back.webp",
+    "title": "A Parallel History of Mithilā and Maithilī Literature",
+    "sequence": "Volumes 1–100",
+    "category": "Parallel research",
+    "side": "Back cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/parallel-philosophy-front-cover-6x9.webp",
+    "title": "Gajendra Thakur’s Parallel Philosophy",
+    "sequence": "Philosophy",
+    "category": "Parallel research",
+    "side": "Front cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/parallel-philosophy-back-cover-6x9.webp",
+    "title": "Gajendra Thakur’s Parallel Philosophy",
+    "sequence": "Philosophy",
+    "category": "Parallel research",
+    "side": "Back cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/bhamati-front-cover-en.webp",
+    "title": "Bhāmatī",
+    "sequence": "Vācaspati Miśra",
+    "category": "Translations",
+    "side": "Front cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/bhamati-back-cover-en.webp",
+    "title": "Bhāmatī",
+    "sequence": "Vācaspati Miśra",
+    "category": "Translations",
+    "side": "Back cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/nyaya-kusumanjali-front-cover-en.webp",
+    "title": "Nyāyakusumāñjali",
+    "sequence": "Udayanācārya",
+    "category": "Translations",
+    "side": "Front cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/nyaya-kusumanjali-back-cover-en.webp",
+    "title": "Nyāyakusumāñjali",
+    "sequence": "Udayanācārya",
+    "category": "Translations",
+    "side": "Back cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/tattvacintamani-front-cover-en.webp",
+    "title": "Tattvacintāmaṇi",
+    "sequence": "Gaṅgeśa Upādhyāya",
+    "category": "Translations",
+    "side": "Front cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/tattvacintamani-back-cover-en.webp",
+    "title": "Tattvacintāmaṇi",
+    "sequence": "Gaṅgeśa Upādhyāya",
+    "category": "Translations",
+    "side": "Back cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/00-videha-darshanik-anuvad-flyer-en.webp",
+    "title": "Videha Philosophical Translations",
+    "sequence": "Collection",
+    "category": "Translations",
+    "side": "Series poster",
+    "width": 1250,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/atmatattvaviveka-front-cover-en.webp",
+    "title": "Ātmatattvaviveka",
+    "sequence": "Udayanācārya",
+    "category": "Translations",
+    "side": "Front cover",
+    "width": 1200,
+    "height": 1800
+  },
+  {
+    "src": "./assets/book-covers/atmatattvaviveka-back-cover-en.webp",
+    "title": "Ātmatattvaviveka",
+    "sequence": "Udayanācārya",
+    "category": "Translations",
+    "side": "Back cover",
+    "width": 1200,
+    "height": 1800
+  }
+]
