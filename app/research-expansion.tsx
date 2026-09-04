@@ -6,6 +6,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Download,
   GitFork,
   Languages,
@@ -25,10 +26,10 @@ import ideasVolumeTwoData from './ideas-volume2.json';
 
 type Work = (typeof libraryData)[number];
 type MapLayer = 'Polities' | 'Learning' | 'Sacred' | 'Trade' | 'Archives';
-type ReadingMode = 'English' | 'Maithili' | 'Devanagari' | 'Tirhuta';
+type ReadingMode = 'English' | 'Maithili (Devanagari)' | 'Maithili (Tirhuta)';
 type VolumeTwoIdea = (typeof ideasVolumeTwoData)[number];
 const volumeTwoIdeas = ideasVolumeTwoData as VolumeTwoIdea[];
-const completedReaderPassages = [
+const readerPassages = [
   ...deepData.philosophyChapters.map((idea) => ({
     id: `reader-v1-${idea.id}`,
     number: idea.number,
@@ -37,11 +38,16 @@ const completedReaderPassages = [
     part: idea.part,
     source: `Gajendra Thakur’s Parallel Philosophy · Volume I · Chapter ${idea.number}`,
     volume: 'Volume I',
+    status: 'Complete',
   })),
-  ...volumeTwoIdeas
-    .filter((idea) => idea.status === 'Available in English')
-    .map((idea) => ({ ...idea, volume: 'Volume II' })),
+  ...volumeTwoIdeas.map((idea) => ({
+    ...idea,
+    volume: 'Volume II',
+    status: idea.status === 'Available in English' ? 'Complete' : 'Planned',
+  })),
 ];
+const readerCompleteCount = readerPassages.filter((item) => item.status === 'Complete').length;
+const readerPlannedCount = readerPassages.length - readerCompleteCount;
 
 const mapPlaces: Array<{
   id: string;
@@ -297,9 +303,6 @@ const graphCounts = Object.fromEntries(
   ]),
 ) as Record<GraphType, number>;
 
-const _maithiliPassage =
-  'विदेह प्रश्न, वाद-विवाद आ ज्ञानक भूमि रहल अछि। मिथिलाक पञ्जी परिवार, गाम आ स्मृतिक सम्बन्ध सुरक्षित रखैत अछि। संस्कृत ग्रन्थक मैथिली अनुवाद पुरान विचारकेँ जीवित संवादमे आनैत अछि।';
-
 const devanagariToTirhuta: Record<string, string> = Object.fromEntries([
   ['अ', '𑒁'],
   ['आ', '𑒂'],
@@ -425,6 +428,10 @@ export default function ResearchExpansion() {
   const [selectedNode, setSelectedNode] = useState(graphNodes[0].id);
   const [readingMode, setReadingMode] = useState<ReadingMode>('English');
   const [readerIndex, setReaderIndex] = useState(0);
+  const [readerSearch, setReaderSearch] = useState('');
+  const [readerTranslations, setReaderTranslations] = useState<Record<string, string>>({});
+  const [readerTranslationState, setReaderTranslationState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [readerCopied, setReaderCopied] = useState(false);
   const [narrating, setNarrating] = useState<number | null>(null);
   const [lessonIndex, setLessonIndex] = useState(0);
 
@@ -475,7 +482,56 @@ export default function ResearchExpansion() {
   );
   const graphNode =
     graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
-  const readerIdea = completedReaderPassages[readerIndex] ?? completedReaderPassages[0];
+  const readerIdea = readerPassages[readerIndex] ?? readerPassages[0];
+  const filteredReaderPassages = useMemo(
+    () => readerPassages.filter((item) =>
+      `${item.title} ${item.part} ${item.volume}`.toLowerCase().includes(readerSearch.toLowerCase())),
+    [readerSearch],
+  );
+  const readerTranslation = readerTranslations[readerIdea.id] ?? '';
+
+  useEffect(() => {
+    queueMicrotask(() => setReaderCopied(false));
+    if (readingMode === 'English' || readerIdea.status === 'Planned') {
+      queueMicrotask(() => setReaderTranslationState('idle'));
+      return;
+    }
+    const cacheKey = `videha-reader-${readerIdea.id}`;
+    const cached = window.localStorage.getItem(cacheKey);
+    if (cached) {
+      queueMicrotask(() => {
+        setReaderTranslations((current) => ({ ...current, [readerIdea.id]: cached }));
+        setReaderTranslationState('ready');
+      });
+      return;
+    }
+    if (readerTranslation) {
+      queueMicrotask(() => setReaderTranslationState('ready'));
+      return;
+    }
+    let cancelled = false;
+    const translate = async () => {
+      setReaderTranslationState('loading');
+      try {
+        const text = `${readerIdea.title}\n\n${readerIdea.summary}`;
+        const params = new URLSearchParams({ client: 'gtx', sl: 'en', tl: 'mai', dt: 't', q: text });
+        const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
+        if (!response.ok) throw new Error(`Translation service returned ${response.status}`);
+        const payload = await response.json() as [[string][]];
+        const result = payload[0].map((segment: [string]) => segment[0]).join('').trim();
+        if (!result) throw new Error('No translation returned');
+        if (!cancelled) {
+          window.localStorage.setItem(cacheKey, result);
+          setReaderTranslations((current) => ({ ...current, [readerIdea.id]: result }));
+          setReaderTranslationState('ready');
+        }
+      } catch {
+        if (!cancelled) setReaderTranslationState('error');
+      }
+    };
+    void translate();
+    return () => { cancelled = true; };
+  }, [readingMode, readerIdea, readerTranslation]);
   const relatedNodes = useMemo(() => {
     const selectedTerms = graphNodeTerms.get(graphNode.id) ?? new Set<string>();
     return graphNodes
@@ -1017,20 +1073,27 @@ export default function ResearchExpansion() {
           <span>04</span>
           <div>
             <p>MULTISCRIPT READER</p>
-            <h3>Ninety-seven completed ideas with English reading and Maithili script aids</h3>
+            <h3>{readerPassages.length} ideas · {readerCompleteCount} completed · {readerPlannedCount} planned for future supplied chapters</h3>
           </div>
         </div>
-        <div className="reader-passages" aria-label="Choose a completed philosophy idea">
-          {completedReaderPassages.map((item, index) => (
+        <label className="reader-search">
+          <Search aria-hidden="true" />
+          <span className="sr-only">Search the Multiscript Reader</span>
+          <input value={readerSearch} onChange={(event) => setReaderSearch(event.target.value)} placeholder="Search all 172 ideas…" />
+        </label>
+        <div className="reader-passages" aria-label="Choose a philosophy idea">
+          {filteredReaderPassages.map((item) => {
+            const index = readerPassages.findIndex((entry) => entry.id === item.id);
+            return (
             <button key={item.id} className={readerIndex === index ? 'active' : ''} onClick={() => setReaderIndex(index)}>
               <span>{item.volume === 'Volume I' ? 'I' : 'II'}-{String(item.number).padStart(2, '0')}</span>
-              {item.title}
+              <span className="reader-title">{item.title}<small>{item.status}</small></span>
             </button>
-          ))}
+          )})}
         </div>
         <div className="reader-tabs" role="tablist" aria-label="Reading mode">
           {(
-            ['English', 'Maithili', 'Devanagari', 'Tirhuta'] as ReadingMode[]
+            ['English', 'Maithili (Devanagari)', 'Maithili (Tirhuta)'] as ReadingMode[]
           ).map((mode) => (
             <button
               key={mode}
@@ -1044,49 +1107,39 @@ export default function ResearchExpansion() {
           ))}
         </div>
         <div
-          className={`reader-page ${readingMode.toLowerCase()}`}
+          className={`reader-page ${readingMode === 'Maithili (Tirhuta)' ? 'tirhuta' : ''}`}
           role="tabpanel"
         >
           <Languages />
           {readingMode === 'English' && (
             <>
-              <p className="script-label">ENGLISH TRANSLATION</p>
+              <p className="script-label">SUPPLIED ENGLISH READING</p>
               <h4>{readerIdea.title}</h4>
               <p>{readerIdea.summary}</p>
               <small>{readerIdea.volume} · Chapter {readerIdea.number} · {readerIdea.source}</small>
             </>
           )}
-          {readingMode === 'Maithili' && (
-            <>
-              <p className="script-label">मैथिली INTERFACE SAMPLE</p>
-              <h4 lang="mai">प्रश्नक भूमि विदेह</h4>
-              <p lang="mai">{_maithiliPassage}</p>
-              <small>This is a clearly labelled script demonstration; it is not presented as a translation of the selected philosophy chapter.</small>
-            </>
+          {readingMode !== 'English' && readerIdea.status === 'Planned' && (
+            <div className="reader-notice"><p className="script-label">PLANNED</p><h4>{readerIdea.title}</h4><p>No completed English chapter is claimed. When the chapter is supplied, this same record will receive its Google Maithili translation and Tirhuta conversion.</p></div>
           )}
-          {readingMode === 'Devanagari' && (
-            <>
-              <p className="script-label">DEVANAGARI READING AID</p>
-              <h4 lang="mai">विदेह · मिथिला · पञ्जी · प्रमाण</h4>
-              <p lang="mai">{_maithiliPassage}</p>
-              <div className="word-gloss">
-                <span><b>विदेह</b> Videha</span><span><b>मिथिला</b> Mithila</span><span><b>पञ्जी</b> genealogy register</span><span><b>प्रमाण</b> warrant of knowledge</span>
-              </div>
-            </>
+          {readingMode !== 'English' && readerIdea.status !== 'Planned' && readerTranslationState === 'loading' && <p className="reader-notice">Translating the selected English passage into Maithili with Google Translate…</p>}
+          {readingMode !== 'English' && readerIdea.status !== 'Planned' && readerTranslationState === 'error' && (
+            <div className="reader-notice"><p>Google Translate could not be reached from this browser.</p><a href={`https://translate.google.com/?sl=en&tl=mai&text=${encodeURIComponent(`${readerIdea.title}\n\n${readerIdea.summary}`)}&op=translate`} target="_blank" rel="noreferrer">Open this passage in Google Translate</a></div>
           )}
-          {readingMode === 'Tirhuta' && (
-            <>
-              <p className="script-label">TIRHUTA / MITHILĀKṢARA</p>
-              <h4 lang="mai-Tirh">{_toTirhuta('विदेह · मिथिला · पञ्जी · प्रमाण')}</h4>
-              <p className="tirhuta-text" lang="mai-Tirh">{_toTirhuta(_maithiliPassage)}</p>
-              <small>Unicode Tirhuta rendering depends on the reader’s installed font. Devanagari remains available as the parallel reading aid.</small>
-            </>
+          {readingMode === 'Maithili (Devanagari)' && readerTranslation && (
+            <><p className="script-label">GOOGLE TRANSLATE · ENGLISH → MAITHILI</p><p lang="mai">{readerTranslation}</p><small>Machine translation for reading assistance; scholarly review is recommended.</small></>
+          )}
+          {readingMode === 'Maithili (Tirhuta)' && readerTranslation && (
+            <><p className="script-label">VIDEHA CONVERTER · MAITHILI DEVANAGARI → TIRHUTA</p><p className="tirhuta-text" lang="mai-Tirh">{_toTirhuta(readerTranslation)}</p><small>Converted from the Google Maithili result. Unicode Tirhuta rendering depends on font support.</small></>
+          )}
+          {(readingMode === 'English' || readerTranslation) && (
+            <button className="reader-copy" onClick={async () => { const text = readingMode === 'English' ? `${readerIdea.title}\n\n${readerIdea.summary}` : readingMode === 'Maithili (Tirhuta)' ? _toTirhuta(readerTranslation) : readerTranslation; await navigator.clipboard.writeText(text); setReaderCopied(true); }}><Copy /> {readerCopied ? 'Copied' : 'Copy passage'}</button>
           )}
         </div>
         <div className="reader-pagination">
           <button disabled={readerIndex === 0} onClick={() => setReaderIndex(readerIndex - 1)}><ChevronLeft /> Previous</button>
-          <strong>{readerIndex + 1} / {completedReaderPassages.length}</strong>
-          <button disabled={readerIndex === completedReaderPassages.length - 1} onClick={() => setReaderIndex(readerIndex + 1)}>Next <ChevronRight /></button>
+          <strong>{readerIndex + 1} / {readerPassages.length}</strong>
+          <button disabled={readerIndex === readerPassages.length - 1} onClick={() => setReaderIndex(readerIndex + 1)}>Next <ChevronRight /></button>
         </div>
       </article>
 

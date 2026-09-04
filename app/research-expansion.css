@@ -685,11 +685,14 @@
 
 .reader-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   max-width: 680px;
   background: #ffffff24;
 }
+.reader-search { display: flex; align-items: center; gap: .55rem; max-width: 680px; margin-bottom: .75rem; padding: .6rem .75rem; background: #fff; color: #17233a; }
+.reader-search svg { width: 18px; }
+.reader-search input { width: 100%; border: 0; outline: 0; font: inherit; }
 .reader-passages {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -703,6 +706,9 @@
 .reader-passages button.active { background: #edc16f; color: #17233a; }
 .reader-passages span { color: #d8893d; font-weight: 900; }
 .reader-passages button.active span { color: #8d470e; }
+.reader-passages .reader-title { display: grid; gap: .2rem; color: inherit; font-weight: 700; }
+.reader-passages .reader-title small { color: #9eaabd; font-size: .58rem; text-transform: uppercase; letter-spacing: .06em; }
+.reader-passages button.active .reader-title small { color: #6e4b22; }
 .reader-pagination { max-width: 900px; display: flex; align-items: center; justify-content: space-between; margin-top: .6rem; }
 .reader-pagination button { display: inline-flex; align-items: center; gap: .3rem; border: 1px solid #ffffff35; background: transparent; color: white; padding: .55rem .7rem; }
 
@@ -775,6 +781,10 @@
   margin-top: 1.4rem;
   color: #6a706b;
 }
+.reader-notice { max-width: 760px; padding: 1rem; border: 1px solid #d3b783; background: #fffaf0; }
+.reader-notice a { color: #8c410e; font-weight: 800; }
+.reader-copy { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1.2rem; padding: .55rem .75rem; border: 1px solid #aa6b2d; background: transparent; color: #71380f; font-weight: 800; }
+.reader-copy svg { width: 16px; }
 
 .word-gloss {
   display: flex;

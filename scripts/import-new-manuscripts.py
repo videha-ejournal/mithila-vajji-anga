@@ -10,9 +10,11 @@ from docx import Document
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "app"
 IDEAS_SOURCE = Path(r"C:\Users\DELL\Downloads\२५.docx")
+IDEAS_CHAPTER_46 = Path(r"C:\Users\DELL\Downloads\४६.docx")
 HISTORY_SOURCES = [
     Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\Part 7\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_52_onward_Chapter64_6x9_Hardback.docx"),
     Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\Part 8\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_65_onward_Chapter73_6x9_Hardback.docx"),
+    Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\Part 9\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_74_onward_Chapter86_6x9_Hardback.docx"),
 ]
 
 ENGLISH_TITLES = [
@@ -174,42 +176,23 @@ def part_for(number: int) -> str:
 
 
 def build_ideas():
-    document = Document(IDEAS_SOURCE)
-    plan_titles = {}
-    plan_notes = {}
-    for index, paragraph in enumerate(document.paragraphs[:321]):
-        text = clean(paragraph.text)
-        match = re.match(r"^(\d{1,3})\.\s+(.+)$", text)
-        if not match:
-            continue
-        number = int(match.group(1))
-        if not 1 <= number <= 100 or number in plan_titles:
-            continue
-        plan_titles[number] = match.group(2)
-        for following in document.paragraphs[index + 1 : index + 4]:
-            note = clean(following.text)
-            if not note:
-                continue
-            if re.match(r"^(\d{1,3})\.", note) or "खण्ड" in note or note.startswith("अध्याय"):
-                break
-            plan_notes[number] = note
-            break
-    ideas = []
-    for number in range(1, 101):
-        ideas.append(
-            {
-                "id": f"philosophy-v2-{number}",
-                "number": number,
-                "title": ENGLISH_TITLES[number - 1],
-                "part": part_for(number),
-                "status": "Available in English" if number <= 25 else "Planned",
-                "summary": ENGLISH_SYNOPSIS[number - 1] if number <= 25 else "This chapter remains an approved plan entry. No completed English argument is claimed.",
-                "source": f"Gajendra Thakur’s Parallel Philosophy, Volume II · {'supplied chapter' if number <= 25 else 'approved plan entry'}",
-            }
-        )
-    if len(plan_titles) != 100:
-        raise RuntimeError(f"Expected 100 planned titles, found {len(plan_titles)}")
-    (APP / "ideas-volume2.json").write_text(json.dumps(ideas, ensure_ascii=False, indent=2), encoding="utf-8")
+    ideas_path = APP / "ideas-volume2.json"
+    ideas = json.loads(ideas_path.read_text(encoding="utf-8"))
+    chapter_46 = Document(IDEAS_CHAPTER_46)
+    chapter_46_start = next(i for i, p in enumerate(chapter_46.paragraphs) if clean(p.text).startswith("अध्याय 46 —"))
+    chapter_46_sections = [
+        "The problem", "Central thesis", "Major arguments", "Pūrvapakṣa",
+        "Uttarapakṣa", "Indian dialogue", "Mithila’s parallel perspective",
+        "Contemporary applications", "Chapter conclusion", "Bibliography",
+    ]
+    record = next(item for item in ideas if item["number"] == 46)
+    record.update({
+        "status": "Available in English",
+        "summary": "Examines how science and history remain socially and institutionally situated while evidence, chronology, provenance, replication, counter-evidence and critical scrutiny continue to constrain responsible claims.",
+        "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied Chapter 46",
+        "sections": chapter_46_sections,
+    })
+    ideas_path.write_text(json.dumps(ideas, ensure_ascii=False, indent=2), encoding="utf-8")
     return ideas
 
 
@@ -224,7 +207,7 @@ def enrich_history():
         for index, paragraph in enumerate(paragraphs):
             text = clean(paragraph.text)
             match = re.match(r"^Chapter\s+(\d+)\s*[—-]\s*(.+)$", text, re.IGNORECASE)
-            if match and 52 <= int(match.group(1)) <= 73:
+            if match and 52 <= int(match.group(1)) <= 86:
                 starts.append((index, int(match.group(1)), match.group(2)))
         for position, (start, number, title) in enumerate(starts):
             end = starts[position + 1][0] if position + 1 < len(starts) else len(paragraphs)

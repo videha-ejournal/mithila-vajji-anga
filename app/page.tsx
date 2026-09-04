@@ -201,13 +201,15 @@ const ideas: IdeaRecord[] = [
     source: `Gajendra Thakur’s Parallel Philosophy · Volume I · Chapter ${chapter.number}`,
   })),
   ...(ideasVolumeTwoData as Array<
-    Omit<IdeaRecord, 'sections' | 'volume'>
+    Omit<IdeaRecord, 'volume'>
   >).map((chapter) => ({
     ...chapter,
-    sections: [],
+    sections: chapter.sections ?? [],
     volume: 'Volume II' as const,
   })),
 ];
+const completedIdeaCount = ideas.filter((idea) => idea.status !== 'Planned').length;
+const plannedIdeaCount = ideas.length - completedIdeaCount;
 const people = deepData.people as Person[];
 const collectionDetails = collectionDetailsData as Record<
   string,
@@ -1651,14 +1653,11 @@ export default function Home() {
             </article>
             <article className="status-card">
               <h2>Archive at a glance</h2>
-              <p>
-                <Check size={16} /> 178 historical chapters indexed
+              <p className="archive-count-line">
+                <Check size={16} /> 178 historical chapters indexed · {chapters.filter((chapter) => chapter.status === 'Complete').length} completed history chapters
               </p>
               <p>
-                <Check size={16} /> {chapters.filter((chapter) => chapter.status === 'Complete').length} completed history chapters
-              </p>
-              <p>
-                <Check size={16} /> 172 philosophy ideas indexed · 97 complete
+                <Check size={16} /> 172 philosophy ideas indexed · {completedIdeaCount} complete · {plannedIdeaCount} planned
               </p>
               <p>
                 <Check size={16} /> {people.length} literary and intellectual
@@ -2050,7 +2049,7 @@ export default function Home() {
                       {filteredIdeas.length} of {ideas.length} ideas
                     </h2>
                   </div>
-                  <small>172 indexed ideas · 97 complete · 75 planned</small>
+                  <small>172 indexed ideas · {completedIdeaCount} complete · {plannedIdeaCount} planned</small>
                 </div>
                 <div className="idea-status-filters" aria-label="Filter ideas by completion status">
                   {['All ideas', 'Available', 'Planned'].map((filter) => (
@@ -2506,7 +2505,7 @@ export default function Home() {
                 </button>
               </h3>
               <p>
-                A 172-idea philosophical architecture—97 complete and 75
+                A 172-idea philosophical architecture—{completedIdeaCount} complete and {plannedIdeaCount}
                 retained as future scope—together with the 100-volume Parallel
                 History of Mithilā and Maithilī literature.
               </p>
