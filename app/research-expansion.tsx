@@ -25,12 +25,23 @@ import ideasVolumeTwoData from './ideas-volume2.json';
 
 type Work = (typeof libraryData)[number];
 type MapLayer = 'Polities' | 'Learning' | 'Sacred' | 'Trade' | 'Archives';
-type ReadingMode = 'English' | 'Outline' | 'Key terms' | 'Citation';
+type ReadingMode = 'English' | 'Maithili' | 'Devanagari' | 'Tirhuta';
 type VolumeTwoIdea = (typeof ideasVolumeTwoData)[number];
 const volumeTwoIdeas = ideasVolumeTwoData as VolumeTwoIdea[];
-const englishReaderPassages = volumeTwoIdeas.filter(
-  (idea) => idea.status === 'Available in English',
-);
+const completedReaderPassages = [
+  ...deepData.philosophyChapters.map((idea) => ({
+    id: `reader-v1-${idea.id}`,
+    number: idea.number,
+    title: idea.title,
+    summary: idea.summary,
+    part: idea.part,
+    source: `Gajendra Thakur’s Parallel Philosophy · Volume I · Chapter ${idea.number}`,
+    volume: 'Volume I',
+  })),
+  ...volumeTwoIdeas
+    .filter((idea) => idea.status === 'Available in English')
+    .map((idea) => ({ ...idea, volume: 'Volume II' })),
+];
 
 const mapPlaces: Array<{
   id: string;
@@ -369,7 +380,7 @@ const classroomLessons = [
   { title: 'Read a dated claim', question: 'What does a date establish—and what remains uncertain?', method: 'Compare label, date wording, and cited source before treating an event as an anchor.', source: '160-entry source-controlled chronology' },
   { title: 'Map without inventing borders', question: 'How can places be mapped when territorial limits changed?', method: 'Separate modern coordinates from dated political, sacred, trade, learning, and archival evidence.', source: '120-place orientation gazetteer + eight dated anchors' },
   { title: 'Open Chapters 52–73', question: 'How does social and cultural history extend the political narrative?', method: 'Use the supplied chapter headings and section maps to move from chapter claim to internal evidence structure.', source: 'Two supplied cumulative Volume II manuscripts' },
-  { title: 'Follow the linguistic turn', question: 'Why did twentieth-century philosophy place language at the centre?', method: 'Read the first 25 supplied English entries in order, then distinguish them from the 75 planned titles.', source: 'Gajendra Thakur’s Parallel Philosophy, Volume II' },
+  { title: 'Follow the linguistic turn', question: 'Why did twentieth-century philosophy place language at the centre?', method: 'Read the completed philosophy sequence, then distinguish it from the 75 ideas retained as future scope.', source: 'Gajendra Thakur’s Parallel Philosophy, Volumes I–II' },
   { title: 'Test a relation', question: 'Does a shared word prove a historical connection?', method: 'Use the graph as a discovery aid, then verify every inferred relation in the cited record.', source: 'People, texts, places, and ideas knowledge graph' },
   { title: 'Decode a Panji record', question: 'Which link is genealogical, marital, territorial, or remembered?', method: 'Track person, lineage, village, marriage, and maternal links without collapsing them into one relation.', source: 'Decoding the Panji of Mithila, Volumes I–VI' },
 ];
@@ -464,7 +475,7 @@ export default function ResearchExpansion() {
   );
   const graphNode =
     graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
-  const readerIdea = englishReaderPassages[readerIndex] ?? englishReaderPassages[0];
+  const readerIdea = completedReaderPassages[readerIndex] ?? completedReaderPassages[0];
   const relatedNodes = useMemo(() => {
     const selectedTerms = graphNodeTerms.get(graphNode.id) ?? new Set<string>();
     return graphNodes
@@ -1005,21 +1016,21 @@ export default function ResearchExpansion() {
         <div className="room-heading">
           <span>04</span>
           <div>
-            <p>ENGLISH RESEARCH READER</p>
-            <h3>Twenty-five supplied ideas in translation, outline, and citation modes</h3>
+            <p>MULTISCRIPT READER</p>
+            <h3>Ninety-seven completed ideas with English reading and Maithili script aids</h3>
           </div>
         </div>
-        <div className="reader-passages" aria-label="Choose an English translated idea">
-          {englishReaderPassages.map((item, index) => (
+        <div className="reader-passages" aria-label="Choose a completed philosophy idea">
+          {completedReaderPassages.map((item, index) => (
             <button key={item.id} className={readerIndex === index ? 'active' : ''} onClick={() => setReaderIndex(index)}>
-              <span>{String(item.number).padStart(2, '0')}</span>
+              <span>{item.volume === 'Volume I' ? 'I' : 'II'}-{String(item.number).padStart(2, '0')}</span>
               {item.title}
             </button>
           ))}
         </div>
         <div className="reader-tabs" role="tablist" aria-label="Reading mode">
           {(
-            ['English', 'Outline', 'Key terms', 'Citation'] as ReadingMode[]
+            ['English', 'Maithili', 'Devanagari', 'Tirhuta'] as ReadingMode[]
           ).map((mode) => (
             <button
               key={mode}
@@ -1042,38 +1053,40 @@ export default function ResearchExpansion() {
               <p className="script-label">ENGLISH TRANSLATION</p>
               <h4>{readerIdea.title}</h4>
               <p>{readerIdea.summary}</p>
+              <small>{readerIdea.volume} · Chapter {readerIdea.number} · {readerIdea.source}</small>
             </>
           )}
-          {readingMode === 'Outline' && (
+          {readingMode === 'Maithili' && (
             <>
-              <p className="script-label">CHAPTER POSITION</p>
-              <h4>Volume II · Chapter {readerIdea.number}</h4>
-              <p>{readerIdea.part}</p>
-              <p>{readerIdea.summary}</p>
+              <p className="script-label">मैथिली INTERFACE SAMPLE</p>
+              <h4 lang="mai">प्रश्नक भूमि विदेह</h4>
+              <p lang="mai">{_maithiliPassage}</p>
+              <small>This is a clearly labelled script demonstration; it is not presented as a translation of the selected philosophy chapter.</small>
             </>
           )}
-          {readingMode === 'Key terms' && (
+          {readingMode === 'Devanagari' && (
             <>
-              <p className="script-label">ENGLISH CONCEPT INDEX</p>
-              <h4>{readerIdea.title}</h4>
+              <p className="script-label">DEVANAGARI READING AID</p>
+              <h4 lang="mai">विदेह · मिथिला · पञ्जी · प्रमाण</h4>
+              <p lang="mai">{_maithiliPassage}</p>
               <div className="word-gloss">
-                {readerIdea.title.split(/[:;,–—]/).map((term) => term.trim()).filter(Boolean).map((term) => <span key={term}><b>{term}</b></span>)}
+                <span><b>विदेह</b> Videha</span><span><b>मिथिला</b> Mithila</span><span><b>पञ्जी</b> genealogy register</span><span><b>प्रमाण</b> warrant of knowledge</span>
               </div>
             </>
           )}
-          {readingMode === 'Citation' && (
+          {readingMode === 'Tirhuta' && (
             <>
-              <p className="script-label">SOURCE-CONTROLLED CITATION</p>
-              <h4>Gajendra Thakur’s Parallel Philosophy</h4>
-              <p>Volume II, Chapter {readerIdea.number}: “{readerIdea.title}”.</p>
-              <small>{readerIdea.source}. English display only.</small>
+              <p className="script-label">TIRHUTA / MITHILĀKṢARA</p>
+              <h4 lang="mai-Tirh">{_toTirhuta('विदेह · मिथिला · पञ्जी · प्रमाण')}</h4>
+              <p className="tirhuta-text" lang="mai-Tirh">{_toTirhuta(_maithiliPassage)}</p>
+              <small>Unicode Tirhuta rendering depends on the reader’s installed font. Devanagari remains available as the parallel reading aid.</small>
             </>
           )}
         </div>
         <div className="reader-pagination">
           <button disabled={readerIndex === 0} onClick={() => setReaderIndex(readerIndex - 1)}><ChevronLeft /> Previous</button>
-          <strong>{readerIndex + 1} / {englishReaderPassages.length}</strong>
-          <button disabled={readerIndex === englishReaderPassages.length - 1} onClick={() => setReaderIndex(readerIndex + 1)}>Next <ChevronRight /></button>
+          <strong>{readerIndex + 1} / {completedReaderPassages.length}</strong>
+          <button disabled={readerIndex === completedReaderPassages.length - 1} onClick={() => setReaderIndex(readerIndex + 1)}>Next <ChevronRight /></button>
         </div>
       </article>
 

@@ -53,6 +53,16 @@ a {
 button {
   cursor: pointer;
 }
+main#top { display: flex; flex-direction: column; }
+main#top > .intro { order: 1; }
+main#top > .time-control { order: 2; }
+main#top > .workspace { order: 3; }
+main#top > .about { order: 4; }
+main#top > .research-studio { order: 5; }
+main#top > .research-expansion { order: 6; }
+main#top > .learning-lab { order: 7; }
+main#top > .cover-showcase { order: 8; }
+main#top > .provenance { order: 9; }
 .skip-link {
   position: fixed;
   left: -999px;

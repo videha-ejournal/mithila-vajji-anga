@@ -12,7 +12,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  CircleDashed,
   ExternalLink,
   FileText,
   GitBranch,
@@ -35,7 +34,6 @@ import deepData from './deep-data.json';
 import collectionDetailsData from './collection-details.json';
 import coverData from './cover-data.json';
 import ideasVolumeTwoData from './ideas-volume2.json';
-import suppliedHistoryData from './supplied-history-additions.json';
 import ResearchExpansion from './research-expansion';
 import LearningLab from './learning-lab';
 
@@ -147,25 +145,47 @@ const defaultAssistivePrefs: AssistivePrefs = {
   readerView: false,
 };
 const translationLanguages = [
-  ['mai', 'Maithili · मैथिली'],
-  ['hi', 'Hindi · हिन्दी'],
-  ['bn', 'Bengali · বাংলা'],
-  ['ne', 'Nepali · नेपाली'],
-  ['sa', 'Sanskrit · संस्कृतम्'],
   ['as', 'Assamese · অসমীয়া'],
+  ['bn', 'Bengali · বাংলা'],
+  ['brx', 'Bodo · बड़ो'],
+  ['doi', 'Dogri · डोगरी'],
+  ['en', 'English · अंग्रेजी'],
   ['gu', 'Gujarati · ગુજરાતી'],
+  ['hi', 'Hindi · हिन्दी'],
+  ['kn', 'Kannada · ಕನ್ನಡ'],
+  ['ks', 'Kashmiri · کٲشُر'],
+  ['gom', 'Konkani · कोंकणी'],
+  ['mai', 'Maithili · मैथिली'],
+  ['ml', 'Malayalam · മലയാളം'],
+  ['mni-Mtei', 'Manipuri · ꯃꯩꯇꯩꯂꯣꯟ'],
   ['mr', 'Marathi · मराठी'],
+  ['ne', 'Nepali · नेपाली'],
   ['or', 'Odia · ଓଡ଼ିଆ'],
   ['pa', 'Punjabi · ਪੰਜਾਬੀ'],
+  ['sa', 'Sanskrit · संस्कृतम्'],
+  ['sat', 'Santhali · ᱥᱟᱱᱛᱟᱲᱤ'],
+  ['sd', 'Sindhi · سنڌي'],
   ['ta', 'Tamil · தமிழ்'],
   ['te', 'Telugu · తెలుగు'],
   ['ur', 'Urdu · اردو'],
+  ['zh-CN', 'Mandarin Chinese · 中文'],
+  ['yue', 'Cantonese · 粵語'],
+  ['fa', 'Persian · فارسی'],
+  ['iw', 'Hebrew · עברית'],
+  ['bo', 'Tibetan · བོད་སྐད་'],
+  ['si', 'Sinhala · සිංහල'],
+  ['es', 'Spanish · Español'],
   ['fr', 'French · Français'],
   ['de', 'German · Deutsch'],
-  ['es', 'Spanish · Español'],
-  ['zh-CN', 'Mandarin Chinese · 中文'],
-  ['ja', 'Japanese · 日本語'],
+  ['pt', 'Portuguese · Português'],
+  ['it', 'Italian · Italiano'],
+  ['ru', 'Russian · Русский'],
   ['ar', 'Arabic · العربية'],
+  ['ja', 'Japanese · 日本語'],
+  ['ko', 'Korean · 한국어'],
+  ['id', 'Indonesian · Bahasa Indonesia'],
+  ['th', 'Thai · ไทย'],
+  ['tr', 'Turkish · Türkçe'],
 ] as const;
 const chapters = [
   ...researchData.political,
@@ -188,12 +208,6 @@ const ideas: IdeaRecord[] = [
     volume: 'Volume II' as const,
   })),
 ];
-const suppliedHistory = suppliedHistoryData as Array<{
-  number: number;
-  title: string;
-  sections: number;
-  source: string;
-}>;
 const people = deepData.people as Person[];
 const collectionDetails = collectionDetailsData as Record<
   string,
@@ -953,7 +967,7 @@ export default function Home() {
     const separator = current.search ? '&' : '?';
     const translated = `https://${translatedHost}${current.pathname}${current.search}${separator}_x_tr_sl=en&_x_tr_tl=${encodeURIComponent(target)}&_x_tr_hl=${encodeURIComponent(target)}&_x_tr_pto=wapp`;
     const opened = window.open(translated, '_blank', 'noopener,noreferrer');
-    if (!opened) window.location.href = translated;
+    if (!opened) window.open(translated, '_self');
   };
   const nearestIndex = useMemo(
     () =>
@@ -1160,7 +1174,7 @@ export default function Home() {
         <button onClick={() => chooseTab('library')}>Library <span>{works.length}</span></button>
         <button onClick={() => chooseTab('sources')}>Sources</button>
         <a href="#wing-2">Historical map</a>
-        <a href="#wing-4">English reader</a>
+        <a href="#wing-4">Multiscript reader</a>
         <a href="#wing-5">Classroom</a>
         <a href="#learning-lab">Learning lab</a>
       </nav>
@@ -1244,7 +1258,7 @@ export default function Home() {
         {translateOpen && (
           <dialog open className="translate-panel" id="mva-translate-panel" aria-label="Choose translation language">
             <div className="tool-panel-heading"><strong>Translate this English page</strong><button onClick={() => setTranslateOpen(false)} aria-label="Close translator"><X /></button></div>
-            <p><b>Source language:</b> English</p>
+            <p><b>Source language:</b> English · <b>41 target languages</b></p>
             <div className="translate-quick">
               {[['mai','Maithili'],['hi','Hindi'],['bn','Bengali'],['ne','Nepali']].map(([code, label]) => <button key={code} onClick={() => openTranslation(code)}>{label}</button>)}
             </div>
@@ -1312,19 +1326,6 @@ export default function Home() {
               <dd>{ideas.length} ideas</dd>
             </div>
           </dl>
-        </section>
-
-        <section className="supplied-manuscripts" aria-labelledby="supplied-title">
-          <div>
-            <p>NEWLY SUPPLIED · NOW COMPLETE</p>
-            <h2 id="supplied-title">Volume II, Chapters 52–73</h2>
-            <span>
-              {suppliedHistory.length} chapters with {suppliedHistory.reduce((total, chapter) => total + chapter.sections, 0)} indexed sections from the two supplied cumulative manuscripts.
-            </span>
-          </div>
-          <button onClick={() => chooseTab('chapters')}>
-            Open completed histories <ChevronRight />
-          </button>
         </section>
 
         <section className="research-studio" aria-labelledby="studio-title">
@@ -1654,10 +1655,10 @@ export default function Home() {
                 <Check size={16} /> 178 historical chapters indexed
               </p>
               <p>
-                <Check size={16} /> 79 completed history chapters
+                <Check size={16} /> {chapters.filter((chapter) => chapter.status === 'Complete').length} completed history chapters
               </p>
               <p>
-                <Check size={16} /> 72 philosophy chapters opened
+                <Check size={16} /> 172 philosophy ideas indexed · 97 complete
               </p>
               <p>
                 <Check size={16} /> {people.length} literary and intellectual
@@ -1665,9 +1666,6 @@ export default function Home() {
               </p>
               <p>
                 <Check size={16} /> {places.length} places and heritage sites
-              </p>
-              <p>
-                <CircleDashed size={16} /> Volume II chapters 52–150 planned
               </p>
             </article>
           </aside>
@@ -2052,7 +2050,7 @@ export default function Home() {
                       {filteredIdeas.length} of {ideas.length} ideas
                     </h2>
                   </div>
-                  <small>72 Volume I · 25 supplied in English · 75 planned</small>
+                  <small>172 indexed ideas · 97 complete · 75 planned</small>
                 </div>
                 <div className="idea-status-filters" aria-label="Filter ideas by completion status">
                   {['All ideas', 'Available', 'Planned'].map((filter) => (
@@ -2456,8 +2454,8 @@ export default function Home() {
               </h3>
               <p>
                 Political and connected history in 28 chapters;
-                socio-cultural-economic history with Chapters 1–51 complete in a
-                150-chapter plan.
+                socio-cultural-economic history with supplied Chapters 1–73
+                available in the cumulative research corpus.
               </p>
               <button
                 onClick={() => {
@@ -2508,8 +2506,9 @@ export default function Home() {
                 </button>
               </h3>
               <p>
-                A 493-page, 72-chapter philosophical synthesis and the
-                100-volume Parallel History of Mithilā and Maithilī literature.
+                A 172-idea philosophical architecture—97 complete and 75
+                retained as future scope—together with the 100-volume Parallel
+                History of Mithilā and Maithilī literature.
               </p>
               <div className="work-links">
                 <button
