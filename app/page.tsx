@@ -2,192 +2,2220 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { BookOpen, Building2, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDashed, ExternalLink, FileText, GitBranch, Landmark, Layers3, Library, MapPin, Menu, Search, Users, X } from 'lucide-react';
+import {
+  BookOpen,
+  Building2,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  CircleDashed,
+  ExternalLink,
+  FileText,
+  GitBranch,
+  Landmark,
+  Layers3,
+  Library,
+  MapPin,
+  Menu,
+  Search,
+  Users,
+  X,
+} from 'lucide-react';
 import researchData from './research-data.json';
 import libraryData from './library-data.json';
 import deepData from './deep-data.json';
 import collectionDetailsData from './collection-details.json';
 
-type Chapter = { id:string; number:number; title:string; collection:string; volume:string; part:string; status:'Complete'|'Planned'; pages:string; summary:string; sections:string[] };
-type Work = { id:string; shelf:string; sequence:string; title:string; subtitle:string; creator:string; extent:string; description:string; structure:string[] };
-type PhilosophyChapter = { id:string; number:number; title:string; part:string; summary:string; sections:string[]; purvapaksha:string; uttarapaksha:string; synthesis:string };
-type Person = { id:string; name:string; field:string; era:string; source:string; description:string };
-type CollectionDetail = { source:string; paragraphs:number; tables:number; items:{level:number;title:string}[] };
-type Tab = 'chronology'|'places'|'chapters'|'library'|'people'|'ideas'|'sources';
-const chapters = [...researchData.political, ...researchData.social] as Chapter[];
+type Chapter = {
+  id: string;
+  number: number;
+  title: string;
+  collection: string;
+  volume: string;
+  part: string;
+  status: 'Complete' | 'Planned';
+  pages: string;
+  summary: string;
+  sections: string[];
+};
+type Work = {
+  id: string;
+  shelf: string;
+  sequence: string;
+  title: string;
+  subtitle: string;
+  creator: string;
+  extent: string;
+  description: string;
+  structure: string[];
+};
+type PhilosophyChapter = {
+  id: string;
+  number: number;
+  title: string;
+  part: string;
+  summary: string;
+  sections: string[];
+  purvapaksha: string;
+  uttarapaksha: string;
+  synthesis: string;
+};
+type Person = {
+  id: string;
+  name: string;
+  field: string;
+  era: string;
+  source: string;
+  description: string;
+};
+type CollectionDetail = {
+  source: string;
+  paragraphs: number;
+  tables: number;
+  items: { level: number; title: string }[];
+};
+type Tab =
+  | 'chronology'
+  | 'places'
+  | 'chapters'
+  | 'library'
+  | 'people'
+  | 'ideas'
+  | 'sources';
+const chapters = [
+  ...researchData.political,
+  ...researchData.social,
+] as Chapter[];
 const works = libraryData as Work[];
 const philosophyChapters = deepData.philosophyChapters as PhilosophyChapter[];
 const people = deepData.people as Person[];
-const collectionDetails = collectionDetailsData as Record<string,CollectionDetail>;
+const collectionDetails = collectionDetailsData as Record<
+  string,
+  CollectionDetail
+>;
 
 const chronology = [
-  { year:-1800, date:'c. 1800–1000 BCE', region:'Comparative context', title:'Early iron-working horizons', evidence:'Archaeological range', text:'Central Ganga and eastern Vindhya excavations provide comparative evidence, but cannot automatically date iron use in Mithila, the Nepal Tarai, or Anga.' },
-  { year:-1500, date:'Second millennium BCE', region:'Middle Ganga', title:'Early farming and mixed subsistence', evidence:'Archaeological range', text:'Chirand and related sites preserve early food-producing horizons; radiocarbon results require stratigraphic caution.' },
-  { year:-900, date:'Later Vedic period', region:'Videha', title:'Videgha Mathava and the Sadanira', evidence:'Textual tradition · dating disputed', text:'The Satapatha Brahmana represents an eastward movement to the Sadanira. It is a textual geography, not a modern border survey.' },
-  { year:-650, date:'Later Vedic / early Upanishadic horizon', region:'Videha', title:'Janaka’s learned court', evidence:'Textual-historical horizon', text:'The Brihadaranyaka Upanishad remembers Janaka, Yajnavalkya, Gargi, Maitreyi, and learned visitors within a layered textual tradition.' },
-  { year:-550, date:'Mid-first millennium BCE', region:'Anga · Vajji', title:'Eastern states and renunciant networks', evidence:'Textual-political horizon', text:'Anga and Champa appear among major eastern centres while Buddhist and Jain itineraries connect Vaishali, Champa, Rajagriha, and Mithila.' },
-  { year:-500, date:'c. sixth–fifth centuries BCE', region:'Vajji · Videha', title:'Buddha and Mahavira traditions', evidence:'Conventional chronology · debated', text:'Lives and communities associated with the Buddha and Mahavira place the region within the eastern Gangetic world of debate, patronage, and renunciation.' },
-  { year:-450, date:'Mid-first millennium BCE', region:'Vajji', title:'The Vajjian corporate polity', evidence:'Normative Buddhist textual evidence', text:'Buddhist narrative associates Vajjian resilience with assemblies, concord, established rules, elders, shrines, and protection of renunciants.' },
-  { year:-350, date:'About a century after the Buddha', region:'Vaishali', title:'Second Buddhist Council tradition', evidence:'Cross-school Vinaya tradition', text:'Several traditions remember a disciplinary dispute at Vaishali; details, absolute date, and relation to schism remain debated.' },
-  { year:-250, date:'Third century BCE', region:'North Bihar', title:'Ashokan monumental presence', evidence:'Inscriptional and archaeological', text:'Inscribed pillars in Champaran and the uninscribed Ashokan pillar at Kolhua anchor a major monumental corridor.' },
-  { year:400, date:'Early fifth century CE', region:'Vaishali', title:'Faxian’s itinerary', evidence:'Historical itinerary', text:'Chinese Buddhist travel literature records a remembered sacred landscape, not eyewitness evidence for the Buddha’s lifetime.' },
-  { year:464, date:'464 CE', region:'Licchavi Nepal', title:'Manadeva’s Changu Narayan pillar', evidence:'Secure inscriptional anchor', text:'The inscription records genealogy, royal ideology, Queen Rajyavati, and campaigns; its conversion depends on identification of the Saka era.' },
-  { year:635, date:'Seventh century CE', region:'Vaishali', title:'Xuanzang visits the region', evidence:'Historical itinerary', text:'Xuanzang describes Vaishali as largely ruined, with a complex Buddhist and non-Buddhist religious landscape.' },
-  { year:1097, date:'c. 1097–1324/25', region:'Mithila', title:'Karnata rule and Simraongarh', evidence:'Partly disputed chronology', text:'The Karnata horizon links Mithila’s north and south plains; early and terminal dates vary by reconstruction.' },
-  { year:1236, date:'1236', region:'Tirhut', title:'Dharmasvamin in Tirhut', evidence:'Near-contemporary travel-biographical evidence', text:'Dharmasvamin stays near the Karnata capital and encounters Ramasimhadeva.' },
-  { year:1325, date:'1324–25', region:'Mithila', title:'Tughluq conquest horizon', evidence:'Multi-source reconstruction', text:'The displacement of Harisimhadeva is reconstructed across Persianate, Nepalese, and regional sources.' },
-  { year:1453, date:'1453', region:'Saharsa', title:'Kandaha inscriptional horizon', evidence:'Dated inscription', text:'The Narasimha inscription at Kandaha Sun Temple supplies a firm late-medieval anchor.' },
-  { year:1580, date:'c. 1580', region:'Bihar · Tirhut · Munger', title:'Mughal provincial reorganization', evidence:'Administrative-historical anchor', text:'Akbar’s reorganization places Bihar within a subah and records Tirhut and Munger in the provincial hierarchy.' },
-  { year:1665, date:'1665–66', region:'Mithila · Morang', title:'Khandavala documentary horizon', evidence:'Dated Mughal documents', text:'A farman and letter anchor Mahinath Thakur’s enlarged hereditary rights and service on the Morang frontier.' },
-  { year:1765, date:'1765', region:'Bihar', title:'Company receives the diwani', evidence:'Dated documentary anchor', text:'The East India Company receives the diwani of Bengal, Bihar, and Orissa, creating a new sovereign revenue claim.' },
-  { year:1793, date:'22 March 1793', region:'Bihar', title:'Permanent Settlement', evidence:'Primary legal-administrative', text:'The government revenue demand is fixed in perpetuity for recognized proprietors, while subordinate rents and social ranks remain unsettled.' },
-  { year:1816, date:'1815–16', region:'India–Nepal borderland', title:'Treaty of Sugauli', evidence:'Treaty anchor', text:'The treaty and its ratification reshape sovereignty and the modern boundary framework without erasing older regional connections.' },
-  { year:1875, date:'1 November 1875', region:'North Bihar', title:'Tirhut Railway opens', evidence:'Official railway record', text:'The Dalsinghsarai–Samastipur–Darbhanga famine line opens to public traffic after emergency construction.' },
-  { year:1917, date:'1917', region:'Mithila', title:'Institutional recognition of Maithili', evidence:'University record', text:'Calcutta University recognizes Maithili within higher study and as an MA examination language.' },
-  { year:1934, date:'15 January 1934', region:'Bihar · Nepal', title:'The Bihar–Nepal earthquake', evidence:'Scientific and administrative', text:'The earthquake devastates the cross-border region and prompts scientific field investigation and large-scale relief.' },
-  { year:1947, date:'15 August 1947', region:'India · Nepal', title:'Different political transitions', evidence:'Political anchor', text:'British rule ends in India while Rana oligarchy continues in Nepal, producing two transitions across one connected borderland.' },
-  { year:1950, date:'31 July 1950', region:'India–Nepal borderland', title:'Treaty of Peace and Friendship', evidence:'Treaty anchor', text:'The treaty establishes a consequential framework for residence, property, trade, and movement.' },
-  { year:1954, date:'25 April 1954', region:'Kosi basin', title:'India–Nepal Kosi Agreement', evidence:'Bilateral agreement', text:'The agreement authorizes a barrage, embankments, canals, protective works, and associated arrangements in Nepal.' },
-  { year:1966, date:'1965–68', region:'Mithila', title:'Mithila painting enters the paper market', evidence:'Institutional and art-historical', text:'Drought and food insecurity form the context for a handicrafts intervention; handmade paper reaches Madhubani and a new market develops.' },
-  { year:2004, date:'7 January 2004', region:'India', title:'Maithili enters the Eighth Schedule', evidence:'Constitutional anchor', text:'The Ninety-second Amendment gives Maithili constitutional recognition in India.' },
-  { year:2008, date:'18 August 2008', region:'Kosi · Nepal · Bihar', title:'Kusaha breach and Kosi avulsion', evidence:'Contemporary disaster record', text:'The eastern afflux embankment breaches in Sunsari and the Kosi shifts into an older channel belt, causing a transboundary disaster.' },
-  { year:2015, date:'20 September 2015', region:'Nepal · Madhesh', title:'Nepal’s federal constitution', evidence:'Constitutional anchor', text:'Federalism is institutionalized amid major Madhesh protests and disputes over representation and provincial design.' },
-  { year:2022, date:'2 April 2022', region:'Jayanagar–Kurtha', title:'Cross-border passenger rail returns', evidence:'Official bilateral infrastructure', text:'The broad-gauge passenger section restores India–Nepal railway connectivity in a new form.' },
-  { year:900, date:'c. ninth–tenth centuries', region:'Mithila intellectual world', title:'Vācaspati Miśra and multi-school commentary', evidence:'Textual and intellectual-historical', text:'The Bhāmatī tradition forms part of a wider commentarial achievement spanning several schools of Indian philosophy.' },
-  { year:1000, date:'c. tenth–eleventh centuries', region:'Mithila', title:'Udayanācārya’s argument tradition', evidence:'Textual and intellectual-historical', text:'Works including Ātmatattvaviveka and Nyāyakusumāñjali exemplify disciplined objection, response, and inference.' },
-  { year:1250, date:'c. thirteenth century', region:'Mithila', title:'Gaṅgeśa and the Navya-Nyāya turn', evidence:'Textual and intellectual-historical', text:'Tattvacintāmaṇi becomes a foundational work in the new analytical language of logic and epistemology.' },
-  { year:1320, date:'Early fourteenth century', region:'Karnata Mithila', title:'Jyotiriśvara and Varṇaratnākara', evidence:'Literary-textual horizon', text:'The work preserves a remarkable lexical and cultural panorama associated with the Karnata-period Maithili world.' },
-  { year:1400, date:'Fourteenth–fifteenth centuries', region:'Mithila', title:'Vidyāpati’s multilingual literary world', evidence:'Manuscript and literary traditions', text:'Maithili songs, Sanskrit scholarship, courtly work, and legal memory require a plural rather than single-genre reading.' },
-  { year:1881, date:'Late nineteenth century', region:'Mithila · colonial linguistic survey', title:'Maithili in modern linguistic classification', evidence:'Colonial philology · critically contextualized', text:'Grammars and surveys expanded print-era description while also imposing administrative categories that require criticism.' },
-  { year:1952, date:'Mid-twentieth century', region:'Mithila', title:'Modern Maithili genres and institutions expand', evidence:'Print and institutional record', text:'Poetry, fiction, drama, criticism, journals, and literary organizations enlarge the modern public sphere.' },
-  { year:2004, date:'2004 onward', region:'Videha digital archive', title:'Videha Maithili eJournal and digital continuity', evidence:'Digital publication archive', text:'The eJournal creates a persistent space for Maithili writing, translation, criticism, new authors, and parallel historiography.' },
-  { year:2026, date:'2026', region:'Mithila · Vajji · Anga', title:'A cumulative research ecosystem', evidence:'Current editorial programme', text:'Connected history, Panji research, Parallel Philosophy, the hundred-volume literary history, and Sanskrit-to-Maithili translations are organized as one navigable research ecosystem.' },
-].sort((a,b)=>a.year-b.year);
+  {
+    year: -1800,
+    date: 'c. 1800–1000 BCE',
+    region: 'Comparative context',
+    title: 'Early iron-working horizons',
+    evidence: 'Archaeological range',
+    text: 'Central Ganga and eastern Vindhya excavations provide comparative evidence, but cannot automatically date iron use in Mithila, the Nepal Tarai, or Anga.',
+  },
+  {
+    year: -1500,
+    date: 'Second millennium BCE',
+    region: 'Middle Ganga',
+    title: 'Early farming and mixed subsistence',
+    evidence: 'Archaeological range',
+    text: 'Chirand and related sites preserve early food-producing horizons; radiocarbon results require stratigraphic caution.',
+  },
+  {
+    year: -900,
+    date: 'Later Vedic period',
+    region: 'Videha',
+    title: 'Videgha Mathava and the Sadanira',
+    evidence: 'Textual tradition · dating disputed',
+    text: 'The Satapatha Brahmana represents an eastward movement to the Sadanira. It is a textual geography, not a modern border survey.',
+  },
+  {
+    year: -650,
+    date: 'Later Vedic / early Upanishadic horizon',
+    region: 'Videha',
+    title: 'Janaka’s learned court',
+    evidence: 'Textual-historical horizon',
+    text: 'The Brihadaranyaka Upanishad remembers Janaka, Yajnavalkya, Gargi, Maitreyi, and learned visitors within a layered textual tradition.',
+  },
+  {
+    year: -550,
+    date: 'Mid-first millennium BCE',
+    region: 'Anga · Vajji',
+    title: 'Eastern states and renunciant networks',
+    evidence: 'Textual-political horizon',
+    text: 'Anga and Champa appear among major eastern centres while Buddhist and Jain itineraries connect Vaishali, Champa, Rajagriha, and Mithila.',
+  },
+  {
+    year: -500,
+    date: 'c. sixth–fifth centuries BCE',
+    region: 'Vajji · Videha',
+    title: 'Buddha and Mahavira traditions',
+    evidence: 'Conventional chronology · debated',
+    text: 'Lives and communities associated with the Buddha and Mahavira place the region within the eastern Gangetic world of debate, patronage, and renunciation.',
+  },
+  {
+    year: -450,
+    date: 'Mid-first millennium BCE',
+    region: 'Vajji',
+    title: 'The Vajjian corporate polity',
+    evidence: 'Normative Buddhist textual evidence',
+    text: 'Buddhist narrative associates Vajjian resilience with assemblies, concord, established rules, elders, shrines, and protection of renunciants.',
+  },
+  {
+    year: -350,
+    date: 'About a century after the Buddha',
+    region: 'Vaishali',
+    title: 'Second Buddhist Council tradition',
+    evidence: 'Cross-school Vinaya tradition',
+    text: 'Several traditions remember a disciplinary dispute at Vaishali; details, absolute date, and relation to schism remain debated.',
+  },
+  {
+    year: -250,
+    date: 'Third century BCE',
+    region: 'North Bihar',
+    title: 'Ashokan monumental presence',
+    evidence: 'Inscriptional and archaeological',
+    text: 'Inscribed pillars in Champaran and the uninscribed Ashokan pillar at Kolhua anchor a major monumental corridor.',
+  },
+  {
+    year: 400,
+    date: 'Early fifth century CE',
+    region: 'Vaishali',
+    title: 'Faxian’s itinerary',
+    evidence: 'Historical itinerary',
+    text: 'Chinese Buddhist travel literature records a remembered sacred landscape, not eyewitness evidence for the Buddha’s lifetime.',
+  },
+  {
+    year: 464,
+    date: '464 CE',
+    region: 'Licchavi Nepal',
+    title: 'Manadeva’s Changu Narayan pillar',
+    evidence: 'Secure inscriptional anchor',
+    text: 'The inscription records genealogy, royal ideology, Queen Rajyavati, and campaigns; its conversion depends on identification of the Saka era.',
+  },
+  {
+    year: 635,
+    date: 'Seventh century CE',
+    region: 'Vaishali',
+    title: 'Xuanzang visits the region',
+    evidence: 'Historical itinerary',
+    text: 'Xuanzang describes Vaishali as largely ruined, with a complex Buddhist and non-Buddhist religious landscape.',
+  },
+  {
+    year: 1097,
+    date: 'c. 1097–1324/25',
+    region: 'Mithila',
+    title: 'Karnata rule and Simraongarh',
+    evidence: 'Partly disputed chronology',
+    text: 'The Karnata horizon links Mithila’s north and south plains; early and terminal dates vary by reconstruction.',
+  },
+  {
+    year: 1236,
+    date: '1236',
+    region: 'Tirhut',
+    title: 'Dharmasvamin in Tirhut',
+    evidence: 'Near-contemporary travel-biographical evidence',
+    text: 'Dharmasvamin stays near the Karnata capital and encounters Ramasimhadeva.',
+  },
+  {
+    year: 1325,
+    date: '1324–25',
+    region: 'Mithila',
+    title: 'Tughluq conquest horizon',
+    evidence: 'Multi-source reconstruction',
+    text: 'The displacement of Harisimhadeva is reconstructed across Persianate, Nepalese, and regional sources.',
+  },
+  {
+    year: 1453,
+    date: '1453',
+    region: 'Saharsa',
+    title: 'Kandaha inscriptional horizon',
+    evidence: 'Dated inscription',
+    text: 'The Narasimha inscription at Kandaha Sun Temple supplies a firm late-medieval anchor.',
+  },
+  {
+    year: 1580,
+    date: 'c. 1580',
+    region: 'Bihar · Tirhut · Munger',
+    title: 'Mughal provincial reorganization',
+    evidence: 'Administrative-historical anchor',
+    text: 'Akbar’s reorganization places Bihar within a subah and records Tirhut and Munger in the provincial hierarchy.',
+  },
+  {
+    year: 1665,
+    date: '1665–66',
+    region: 'Mithila · Morang',
+    title: 'Khandavala documentary horizon',
+    evidence: 'Dated Mughal documents',
+    text: 'A farman and letter anchor Mahinath Thakur’s enlarged hereditary rights and service on the Morang frontier.',
+  },
+  {
+    year: 1765,
+    date: '1765',
+    region: 'Bihar',
+    title: 'Company receives the diwani',
+    evidence: 'Dated documentary anchor',
+    text: 'The East India Company receives the diwani of Bengal, Bihar, and Orissa, creating a new sovereign revenue claim.',
+  },
+  {
+    year: 1793,
+    date: '22 March 1793',
+    region: 'Bihar',
+    title: 'Permanent Settlement',
+    evidence: 'Primary legal-administrative',
+    text: 'The government revenue demand is fixed in perpetuity for recognized proprietors, while subordinate rents and social ranks remain unsettled.',
+  },
+  {
+    year: 1816,
+    date: '1815–16',
+    region: 'India–Nepal borderland',
+    title: 'Treaty of Sugauli',
+    evidence: 'Treaty anchor',
+    text: 'The treaty and its ratification reshape sovereignty and the modern boundary framework without erasing older regional connections.',
+  },
+  {
+    year: 1875,
+    date: '1 November 1875',
+    region: 'North Bihar',
+    title: 'Tirhut Railway opens',
+    evidence: 'Official railway record',
+    text: 'The Dalsinghsarai–Samastipur–Darbhanga famine line opens to public traffic after emergency construction.',
+  },
+  {
+    year: 1917,
+    date: '1917',
+    region: 'Mithila',
+    title: 'Institutional recognition of Maithili',
+    evidence: 'University record',
+    text: 'Calcutta University recognizes Maithili within higher study and as an MA examination language.',
+  },
+  {
+    year: 1934,
+    date: '15 January 1934',
+    region: 'Bihar · Nepal',
+    title: 'The Bihar–Nepal earthquake',
+    evidence: 'Scientific and administrative',
+    text: 'The earthquake devastates the cross-border region and prompts scientific field investigation and large-scale relief.',
+  },
+  {
+    year: 1947,
+    date: '15 August 1947',
+    region: 'India · Nepal',
+    title: 'Different political transitions',
+    evidence: 'Political anchor',
+    text: 'British rule ends in India while Rana oligarchy continues in Nepal, producing two transitions across one connected borderland.',
+  },
+  {
+    year: 1950,
+    date: '31 July 1950',
+    region: 'India–Nepal borderland',
+    title: 'Treaty of Peace and Friendship',
+    evidence: 'Treaty anchor',
+    text: 'The treaty establishes a consequential framework for residence, property, trade, and movement.',
+  },
+  {
+    year: 1954,
+    date: '25 April 1954',
+    region: 'Kosi basin',
+    title: 'India–Nepal Kosi Agreement',
+    evidence: 'Bilateral agreement',
+    text: 'The agreement authorizes a barrage, embankments, canals, protective works, and associated arrangements in Nepal.',
+  },
+  {
+    year: 1966,
+    date: '1965–68',
+    region: 'Mithila',
+    title: 'Mithila painting enters the paper market',
+    evidence: 'Institutional and art-historical',
+    text: 'Drought and food insecurity form the context for a handicrafts intervention; handmade paper reaches Madhubani and a new market develops.',
+  },
+  {
+    year: 2004,
+    date: '7 January 2004',
+    region: 'India',
+    title: 'Maithili enters the Eighth Schedule',
+    evidence: 'Constitutional anchor',
+    text: 'The Ninety-second Amendment gives Maithili constitutional recognition in India.',
+  },
+  {
+    year: 2008,
+    date: '18 August 2008',
+    region: 'Kosi · Nepal · Bihar',
+    title: 'Kusaha breach and Kosi avulsion',
+    evidence: 'Contemporary disaster record',
+    text: 'The eastern afflux embankment breaches in Sunsari and the Kosi shifts into an older channel belt, causing a transboundary disaster.',
+  },
+  {
+    year: 2015,
+    date: '20 September 2015',
+    region: 'Nepal · Madhesh',
+    title: 'Nepal’s federal constitution',
+    evidence: 'Constitutional anchor',
+    text: 'Federalism is institutionalized amid major Madhesh protests and disputes over representation and provincial design.',
+  },
+  {
+    year: 2022,
+    date: '2 April 2022',
+    region: 'Jayanagar–Kurtha',
+    title: 'Cross-border passenger rail returns',
+    evidence: 'Official bilateral infrastructure',
+    text: 'The broad-gauge passenger section restores India–Nepal railway connectivity in a new form.',
+  },
+  {
+    year: 900,
+    date: 'c. ninth–tenth centuries',
+    region: 'Mithila intellectual world',
+    title: 'Vācaspati Miśra and multi-school commentary',
+    evidence: 'Textual and intellectual-historical',
+    text: 'The Bhāmatī tradition forms part of a wider commentarial achievement spanning several schools of Indian philosophy.',
+  },
+  {
+    year: 1000,
+    date: 'c. tenth–eleventh centuries',
+    region: 'Mithila',
+    title: 'Udayanācārya’s argument tradition',
+    evidence: 'Textual and intellectual-historical',
+    text: 'Works including Ātmatattvaviveka and Nyāyakusumāñjali exemplify disciplined objection, response, and inference.',
+  },
+  {
+    year: 1250,
+    date: 'c. thirteenth century',
+    region: 'Mithila',
+    title: 'Gaṅgeśa and the Navya-Nyāya turn',
+    evidence: 'Textual and intellectual-historical',
+    text: 'Tattvacintāmaṇi becomes a foundational work in the new analytical language of logic and epistemology.',
+  },
+  {
+    year: 1320,
+    date: 'Early fourteenth century',
+    region: 'Karnata Mithila',
+    title: 'Jyotiriśvara and Varṇaratnākara',
+    evidence: 'Literary-textual horizon',
+    text: 'The work preserves a remarkable lexical and cultural panorama associated with the Karnata-period Maithili world.',
+  },
+  {
+    year: 1400,
+    date: 'Fourteenth–fifteenth centuries',
+    region: 'Mithila',
+    title: 'Vidyāpati’s multilingual literary world',
+    evidence: 'Manuscript and literary traditions',
+    text: 'Maithili songs, Sanskrit scholarship, courtly work, and legal memory require a plural rather than single-genre reading.',
+  },
+  {
+    year: 1881,
+    date: 'Late nineteenth century',
+    region: 'Mithila · colonial linguistic survey',
+    title: 'Maithili in modern linguistic classification',
+    evidence: 'Colonial philology · critically contextualized',
+    text: 'Grammars and surveys expanded print-era description while also imposing administrative categories that require criticism.',
+  },
+  {
+    year: 1952,
+    date: 'Mid-twentieth century',
+    region: 'Mithila',
+    title: 'Modern Maithili genres and institutions expand',
+    evidence: 'Print and institutional record',
+    text: 'Poetry, fiction, drama, criticism, journals, and literary organizations enlarge the modern public sphere.',
+  },
+  {
+    year: 2004,
+    date: '2004 onward',
+    region: 'Videha digital archive',
+    title: 'Videha Maithili eJournal and digital continuity',
+    evidence: 'Digital publication archive',
+    text: 'The eJournal creates a persistent space for Maithili writing, translation, criticism, new authors, and parallel historiography.',
+  },
+  {
+    year: 2026,
+    date: '2026',
+    region: 'Mithila · Vajji · Anga',
+    title: 'A cumulative research ecosystem',
+    evidence: 'Current editorial programme',
+    text: 'Connected history, Panji research, Parallel Philosophy, the hundred-volume literary history, and Sanskrit-to-Maithili translations are organized as one navigable research ecosystem.',
+  },
+].sort((a, b) => a.year - b.year);
 
 const eras = [
-  { name:'Prehistory', from:-1800, to:-801 }, { name:'Ancient', from:-800, to:599 }, { name:'Medieval', from:600, to:1525 },
-  { name:'Early modern', from:1526, to:1764 }, { name:'Colonial', from:1765, to:1946 }, { name:'Post-1950', from:1947, to:1999 }, { name:'Contemporary', from:2000, to:2026 },
+  { name: 'Prehistory', from: -1800, to: -801 },
+  { name: 'Ancient', from: -800, to: 599 },
+  { name: 'Medieval', from: 600, to: 1525 },
+  { name: 'Early modern', from: 1526, to: 1764 },
+  { name: 'Colonial', from: 1765, to: 1946 },
+  { name: 'Post-1950', from: 1947, to: 1999 },
+  { name: 'Contemporary', from: 2000, to: 2026 },
 ];
 
 const places = [
-  { id:'janakpur', name:'Janakpur / Janakpurdham', country:'Nepal', region:'Mithila · Madhesh', period:'Ancient memory to present', text:'A major centre of Sita–Rama pilgrimage and living Mithila identity; modern localization must be distinguished from ancient textual geography.', links:'Political ch. 6 · Social plan ch. 66, 72' },
-  { id:'simraongarh', name:'Simraongarh', country:'Nepal', region:'Karnata Mithila', period:'c. 11th–14th centuries', text:'A fortified and hydraulic landscape associated with the Karnata polity and the cross-border plains of historical Mithila.', links:'Political ch. 13' },
-  { id:'vaishali', name:'Vaishali / Basarh', country:'India', region:'Vajji', period:'Early historic to present', text:'Archaeology, Buddhist and Jain traditions, and Gupta-period sealings make Vaishali a central but methodologically layered research site.', links:'Political ch. 7, 9, 10 · Social ch. 13, 20, 21' },
-  { id:'kolhua', name:'Kolhua', country:'India', region:'Vaishali', period:'Mauryan and later', text:'The uninscribed Ashokan pillar and monastic remains form a material anchor distinct from later constitutional legend.', links:'Political ch. 7, 10' },
-  { id:'darbhanga', name:'Darbhanga', country:'India', region:'Mithila', period:'Early modern to contemporary', text:'A major estate, educational, print, political, and cultural centre; Darbhanga Raj was a zamindari institution, not a princely state.', links:'Political ch. 17–20' },
-  { id:'champa', name:'Champa / Champanagar', country:'India', region:'Anga', period:'Early historic and later', text:'The Champanagar–Nathnagar archaeological zone near Bhagalpur preserves a multi-phase sequence and the remembered urban centre of Anga.', links:'Political ch. 8 · Social ch. 14' },
-  { id:'bhagalpur', name:'Bhagalpur', country:'India', region:'Anga corridor', period:'Ancient to contemporary', text:'A Ganga-connected centre of archaeology, silk, colonial administration, language history, and regional exchange.', links:'Political ch. 8, 18, 24 · Social plan ch. 82' },
-  { id:'chirand', name:'Chirand', country:'India', region:'Middle Ganga', period:'Prehistory and protohistory', text:'An excavated settlement used to study early food production and mixed subsistence, with explicit caution around radiocarbon stratigraphy.', links:'Political ch. 2' },
-  { id:'munger', name:'Munger / Mudgagiri', country:'India', region:'Anga–eastern Bihar', period:'Early medieval to modern', text:'A political and administrative node appearing in inscriptions, Mughal fiscal geography, and the eastern Ganga corridor.', links:'Political ch. 12, 16' },
-  { id:'patna', name:'Patna', country:'India', region:'Middle Ganga', period:'Ancient to contemporary', text:'A modern orientation point and institutional centre connecting the study region to wider Gangetic political and archival systems.', links:'Political ch. 1, 17–20' },
-  { id:'purnia', name:'Purnia', country:'India', region:'Eastern Mithila frontier', period:'Colonial to contemporary', text:'Settlement surveys, river history, mobility, and the eastern Kosi landscape make Purnia important to agrarian and environmental history.', links:'Political ch. 18, 19, 26' },
-  { id:'birgunj', name:'Raxaul–Birgunj corridor', country:'India & Nepal', region:'Borderland · Corridor', period:'19th century to present', text:'A principal road, rail, customs, labour, and migration corridor whose formal infrastructure overlays older regional movement.', links:'Political ch. 21, 23' },
-  { id:'janaki-mandir', name:'Janaki Mandir', country:'Nepal', region:'Mithila · Temple architecture', period:'Late 19th–early 20th century', text:'Janakpur’s monumental pilgrimage architecture joins sacred geography, royal patronage, courtyards, ornament, and a living cross-border public culture.', links:'Social plan ch. 66, 72 · architectural heritage dossier' },
-  { id:'raja-vishal', name:'Raja Vishal ka Garh', country:'India', region:'Vajji · Archaeological landscape', period:'Early historic attribution · layered site', text:'A large fortified or enclosed archaeological mound at Basarh often associated with Vaishali’s assembly memory; function and dating must be argued from excavation rather than legend alone.', links:'Political ch. 7, 10 · Social ch. 13' },
-  { id:'abhishek-pushkarini', name:'Abhishek Pushkarini and Vaishali relic landscape', country:'India', region:'Vajji · Water and ritual architecture', period:'Early historic memory to later commemoration', text:'Tank, stupa, monastery, and modern memorial elements demonstrate how archaeology and commemorative architecture accumulate in one landscape.', links:'Political ch. 7, 9, 10' },
-  { id:'vikramashila', name:'Vikramashila Mahavihara', country:'India', region:'Anga corridor · Monastic university', period:'c. 8th–12th centuries', text:'The excavated cruciform monastery and teaching complex near the Ganga anchors Anga’s place in wider Buddhist intellectual and architectural networks.', links:'Political ch. 12 · Social plan ch. 20, 71' },
-  { id:'mandar', name:'Mandar Hill', country:'India', region:'Anga · Sacred landscape', period:'Long-duration sacred geography', text:'Rock, water, temple, Jain and Hindu associations make Mandar a layered landscape whose traditions must be separated by period and source.', links:'Political ch. 8 · Social plan ch. 14, 66' },
-  { id:'rajnagar', name:'Rajnagar Palace complex', country:'India', region:'Mithila · Palace and temple ruins', period:'Early 20th century', text:'Palace, temple, garden, and earthquake-damaged remains offer a material entry into Darbhanga Raj patronage, architectural eclecticism, and the 1934 disaster.', links:'Political ch. 17, 19 · built-heritage dossier' },
-  { id:'darbhanga-raj', name:'Darbhanga Raj campus and palaces', country:'India', region:'Mithila · Estate architecture', period:'19th–20th centuries', text:'Palatial, administrative, educational, and religious buildings document estate power, philanthropy, institutional reuse, and changing urban memory.', links:'Political ch. 17–20' },
-  { id:'kandaha', name:'Kandaha Sun Temple', country:'India', region:'Mithila · Temple and inscription', period:'Dated 1453 inscriptional horizon', text:'The temple and Narasimha inscription provide a firm late-medieval anchor for patronage, sacred architecture, and regional chronology.', links:'Political ch. 14 · chronology anchor 1453' },
-  { id:'dhanushadham', name:'Dhanushadham', country:'Nepal', region:'Mithila · Pilgrimage landscape', period:'Living tradition', text:'A pilgrimage centre in the Janakpur cultural region, important for studying how epic memory is localized, renewed, and moved through modern routes.', links:'Social plan ch. 66, 72' },
-  { id:'jaleshwar', name:'Jaleshwar', country:'Nepal', region:'Mithila · Temple town', period:'Historic and living sacred centre', text:'A cross-border pilgrimage and market centre whose sacred architecture belongs to the living geography of Mithila rather than a frozen ancient map.', links:'Social plan ch. 66, 72, 89' },
-  { id:'balirajgarh', name:'Balirajgarh', country:'India', region:'Mithila · Fortified archaeological site', period:'Early historic to early medieval layers', text:'Fortification, mounds, and excavated remains make the site important for settlement and political archaeology; traditional identification is kept distinct from material dating.', links:'Political ch. 4, 10, 12' },
-  { id:'nandangarh', name:'Lauriya Nandangarh', country:'India', region:'North Bihar · Monumental corridor', period:'Mauryan and earlier/later layers', text:'Ashokan pillar, mound, and surrounding archaeology establish a monumental north-Bihar corridor linked to but not identical with the histories of Vajji and Mithila.', links:'Political ch. 10' },
-  { id:'munger-fort', name:'Munger Fort', country:'India', region:'Anga–eastern Bihar · Fortification', period:'Medieval to colonial rebuilding', text:'A strategic Ganga fort whose layered fabric helps connect military, administrative, commercial, and colonial histories of the eastern corridor.', links:'Political ch. 12, 16–18' },
+  {
+    id: 'janakpur',
+    name: 'Janakpur / Janakpurdham',
+    country: 'Nepal',
+    region: 'Mithila · Madhesh',
+    period: 'Ancient memory to present',
+    text: 'A major centre of Sita–Rama pilgrimage and living Mithila identity; modern localization must be distinguished from ancient textual geography.',
+    links: 'Political ch. 6 · Social plan ch. 66, 72',
+  },
+  {
+    id: 'simraongarh',
+    name: 'Simraongarh',
+    country: 'Nepal',
+    region: 'Karnata Mithila',
+    period: 'c. 11th–14th centuries',
+    text: 'A fortified and hydraulic landscape associated with the Karnata polity and the cross-border plains of historical Mithila.',
+    links: 'Political ch. 13',
+  },
+  {
+    id: 'vaishali',
+    name: 'Vaishali / Basarh',
+    country: 'India',
+    region: 'Vajji',
+    period: 'Early historic to present',
+    text: 'Archaeology, Buddhist and Jain traditions, and Gupta-period sealings make Vaishali a central but methodologically layered research site.',
+    links: 'Political ch. 7, 9, 10 · Social ch. 13, 20, 21',
+  },
+  {
+    id: 'kolhua',
+    name: 'Kolhua',
+    country: 'India',
+    region: 'Vaishali',
+    period: 'Mauryan and later',
+    text: 'The uninscribed Ashokan pillar and monastic remains form a material anchor distinct from later constitutional legend.',
+    links: 'Political ch. 7, 10',
+  },
+  {
+    id: 'darbhanga',
+    name: 'Darbhanga',
+    country: 'India',
+    region: 'Mithila',
+    period: 'Early modern to contemporary',
+    text: 'A major estate, educational, print, political, and cultural centre; Darbhanga Raj was a zamindari institution, not a princely state.',
+    links: 'Political ch. 17–20',
+  },
+  {
+    id: 'champa',
+    name: 'Champa / Champanagar',
+    country: 'India',
+    region: 'Anga',
+    period: 'Early historic and later',
+    text: 'The Champanagar–Nathnagar archaeological zone near Bhagalpur preserves a multi-phase sequence and the remembered urban centre of Anga.',
+    links: 'Political ch. 8 · Social ch. 14',
+  },
+  {
+    id: 'bhagalpur',
+    name: 'Bhagalpur',
+    country: 'India',
+    region: 'Anga corridor',
+    period: 'Ancient to contemporary',
+    text: 'A Ganga-connected centre of archaeology, silk, colonial administration, language history, and regional exchange.',
+    links: 'Political ch. 8, 18, 24 · Social plan ch. 82',
+  },
+  {
+    id: 'chirand',
+    name: 'Chirand',
+    country: 'India',
+    region: 'Middle Ganga',
+    period: 'Prehistory and protohistory',
+    text: 'An excavated settlement used to study early food production and mixed subsistence, with explicit caution around radiocarbon stratigraphy.',
+    links: 'Political ch. 2',
+  },
+  {
+    id: 'munger',
+    name: 'Munger / Mudgagiri',
+    country: 'India',
+    region: 'Anga–eastern Bihar',
+    period: 'Early medieval to modern',
+    text: 'A political and administrative node appearing in inscriptions, Mughal fiscal geography, and the eastern Ganga corridor.',
+    links: 'Political ch. 12, 16',
+  },
+  {
+    id: 'patna',
+    name: 'Patna',
+    country: 'India',
+    region: 'Middle Ganga',
+    period: 'Ancient to contemporary',
+    text: 'A modern orientation point and institutional centre connecting the study region to wider Gangetic political and archival systems.',
+    links: 'Political ch. 1, 17–20',
+  },
+  {
+    id: 'purnia',
+    name: 'Purnia',
+    country: 'India',
+    region: 'Eastern Mithila frontier',
+    period: 'Colonial to contemporary',
+    text: 'Settlement surveys, river history, mobility, and the eastern Kosi landscape make Purnia important to agrarian and environmental history.',
+    links: 'Political ch. 18, 19, 26',
+  },
+  {
+    id: 'birgunj',
+    name: 'Raxaul–Birgunj corridor',
+    country: 'India & Nepal',
+    region: 'Borderland · Corridor',
+    period: '19th century to present',
+    text: 'A principal road, rail, customs, labour, and migration corridor whose formal infrastructure overlays older regional movement.',
+    links: 'Political ch. 21, 23',
+  },
+  {
+    id: 'janaki-mandir',
+    name: 'Janaki Mandir',
+    country: 'Nepal',
+    region: 'Mithila · Temple architecture',
+    period: 'Late 19th–early 20th century',
+    text: 'Janakpur’s monumental pilgrimage architecture joins sacred geography, royal patronage, courtyards, ornament, and a living cross-border public culture.',
+    links: 'Social plan ch. 66, 72 · architectural heritage dossier',
+  },
+  {
+    id: 'raja-vishal',
+    name: 'Raja Vishal ka Garh',
+    country: 'India',
+    region: 'Vajji · Archaeological landscape',
+    period: 'Early historic attribution · layered site',
+    text: 'A large fortified or enclosed archaeological mound at Basarh often associated with Vaishali’s assembly memory; function and dating must be argued from excavation rather than legend alone.',
+    links: 'Political ch. 7, 10 · Social ch. 13',
+  },
+  {
+    id: 'abhishek-pushkarini',
+    name: 'Abhishek Pushkarini and Vaishali relic landscape',
+    country: 'India',
+    region: 'Vajji · Water and ritual architecture',
+    period: 'Early historic memory to later commemoration',
+    text: 'Tank, stupa, monastery, and modern memorial elements demonstrate how archaeology and commemorative architecture accumulate in one landscape.',
+    links: 'Political ch. 7, 9, 10',
+  },
+  {
+    id: 'vikramashila',
+    name: 'Vikramashila Mahavihara',
+    country: 'India',
+    region: 'Anga corridor · Monastic university',
+    period: 'c. 8th–12th centuries',
+    text: 'The excavated cruciform monastery and teaching complex near the Ganga anchors Anga’s place in wider Buddhist intellectual and architectural networks.',
+    links: 'Political ch. 12 · Social plan ch. 20, 71',
+  },
+  {
+    id: 'mandar',
+    name: 'Mandar Hill',
+    country: 'India',
+    region: 'Anga · Sacred landscape',
+    period: 'Long-duration sacred geography',
+    text: 'Rock, water, temple, Jain and Hindu associations make Mandar a layered landscape whose traditions must be separated by period and source.',
+    links: 'Political ch. 8 · Social plan ch. 14, 66',
+  },
+  {
+    id: 'rajnagar',
+    name: 'Rajnagar Palace complex',
+    country: 'India',
+    region: 'Mithila · Palace and temple ruins',
+    period: 'Early 20th century',
+    text: 'Palace, temple, garden, and earthquake-damaged remains offer a material entry into Darbhanga Raj patronage, architectural eclecticism, and the 1934 disaster.',
+    links: 'Political ch. 17, 19 · built-heritage dossier',
+  },
+  {
+    id: 'darbhanga-raj',
+    name: 'Darbhanga Raj campus and palaces',
+    country: 'India',
+    region: 'Mithila · Estate architecture',
+    period: '19th–20th centuries',
+    text: 'Palatial, administrative, educational, and religious buildings document estate power, philanthropy, institutional reuse, and changing urban memory.',
+    links: 'Political ch. 17–20',
+  },
+  {
+    id: 'kandaha',
+    name: 'Kandaha Sun Temple',
+    country: 'India',
+    region: 'Mithila · Temple and inscription',
+    period: 'Dated 1453 inscriptional horizon',
+    text: 'The temple and Narasimha inscription provide a firm late-medieval anchor for patronage, sacred architecture, and regional chronology.',
+    links: 'Political ch. 14 · chronology anchor 1453',
+  },
+  {
+    id: 'dhanushadham',
+    name: 'Dhanushadham',
+    country: 'Nepal',
+    region: 'Mithila · Pilgrimage landscape',
+    period: 'Living tradition',
+    text: 'A pilgrimage centre in the Janakpur cultural region, important for studying how epic memory is localized, renewed, and moved through modern routes.',
+    links: 'Social plan ch. 66, 72',
+  },
+  {
+    id: 'jaleshwar',
+    name: 'Jaleshwar',
+    country: 'Nepal',
+    region: 'Mithila · Temple town',
+    period: 'Historic and living sacred centre',
+    text: 'A cross-border pilgrimage and market centre whose sacred architecture belongs to the living geography of Mithila rather than a frozen ancient map.',
+    links: 'Social plan ch. 66, 72, 89',
+  },
+  {
+    id: 'balirajgarh',
+    name: 'Balirajgarh',
+    country: 'India',
+    region: 'Mithila · Fortified archaeological site',
+    period: 'Early historic to early medieval layers',
+    text: 'Fortification, mounds, and excavated remains make the site important for settlement and political archaeology; traditional identification is kept distinct from material dating.',
+    links: 'Political ch. 4, 10, 12',
+  },
+  {
+    id: 'nandangarh',
+    name: 'Lauriya Nandangarh',
+    country: 'India',
+    region: 'North Bihar · Monumental corridor',
+    period: 'Mauryan and earlier/later layers',
+    text: 'Ashokan pillar, mound, and surrounding archaeology establish a monumental north-Bihar corridor linked to but not identical with the histories of Vajji and Mithila.',
+    links: 'Political ch. 10',
+  },
+  {
+    id: 'munger-fort',
+    name: 'Munger Fort',
+    country: 'India',
+    region: 'Anga–eastern Bihar · Fortification',
+    period: 'Medieval to colonial rebuilding',
+    text: 'A strategic Ganga fort whose layered fabric helps connect military, administrative, commercial, and colonial histories of the eastern corridor.',
+    links: 'Political ch. 12, 16–18',
+  },
 ];
 
 const visualGallery = [
-  {src:'./assets/library/parallel-philosophy-cover.png',alt:'Cover of Gajendra Thakur’s Parallel Philosophy',title:'Parallel Philosophy',note:'Cover embedded in the supplied manuscript'},
-  {src:'./assets/library/parallel-history-cover.png',alt:'Cover of A Parallel History of Mithila and Maithili Literature',title:'Parallel History · Volumes 1–100',note:'Cover embedded in the supplied manuscript'},
-  {src:'./assets/library/archive-portrait-pencil.png',alt:'Pencil portrait reproduced in the Parallel History manuscript',title:'Portrait from the literary archive',note:'Embedded archival illustration; identification follows the manuscript context'},
-  {src:'./assets/library/archive-portrait-ink.png',alt:'Ink portrait reproduced in the Parallel History manuscript',title:'Author portrait from the archive',note:'Embedded archival illustration'},
-  {src:'./assets/library/maithili-prose-page.png',alt:'Reproduced page of Maithili prose',title:'Maithili prose witness',note:'Page image embedded in the Parallel History manuscript'},
-  {src:'./assets/library/maithili-poetry-page.png',alt:'Reproduced page of Maithili poetry',title:'Maithili verse witness',note:'Page image embedded in the Parallel History manuscript'},
+  {
+    src: './assets/library/parallel-philosophy-cover.png',
+    alt: 'Cover of Gajendra Thakur’s Parallel Philosophy',
+    title: 'Parallel Philosophy',
+    note: 'Cover embedded in the supplied manuscript',
+  },
+  {
+    src: './assets/library/parallel-history-cover.png',
+    alt: 'Cover of A Parallel History of Mithila and Maithili Literature',
+    title: 'Parallel History · Volumes 1–100',
+    note: 'Cover embedded in the supplied manuscript',
+  },
+  {
+    src: './assets/library/archive-portrait-pencil.png',
+    alt: 'Pencil portrait reproduced in the Parallel History manuscript',
+    title: 'Portrait from the literary archive',
+    note: 'Embedded archival illustration; identification follows the manuscript context',
+  },
+  {
+    src: './assets/library/archive-portrait-ink.png',
+    alt: 'Ink portrait reproduced in the Parallel History manuscript',
+    title: 'Author portrait from the archive',
+    note: 'Embedded archival illustration',
+  },
+  {
+    src: './assets/library/maithili-prose-page.png',
+    alt: 'Reproduced page of Maithili prose',
+    title: 'Maithili prose witness',
+    note: 'Page image embedded in the Parallel History manuscript',
+  },
+  {
+    src: './assets/library/maithili-poetry-page.png',
+    alt: 'Reproduced page of Maithili poetry',
+    title: 'Maithili verse witness',
+    note: 'Page image embedded in the Parallel History manuscript',
+  },
 ];
 
 const sourceGroups = [
-  { title:'Archaeology and environment', examples:'Excavation reports · radiocarbon series · archaeobotany · geomorphology', rule:'Material sequence does not automatically identify ethnicity, polity, or a textual event.' },
-  { title:'Texts and philology', examples:'Vedic · Upanishadic · Buddhist · Jain · epic · literary corpora', rule:'Composition, recension, transmission, genre, and remembered geography are evaluated separately.' },
-  { title:'Inscriptions, coins and manuscripts', examples:'Copper plates · pillars · sealings · coinage · colophons', rule:'Dated objects anchor claims, while panegyric and institutional purpose still require interpretation.' },
-  { title:'Archives and law', examples:'Revenue records · settlement reports · treaties · statutes · gazetteers', rule:'Official records document administration and classification, not neutral or total descriptions of society.' },
-  { title:'Living and modern evidence', examples:'Census · oral traditions · ethnography · photographs · statistics', rule:'Modern identity, memory, and administrative categories are not projected backward without period evidence.' },
+  {
+    title: 'Archaeology and environment',
+    examples:
+      'Excavation reports · radiocarbon series · archaeobotany · geomorphology',
+    rule: 'Material sequence does not automatically identify ethnicity, polity, or a textual event.',
+  },
+  {
+    title: 'Texts and philology',
+    examples: 'Vedic · Upanishadic · Buddhist · Jain · epic · literary corpora',
+    rule: 'Composition, recension, transmission, genre, and remembered geography are evaluated separately.',
+  },
+  {
+    title: 'Inscriptions, coins and manuscripts',
+    examples: 'Copper plates · pillars · sealings · coinage · colophons',
+    rule: 'Dated objects anchor claims, while panegyric and institutional purpose still require interpretation.',
+  },
+  {
+    title: 'Archives and law',
+    examples:
+      'Revenue records · settlement reports · treaties · statutes · gazetteers',
+    rule: 'Official records document administration and classification, not neutral or total descriptions of society.',
+  },
+  {
+    title: 'Living and modern evidence',
+    examples:
+      'Census · oral traditions · ethnography · photographs · statistics',
+    rule: 'Modern identity, memory, and administrative categories are not projected backward without period evidence.',
+  },
 ];
-const formatYear = (year:number) => year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
+const formatYear = (year: number) =>
+  year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
 
 export default function Home() {
-  const [menuOpen,setMenuOpen] = useState(false);
-  const [activeTab,setActiveTab] = useState<Tab>('chronology');
-  const [year,setYear] = useState(-550);
-  const [query,setQuery] = useState('');
-  const [collection,setCollection] = useState('All collections');
-  const [volume,setVolume] = useState('All volumes');
-  const [status,setStatus] = useState('All statuses');
-  const [shelf,setShelf] = useState('All shelves');
-  const [selectedChapter,setSelectedChapter] = useState('political-7');
-  const [selectedPlace,setSelectedPlace] = useState('vaishali');
-  const [selectedWork,setSelectedWork] = useState('panji-1');
-  const [selectedPerson,setSelectedPerson] = useState('figure-1');
-  const [selectedIdea,setSelectedIdea] = useState('philosophy-1');
-  const nearestIndex = useMemo(() => chronology.reduce((best,item,index) => Math.abs(item.year-year) < Math.abs(chronology[best].year-year) ? index : best,0),[year]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('chronology');
+  const [year, setYear] = useState(-550);
+  const [query, setQuery] = useState('');
+  const [collection, setCollection] = useState('All collections');
+  const [volume, setVolume] = useState('All volumes');
+  const [status, setStatus] = useState('All statuses');
+  const [shelf, setShelf] = useState('All shelves');
+  const [selectedChapter, setSelectedChapter] = useState('political-7');
+  const [selectedPlace, setSelectedPlace] = useState('vaishali');
+  const [selectedWork, setSelectedWork] = useState('panji-1');
+  const [selectedPerson, setSelectedPerson] = useState('figure-1');
+  const [selectedIdea, setSelectedIdea] = useState('philosophy-1');
+  const nearestIndex = useMemo(
+    () =>
+      chronology.reduce(
+        (best, item, index) =>
+          Math.abs(item.year - year) < Math.abs(chronology[best].year - year)
+            ? index
+            : best,
+        0,
+      ),
+    [year],
+  );
   const selectedEvent = chronology[nearestIndex];
-  const selectedEra = eras.find((era)=>year>=era.from&&year<=era.to) ?? eras[0];
-  const volumeOptions = useMemo(()=>['All volumes',...Array.from(new Set(chapters.filter(c=>collection==='All collections'||c.collection===collection).map(c=>c.volume)))],[collection]);
-  const filteredChapters = useMemo(()=>chapters.filter(c=>(collection==='All collections'||c.collection===collection)&&(volume==='All volumes'||c.volume===volume)&&(status==='All statuses'||c.status===status)&&(`${c.title} ${c.part} ${c.summary} ${c.sections.join(' ')}`.toLowerCase().includes(query.toLowerCase()))),[collection,volume,status,query]);
-  const filteredPlaces = useMemo(()=>places.filter(p=>`${p.name} ${p.country} ${p.region} ${p.text}`.toLowerCase().includes(query.toLowerCase())),[query]);
-  const filteredChronology = useMemo(()=>chronology.filter(item=>item.year>=selectedEra.from&&item.year<=selectedEra.to&&`${item.title} ${item.region} ${item.text}`.toLowerCase().includes(query.toLowerCase())),[selectedEra,query]);
-  const filteredWorks = useMemo(()=>works.filter(work=>(shelf==='All shelves'||work.shelf===shelf)&&`${work.title} ${work.subtitle} ${work.description} ${work.structure.join(' ')} ${(collectionDetails[work.id]?.items??[]).map(item=>item.title).join(' ')}`.toLowerCase().includes(query.toLowerCase())),[shelf,query]);
-  const filteredPeople = useMemo(()=>people.filter(person=>`${person.name} ${person.field} ${person.era} ${person.description}`.toLowerCase().includes(query.toLowerCase())),[query]);
-  const filteredIdeas = useMemo(()=>philosophyChapters.filter(item=>`${item.title} ${item.part} ${item.summary} ${item.purvapaksha} ${item.uttarapaksha} ${item.sections.join(' ')}`.toLowerCase().includes(query.toLowerCase())),[query]);
-  const chapterDetail = chapters.find(c=>c.id===selectedChapter) ?? chapters[0];
-  const placeDetail = places.find(p=>p.id===selectedPlace) ?? places[0];
-  const workDetail = works.find(work=>work.id===selectedWork) ?? works[0];
-  const personDetail = people.find(person=>person.id===selectedPerson) ?? people[0];
-  const ideaDetail = philosophyChapters.find(item=>item.id===selectedIdea) ?? philosophyChapters[0];
+  const selectedEra =
+    eras.find((era) => year >= era.from && year <= era.to) ?? eras[0];
+  const volumeOptions = useMemo(
+    () => [
+      'All volumes',
+      ...Array.from(
+        new Set(
+          chapters
+            .filter(
+              (c) =>
+                collection === 'All collections' || c.collection === collection,
+            )
+            .map((c) => c.volume),
+        ),
+      ),
+    ],
+    [collection],
+  );
+  const filteredChapters = useMemo(
+    () =>
+      chapters.filter(
+        (c) =>
+          (collection === 'All collections' || c.collection === collection) &&
+          (volume === 'All volumes' || c.volume === volume) &&
+          (status === 'All statuses' || c.status === status) &&
+          `${c.title} ${c.part} ${c.summary} ${c.sections.join(' ')}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      ),
+    [collection, volume, status, query],
+  );
+  const filteredPlaces = useMemo(
+    () =>
+      places.filter((p) =>
+        `${p.name} ${p.country} ${p.region} ${p.text}`
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+      ),
+    [query],
+  );
+  const filteredChronology = useMemo(
+    () =>
+      chronology.filter(
+        (item) =>
+          item.year >= selectedEra.from &&
+          item.year <= selectedEra.to &&
+          `${item.title} ${item.region} ${item.text}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      ),
+    [selectedEra, query],
+  );
+  const filteredWorks = useMemo(
+    () =>
+      works.filter(
+        (work) =>
+          (shelf === 'All shelves' || work.shelf === shelf) &&
+          `${work.title} ${work.subtitle} ${work.description} ${work.structure.join(' ')} ${(collectionDetails[work.id]?.items ?? []).map((item) => item.title).join(' ')}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
+      ),
+    [shelf, query],
+  );
+  const filteredPeople = useMemo(
+    () =>
+      people.filter((person) =>
+        `${person.name} ${person.field} ${person.era} ${person.description}`
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+      ),
+    [query],
+  );
+  const filteredIdeas = useMemo(
+    () =>
+      philosophyChapters.filter((item) =>
+        `${item.title} ${item.part} ${item.summary} ${item.purvapaksha} ${item.uttarapaksha} ${item.sections.join(' ')}`
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+      ),
+    [query],
+  );
+  const chapterDetail =
+    chapters.find((c) => c.id === selectedChapter) ?? chapters[0];
+  const placeDetail = places.find((p) => p.id === selectedPlace) ?? places[0];
+  const workDetail = works.find((work) => work.id === selectedWork) ?? works[0];
+  const personDetail =
+    people.find((person) => person.id === selectedPerson) ?? people[0];
+  const ideaDetail =
+    philosophyChapters.find((item) => item.id === selectedIdea) ??
+    philosophyChapters[0];
   const materialDetail = collectionDetails[selectedWork];
-  const changeEvent = (direction:number) => { const next=Math.max(0,Math.min(chronology.length-1,nearestIndex+direction)); setYear(chronology[next].year); };
-  const chooseTab = (tab:Tab) => { setActiveTab(tab); setQuery(''); requestAnimationFrame(()=>document.getElementById('explorer')?.scrollIntoView({behavior:'smooth',block:'start'})); };
-  const openWork = (id:string) => {
-    setActiveTab('library'); setSelectedWork(id); setQuery('');
-    requestAnimationFrame(()=>document.getElementById('explorer')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  const changeEvent = (direction: number) => {
+    const next = Math.max(
+      0,
+      Math.min(chronology.length - 1, nearestIndex + direction),
+    );
+    setYear(chronology[next].year);
   };
-  const openShelf = (name:string,id?:string) => { setShelf(name); if(id) openWork(id); else { setActiveTab('library'); setQuery(''); requestAnimationFrame(()=>document.getElementById('explorer')?.scrollIntoView({behavior:'smooth'})); } };
+  const chooseTab = (tab: Tab) => {
+    setActiveTab(tab);
+    setQuery('');
+    requestAnimationFrame(() =>
+      document
+        .getElementById('explorer')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    );
+  };
+  const openWork = (id: string) => {
+    setActiveTab('library');
+    setSelectedWork(id);
+    setQuery('');
+    requestAnimationFrame(() =>
+      document
+        .getElementById('explorer')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    );
+  };
+  const openShelf = (name: string, id?: string) => {
+    setShelf(name);
+    if (id) openWork(id);
+    else {
+      setActiveTab('library');
+      setQuery('');
+      requestAnimationFrame(() =>
+        document
+          .getElementById('explorer')
+          ?.scrollIntoView({ behavior: 'smooth' }),
+      );
+    }
+  };
 
-  return <>
-    <a className="skip-link" href="#explorer">Skip to explorer</a>
-    <header className="topbar">
-      <a className="identity" href="#top" aria-label="Mithila–Vajji–Anga home"><span className="mark" aria-hidden="true">𑒧</span><span><strong>Mithila–Vajji–Anga</strong><small>Videha historical research</small></span></a>
-      <button className="menu-toggle" onClick={()=>setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle menu">{menuOpen?<X/>:<Menu/>}</button>
-      <nav className={menuOpen?'open':''} aria-label="Primary navigation"><a href="#explorer">Explore</a><button onClick={()=>{chooseTab('chapters');location.hash='explorer'}}>Histories</button><button onClick={()=>{chooseTab('people');location.hash='explorer'}}>People</button><button onClick={()=>{chooseTab('ideas');location.hash='explorer'}}>Ideas</button><button onClick={()=>{chooseTab('library');location.hash='explorer'}}>Library</button><a href="#about">About</a><a className="videha" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink size={15}/></a></nav>
-    </header>
+  return (
+    <>
+      <a className="skip-link" href="#explorer">
+        Skip to explorer
+      </a>
+      <header className="topbar">
+        <a
+          className="identity"
+          href="#top"
+          aria-label="Mithila–Vajji–Anga home"
+        >
+          <span className="mark" aria-hidden="true">
+            𑒧
+          </span>
+          <span>
+            <strong>Mithila–Vajji–Anga</strong>
+            <small>Videha historical research</small>
+          </span>
+        </a>
+        <button
+          className="menu-toggle"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-expanded={menuOpen}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <X /> : <Menu />}
+        </button>
+        <nav className={menuOpen ? 'open' : ''} aria-label="Primary navigation">
+          <a href="#explorer">Explore</a>
+          <button
+            onClick={() => {
+              chooseTab('chapters');
+              location.hash = 'explorer';
+            }}
+          >
+            Histories
+          </button>
+          <button
+            onClick={() => {
+              chooseTab('people');
+              location.hash = 'explorer';
+            }}
+          >
+            People
+          </button>
+          <button
+            onClick={() => {
+              chooseTab('ideas');
+              location.hash = 'explorer';
+            }}
+          >
+            Ideas
+          </button>
+          <button
+            onClick={() => {
+              chooseTab('library');
+              location.hash = 'explorer';
+            }}
+          >
+            Library
+          </button>
+          <a href="#about">About</a>
+          <a
+            className="videha"
+            href="https://www.videha.co.in/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Videha <ExternalLink size={15} />
+          </a>
+        </nav>
+      </header>
 
-    <main id="top">
-      <section className="intro"><div><p className="eyebrow">SOURCE-CONTROLLED REGIONAL ATLAS</p><h1>Explore Mithila, Vajji and Anga</h1><p>Move through political, social, literary, genealogical, architectural, and philosophical histories—across India and Nepal and through the cumulative Videha archive.</p></div><dl><div><dt>Chronology</dt><dd>{chronology.length} anchors</dd></div><div><dt>People index</dt><dd>{people.length} figures</dd></div><div><dt>Parallel Philosophy</dt><dd>{philosophyChapters.length} chapters</dd></div></dl></section>
+      <main id="top">
+        <section className="intro">
+          <div>
+            <p className="eyebrow">SOURCE-CONTROLLED REGIONAL ATLAS</p>
+            <h1>Explore Mithila, Vajji and Anga</h1>
+            <p>
+              Move through political, social, literary, genealogical,
+              architectural, and philosophical histories—across India and Nepal
+              and through the cumulative Videha archive.
+            </p>
+          </div>
+          <dl>
+            <div>
+              <dt>Chronology</dt>
+              <dd>{chronology.length} anchors</dd>
+            </div>
+            <div>
+              <dt>People index</dt>
+              <dd>{people.length} figures</dd>
+            </div>
+            <div>
+              <dt>Parallel Philosophy</dt>
+              <dd>{philosophyChapters.length} chapters</dd>
+            </div>
+          </dl>
+        </section>
 
-      <section className="research-studio" aria-labelledby="studio-title"><div className="studio-visual"><Image unoptimized src="./assets/research-studio-panorama.png" width={1944} height={808} alt="Illustrated research panorama: Panji decoding, philosophical debate, manuscript translation and the India–Nepal landscape"/></div><div className="studio-copy"><p>THE VIDEHA RESEARCH STUDIO</p><h2 id="studio-title">Four doors into one archive</h2><div className="studio-doors"><button onClick={()=>openShelf('Decoding the Panji','panji-1')}><b>01</b><span><strong>Decode a Panji</strong><small>Open the internal contents of all six volumes</small></span></button><button onClick={()=>chooseTab('ideas')}><b>02</b><span><strong>Enter a debate</strong><small>Pūrvapakṣa, proof test, Uttarapakṣa</small></span></button><button onClick={()=>openShelf('Sanskrit–Maithili Philosophical Texts','atmatattvaviveka')}><b>03</b><span><strong>Follow a translation</strong><small>Sanskrit source into living Maithili thought</small></span></button><button onClick={()=>chooseTab('places')}><b>04</b><span><strong>Travel the landscape</strong><small>Rivers, temples, ruins, monasteries and cities</small></span></button></div></div></section>
+        <section className="research-studio" aria-labelledby="studio-title">
+          <div className="studio-visual">
+            <Image
+              unoptimized
+              src="./assets/research-studio-panorama.png"
+              width={1944}
+              height={808}
+              alt="Illustrated research panorama: Panji decoding, philosophical debate, manuscript translation and the India–Nepal landscape"
+            />
+          </div>
+          <div className="studio-copy">
+            <p>THE VIDEHA RESEARCH STUDIO</p>
+            <h2 id="studio-title">Four doors into one archive</h2>
+            <div className="studio-doors">
+              <button
+                onClick={() => openShelf('Decoding the Panji', 'panji-1')}
+              >
+                <b>01</b>
+                <span>
+                  <strong>Decode a Panji</strong>
+                  <small>Open the internal contents of all six volumes</small>
+                </span>
+              </button>
+              <button onClick={() => chooseTab('ideas')}>
+                <b>02</b>
+                <span>
+                  <strong>Enter a debate</strong>
+                  <small>Pūrvapakṣa, proof test, Uttarapakṣa</small>
+                </span>
+              </button>
+              <button
+                onClick={() =>
+                  openShelf(
+                    'Sanskrit–Maithili Philosophical Texts',
+                    'atmatattvaviveka',
+                  )
+                }
+              >
+                <b>03</b>
+                <span>
+                  <strong>Follow a translation</strong>
+                  <small>Sanskrit source into living Maithili thought</small>
+                </span>
+              </button>
+              <button onClick={() => chooseTab('places')}>
+                <b>04</b>
+                <span>
+                  <strong>Travel the landscape</strong>
+                  <small>Rivers, temples, ruins, monasteries and cities</small>
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
 
-      <section className="time-control" aria-label="Historical period controls"><div className="year-control"><span>YEAR</span><button onClick={()=>changeEvent(-1)} aria-label="Previous historical anchor"><ChevronLeft/></button><label><span className="sr-only">Selected year</span><input type="number" min="-1800" max="2026" value={year} onChange={e=>setYear(Number(e.target.value))}/><small>{formatYear(year)}</small></label><button onClick={()=>changeEvent(1)} aria-label="Next historical anchor"><ChevronRight/></button></div><input className="year-range" aria-label="Timeline from 1800 BCE to 2026 CE" type="range" min="-1800" max="2026" value={year} onChange={e=>setYear(Number(e.target.value))}/><a href="#selected-detail">Open {formatYear(selectedEvent.year)} <ChevronRight size={16}/></a><div className="era-row">{eras.map(era=><button key={era.name} className={selectedEra.name===era.name?'active':''} onClick={()=>setYear(chronology.find(c=>c.year>=era.from&&c.year<=era.to)?.year??era.from)}>{era.name}</button>)}</div></section>
+        <section
+          className="time-control"
+          aria-label="Historical period controls"
+        >
+          <div className="year-control">
+            <span>YEAR</span>
+            <button
+              onClick={() => changeEvent(-1)}
+              aria-label="Previous historical anchor"
+            >
+              <ChevronLeft />
+            </button>
+            <label>
+              <span className="sr-only">Selected year</span>
+              <input
+                type="number"
+                min="-1800"
+                max="2026"
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+              />
+              <small>{formatYear(year)}</small>
+            </label>
+            <button
+              onClick={() => changeEvent(1)}
+              aria-label="Next historical anchor"
+            >
+              <ChevronRight />
+            </button>
+          </div>
+          <input
+            className="year-range"
+            aria-label="Timeline from 1800 BCE to 2026 CE"
+            type="range"
+            min="-1800"
+            max="2026"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          />
+          <a href="#selected-detail">
+            Open {formatYear(selectedEvent.year)} <ChevronRight size={16} />
+          </a>
+          <div className="era-row">
+            {eras.map((era) => (
+              <button
+                key={era.name}
+                className={selectedEra.name === era.name ? 'active' : ''}
+                onClick={() =>
+                  setYear(
+                    chronology.find(
+                      (c) => c.year >= era.from && c.year <= era.to,
+                    )?.year ?? era.from,
+                  )
+                }
+              >
+                {era.name}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <section id="explorer" className="workspace">
-        <aside className="filter-panel"><div className="panel-title"><Layers3 size={18}/><span>Research controls</span></div>{activeTab==='chapters'&&<><label>Collection<select value={collection} onChange={e=>{setCollection(e.target.value);setVolume('All volumes')}}><option>All collections</option><option>Political &amp; connected history</option><option>Socio-cultural-economic history</option></select></label><label>Volume<select value={volume} onChange={e=>setVolume(e.target.value)}>{volumeOptions.map(v=><option key={v}>{v}</option>)}</select></label><label>Status<select value={status} onChange={e=>setStatus(e.target.value)}><option>All statuses</option><option>Complete</option><option>Planned</option></select></label></>}{activeTab==='library'&&<label>Shelf<select value={shelf} onChange={e=>setShelf(e.target.value)}><option>All shelves</option>{Array.from(new Set(works.map(work=>work.shelf))).map(item=><option key={item}>{item}</option>)}</select></label>}<label className="search-field"><span>Search this view</span><div><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Place, person, chapter, idea…"/></div></label><article className="story-card"><p>THE STORY · PREHISTORY → TODAY</p><strong>{selectedEvent.title}</strong><span>{selectedEvent.date} · anchor {nearestIndex+1} of {chronology.length}</span><div><button onClick={()=>changeEvent(-1)}><ChevronLeft size={15}/> Earlier</button><button onClick={()=>changeEvent(1)}>Later <ChevronRight size={15}/></button></div></article><article className="status-card"><h2>Archive at a glance</h2><p><Check size={16}/> 178 historical chapters indexed</p><p><Check size={16}/> 79 completed history chapters</p><p><Check size={16}/> 72 philosophy chapters opened</p><p><Check size={16}/> {people.length} literary and intellectual figures</p><p><Check size={16}/> {places.length} places and heritage sites</p><p><CircleDashed size={16}/> Volume II chapters 52–150 planned</p></article></aside>
+        <section id="explorer" className="workspace">
+          <aside className="filter-panel">
+            <div className="panel-title">
+              <Layers3 size={18} />
+              <span>Research controls</span>
+            </div>
+            {activeTab === 'chapters' && (
+              <>
+                <label>
+                  Collection
+                  <select
+                    value={collection}
+                    onChange={(e) => {
+                      setCollection(e.target.value);
+                      setVolume('All volumes');
+                    }}
+                  >
+                    <option>All collections</option>
+                    <option>Political &amp; connected history</option>
+                    <option>Socio-cultural-economic history</option>
+                  </select>
+                </label>
+                <label>
+                  Volume
+                  <select
+                    value={volume}
+                    onChange={(e) => setVolume(e.target.value)}
+                  >
+                    {volumeOptions.map((v) => (
+                      <option key={v}>{v}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Status
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
+                    <option>All statuses</option>
+                    <option>Complete</option>
+                    <option>Planned</option>
+                  </select>
+                </label>
+              </>
+            )}
+            {activeTab === 'library' && (
+              <label>
+                Shelf
+                <select
+                  value={shelf}
+                  onChange={(e) => setShelf(e.target.value)}
+                >
+                  <option>All shelves</option>
+                  {Array.from(new Set(works.map((work) => work.shelf))).map(
+                    (item) => (
+                      <option key={item}>{item}</option>
+                    ),
+                  )}
+                </select>
+              </label>
+            )}
+            <label className="search-field">
+              <span>Search this view</span>
+              <div>
+                <Search size={17} />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Place, person, chapter, idea…"
+                />
+              </div>
+            </label>
+            <article className="story-card">
+              <p>THE STORY · PREHISTORY → TODAY</p>
+              <strong>{selectedEvent.title}</strong>
+              <span>
+                {selectedEvent.date} · anchor {nearestIndex + 1} of{' '}
+                {chronology.length}
+              </span>
+              <div>
+                <button onClick={() => changeEvent(-1)}>
+                  <ChevronLeft size={15} /> Earlier
+                </button>
+                <button onClick={() => changeEvent(1)}>
+                  Later <ChevronRight size={15} />
+                </button>
+              </div>
+            </article>
+            <article className="status-card">
+              <h2>Archive at a glance</h2>
+              <p>
+                <Check size={16} /> 178 historical chapters indexed
+              </p>
+              <p>
+                <Check size={16} /> 79 completed history chapters
+              </p>
+              <p>
+                <Check size={16} /> 72 philosophy chapters opened
+              </p>
+              <p>
+                <Check size={16} /> {people.length} literary and intellectual
+                figures
+              </p>
+              <p>
+                <Check size={16} /> {places.length} places and heritage sites
+              </p>
+              <p>
+                <CircleDashed size={16} /> Volume II chapters 52–150 planned
+              </p>
+            </article>
+          </aside>
 
-        <div className="browse-panel"><div className="tabbar" role="tablist" aria-label="Research views"><button role="tab" aria-selected={activeTab==='chronology'} className={activeTab==='chronology'?'active':''} onClick={()=>chooseTab('chronology')}><CalendarDays/> Chronology <span>{chronology.length}</span></button><button role="tab" aria-selected={activeTab==='places'} className={activeTab==='places'?'active':''} onClick={()=>chooseTab('places')}><Building2/> Places &amp; heritage <span>{places.length}</span></button><button role="tab" aria-selected={activeTab==='chapters'} className={activeTab==='chapters'?'active':''} onClick={()=>chooseTab('chapters')}><BookOpen/> Histories <span>{chapters.length}</span></button><button role="tab" aria-selected={activeTab==='library'} className={activeTab==='library'?'active':''} onClick={()=>chooseTab('library')}><Library/> Library <span>{works.length}</span></button><button role="tab" aria-selected={activeTab==='people'} className={activeTab==='people'?'active':''} onClick={()=>chooseTab('people')}><Users/> People <span>{people.length}</span></button><button role="tab" aria-selected={activeTab==='ideas'} className={activeTab==='ideas'?'active':''} onClick={()=>chooseTab('ideas')}><GitBranch/> Ideas &amp; debates <span>{philosophyChapters.length}</span></button><button role="tab" aria-selected={activeTab==='sources'} className={activeTab==='sources'?'active':''} onClick={()=>chooseTab('sources')}><FileText/> Sources <span>5</span></button></div>
+          <div className="browse-panel">
+            <div className="tabbar" role="tablist" aria-label="Research views">
+              <button
+                role="tab"
+                aria-selected={activeTab === 'chronology'}
+                className={activeTab === 'chronology' ? 'active' : ''}
+                onClick={() => chooseTab('chronology')}
+              >
+                <CalendarDays /> Chronology <span>{chronology.length}</span>
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'places'}
+                className={activeTab === 'places' ? 'active' : ''}
+                onClick={() => chooseTab('places')}
+              >
+                <Building2 /> Places &amp; heritage <span>{places.length}</span>
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'chapters'}
+                className={activeTab === 'chapters' ? 'active' : ''}
+                onClick={() => chooseTab('chapters')}
+              >
+                <BookOpen /> Histories <span>{chapters.length}</span>
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'library'}
+                className={activeTab === 'library' ? 'active' : ''}
+                onClick={() => chooseTab('library')}
+              >
+                <Library /> Library <span>{works.length}</span>
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'people'}
+                className={activeTab === 'people' ? 'active' : ''}
+                onClick={() => chooseTab('people')}
+              >
+                <Users /> People <span>{people.length}</span>
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'ideas'}
+                className={activeTab === 'ideas' ? 'active' : ''}
+                onClick={() => chooseTab('ideas')}
+              >
+                <GitBranch /> Ideas &amp; debates{' '}
+                <span>{philosophyChapters.length}</span>
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'sources'}
+                className={activeTab === 'sources' ? 'active' : ''}
+                onClick={() => chooseTab('sources')}
+              >
+                <FileText /> Sources <span>5</span>
+              </button>
+            </div>
 
-          {activeTab==='chronology'&&<div className="tab-content chronology-view"><div className="map-stage"><Image unoptimized src="./assets/orientation-map-page.png" width={720} height={1080} alt="Modern reference map locating Kathmandu, Simraungadh, Janakpur, Darbhanga, Vaishali, Purnia, Patna and Bhagalpur"/><p>Editorial map from Work I (2026) · Natural Earth / GeoNames · no ancient or medieval frontier is implied</p></div><div className="result-heading"><div><span>{selectedEra.name}</span><h2>{filteredChronology.length} chronological anchors</h2></div><small>Evidence status accompanies every entry</small></div><div className="record-list">{filteredChronology.map(item=><button key={`${item.year}-${item.title}`} className={item.title===selectedEvent.title?'selected':''} onClick={()=>setYear(item.year)}><time>{item.date}</time><span><strong>{item.title}</strong><small>{item.region} · {item.evidence}</small></span><ChevronRight/></button>)}</div></div>}
-          {activeTab==='places'&&<div className="tab-content"><div className="result-heading"><div><span>CONNECTED GEOGRAPHIES &amp; BUILT HERITAGE</span><h2>{filteredPlaces.length} places, corridors, temples, palaces and sites</h2></div><small>India · Nepal · borderland</small></div><div className="heritage-strip"><Building2/><div><strong>Architecture is historical evidence</strong><p>Fortifications, tanks, monasteries, temples, palaces, rail corridors, and reused institutions are read alongside inscriptions, excavation, patronage, disaster, and living memory.</p></div></div><div className="place-grid">{filteredPlaces.map(place=><button key={place.id} className={place.id===selectedPlace?'selected':''} onClick={()=>setSelectedPlace(place.id)}><MapPin/><span><strong>{place.name}</strong><small>{place.country} · {place.region}</small></span><ChevronRight/></button>)}</div></div>}
-          {activeTab==='chapters'&&<div className="tab-content"><div className="result-heading"><div><span>COMPLETE RESEARCH INDEX</span><h2>{filteredChapters.length} chapters</h2></div><small>79 complete · 99 planned</small></div><div className="chapter-list">{filteredChapters.map(chapter=><article key={chapter.id} className={chapter.id===selectedChapter?'selected':''}><div><span className="chapter-number">{chapter.collection.startsWith('Political')?'A':'B'}{String(chapter.number).padStart(3,'0')}</span><button onClick={()=>setSelectedChapter(chapter.id)}><strong>{chapter.title}</strong><small>{chapter.collection} · {chapter.volume}</small></button><em className={chapter.status.toLowerCase()}>{chapter.status}</em></div><details><summary>Chapter contents <ChevronDown size={16}/></summary><p>{chapter.summary}</p>{chapter.sections.length>0&&<ol>{chapter.sections.map(section=><li key={section}>{section}</li>)}</ol>}</details></article>)}</div></div>}
-          {activeTab==='library'&&<div className="tab-content library-view"><div className="result-heading"><div><span>A SHELF DESIGNED TO GROW</span><h2>{filteredWorks.length} works across three shelves</h2></div><small>Every title opens its manuscript structure</small></div><div className="shelf-chips" aria-label="Library shelves"><button className={shelf==='All shelves'?'active':''} onClick={()=>setShelf('All shelves')}>All <span>{works.length}</span></button>{Array.from(new Set(works.map(work=>work.shelf))).map(item=><button key={item} className={shelf===item?'active':''} onClick={()=>setShelf(item)}>{item} <span>{works.filter(work=>work.shelf===item).length}</span></button>)}</div>{materialDetail&&<section className="material-room" aria-labelledby="material-title"><div><span>OPEN MANUSCRIPT MAP</span><h3 id="material-title">{workDetail.title}</h3><p>{materialDetail.items.length} headings · {materialDetail.paragraphs.toLocaleString()} paragraphs{materialDetail.tables?` · ${materialDetail.tables} tables`:''}</p></div><details open><summary>Browse all indexed materials <ChevronDown size={16}/></summary><ol>{materialDetail.items.map((item,index)=><li key={`${item.title}-${index}`} className={`level-${item.level}`}><button onClick={()=>setQuery(item.title)}>{item.title}</button></li>)}</ol></details></section>}<div className="library-grid">{filteredWorks.map((work,index)=><article key={work.id} style={{'--card-index':index} as React.CSSProperties} className={work.id===selectedWork?'selected':''}><div className="library-label"><span>{work.shelf}</span><em>{work.sequence}</em></div><h3><button onClick={()=>openWork(work.id)}>{work.title}</button></h3><p className="library-subtitle">{work.subtitle}</p><p>{work.description}</p><small>{work.extent}</small><button className="open-record" onClick={()=>openWork(work.id)}>Open manuscript map <ChevronRight size={15}/></button></article>)}</div>{filteredWorks.length===0&&<div className="empty-state"><Search/><h3>No matching works</h3><p>Try another name, topic, or shelf.</p><button onClick={()=>{setQuery('');setShelf('All shelves')}}>Clear filters</button></div>}<div className="result-heading gallery-heading"><div><span>FROM THE SUPPLIED MANUSCRIPTS</span><h2>Visual archive</h2></div><small>Book covers, portraits, prose and verse witnesses</small></div><div className="visual-gallery">{visualGallery.map(item=><figure key={item.src}><Image unoptimized src={item.src} width={420} height={580} alt={item.alt}/><figcaption><strong>{item.title}</strong><small>{item.note}</small></figcaption></figure>)}</div></div>}
-          {activeTab==='people'&&<div className="tab-content"><div className="result-heading"><div><span>LITERARY &amp; INTELLECTUAL CONSTELLATION</span><h2>{filteredPeople.length} of {people.length} named figures</h2></div><small>Writers · philosophers · critics · translators · editors</small></div><div className="people-grid">{filteredPeople.map(person=><button key={person.id} className={person.id===selectedPerson?'selected':''} onClick={()=>setSelectedPerson(person.id)}><span>{person.name.slice(0,1)}</span><div><strong>{person.name}</strong><small>{person.field} · {person.era}</small></div><ChevronRight/></button>)}</div></div>}
-          {activeTab==='ideas'&&<div className="tab-content"><div className="result-heading"><div><span>GAJENDRA THAKUR’S PARALLEL PHILOSOPHY</span><h2>{filteredIdeas.length} of {philosophyChapters.length} chapters</h2></div><small>Indian · Western · political · religious · modern</small></div><div className="method-diagram" aria-label="Parallel Philosophy method"><span>Claim</span><b>→</b><span>Pūrvapakṣa</span><b>→</b><span>Pramāṇa test</span><b>→</b><span>Uttarapakṣa</span><b>→</b><span>Parallel conclusion</span></div><div className="idea-list">{filteredIdeas.map(item=><article key={item.id} className={item.id===selectedIdea?'selected':''}><button onClick={()=>setSelectedIdea(item.id)}><span>{String(item.number).padStart(2,'0')}</span><div><strong>{item.title}</strong><small>{item.part}</small></div><ChevronRight/></button><details><summary>Open debate and contents <ChevronDown size={16}/></summary><div className="debate-mini"><p><b>Pūrvapakṣa</b>{item.purvapaksha}</p><p><b>Uttarapakṣa</b>{item.uttarapaksha}</p></div>{item.sections.length>0&&<ol>{item.sections.map(section=><li key={section}>{section}</li>)}</ol>}</details></article>)}</div></div>}
-          {activeTab==='sources'&&<div className="tab-content"><div className="result-heading"><div><span>SOURCE ROOM</span><h2>Five evidence families</h2></div><small>Claims remain traceable and qualified</small></div><div className="source-grid">{sourceGroups.map((source,index)=><article key={source.title}><span>0{index+1}</span><FileText/><h3>{source.title}</h3><p>{source.examples}</p><small>{source.rule}</small></article>)}</div><div className="apparatus"><h3>Publication apparatus</h3><ul><li>Consolidated chronology <b>p. 617</b></li><li>Glossary and place-name concordance <b>p. 635</b></li><li>General source register <b>p. 654</b></li><li>Index <b>p. 679</b></li></ul></div></div>}
+            {activeTab === 'chronology' && (
+              <div className="tab-content chronology-view">
+                <div className="map-stage">
+                  <Image
+                    unoptimized
+                    src="./assets/orientation-map-page.png"
+                    width={720}
+                    height={1080}
+                    alt="Modern reference map locating Kathmandu, Simraungadh, Janakpur, Darbhanga, Vaishali, Purnia, Patna and Bhagalpur"
+                  />
+                  <p>
+                    Editorial map from Work I (2026) · Natural Earth / GeoNames
+                    · no ancient or medieval frontier is implied
+                  </p>
+                </div>
+                <div className="result-heading">
+                  <div>
+                    <span>{selectedEra.name}</span>
+                    <h2>{filteredChronology.length} chronological anchors</h2>
+                  </div>
+                  <small>Evidence status accompanies every entry</small>
+                </div>
+                <div className="record-list">
+                  {filteredChronology.map((item) => (
+                    <button
+                      key={`${item.year}-${item.title}`}
+                      className={
+                        item.title === selectedEvent.title ? 'selected' : ''
+                      }
+                      onClick={() => setYear(item.year)}
+                    >
+                      <time>{item.date}</time>
+                      <span>
+                        <strong>{item.title}</strong>
+                        <small>
+                          {item.region} · {item.evidence}
+                        </small>
+                      </span>
+                      <ChevronRight />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'places' && (
+              <div className="tab-content">
+                <div className="result-heading">
+                  <div>
+                    <span>CONNECTED GEOGRAPHIES &amp; BUILT HERITAGE</span>
+                    <h2>
+                      {filteredPlaces.length} places, corridors, temples,
+                      palaces and sites
+                    </h2>
+                  </div>
+                  <small>India · Nepal · borderland</small>
+                </div>
+                <div className="heritage-strip">
+                  <Building2 />
+                  <div>
+                    <strong>Architecture is historical evidence</strong>
+                    <p>
+                      Fortifications, tanks, monasteries, temples, palaces, rail
+                      corridors, and reused institutions are read alongside
+                      inscriptions, excavation, patronage, disaster, and living
+                      memory.
+                    </p>
+                  </div>
+                </div>
+                <div className="place-grid">
+                  {filteredPlaces.map((place) => (
+                    <button
+                      key={place.id}
+                      className={place.id === selectedPlace ? 'selected' : ''}
+                      onClick={() => setSelectedPlace(place.id)}
+                    >
+                      <MapPin />
+                      <span>
+                        <strong>{place.name}</strong>
+                        <small>
+                          {place.country} · {place.region}
+                        </small>
+                      </span>
+                      <ChevronRight />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'chapters' && (
+              <div className="tab-content">
+                <div className="result-heading">
+                  <div>
+                    <span>COMPLETE RESEARCH INDEX</span>
+                    <h2>{filteredChapters.length} chapters</h2>
+                  </div>
+                  <small>79 complete · 99 planned</small>
+                </div>
+                <div className="chapter-list">
+                  {filteredChapters.map((chapter) => (
+                    <article
+                      key={chapter.id}
+                      className={
+                        chapter.id === selectedChapter ? 'selected' : ''
+                      }
+                    >
+                      <div>
+                        <span className="chapter-number">
+                          {chapter.collection.startsWith('Political')
+                            ? 'A'
+                            : 'B'}
+                          {String(chapter.number).padStart(3, '0')}
+                        </span>
+                        <button onClick={() => setSelectedChapter(chapter.id)}>
+                          <strong>{chapter.title}</strong>
+                          <small>
+                            {chapter.collection} · {chapter.volume}
+                          </small>
+                        </button>
+                        <em className={chapter.status.toLowerCase()}>
+                          {chapter.status}
+                        </em>
+                      </div>
+                      <details>
+                        <summary>
+                          Chapter contents <ChevronDown size={16} />
+                        </summary>
+                        <p>{chapter.summary}</p>
+                        {chapter.sections.length > 0 && (
+                          <ol>
+                            {chapter.sections.map((section) => (
+                              <li key={section}>{section}</li>
+                            ))}
+                          </ol>
+                        )}
+                      </details>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'library' && (
+              <div className="tab-content library-view">
+                <div className="result-heading">
+                  <div>
+                    <span>A SHELF DESIGNED TO GROW</span>
+                    <h2>{filteredWorks.length} works across three shelves</h2>
+                  </div>
+                  <small>Every title opens its manuscript structure</small>
+                </div>
+                <div className="shelf-chips" aria-label="Library shelves">
+                  <button
+                    className={shelf === 'All shelves' ? 'active' : ''}
+                    onClick={() => setShelf('All shelves')}
+                  >
+                    All <span>{works.length}</span>
+                  </button>
+                  {Array.from(new Set(works.map((work) => work.shelf))).map(
+                    (item) => (
+                      <button
+                        key={item}
+                        className={shelf === item ? 'active' : ''}
+                        onClick={() => setShelf(item)}
+                      >
+                        {item}{' '}
+                        <span>
+                          {works.filter((work) => work.shelf === item).length}
+                        </span>
+                      </button>
+                    ),
+                  )}
+                </div>
+                {materialDetail && (
+                  <section
+                    className="material-room"
+                    aria-labelledby="material-title"
+                  >
+                    <div>
+                      <span>OPEN MANUSCRIPT MAP</span>
+                      <h3 id="material-title">{workDetail.title}</h3>
+                      <p>
+                        {materialDetail.items.length} headings ·{' '}
+                        {materialDetail.paragraphs.toLocaleString()} paragraphs
+                        {materialDetail.tables
+                          ? ` · ${materialDetail.tables} tables`
+                          : ''}
+                      </p>
+                    </div>
+                    <details open>
+                      <summary>
+                        Browse all indexed materials <ChevronDown size={16} />
+                      </summary>
+                      <ol>
+                        {materialDetail.items.map((item, index) => (
+                          <li
+                            key={`${item.title}-${index}`}
+                            className={`level-${item.level}`}
+                          >
+                            <button onClick={() => setQuery(item.title)}>
+                              {item.title}
+                            </button>
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  </section>
+                )}
+                <div className="library-grid">
+                  {filteredWorks.map((work, index) => (
+                    <article
+                      key={work.id}
+                      style={{ '--card-index': index } as React.CSSProperties}
+                      className={work.id === selectedWork ? 'selected' : ''}
+                    >
+                      <div className="library-label">
+                        <span>{work.shelf}</span>
+                        <em>{work.sequence}</em>
+                      </div>
+                      <h3>
+                        <button onClick={() => openWork(work.id)}>
+                          {work.title}
+                        </button>
+                      </h3>
+                      <p className="library-subtitle">{work.subtitle}</p>
+                      <p>{work.description}</p>
+                      <small>{work.extent}</small>
+                      <button
+                        className="open-record"
+                        onClick={() => openWork(work.id)}
+                      >
+                        Open manuscript map <ChevronRight size={15} />
+                      </button>
+                    </article>
+                  ))}
+                </div>
+                {filteredWorks.length === 0 && (
+                  <div className="empty-state">
+                    <Search />
+                    <h3>No matching works</h3>
+                    <p>Try another name, topic, or shelf.</p>
+                    <button
+                      onClick={() => {
+                        setQuery('');
+                        setShelf('All shelves');
+                      }}
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                )}
+                <div className="result-heading gallery-heading">
+                  <div>
+                    <span>FROM THE SUPPLIED MANUSCRIPTS</span>
+                    <h2>Visual archive</h2>
+                  </div>
+                  <small>
+                    Book covers, portraits, prose and verse witnesses
+                  </small>
+                </div>
+                <div className="visual-gallery">
+                  {visualGallery.map((item) => (
+                    <figure key={item.src}>
+                      <Image
+                        unoptimized
+                        src={item.src}
+                        width={420}
+                        height={580}
+                        alt={item.alt}
+                      />
+                      <figcaption>
+                        <strong>{item.title}</strong>
+                        <small>{item.note}</small>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'people' && (
+              <div className="tab-content">
+                <div className="result-heading">
+                  <div>
+                    <span>LITERARY &amp; INTELLECTUAL CONSTELLATION</span>
+                    <h2>
+                      {filteredPeople.length} of {people.length} named figures
+                    </h2>
+                  </div>
+                  <small>
+                    Writers · philosophers · critics · translators · editors
+                  </small>
+                </div>
+                <div className="people-grid">
+                  {filteredPeople.map((person) => (
+                    <button
+                      key={person.id}
+                      className={person.id === selectedPerson ? 'selected' : ''}
+                      onClick={() => setSelectedPerson(person.id)}
+                    >
+                      <span>{person.name.slice(0, 1)}</span>
+                      <div>
+                        <strong>{person.name}</strong>
+                        <small>
+                          {person.field} · {person.era}
+                        </small>
+                      </div>
+                      <ChevronRight />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'ideas' && (
+              <div className="tab-content">
+                <div className="result-heading">
+                  <div>
+                    <span>GAJENDRA THAKUR’S PARALLEL PHILOSOPHY</span>
+                    <h2>
+                      {filteredIdeas.length} of {philosophyChapters.length}{' '}
+                      chapters
+                    </h2>
+                  </div>
+                  <small>
+                    Indian · Western · political · religious · modern
+                  </small>
+                </div>
+                <div
+                  className="method-diagram"
+                  aria-label="Parallel Philosophy method"
+                >
+                  <span>Claim</span>
+                  <b>→</b>
+                  <span>Pūrvapakṣa</span>
+                  <b>→</b>
+                  <span>Pramāṇa test</span>
+                  <b>→</b>
+                  <span>Uttarapakṣa</span>
+                  <b>→</b>
+                  <span>Parallel conclusion</span>
+                </div>
+                <div className="idea-list">
+                  {filteredIdeas.map((item) => (
+                    <article
+                      key={item.id}
+                      className={item.id === selectedIdea ? 'selected' : ''}
+                    >
+                      <button onClick={() => setSelectedIdea(item.id)}>
+                        <span>{String(item.number).padStart(2, '0')}</span>
+                        <div>
+                          <strong>{item.title}</strong>
+                          <small>{item.part}</small>
+                        </div>
+                        <ChevronRight />
+                      </button>
+                      <details>
+                        <summary>
+                          Open debate and contents <ChevronDown size={16} />
+                        </summary>
+                        <div className="debate-mini">
+                          <p>
+                            <b>Pūrvapakṣa</b>
+                            {item.purvapaksha}
+                          </p>
+                          <p>
+                            <b>Uttarapakṣa</b>
+                            {item.uttarapaksha}
+                          </p>
+                        </div>
+                        {item.sections.length > 0 && (
+                          <ol>
+                            {item.sections.map((section) => (
+                              <li key={section}>{section}</li>
+                            ))}
+                          </ol>
+                        )}
+                      </details>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'sources' && (
+              <div className="tab-content">
+                <div className="result-heading">
+                  <div>
+                    <span>SOURCE ROOM</span>
+                    <h2>Five evidence families</h2>
+                  </div>
+                  <small>Claims remain traceable and qualified</small>
+                </div>
+                <div className="source-grid">
+                  {sourceGroups.map((source, index) => (
+                    <article key={source.title}>
+                      <span>0{index + 1}</span>
+                      <FileText />
+                      <h3>{source.title}</h3>
+                      <p>{source.examples}</p>
+                      <small>{source.rule}</small>
+                    </article>
+                  ))}
+                </div>
+                <div className="apparatus">
+                  <h3>Publication apparatus</h3>
+                  <ul>
+                    <li>
+                      Consolidated chronology <b>p. 617</b>
+                    </li>
+                    <li>
+                      Glossary and place-name concordance <b>p. 635</b>
+                    </li>
+                    <li>
+                      General source register <b>p. 654</b>
+                    </li>
+                    <li>
+                      Index <b>p. 679</b>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <aside
+            id="selected-detail"
+            className="detail-panel"
+            aria-live="polite"
+          >
+            {activeTab === 'chronology' && (
+              <>
+                <p className="detail-kicker">SELECTED HISTORICAL ANCHOR</p>
+                <span className="detail-icon">
+                  <CalendarDays />
+                </span>
+                <h2>{selectedEvent.title}</h2>
+                <p className="detail-meta">
+                  {selectedEvent.date} · {selectedEvent.region}
+                </p>
+                <p>{selectedEvent.text}</p>
+                <div className="evidence">
+                  <strong>Evidence status</strong>
+                  <span>{selectedEvent.evidence}</span>
+                </div>
+                <div className="detail-actions">
+                  <button onClick={() => changeEvent(-1)}>
+                    <ChevronLeft /> Earlier
+                  </button>
+                  <button onClick={() => changeEvent(1)}>
+                    Later <ChevronRight />
+                  </button>
+                </div>
+              </>
+            )}
+            {activeTab === 'places' && (
+              <>
+                <p className="detail-kicker">SELECTED PLACE OR HERITAGE SITE</p>
+                <span className="detail-icon">
+                  <Building2 />
+                </span>
+                <h2>{placeDetail.name}</h2>
+                <p className="detail-meta">
+                  {placeDetail.country} · {placeDetail.period}
+                </p>
+                <p>{placeDetail.text}</p>
+                <div className="evidence">
+                  <strong>Research links</strong>
+                  <span>{placeDetail.links}</span>
+                </div>
+              </>
+            )}
+            {activeTab === 'chapters' && (
+              <>
+                <p className="detail-kicker">SELECTED CHAPTER</p>
+                <span className="detail-icon">
+                  <BookOpen />
+                </span>
+                <h2>{chapterDetail.title}</h2>
+                <p className="detail-meta">
+                  {chapterDetail.collection}
+                  <br />
+                  {chapterDetail.volume} · {chapterDetail.pages}
+                </p>
+                <p>{chapterDetail.summary}</p>
+                <div className="evidence">
+                  <strong>Status</strong>
+                  <span>
+                    {chapterDetail.status}
+                    {chapterDetail.sections.length
+                      ? ` · ${chapterDetail.sections.length} indexed sections`
+                      : ''}
+                  </span>
+                </div>
+                {chapterDetail.sections.length > 0 && (
+                  <details className="detail-contents">
+                    <summary>
+                      View section index <ChevronDown size={16} />
+                    </summary>
+                    <ol>
+                      {chapterDetail.sections.map((section) => (
+                        <li key={section}>{section}</li>
+                      ))}
+                    </ol>
+                  </details>
+                )}
+              </>
+            )}
+            {activeTab === 'library' && (
+              <>
+                <p className="detail-kicker">SELECTED LIBRARY RECORD</p>
+                <span className="detail-icon">
+                  <Library />
+                </span>
+                <h2>{workDetail.title}</h2>
+                <p className="detail-meta">
+                  {workDetail.shelf}
+                  <br />
+                  {workDetail.sequence}
+                </p>
+                <p>{workDetail.subtitle}</p>
+                <p>{workDetail.description}</p>
+                <div className="evidence">
+                  <strong>Edition record</strong>
+                  <span>
+                    {workDetail.creator}
+                    <br />
+                    {workDetail.extent}
+                  </span>
+                </div>
+                <details className="detail-contents" open>
+                  <summary>
+                    Research structure <ChevronDown size={16} />
+                  </summary>
+                  <ol>
+                    {workDetail.structure.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ol>
+                </details>
+                {workDetail.id === 'parallel-philosophy' && (
+                  <button
+                    className="deep-link"
+                    onClick={() => chooseTab('ideas')}
+                  >
+                    Open all 72 chapters and debates <ChevronRight />
+                  </button>
+                )}
+                {workDetail.id === 'parallel-history' && (
+                  <button
+                    className="deep-link"
+                    onClick={() => chooseTab('people')}
+                  >
+                    Open the literary-figure index <ChevronRight />
+                  </button>
+                )}
+                {workDetail.shelf === 'Decoding the Panji' && (
+                  <div className="panji-network">
+                    <strong>Panji record network</strong>
+                    <span>Person</span>
+                    <b>→</b>
+                    <span>Mūla / gotra</span>
+                    <b>→</b>
+                    <span>Village</span>
+                    <b>→</b>
+                    <span>Marriage &amp; maternal links</span>
+                  </div>
+                )}
+                {workDetail.shelf ===
+                  'Sanskrit–Maithili Philosophical Texts' && (
+                  <div className="translation-path">
+                    <strong>Living translation pathway</strong>
+                    <p>
+                      Sanskrit source → Maithili philosophical vocabulary →
+                      commentary → glossary → contemporary reader
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === 'people' && (
+              <>
+                <p className="detail-kicker">SELECTED FIGURE</p>
+                <span className="detail-icon">
+                  <Users />
+                </span>
+                <h2>{personDetail.name}</h2>
+                <p className="detail-meta">
+                  {personDetail.field}
+                  <br />
+                  {personDetail.era}
+                </p>
+                <p>{personDetail.description}</p>
+                <div className="evidence">
+                  <strong>Indexed from</strong>
+                  <span>{personDetail.source}</span>
+                </div>
+              </>
+            )}
+            {activeTab === 'ideas' && (
+              <>
+                <p className="detail-kicker">
+                  CHAPTER {ideaDetail.number} · {ideaDetail.part}
+                </p>
+                <span className="detail-icon">
+                  <GitBranch />
+                </span>
+                <h2>{ideaDetail.title}</h2>
+                <p>{ideaDetail.summary}</p>
+                <div className="debate-card purva">
+                  <strong>Pūrvapakṣa · strongest objection</strong>
+                  <p>{ideaDetail.purvapaksha}</p>
+                </div>
+                <div className="debate-card uttara">
+                  <strong>Uttarapakṣa · response</strong>
+                  <p>{ideaDetail.uttarapaksha}</p>
+                </div>
+                <div className="debate-card synthesis">
+                  <strong>Parallel conclusion</strong>
+                  <p>{ideaDetail.synthesis}</p>
+                </div>
+                <details className="detail-contents">
+                  <summary>
+                    Chapter section index <ChevronDown size={16} />
+                  </summary>
+                  <ol>
+                    {ideaDetail.sections.map((section) => (
+                      <li key={section}>{section}</li>
+                    ))}
+                  </ol>
+                </details>
+              </>
+            )}
+            {activeTab === 'sources' && (
+              <>
+                <p className="detail-kicker">EDITORIAL METHOD</p>
+                <span className="detail-icon">
+                  <Landmark />
+                </span>
+                <h2>Evidence before assertion</h2>
+                <p>
+                  Archaeological, philological, archival, environmental,
+                  linguistic, institutional, oral, and statistical evidence is
+                  used according to period and claim type.
+                </p>
+                <div className="evidence">
+                  <strong>Governing distinction</strong>
+                  <span>
+                    Tradition, mythology, memory, material evidence, and
+                    administration are related—but never treated as
+                    interchangeable.
+                  </span>
+                </div>
+                <a
+                  className="detail-link"
+                  href="https://www.videha.co.in/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Continue at Videha <ExternalLink size={16} />
+                </a>
+              </>
+            )}
+          </aside>
+        </section>
+
+        <section id="about" className="about">
+          <div>
+            <p>THE VIDEHA RESEARCH ECOSYSTEM</p>
+            <h2>History joined to genealogy, literature, and philosophy</h2>
+          </div>
+          <div className="book-pair">
+            <article>
+              <span>REGIONAL HISTORY</span>
+              <h3>
+                <button
+                  className="section-title-button"
+                  onClick={() => {
+                    chooseTab('chapters');
+                    location.hash = 'explorer';
+                  }}
+                >
+                  Two complementary histories <ChevronRight />
+                </button>
+              </h3>
+              <p>
+                Political and connected history in 28 chapters;
+                socio-cultural-economic history with Chapters 1–51 complete in a
+                150-chapter plan.
+              </p>
+              <button
+                onClick={() => {
+                  chooseTab('chapters');
+                  location.hash = 'explorer';
+                }}
+              >
+                Browse 178 chapters <ChevronRight size={15} />
+              </button>
+            </article>
+            <article>
+              <span>PANJI RESEARCH</span>
+              <h3>
+                <button
+                  className="section-title-button"
+                  onClick={() => openShelf('Decoding the Panji', 'panji-1')}
+                >
+                  Six-volume decoding series <ChevronRight />
+                </button>
+              </h3>
+              <p>
+                Genealogy, kinship, village networks, archival notation, social
+                memory, and the ethical reading of difficult records.
+              </p>
+              <div className="work-links">
+                {works
+                  .filter((work) => work.shelf === 'Decoding the Panji')
+                  .map((work) => (
+                    <button
+                      key={work.id}
+                      onClick={() => openShelf('Decoding the Panji', work.id)}
+                    >
+                      {work.sequence}
+                    </button>
+                  ))}
+              </div>
+            </article>
+            <article>
+              <span>PARALLEL RESEARCH</span>
+              <h3>
+                <button
+                  className="section-title-button"
+                  onClick={() =>
+                    openShelf('Parallel Research', 'parallel-philosophy')
+                  }
+                >
+                  Philosophy &amp; literary history <ChevronRight />
+                </button>
+              </h3>
+              <p>
+                A 493-page, 72-chapter philosophical synthesis and the
+                100-volume Parallel History of Mithilā and Maithilī literature.
+              </p>
+              <div className="work-links">
+                <button
+                  onClick={() =>
+                    openShelf('Parallel Research', 'parallel-philosophy')
+                  }
+                >
+                  Parallel Philosophy
+                </button>
+                <button
+                  onClick={() =>
+                    openShelf('Parallel Research', 'parallel-history')
+                  }
+                >
+                  Parallel History · Volumes 1–100
+                </button>
+                <button
+                  onClick={() => {
+                    chooseTab('people');
+                    location.hash = 'explorer';
+                  }}
+                >
+                  138 named figures
+                </button>
+              </div>
+            </article>
+            <article>
+              <span>TEXTS &amp; TRANSLATIONS</span>
+              <h3>
+                <button
+                  className="section-title-button"
+                  onClick={() =>
+                    openShelf(
+                      'Sanskrit–Maithili Philosophical Texts',
+                      'atmatattvaviveka',
+                    )
+                  }
+                >
+                  Sanskrit into Maithili <ChevronRight />
+                </button>
+              </h3>
+              <p>
+                Four major works within a living Maithili intellectual
+                tradition.
+              </p>
+              <div className="work-links">
+                <button
+                  onClick={() =>
+                    openShelf(
+                      'Sanskrit–Maithili Philosophical Texts',
+                      'atmatattvaviveka',
+                    )
+                  }
+                >
+                  Ātmatattvaviveka
+                </button>
+                <button
+                  onClick={() =>
+                    openShelf(
+                      'Sanskrit–Maithili Philosophical Texts',
+                      'bhamati',
+                    )
+                  }
+                >
+                  Bhāmatī
+                </button>
+                <button
+                  onClick={() =>
+                    openShelf(
+                      'Sanskrit–Maithili Philosophical Texts',
+                      'nyayakusumanjali',
+                    )
+                  }
+                >
+                  Nyāyakusumāñjali
+                </button>
+                <button
+                  onClick={() =>
+                    openShelf(
+                      'Sanskrit–Maithili Philosophical Texts',
+                      'tattvacintamani',
+                    )
+                  }
+                >
+                  Tattvacintāmaṇi
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+        <section className="provenance" aria-labelledby="provenance-title">
+          <div className="provenance-heading">
+            <p>EDITORIAL CREDIT &amp; FOUNDATIONS</p>
+            <h2 id="provenance-title">A Videha scholarly project</h2>
+            <p>
+              © Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN
+              2229-547X
+            </p>
+            <div className="journal-links">
+              <a
+                href="https://www.videha.co.in/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                www.videha.co.in <ExternalLink size={15} />
+              </a>
+              <a
+                href="https://videha-ejournal.github.io/videha/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Videha GitHub archive <ExternalLink size={15} />
+              </a>
+            </div>
+          </div>
+          <div className="foundation-list">
+            <p>
+              This site is based on the following books and translations by
+              Gajendra Thakur:
+            </p>
+            <button onClick={() => openShelf('Decoding the Panji', 'panji-1')}>
+              <strong>Decoding the Panji of Mithila</strong>
+              <span>Volumes I–VI</span>
+              <ChevronRight />
+            </button>
+            <button
+              onClick={() => openShelf('Parallel Research', 'parallel-history')}
+            >
+              <strong>
+                A Parallel History of Mithilā &amp; Maithilī Literature
+              </strong>
+              <span>Tomes I–IV · Volumes 1–100</span>
+              <ChevronRight />
+            </button>
+            <button
+              onClick={() =>
+                openShelf('Parallel Research', 'parallel-philosophy')
+              }
+            >
+              <strong>Gajendra Thakur’s Parallel Philosophy</strong>
+              <span>Comparative philosophical research</span>
+              <ChevronRight />
+            </button>
+            <button
+              onClick={() => {
+                chooseTab('chapters');
+                location.hash = 'explorer';
+              }}
+            >
+              <strong>A History of Mithila, Vajji &amp; Anga</strong>
+              <span>
+                Volume I: General &amp; Political · Volume II:
+                Socio-Cultural-Economic
+              </span>
+              <ChevronRight />
+            </button>
+            <button
+              onClick={() =>
+                openShelf('Sanskrit–Maithili Philosophical Texts', 'bhamati')
+              }
+            >
+              <strong>Sanskrit-to-Maithili Translations</strong>
+              <span>
+                Bhāmatī · Ātmatattvaviveka · Nyāyakusumāñjali · Tattvacintāmaṇi
+              </span>
+              <ChevronRight />
+            </button>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <a className="identity" href="#top">
+          <span className="mark" aria-hidden="true">
+            𑒧
+          </span>
+          <span>
+            <strong>Mithila–Vajji–Anga</strong>
+            <small>A Videha research project</small>
+          </span>
+        </a>
+        <p>
+          © Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN 2229-547X
+        </p>
+        <div className="footer-links">
+          <a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">
+            videha.co.in <ExternalLink size={15} />
+          </a>
+          <a
+            href="https://videha-ejournal.github.io/videha/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub archive <ExternalLink size={15} />
+          </a>
         </div>
-
-        <aside id="selected-detail" className="detail-panel" aria-live="polite">{activeTab==='chronology'&&<><p className="detail-kicker">SELECTED HISTORICAL ANCHOR</p><span className="detail-icon"><CalendarDays/></span><h2>{selectedEvent.title}</h2><p className="detail-meta">{selectedEvent.date} · {selectedEvent.region}</p><p>{selectedEvent.text}</p><div className="evidence"><strong>Evidence status</strong><span>{selectedEvent.evidence}</span></div><div className="detail-actions"><button onClick={()=>changeEvent(-1)}><ChevronLeft/> Earlier</button><button onClick={()=>changeEvent(1)}>Later <ChevronRight/></button></div></>}{activeTab==='places'&&<><p className="detail-kicker">SELECTED PLACE OR HERITAGE SITE</p><span className="detail-icon"><Building2/></span><h2>{placeDetail.name}</h2><p className="detail-meta">{placeDetail.country} · {placeDetail.period}</p><p>{placeDetail.text}</p><div className="evidence"><strong>Research links</strong><span>{placeDetail.links}</span></div></>}{activeTab==='chapters'&&<><p className="detail-kicker">SELECTED CHAPTER</p><span className="detail-icon"><BookOpen/></span><h2>{chapterDetail.title}</h2><p className="detail-meta">{chapterDetail.collection}<br/>{chapterDetail.volume} · {chapterDetail.pages}</p><p>{chapterDetail.summary}</p><div className="evidence"><strong>Status</strong><span>{chapterDetail.status}{chapterDetail.sections.length?` · ${chapterDetail.sections.length} indexed sections`:''}</span></div>{chapterDetail.sections.length>0&&<details className="detail-contents"><summary>View section index <ChevronDown size={16}/></summary><ol>{chapterDetail.sections.map(section=><li key={section}>{section}</li>)}</ol></details>}</>}{activeTab==='library'&&<><p className="detail-kicker">SELECTED LIBRARY RECORD</p><span className="detail-icon"><Library/></span><h2>{workDetail.title}</h2><p className="detail-meta">{workDetail.shelf}<br/>{workDetail.sequence}</p><p>{workDetail.subtitle}</p><p>{workDetail.description}</p><div className="evidence"><strong>Edition record</strong><span>{workDetail.creator}<br/>{workDetail.extent}</span></div><details className="detail-contents" open><summary>Research structure <ChevronDown size={16}/></summary><ol>{workDetail.structure.map(item=><li key={item}>{item}</li>)}</ol></details>{workDetail.id==='parallel-philosophy'&&<button className="deep-link" onClick={()=>chooseTab('ideas')}>Open all 72 chapters and debates <ChevronRight/></button>}{workDetail.id==='parallel-history'&&<button className="deep-link" onClick={()=>chooseTab('people')}>Open the literary-figure index <ChevronRight/></button>}{workDetail.shelf==='Decoding the Panji'&&<div className="panji-network"><strong>Panji record network</strong><span>Person</span><b>→</b><span>Mūla / gotra</span><b>→</b><span>Village</span><b>→</b><span>Marriage &amp; maternal links</span></div>}{workDetail.shelf==='Sanskrit–Maithili Philosophical Texts'&&<div className="translation-path"><strong>Living translation pathway</strong><p>Sanskrit source → Maithili philosophical vocabulary → commentary → glossary → contemporary reader</p></div>}</>}{activeTab==='people'&&<><p className="detail-kicker">SELECTED FIGURE</p><span className="detail-icon"><Users/></span><h2>{personDetail.name}</h2><p className="detail-meta">{personDetail.field}<br/>{personDetail.era}</p><p>{personDetail.description}</p><div className="evidence"><strong>Indexed from</strong><span>{personDetail.source}</span></div></>}{activeTab==='ideas'&&<><p className="detail-kicker">CHAPTER {ideaDetail.number} · {ideaDetail.part}</p><span className="detail-icon"><GitBranch/></span><h2>{ideaDetail.title}</h2><p>{ideaDetail.summary}</p><div className="debate-card purva"><strong>Pūrvapakṣa · strongest objection</strong><p>{ideaDetail.purvapaksha}</p></div><div className="debate-card uttara"><strong>Uttarapakṣa · response</strong><p>{ideaDetail.uttarapaksha}</p></div><div className="debate-card synthesis"><strong>Parallel conclusion</strong><p>{ideaDetail.synthesis}</p></div><details className="detail-contents"><summary>Chapter section index <ChevronDown size={16}/></summary><ol>{ideaDetail.sections.map(section=><li key={section}>{section}</li>)}</ol></details></>}{activeTab==='sources'&&<><p className="detail-kicker">EDITORIAL METHOD</p><span className="detail-icon"><Landmark/></span><h2>Evidence before assertion</h2><p>Archaeological, philological, archival, environmental, linguistic, institutional, oral, and statistical evidence is used according to period and claim type.</p><div className="evidence"><strong>Governing distinction</strong><span>Tradition, mythology, memory, material evidence, and administration are related—but never treated as interchangeable.</span></div><a className="detail-link" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Continue at Videha <ExternalLink size={16}/></a></>}</aside>
-      </section>
-
-      <section id="about" className="about"><div><p>THE VIDEHA RESEARCH ECOSYSTEM</p><h2>History joined to genealogy, literature, and philosophy</h2></div><div className="book-pair"><article><span>REGIONAL HISTORY</span><h3><button className="section-title-button" onClick={()=>{chooseTab('chapters');location.hash='explorer'}}>Two complementary histories <ChevronRight/></button></h3><p>Political and connected history in 28 chapters; socio-cultural-economic history with Chapters 1–35 complete in a 150-chapter plan.</p><button onClick={()=>{chooseTab('chapters');location.hash='explorer'}}>Browse 178 chapters <ChevronRight size={15}/></button></article><article><span>PANJI RESEARCH</span><h3><button className="section-title-button" onClick={()=>openShelf('Decoding the Panji','panji-1')}>Six-volume decoding series <ChevronRight/></button></h3><p>Genealogy, kinship, village networks, archival notation, social memory, and the ethical reading of difficult records.</p><div className="work-links">{works.filter(work=>work.shelf==='Decoding the Panji').map(work=><button key={work.id} onClick={()=>openShelf('Decoding the Panji',work.id)}>{work.sequence}</button>)}</div></article><article><span>PARALLEL RESEARCH</span><h3><button className="section-title-button" onClick={()=>openShelf('Parallel Research','parallel-philosophy')}>Philosophy &amp; literary history <ChevronRight/></button></h3><p>A 493-page, 72-chapter philosophical synthesis and the 100-volume Parallel History of Mithilā and Maithilī literature.</p><div className="work-links"><button onClick={()=>openShelf('Parallel Research','parallel-philosophy')}>Parallel Philosophy</button><button onClick={()=>openShelf('Parallel Research','parallel-history')}>Parallel History · Volumes 1–100</button><button onClick={()=>{chooseTab('people');location.hash='explorer'}}>138 named figures</button></div></article><article><span>TEXTS &amp; TRANSLATIONS</span><h3><button className="section-title-button" onClick={()=>openShelf('Sanskrit–Maithili Philosophical Texts','atmatattvaviveka')}>Sanskrit into Maithili <ChevronRight/></button></h3><p>Four major works within a living Maithili intellectual tradition.</p><div className="work-links"><button onClick={()=>openShelf('Sanskrit–Maithili Philosophical Texts','atmatattvaviveka')}>Ātmatattvaviveka</button><button onClick={()=>openShelf('Sanskrit–Maithili Philosophical Texts','bhamati')}>Bhāmatī</button><button onClick={()=>openShelf('Sanskrit–Maithili Philosophical Texts','nyayakusumanjali')}>Nyāyakusumāñjali</button><button onClick={()=>openShelf('Sanskrit–Maithili Philosophical Texts','tattvacintamani')}>Tattvacintāmaṇi</button></div></article></div></section>
-      <section className="provenance" aria-labelledby="provenance-title"><div className="provenance-heading"><p>EDITORIAL CREDIT &amp; FOUNDATIONS</p><h2 id="provenance-title">A Videha scholarly project</h2><p>© Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN 2229-547X</p><div className="journal-links"><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">www.videha.co.in <ExternalLink size={15}/></a><a href="https://videha-ejournal.github.io/videha/" target="_blank" rel="noreferrer">Videha GitHub archive <ExternalLink size={15}/></a></div></div><div className="foundation-list"><p>This site is based on the following books and translations by Gajendra Thakur:</p><button onClick={()=>openShelf('Decoding the Panji','panji-1')}><strong>Decoding the Panji of Mithila</strong><span>Volumes I–VI</span><ChevronRight/></button><button onClick={()=>openShelf('Parallel Research','parallel-history')}><strong>A Parallel History of Mithilā &amp; Maithilī Literature</strong><span>Tomes I–IV · Volumes 1–100</span><ChevronRight/></button><button onClick={()=>openShelf('Parallel Research','parallel-philosophy')}><strong>Gajendra Thakur’s Parallel Philosophy</strong><span>Comparative philosophical research</span><ChevronRight/></button><button onClick={()=>{chooseTab('chapters');location.hash='explorer'}}><strong>A History of Mithila, Vajji &amp; Anga</strong><span>Volume I: General &amp; Political · Volume II: Socio-Cultural-Economic</span><ChevronRight/></button><button onClick={()=>openShelf('Sanskrit–Maithili Philosophical Texts','bhamati')}><strong>Sanskrit-to-Maithili Translations</strong><span>Bhāmatī · Ātmatattvaviveka · Nyāyakusumāñjali · Tattvacintāmaṇi</span><ChevronRight/></button></div></section>
-    </main>
-    <footer><a className="identity" href="#top"><span className="mark" aria-hidden="true">𑒧</span><span><strong>Mithila–Vajji–Anga</strong><small>A Videha research project</small></span></a><p>© Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN 2229-547X</p><div className="footer-links"><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">videha.co.in <ExternalLink size={15}/></a><a href="https://videha-ejournal.github.io/videha/" target="_blank" rel="noreferrer">GitHub archive <ExternalLink size={15}/></a></div></footer>
-  </>;
+      </footer>
+    </>
+  );
 }
