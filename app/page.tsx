@@ -2453,7 +2453,7 @@ export default function Home() {
               </h3>
               <p>
                 Political and connected history in 28 chapters;
-                socio-cultural-economic history with supplied Chapters 1–73
+                socio-cultural-economic history with supplied Chapters 1–86
                 available in the cumulative research corpus.
               </p>
               <button
