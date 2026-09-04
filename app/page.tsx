@@ -142,10 +142,10 @@ export default function Home() {
   const personDetail = people.find(person=>person.id===selectedPerson) ?? people[0];
   const ideaDetail = philosophyChapters.find(item=>item.id===selectedIdea) ?? philosophyChapters[0];
   const changeEvent = (direction:number) => { const next=Math.max(0,Math.min(chronology.length-1,nearestIndex+direction)); setYear(chronology[next].year); };
-  const chooseTab = (tab:Tab) => { setActiveTab(tab); setQuery(''); };
+  const chooseTab = (tab:Tab) => { setActiveTab(tab); setQuery(''); requestAnimationFrame(()=>document.getElementById('explorer')?.scrollIntoView({behavior:'smooth',block:'start'})); };
   const openWork = (id:string) => {
     setActiveTab('library'); setSelectedWork(id); setQuery('');
-    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 1100px)').matches) requestAnimationFrame(()=>document.getElementById('selected-detail')?.scrollIntoView({behavior:'smooth'}));
+    requestAnimationFrame(()=>document.getElementById('explorer')?.scrollIntoView({behavior:'smooth',block:'start'}));
   };
   const openShelf = (name:string,id?:string) => { setShelf(name); if(id) openWork(id); else { setActiveTab('library'); setQuery(''); requestAnimationFrame(()=>document.getElementById('explorer')?.scrollIntoView({behavior:'smooth'})); } };
 
