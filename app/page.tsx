@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import {
   BookOpen,
+  Accessibility,
+  ArrowUp,
   Building2,
   CalendarDays,
   Check,
@@ -17,12 +19,14 @@ import {
   Landmark,
   Layers3,
   Library,
+  Languages,
   MapPin,
   Menu,
   Pause,
   Play,
   Search,
   Users,
+  Volume2,
   X,
 } from 'lucide-react';
 import researchData from './research-data.json';
@@ -30,6 +34,8 @@ import libraryData from './library-data.json';
 import deepData from './deep-data.json';
 import collectionDetailsData from './collection-details.json';
 import coverData from './cover-data.json';
+import ideasVolumeTwoData from './ideas-volume2.json';
+import suppliedHistoryData from './supplied-history-additions.json';
 import ResearchExpansion from './research-expansion';
 import LearningLab from './learning-lab';
 
@@ -66,6 +72,20 @@ type PhilosophyChapter = {
   purvapaksha: string;
   uttarapaksha: string;
   synthesis: string;
+};
+type IdeaRecord = {
+  id: string;
+  number: number;
+  title: string;
+  part: string;
+  summary: string;
+  sections: string[];
+  purvapaksha?: string;
+  uttarapaksha?: string;
+  synthesis?: string;
+  status: 'Available' | 'Available in English' | 'Planned';
+  volume: 'Volume I' | 'Volume II';
+  source: string;
 };
 type Person = {
   id: string;
@@ -104,6 +124,27 @@ const chapters = [
 ] as Chapter[];
 const works = libraryData as Work[];
 const philosophyChapters = deepData.philosophyChapters as PhilosophyChapter[];
+const ideas: IdeaRecord[] = [
+  ...philosophyChapters.map((chapter) => ({
+    ...chapter,
+    status: 'Available' as const,
+    volume: 'Volume I' as const,
+    source: `Gajendra Thakur’s Parallel Philosophy · Volume I · Chapter ${chapter.number}`,
+  })),
+  ...(ideasVolumeTwoData as Array<
+    Omit<IdeaRecord, 'sections' | 'volume'>
+  >).map((chapter) => ({
+    ...chapter,
+    sections: [],
+    volume: 'Volume II' as const,
+  })),
+];
+const suppliedHistory = suppliedHistoryData as Array<{
+  number: number;
+  title: string;
+  sections: number;
+  source: string;
+}>;
 const people = deepData.people as Person[];
 const collectionDetails = collectionDetailsData as Record<
   string,
@@ -768,6 +809,7 @@ export default function Home() {
   const [volume, setVolume] = useState('All volumes');
   const [status, setStatus] = useState('All statuses');
   const [shelf, setShelf] = useState('All shelves');
+  const [ideaStatus, setIdeaStatus] = useState('All ideas');
   const [selectedChapter, setSelectedChapter] = useState('political-7');
   const [selectedPlace, setSelectedPlace] = useState('vaishali');
   const [selectedWork, setSelectedWork] = useState('panji-1');
@@ -776,6 +818,10 @@ export default function Home() {
   const [coverIndex, setCoverIndex] = useState(0);
   const [coverCategory, setCoverCategory] = useState('All');
   const [coverPlaying, setCoverPlaying] = useState(true);
+  const [siteListening, setSiteListening] = useState(false);
+  const [assistiveOpen, setAssistiveOpen] = useState(false);
+  const [highContrast, setHighContrast] = useState(false);
+  const [largeText, setLargeText] = useState(false);
   const shownCovers = useMemo(
     () =>
       coverCategory === 'All'
@@ -797,6 +843,27 @@ export default function Home() {
     );
     return () => window.clearInterval(timer);
   }, [coverPlaying, shownCovers.length]);
+  useEffect(() => {
+    document.body.classList.toggle('high-contrast', highContrast);
+    document.body.classList.toggle('large-text', largeText);
+    return () => {
+      document.body.classList.remove('high-contrast', 'large-text');
+    };
+  }, [highContrast, largeText]);
+  const listenToPage = () => {
+    if (!('speechSynthesis' in window)) return;
+    if (siteListening) {
+      window.speechSynthesis.cancel();
+      setSiteListening(false);
+      return;
+    }
+    const text = document.querySelector('main')?.textContent ?? '';
+    const utterance = new SpeechSynthesisUtterance(text.slice(0, 14000));
+    utterance.rate = 0.9;
+    utterance.onend = () => setSiteListening(false);
+    setSiteListening(true);
+    window.speechSynthesis.speak(utterance);
+  };
   const nearestIndex = useMemo(
     () =>
       chronology.reduce(
@@ -883,12 +950,16 @@ export default function Home() {
   );
   const filteredIdeas = useMemo(
     () =>
-      philosophyChapters.filter((item) =>
-        `${item.title} ${item.part} ${item.summary} ${item.purvapaksha} ${item.uttarapaksha} ${item.sections.join(' ')}`
-          .toLowerCase()
-          .includes(query.toLowerCase()),
+      ideas.filter(
+        (item) =>
+          (ideaStatus === 'All ideas' ||
+            (ideaStatus === 'Available' && item.status !== 'Planned') ||
+            item.status === ideaStatus) &&
+          `${item.title} ${item.part} ${item.summary} ${item.purvapaksha ?? ''} ${item.uttarapaksha ?? ''} ${item.sections.join(' ')}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
       ),
-    [query],
+    [ideaStatus, query],
   );
   const chapterDetail =
     chapters.find((c) => c.id === selectedChapter) ?? chapters[0];
@@ -897,8 +968,7 @@ export default function Home() {
   const personDetail =
     people.find((person) => person.id === selectedPerson) ?? people[0];
   const ideaDetail =
-    philosophyChapters.find((item) => item.id === selectedIdea) ??
-    philosophyChapters[0];
+    ideas.find((item) => item.id === selectedIdea) ?? ideas[0];
   const materialDetail = collectionDetails[selectedWork];
   const changeEvent = (direction: number) => {
     const next = Math.max(
@@ -1014,6 +1084,14 @@ export default function Home() {
           <a href="#explorer">Explore</a>
           <button
             onClick={() => {
+              chooseTab('ideas');
+              location.hash = 'explorer';
+            }}
+          >
+            Ideas
+          </button>
+          <button
+            onClick={() => {
               chooseTab('chapters');
               location.hash = 'explorer';
             }}
@@ -1027,14 +1105,6 @@ export default function Home() {
             }}
           >
             People
-          </button>
-          <button
-            onClick={() => {
-              chooseTab('ideas');
-              location.hash = 'explorer';
-            }}
-          >
-            Ideas
           </button>
           <button
             onClick={() => {
@@ -1058,6 +1128,37 @@ export default function Home() {
         </nav>
       </header>
 
+      <div className="videha-tools" aria-label="Videha accessibility tools">
+        <button onClick={listenToPage} aria-pressed={siteListening}>
+          {siteListening ? <Pause /> : <Volume2 />} सुनू · Listen
+        </button>
+        <a href="https://www.videha.co.in/maithili-translator.html" target="_blank" rel="noreferrer">
+          <Languages /> Translate with AI <span>(ए.आइ. द्वारा अनुवाद करू)</span>
+        </a>
+        <button onClick={() => setAssistiveOpen(!assistiveOpen)} aria-expanded={assistiveOpen}>
+          <Accessibility /> सहायक तकनीक · Assistive Tech
+        </button>
+        {assistiveOpen && (
+          <div className="assistive-panel">
+            <strong>Reading controls</strong>
+            <button onClick={() => setLargeText(!largeText)} aria-pressed={largeText}>Larger text</button>
+            <button onClick={() => setHighContrast(!highContrast)} aria-pressed={highContrast}>High contrast</button>
+            <a href="#explorer">Skip to research explorer</a>
+          </div>
+        )}
+      </div>
+
+      <nav className="research-shortcuts" aria-label="Research controls">
+        <strong>Research controls</strong>
+        <a href="#explorer">Explore</a>
+        <button onClick={() => chooseTab('ideas')}>
+          Ideas <span>{ideas.length}</span>
+        </button>
+        <button onClick={() => chooseTab('chapters')}>
+          Histories <span>{chapters.length}</span>
+        </button>
+      </nav>
+
       <main id="top">
         <section className="intro">
           <div>
@@ -1080,9 +1181,22 @@ export default function Home() {
             </div>
             <div>
               <dt>Parallel Philosophy</dt>
-              <dd>{philosophyChapters.length} chapters</dd>
+              <dd>{ideas.length} ideas</dd>
             </div>
           </dl>
+        </section>
+
+        <section className="supplied-manuscripts" aria-labelledby="supplied-title">
+          <div>
+            <p>NEWLY SUPPLIED · NOW COMPLETE</p>
+            <h2 id="supplied-title">Volume II, Chapters 52–73</h2>
+            <span>
+              {suppliedHistory.length} chapters with {suppliedHistory.reduce((total, chapter) => total + chapter.sections, 0)} indexed sections from the two supplied cumulative manuscripts.
+            </span>
+          </div>
+          <button onClick={() => chooseTab('chapters')}>
+            Open completed histories <ChevronRight />
+          </button>
         </section>
 
         <section className="research-studio" aria-labelledby="studio-title">
@@ -1807,13 +1921,29 @@ export default function Home() {
                   <div>
                     <span>GAJENDRA THAKUR’S PARALLEL PHILOSOPHY</span>
                     <h2>
-                      {filteredIdeas.length} of {philosophyChapters.length}{' '}
-                      chapters
+                      {filteredIdeas.length} of {ideas.length} ideas
                     </h2>
                   </div>
-                  <small>
-                    Indian · Western · political · religious · modern
-                  </small>
+                  <small>72 Volume I · 25 supplied in English · 75 planned</small>
+                </div>
+                <div className="idea-status-filters" aria-label="Filter ideas by completion status">
+                  {['All ideas', 'Available', 'Planned'].map((filter) => (
+                    <button
+                      key={filter}
+                      className={ideaStatus === filter ? 'active' : ''}
+                      aria-pressed={ideaStatus === filter}
+                      onClick={() => setIdeaStatus(filter)}
+                    >
+                      {filter}
+                      <span>
+                        {filter === 'All ideas'
+                          ? ideas.length
+                          : filter === 'Available'
+                            ? ideas.filter((idea) => idea.status !== 'Planned').length
+                            : ideas.filter((idea) => idea.status === 'Planned').length}
+                      </span>
+                    </button>
+                  ))}
                 </div>
                 <div
                   className="method-diagram"
@@ -1836,13 +1966,14 @@ export default function Home() {
                       className={item.id === selectedIdea ? 'selected' : ''}
                     >
                       <button onClick={() => setSelectedIdea(item.id)}>
-                        <span>{String(item.number).padStart(2, '0')}</span>
+                        <span>{item.volume === 'Volume I' ? 'I' : 'II'}-{String(item.number).padStart(2, '0')}</span>
                         <div>
                           <strong>{item.title}</strong>
-                          <small>{item.part}</small>
+                          <small>{item.part} · {item.status}</small>
                         </div>
                         <ChevronRight />
                       </button>
+                      {item.status !== 'Planned' && item.purvapaksha && (
                       <details>
                         <summary>
                           Open debate and contents <ChevronDown size={16} />
@@ -1865,6 +1996,10 @@ export default function Home() {
                           </ol>
                         )}
                       </details>
+                      )}
+                      {item.status === 'Planned' && (
+                        <p className="planned-idea-note">Approved English chapter title; full English chapter is not yet supplied.</p>
+                      )}
                     </article>
                   ))}
                 </div>
@@ -2031,7 +2166,7 @@ export default function Home() {
                     className="deep-link"
                     onClick={() => chooseTab('ideas')}
                   >
-                    Open all 72 chapters and debates <ChevronRight />
+                    Open all {ideas.length} ideas and debates <ChevronRight />
                   </button>
                 )}
                 {workDetail.id === 'parallel-history' && (
@@ -2088,13 +2223,19 @@ export default function Home() {
             {activeTab === 'ideas' && (
               <>
                 <p className="detail-kicker">
-                  CHAPTER {ideaDetail.number} · {ideaDetail.part}
+                  {ideaDetail.volume.toUpperCase()} · CHAPTER {ideaDetail.number} · {ideaDetail.status.toUpperCase()}
                 </p>
                 <span className="detail-icon">
                   <GitBranch />
                 </span>
                 <h2>{ideaDetail.title}</h2>
                 <p>{ideaDetail.summary}</p>
+                <div className="evidence">
+                  <strong>Source status</strong>
+                  <span>{ideaDetail.source}</span>
+                </div>
+                {ideaDetail.purvapaksha && (
+                  <>
                 <div className="debate-card purva">
                   <strong>Pūrvapakṣa · strongest objection</strong>
                   <p>{ideaDetail.purvapaksha}</p>
@@ -2117,6 +2258,20 @@ export default function Home() {
                     ))}
                   </ol>
                 </details>
+                  </>
+                )}
+                {!ideaDetail.purvapaksha && ideaDetail.status !== 'Planned' && (
+                  <div className="debate-card synthesis">
+                    <strong>English record supplied</strong>
+                    <p>This entry presents the English chapter title and source-grounded English synopsis only.</p>
+                  </div>
+                )}
+                {ideaDetail.status === 'Planned' && (
+                  <div className="debate-card purva">
+                    <strong>Planned—not yet supplied</strong>
+                    <p>No argument, quotation, or debate structure has been invented for this chapter.</p>
+                  </div>
+                )}
               </>
             )}
             {activeTab === 'sources' && (
@@ -2397,6 +2552,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <a className="back-to-top" href="#top" aria-label="Back to top"> <ArrowUp /> </a>
       <footer>
         <a className="identity" href="#top">
           <span className="mark" aria-hidden="true">

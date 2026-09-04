@@ -1,0 +1,902 @@
+[
+  {
+    "id": "philosophy-v2-1",
+    "number": 1,
+    "title": "The Second Turn in Philosophy: From Consciousness to Language",
+    "part": "Twentieth-Century Philosophical Turns",
+    "status": "Available in English",
+    "summary": "The chapter traces philosophy’s movement from the isolated knowing subject toward language, meaning, logical form and shared rules.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-2",
+    "number": 2,
+    "title": "Why Philosophy Changed in the Twentieth Century",
+    "part": "Twentieth-Century Philosophical Turns",
+    "status": "Available in English",
+    "summary": "The chapter examines how science, symbolic logic, war, colonialism and the modern administrative state forced philosophy to reconsider its subject and method.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-3",
+    "number": 3,
+    "title": "The Division between Analytic and Continental Philosophy",
+    "part": "Twentieth-Century Philosophical Turns",
+    "status": "Available in English",
+    "summary": "The chapter tests the institutional divide between analytic and continental philosophy instead of treating it as a complete map of twentieth-century thought.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-4",
+    "number": 4,
+    "title": "Where Does Indian Philosophy Sit on This Map?",
+    "part": "Twentieth-Century Philosophical Turns",
+    "status": "Available in English",
+    "summary": "The chapter criticises the separation of Indian philosophy from general philosophical history and restores its debates about knowledge, language, causation and reality to a shared field of inquiry.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-5",
+    "number": 5,
+    "title": "Mithila’s Parallel Point of Entry",
+    "part": "Twentieth-Century Philosophical Turns",
+    "status": "Available in English",
+    "summary": "The chapter places Mithila’s Nyāya, Navya-Nyāya, Mīmāṃsā, commentary and debate traditions in conversation with modern questions without claiming premature equivalence.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-6",
+    "number": 6,
+    "title": "The Risks of Comparative Philosophy",
+    "part": "Twentieth-Century Philosophical Turns",
+    "status": "Available in English",
+    "summary": "The chapter distinguishes comparison from cultural triumphalism: similar questions, terms or conclusions do not by themselves prove identical theories or historical influence.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-7",
+    "number": 7,
+    "title": "Frege: Logic, Meaning and Reference",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter examines Frege’s formal logic and his distinction between sense and reference alongside Indian debates about verbal meaning.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-8",
+    "number": 8,
+    "title": "Russell: Description, Logical Form and the World",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter explains Russell’s theory of descriptions and the difference between grammatical appearance and logical form.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-9",
+    "number": 9,
+    "title": "Moore and Common Sense",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter studies Moore’s defence of common sense and compares its realist commitments with questions of perception and warrant in Nyāya.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-10",
+    "number": 10,
+    "title": "Early Wittgenstein: Language, Fact, Picture and the Limits of Expression",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter reads early Wittgenstein through facts, pictures, logical form and the limits of what language can state.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-11",
+    "number": 11,
+    "title": "Logical Positivism: Verification, Science and the Limits of Metaphysics",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter assesses verificationism, its critique of metaphysics and the problems created by its own criterion of meaning.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-12",
+    "number": 12,
+    "title": "Carnap and the Question of Metaphysics",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter asks whether philosophical problems are merely products of linguistic confusion or retain genuine metaphysical force.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-13",
+    "number": 13,
+    "title": "Quine: The Crisis of the Analytic–Synthetic Distinction",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter examines Quine’s challenge to the analytic–synthetic distinction and the image of knowledge as an interconnected web.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-14",
+    "number": 14,
+    "title": "Analytic Philosophy and Navya-Nyāya",
+    "part": "Analytic Philosophy and the New World of Logic",
+    "status": "Available in English",
+    "summary": "The chapter compares analytic philosophy and Navya-Nyāya through technical language, relations and inference while preserving their historical differences.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-15",
+    "number": 15,
+    "title": "Later Wittgenstein: Meaning in Use",
+    "part": "The Linguistic Turn and the Philosophy of Meaning",
+    "status": "Available in English",
+    "summary": "The chapter presents meaning as use through language-games, rule-following and forms of life.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-16",
+    "number": 16,
+    "title": "Austin: Saying Is Also Doing",
+    "part": "The Linguistic Turn and the Philosophy of Meaning",
+    "status": "Available in English",
+    "summary": "The chapter examines Austin’s claim that utterances can perform social acts when conventions, authority and circumstances are in place.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-17",
+    "number": 17,
+    "title": "Searle and Speech Acts",
+    "part": "The Linguistic Turn and the Philosophy of Meaning",
+    "status": "Available in English",
+    "summary": "The chapter develops Searle’s account of speech acts through intention, convention, institutional rules and indirect requests.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-18",
+    "number": 18,
+    "title": "Can Language Be Private?",
+    "part": "The Linguistic Turn and the Philosophy of Meaning",
+    "status": "Available in English",
+    "summary": "The chapter asks whether a language whose standards depend entirely on private sensation can sustain a distinction between correct use and merely seeming correct.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-19",
+    "number": 19,
+    "title": "The Meaning of a Word: Object, Use or Relation?",
+    "part": "The Linguistic Turn and the Philosophy of Meaning",
+    "status": "Available in English",
+    "summary": "The chapter compares object, use and relational accounts of word meaning and tests each against difficult cases such as justice, pain and number.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-20",
+    "number": 20,
+    "title": "Indian Theories of Verbal Meaning",
+    "part": "The Linguistic Turn and the Philosophy of Meaning",
+    "status": "Available in English",
+    "summary": "The chapter introduces Nyāya, Mīmāṃsā, grammatical and Buddhist approaches to word meaning, sentence cognition, intention and testimony.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-21",
+    "number": 21,
+    "title": "Mithila’s Tradition of Linguistic Analysis",
+    "part": "The Linguistic Turn and the Philosophy of Meaning",
+    "status": "Available in English",
+    "summary": "The chapter identifies Mithila’s practices of definition, qualification, burden of proof and objection as a disciplined tradition of linguistic analysis.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-22",
+    "number": 22,
+    "title": "What Is Structure?",
+    "part": "Structuralism",
+    "status": "Available in English",
+    "summary": "The chapter defines structure as a system of relations, differences, rules and transformations rather than a mere collection of separate elements.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-23",
+    "number": 23,
+    "title": "Saussure: Signifier and Signified",
+    "part": "Structuralism",
+    "status": "Available in English",
+    "summary": "The chapter explains Saussure’s signifier and signified as two sides of the linguistic sign operating within a system of differences.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-24",
+    "number": 24,
+    "title": "Lévi-Strauss: Myth and Structure",
+    "part": "Structuralism",
+    "status": "Available in English",
+    "summary": "The chapter examines Lévi-Strauss’s structural reading of myth through recurring relations, oppositions and transformations across variant narratives.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-25",
+    "number": 25,
+    "title": "Structure and the Individual",
+    "part": "Structuralism",
+    "status": "Available in English",
+    "summary": "The chapter asks how agency and moral responsibility remain possible when language, institutions and classifications provide structures prior to individual action.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · supplied chapter"
+  },
+  {
+    "id": "philosophy-v2-26",
+    "number": 26,
+    "title": "Indian Linguistic Traditions and Structure",
+    "part": "Structuralism",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-27",
+    "number": 27,
+    "title": "The Limits of Structuralism",
+    "part": "Structuralism",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-28",
+    "number": 28,
+    "title": "From Structuralism to Post-Structuralism",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-29",
+    "number": 29,
+    "title": "Derrida: A Critique of the Metaphysics of Presence",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-30",
+    "number": 30,
+    "title": "Différance: Deferral and Difference in Meaning",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-31",
+    "number": 31,
+    "title": "Writing, Speech and the Question of the Centre",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-32",
+    "number": 32,
+    "title": "What Deconstruction Is and Is Not",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-33",
+    "number": 33,
+    "title": "Indian Philosophy and Deconstruction",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-34",
+    "number": 34,
+    "title": "Navya-Nyāya as a Counterpoint to Deconstruction",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-35",
+    "number": 35,
+    "title": "A Parallel Uttarapakṣa",
+    "part": "Post-Structuralism and Deconstruction",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-36",
+    "number": 36,
+    "title": "Can Knowledge and Power Be Separated?",
+    "part": "Foucault, Knowledge and Power",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-37",
+    "number": 37,
+    "title": "Foucault’s Archaeology",
+    "part": "Foucault, Knowledge and Power",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-38",
+    "number": 38,
+    "title": "Genealogy: Another Way of Writing History",
+    "part": "Foucault, Knowledge and Power",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-39",
+    "number": 39,
+    "title": "Discipline, Surveillance and Normalisation",
+    "part": "Foucault, Knowledge and Power",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-40",
+    "number": 40,
+    "title": "Body, Institution and Knowledge",
+    "part": "Foucault, Knowledge and Power",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-41",
+    "number": 41,
+    "title": "Foucault and the Parallel View of History",
+    "part": "Foucault, Knowledge and Power",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-42",
+    "number": 42,
+    "title": "What Is Postmodernism?",
+    "part": "Postmodernity",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-43",
+    "number": 43,
+    "title": "Lyotard and Incredulity toward Metanarratives",
+    "part": "Postmodernity",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-44",
+    "number": 44,
+    "title": "Baudrillard: Simulacra, Media and Hyperreality",
+    "part": "Postmodernity",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-45",
+    "number": 45,
+    "title": "Has Truth Ended?",
+    "part": "Postmodernity",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-46",
+    "number": 46,
+    "title": "Science, History and Postmodern Critique",
+    "part": "Postmodernity",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-47",
+    "number": 47,
+    "title": "Parallel Philosophy’s Reply",
+    "part": "Postmodernity",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-48",
+    "number": 48,
+    "title": "Hermeneutics: Why Is Understanding Itself a Problem?",
+    "part": "Interpretation, Text and Reader",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-49",
+    "number": 49,
+    "title": "Gadamer: Tradition and Pre-understanding",
+    "part": "Interpretation, Text and Reader",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-50",
+    "number": 50,
+    "title": "Ricoeur: Text, Symbol and Interpretation",
+    "part": "Interpretation, Text and Reader",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-51",
+    "number": 51,
+    "title": "Authorial Intention and the Reader’s Meaning",
+    "part": "Interpretation, Text and Reader",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-52",
+    "number": 52,
+    "title": "The Indian Commentary Tradition",
+    "part": "Interpretation, Text and Reader",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-53",
+    "number": 53,
+    "title": "Mithila’s Śāstrārtha as a Hermeneutic Practice?",
+    "part": "Interpretation, Text and Reader",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-54",
+    "number": 54,
+    "title": "The Frankfurt School",
+    "part": "Critical Theory after Marx",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-55",
+    "number": 55,
+    "title": "Horkheimer and Adorno: The Self-Critique of Modern Reason",
+    "part": "Critical Theory after Marx",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-56",
+    "number": 56,
+    "title": "Marcuse: Consumer Society and One-Dimensional Man",
+    "part": "Critical Theory after Marx",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-57",
+    "number": 57,
+    "title": "Habermas: Communicative Reason",
+    "part": "Critical Theory after Marx",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-58",
+    "number": 58,
+    "title": "The Public Sphere and Democracy",
+    "part": "Critical Theory after Marx",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-59",
+    "number": 59,
+    "title": "Śāstrārtha, Debate and Communicative Reason",
+    "part": "Critical Theory after Marx",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-60",
+    "number": 60,
+    "title": "The Many Voices of Feminist Philosophy",
+    "part": "Feminism, Gender and the Body",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-61",
+    "number": 61,
+    "title": "Simone de Beauvoir: Woman Is Made",
+    "part": "Feminism, Gender and the Body",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-62",
+    "number": 62,
+    "title": "Body, Experience and Power",
+    "part": "Feminism, Gender and the Body",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-63",
+    "number": 63,
+    "title": "Judith Butler: Gender, Performativity and Identity",
+    "part": "Feminism, Gender and the Body",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-64",
+    "number": 64,
+    "title": "Intersectionality: Caste, Class, Gender, Religion and Region",
+    "part": "Feminism, Gender and the Body",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-65",
+    "number": 65,
+    "title": "Questions for Indian Feminist Philosophy",
+    "part": "Feminism, Gender and the Body",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-66",
+    "number": 66,
+    "title": "Mithila’s Parallel Feminist Perspective",
+    "part": "Feminism, Gender and the Body",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-67",
+    "number": 67,
+    "title": "What Does Colonial Knowledge Do?",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-68",
+    "number": 68,
+    "title": "Edward Said: Orientalism",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-69",
+    "number": 69,
+    "title": "Gayatri Spivak: Can the Subaltern Speak?",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-70",
+    "number": 70,
+    "title": "Homi Bhabha: Hybridity and the Colonial Interstice",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-71",
+    "number": 71,
+    "title": "Subaltern Studies and the Margins of History",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-72",
+    "number": 72,
+    "title": "From Postcolonial to Decolonial Thought",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-73",
+    "number": 73,
+    "title": "The Colonial Classification of Indian Philosophy",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-74",
+    "number": 74,
+    "title": "Mithila between Empire, Nation and Region",
+    "part": "Colonialism, Postcolonialism and Knowledge",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-75",
+    "number": 75,
+    "title": "New Questions in the Philosophy of Mind",
+    "part": "Mind, Consciousness and Personhood",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-76",
+    "number": 76,
+    "title": "The Mind–Body Problem",
+    "part": "Mind, Consciousness and Personhood",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-77",
+    "number": 77,
+    "title": "Behaviourism, Identity Theory and Functionalism",
+    "part": "Mind, Consciousness and Personhood",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-78",
+    "number": 78,
+    "title": "The Hard Problem of Consciousness",
+    "part": "Mind, Consciousness and Personhood",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-79",
+    "number": 79,
+    "title": "Intentionality and the Self",
+    "part": "Mind, Consciousness and Personhood",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-80",
+    "number": 80,
+    "title": "Indian Debates on Self, No-Self and Mind",
+    "part": "Mind, Consciousness and Personhood",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-81",
+    "number": 81,
+    "title": "A Three-Way Dialogue: Nyāya, Buddhism and Modern Philosophy of Mind",
+    "part": "Mind, Consciousness and Personhood",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-82",
+    "number": 82,
+    "title": "New Debates in Scientific Realism",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-83",
+    "number": 83,
+    "title": "Natural Science and Social Science",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-84",
+    "number": 84,
+    "title": "Technology Is More Than a Tool",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-85",
+    "number": 85,
+    "title": "Truth in the Digital World",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-86",
+    "number": 86,
+    "title": "Algorithms, Classification and Power",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-87",
+    "number": 87,
+    "title": "Artificial Intelligence: What Is Intelligence?",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-88",
+    "number": 88,
+    "title": "Machine Consciousness: An Open Question",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-89",
+    "number": 89,
+    "title": "Evidence and Responsibility in the Age of AI",
+    "part": "Science, Technology, the Digital World and AI",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-90",
+    "number": 90,
+    "title": "A Second Form of Multi-Source Rationalism",
+    "part": "Parallel Philosophy in the Twenty-First Century",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-91",
+    "number": 91,
+    "title": "Coexistential Realism after the Linguistic Turn",
+    "part": "Parallel Philosophy in the Twenty-First Century",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-92",
+    "number": 92,
+    "title": "Dignity-Based Ethics and New Identities",
+    "part": "Parallel Philosophy in the Twenty-First Century",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-93",
+    "number": 93,
+    "title": "Polycentric Democracy and Network Power",
+    "part": "Parallel Philosophy in the Twenty-First Century",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-94",
+    "number": 94,
+    "title": "Rational Religious Pluralism in a Post-Secular Society",
+    "part": "Parallel Philosophy in the Twenty-First Century",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-95",
+    "number": 95,
+    "title": "The Parallel View of History: Genealogy, Archive and Evidence",
+    "part": "Parallel Philosophy in the Twenty-First Century",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-96",
+    "number": 96,
+    "title": "Self-Critique: How Can Parallel Philosophy Accept Its Own Deconstruction?",
+    "part": "Parallel Philosophy in the Twenty-First Century",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-97",
+    "number": 97,
+    "title": "Structure Exists, but Structure Is Not Destiny",
+    "part": "New Sūtras",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-98",
+    "number": 98,
+    "title": "Language Is a Limit, but Not a Prison",
+    "part": "New Sūtras",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-99",
+    "number": 99,
+    "title": "Power Influences Knowledge, but Does Not Make Truth Arbitrary",
+    "part": "New Sūtras",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  },
+  {
+    "id": "philosophy-v2-100",
+    "number": 100,
+    "title": "Parallel Philosophy: Reconstruction after Deconstruction",
+    "part": "New Sūtras",
+    "status": "Planned",
+    "summary": "This chapter remains an approved plan entry. No completed English argument is claimed.",
+    "source": "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
+  }
+]

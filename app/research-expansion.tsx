@@ -21,10 +21,16 @@ import collectionDetailsData from './collection-details.json';
 import deepData from './deep-data.json';
 import learningData from './learning-data.json';
 import researchData from './research-data.json';
+import ideasVolumeTwoData from './ideas-volume2.json';
 
 type Work = (typeof libraryData)[number];
 type MapLayer = 'Polities' | 'Learning' | 'Sacred' | 'Trade' | 'Archives';
-type ReadingMode = 'English' | 'Maithili' | 'Devanagari' | 'Tirhuta';
+type ReadingMode = 'English' | 'Outline' | 'Key terms' | 'Citation';
+type VolumeTwoIdea = (typeof ideasVolumeTwoData)[number];
+const volumeTwoIdeas = ideasVolumeTwoData as VolumeTwoIdea[];
+const englishReaderPassages = volumeTwoIdeas.filter(
+  (idea) => idea.status === 'Available in English',
+);
 
 const mapPlaces: Array<{
   id: string;
@@ -126,6 +132,20 @@ const mapPlaces: Array<{
     evidence: 'Textual geography and archaeology',
   },
 ];
+const geoPlaces = learningData.places;
+const geoBounds = geoPlaces.reduce(
+  (bounds, place) => ({
+    minLat: Math.min(bounds.minLat, place.latitude),
+    maxLat: Math.max(bounds.maxLat, place.latitude),
+    minLon: Math.min(bounds.minLon, place.longitude),
+    maxLon: Math.max(bounds.maxLon, place.longitude),
+  }),
+  { minLat: 90, maxLat: -90, minLon: 180, maxLon: -180 },
+);
+const geoPosition = (latitude: number, longitude: number) => ({
+  x: 5 + ((longitude - geoBounds.minLon) / (geoBounds.maxLon - geoBounds.minLon || 1)) * 90,
+  y: 5 + ((geoBounds.maxLat - latitude) / (geoBounds.maxLat - geoBounds.minLat || 1)) * 90,
+});
 
 type GraphType = 'People' | 'Texts' | 'Places' | 'Ideas';
 type GraphNode = {
@@ -173,6 +193,14 @@ const graphNodes: GraphNode[] = [
     type: 'Texts' as const,
     note: `${chapter.summary} Pūrvapakṣa: ${chapter.purvapaksha}. Uttarapakṣa: ${chapter.uttarapaksha}.`,
     source: `Gajendra Thakur’s Parallel Philosophy · ${chapter.part} · Chapter ${chapter.number}`,
+    collectionKey: 'parallel-philosophy',
+  })),
+  ...volumeTwoIdeas.map((chapter) => ({
+    id: `idea-v2-${chapter.id}`,
+    label: `Parallel Philosophy II.${chapter.number}: ${chapter.title}`,
+    type: 'Ideas' as const,
+    note: chapter.summary,
+    source: chapter.source,
     collectionKey: 'parallel-philosophy',
   })),
   ...learningData.panji.map((entry) => ({
@@ -258,7 +286,7 @@ const graphCounts = Object.fromEntries(
   ]),
 ) as Record<GraphType, number>;
 
-const maithiliPassage =
+const _maithiliPassage =
   'विदेह प्रश्न, वाद-विवाद आ ज्ञानक भूमि रहल अछि। मिथिलाक पञ्जी परिवार, गाम आ स्मृतिक सम्बन्ध सुरक्षित रखैत अछि। संस्कृत ग्रन्थक मैथिली अनुवाद पुरान विचारकेँ जीवित संवादमे आनैत अछि।';
 
 const devanagariToTirhuta: Record<string, string> = Object.fromEntries([
@@ -328,37 +356,22 @@ const devanagariToTirhuta: Record<string, string> = Object.fromEntries([
   ['.', '.'],
 ]);
 
-const toTirhuta = (text: string) =>
+const _toTirhuta = (text: string) =>
   Array.from(text)
     .map((character) => devanagariToTirhuta[character] ?? character)
     .join('');
 
-const classroomTimeline = [
-  {
-    date: 'Later Vedic horizon',
-    title: 'Janaka’s court',
-    text: 'The Upanishadic tradition remembers Videha as a place where rulers and scholars test claims through questions.',
-  },
-  {
-    date: 'Sixth–fifth centuries BCE',
-    title: 'Vajji and Anga',
-    text: 'Political communities, trade routes, and renunciant traditions connect Vaishali, Mithila, and Champa.',
-  },
-  {
-    date: 'Medieval centuries',
-    title: 'Scholastic Mithila',
-    text: 'Commentary, logic, ritual learning, and manuscript culture develop through teachers and institutions.',
-  },
-  {
-    date: 'Long duration',
-    title: 'The Panji archive',
-    text: 'Genealogical records preserve relationships among lineages, marriages, settlements, titles, and remembered events.',
-  },
-  {
-    date: 'Modern Videha',
-    title: 'Translation and digital research',
-    text: 'Maithili editions and cumulative volumes place inherited texts into contemporary public scholarship.',
-  },
+const sortedClassroomChronology = [...learningData.chronology].sort((a, b) => a.date - b.date);
+const classroomTimeline = Array.from({ length: 12 }, (_, index) =>
+  sortedClassroomChronology[Math.round((index * (sortedClassroomChronology.length - 1)) / 11)],
+);
+const classroomLessons = [
+  { title: 'Read a dated claim', question: 'What does a date establish—and what remains uncertain?', method: 'Compare label, date wording, and cited source before treating an event as an anchor.', source: '160-entry source-controlled chronology' },
+  { title: 'Map without inventing borders', question: 'How can places be mapped when territorial limits changed?', method: 'Separate modern coordinates from dated political, sacred, trade, learning, and archival evidence.', source: '120-place orientation gazetteer + eight dated anchors' },
+  { title: 'Open Chapters 52–73', question: 'How does social and cultural history extend the political narrative?', method: 'Use the supplied chapter headings and section maps to move from chapter claim to internal evidence structure.', source: 'Two supplied cumulative Volume II manuscripts' },
+  { title: 'Follow the linguistic turn', question: 'Why did twentieth-century philosophy place language at the centre?', method: 'Read the first 25 supplied English entries in order, then distinguish them from the 75 planned titles.', source: 'Gajendra Thakur’s Parallel Philosophy, Volume II' },
+  { title: 'Test a relation', question: 'Does a shared word prove a historical connection?', method: 'Use the graph as a discovery aid, then verify every inferred relation in the cited record.', source: 'People, texts, places, and ideas knowledge graph' },
+  { title: 'Decode a Panji record', question: 'Which link is genealogical, marital, territorial, or remembered?', method: 'Track person, lineage, village, marriage, and maternal links without collapsing them into one relation.', source: 'Decoding the Panji of Mithila, Volumes I–VI' },
 ];
 
 function matchingCovers(work: Work) {
@@ -393,12 +406,16 @@ export default function ResearchExpansion() {
     'Archives',
   ]);
   const [selectedPlace, setSelectedPlace] = useState('vaishali');
+  const [selectedGeoPlace, setSelectedGeoPlace] = useState(geoPlaces[0].id);
+  const [mapSearch, setMapSearch] = useState('');
   const [graphType, setGraphType] = useState('All');
   const [graphSearch, setGraphSearch] = useState('');
   const [graphPage, setGraphPage] = useState(0);
   const [selectedNode, setSelectedNode] = useState(graphNodes[0].id);
   const [readingMode, setReadingMode] = useState<ReadingMode>('English');
+  const [readerIndex, setReaderIndex] = useState(0);
   const [narrating, setNarrating] = useState<number | null>(null);
+  const [lessonIndex, setLessonIndex] = useState(0);
 
   useEffect(() => {
     return () => window.speechSynthesis?.cancel();
@@ -427,6 +444,13 @@ export default function ResearchExpansion() {
     mapPlaces.find((item) => item.id === selectedPlace) ??
     visiblePlaces[0] ??
     mapPlaces[0];
+  const filteredGeoPlaces = geoPlaces.filter((item) =>
+    `${item.name} ${item.admin} ${item.countryCode} ${item.context}`
+      .toLowerCase()
+      .includes(mapSearch.toLowerCase()),
+  );
+  const geoPlace =
+    geoPlaces.find((item) => item.id === selectedGeoPlace) ?? geoPlaces[0];
   const filteredGraphNodes = useMemo(
     () =>
       graphNodes.filter(
@@ -440,6 +464,7 @@ export default function ResearchExpansion() {
   );
   const graphNode =
     graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
+  const readerIdea = englishReaderPassages[readerIndex] ?? englishReaderPassages[0];
   const relatedNodes = useMemo(() => {
     const selectedTerms = graphNodeTerms.get(graphNode.id) ?? new Set<string>();
     return graphNodes
@@ -530,7 +555,7 @@ export default function ResearchExpansion() {
     }
     const item = classroomTimeline[index];
     const utterance = new SpeechSynthesisUtterance(
-      `${item.date}. ${item.title}. ${item.text}`,
+      `${item.displayDate}. ${item.label}. Source: ${item.source}`,
     );
     utterance.rate = 0.9;
     utterance.onend = () => setNarrating(null);
@@ -760,6 +785,19 @@ export default function ResearchExpansion() {
                 {item.name}
               </button>
             ))}
+            {geoPlaces.map((item) => {
+              const position = geoPosition(item.latitude, item.longitude);
+              return (
+                <button
+                  key={`geo-${item.id}`}
+                  className={`gazetteer-marker ${selectedGeoPlace === item.id ? 'active' : ''}`}
+                  style={{ left: `${position.x}%`, top: `${position.y}%` }}
+                  title={`${item.name}, ${item.admin}`}
+                  aria-label={`Open modern orientation record for ${item.name}`}
+                  onClick={() => setSelectedGeoPlace(item.id)}
+                ><span></span></button>
+              );
+            })}
             <small>
               Modern reference points only. No ancient or medieval frontier is
               implied.
@@ -767,24 +805,36 @@ export default function ResearchExpansion() {
           </div>
           <aside>
             <Map />
-            <p>{place.layers.join(' · ')}</p>
-            <h4>{place.name}</h4>
-            <p>{place.note}</p>
+            <p>SELECTED MODERN ORIENTATION RECORD</p>
+            <h4>{geoPlace.name}</h4>
+            <p>{geoPlace.context}</p>
             <dl>
-              <dt>Visible range</dt>
-              <dd>
-                {place.from < 0
-                  ? `${Math.abs(place.from)} BCE`
-                  : `${place.from} CE`}{' '}
-                – {place.to} CE
-              </dd>
-              <dt>Evidence frame</dt>
-              <dd>{place.evidence}</dd>
+              <dt>Location</dt><dd>{geoPlace.admin} · {geoPlace.countryCode}</dd>
+              <dt>Coordinates</dt><dd>{geoPlace.latitude.toFixed(4)}, {geoPlace.longitude.toFixed(4)}</dd>
+              <dt>Source</dt><dd>{geoPlace.source}</dd>
             </dl>
             <strong>
-              {visiblePlaces.length} places visible at the selected date
+              {geoPlaces.length} sourced place records · {visiblePlaces.length} historical anchors visible at the selected date
             </strong>
           </aside>
+        </div>
+        <div className="map-evidence-band">
+          <div>
+            <h4>Period-sensitive evidence anchors</h4>
+            <p>The year and evidence-layer controls change only the eight dated anchors; the 120 small points remain as a modern gazetteer and never imply an ancient frontier.</p>
+          </div>
+          <div>
+            {visiblePlaces.map((item) => (
+              <button key={item.id} className={selectedPlace === item.id ? 'active' : ''} onClick={() => setSelectedPlace(item.id)}>
+                <b>{item.name}</b><span>{item.evidence}</span>
+              </button>
+            ))}
+          </div>
+          <aside><strong>{place.name}</strong><p>{place.note}</p><small>{place.layers.join(' · ')}</small></aside>
+        </div>
+        <div className="map-directory">
+          <label><Search /><span className="sr-only">Search 120 map places</span><input value={mapSearch} onChange={(event) => setMapSearch(event.target.value)} placeholder="Search 120 sourced places" /></label>
+          <div>{filteredGeoPlaces.map((item) => <button key={item.id} className={selectedGeoPlace === item.id ? 'active' : ''} onClick={() => setSelectedGeoPlace(item.id)}><b>{item.name}</b><small>{item.admin} · {item.countryCode}</small></button>)}</div>
         </div>
       </article>
 
@@ -955,13 +1005,21 @@ export default function ResearchExpansion() {
         <div className="room-heading">
           <span>04</span>
           <div>
-            <p>MULTISCRIPT READER</p>
-            <h3>One research passage across language and script modes</h3>
+            <p>ENGLISH RESEARCH READER</p>
+            <h3>Twenty-five supplied ideas in translation, outline, and citation modes</h3>
           </div>
+        </div>
+        <div className="reader-passages" aria-label="Choose an English translated idea">
+          {englishReaderPassages.map((item, index) => (
+            <button key={item.id} className={readerIndex === index ? 'active' : ''} onClick={() => setReaderIndex(index)}>
+              <span>{String(item.number).padStart(2, '0')}</span>
+              {item.title}
+            </button>
+          ))}
         </div>
         <div className="reader-tabs" role="tablist" aria-label="Reading mode">
           {(
-            ['English', 'Maithili', 'Devanagari', 'Tirhuta'] as ReadingMode[]
+            ['English', 'Outline', 'Key terms', 'Citation'] as ReadingMode[]
           ).map((mode) => (
             <button
               key={mode}
@@ -982,60 +1040,40 @@ export default function ResearchExpansion() {
           {readingMode === 'English' && (
             <>
               <p className="script-label">ENGLISH TRANSLATION</p>
-              <h4>Videha as a region of questions</h4>
-              <p>
-                Videha has remained a region of questions, debate, and
-                knowledge. Mithila’s Panji records preserve relationships among
-                families, villages, and memory. Maithili translations of
-                Sanskrit works bring inherited arguments into living
-                conversation.
-              </p>
+              <h4>{readerIdea.title}</h4>
+              <p>{readerIdea.summary}</p>
             </>
           )}
-          {readingMode === 'Maithili' && (
+          {readingMode === 'Outline' && (
             <>
-              <p className="script-label">मैथिली</p>
-              <h4>प्रश्नक भूमि विदेह</h4>
-              <p lang="mai">{maithiliPassage}</p>
+              <p className="script-label">CHAPTER POSITION</p>
+              <h4>Volume II · Chapter {readerIdea.number}</h4>
+              <p>{readerIdea.part}</p>
+              <p>{readerIdea.summary}</p>
             </>
           )}
-          {readingMode === 'Devanagari' && (
+          {readingMode === 'Key terms' && (
             <>
-              <p className="script-label">देवनागरी READING AID</p>
-              <h4 lang="mai">विदेह · मिथिला · पञ्जी · प्रमाण</h4>
-              <p lang="mai">{maithiliPassage}</p>
+              <p className="script-label">ENGLISH CONCEPT INDEX</p>
+              <h4>{readerIdea.title}</h4>
               <div className="word-gloss">
-                <span>
-                  <b>विदेह</b> Videha
-                </span>
-                <span>
-                  <b>पञ्जी</b> genealogy register
-                </span>
-                <span>
-                  <b>प्रमाण</b> warrant of knowledge
-                </span>
-                <span>
-                  <b>संवाद</b> dialogue
-                </span>
+                {readerIdea.title.split(/[:;,–—]/).map((term) => term.trim()).filter(Boolean).map((term) => <span key={term}><b>{term}</b></span>)}
               </div>
             </>
           )}
-          {readingMode === 'Tirhuta' && (
+          {readingMode === 'Citation' && (
             <>
-              <p className="script-label">TIRHUTA / MITHILĀKṢARA</p>
-              <h4 lang="mai-Tirh">
-                {toTirhuta('विदेह · मिथिला · पञ्जी · प्रमाण')}
-              </h4>
-              <p className="tirhuta-text" lang="mai-Tirh">
-                {toTirhuta(maithiliPassage)}
-              </p>
-              <small>
-                Unicode Tirhuta rendering depends on the reader’s installed
-                script font. The Devanagari mode remains available as a parallel
-                reading aid.
-              </small>
+              <p className="script-label">SOURCE-CONTROLLED CITATION</p>
+              <h4>Gajendra Thakur’s Parallel Philosophy</h4>
+              <p>Volume II, Chapter {readerIdea.number}: “{readerIdea.title}”.</p>
+              <small>{readerIdea.source}. English display only.</small>
             </>
           )}
+        </div>
+        <div className="reader-pagination">
+          <button disabled={readerIndex === 0} onClick={() => setReaderIndex(readerIndex - 1)}><ChevronLeft /> Previous</button>
+          <strong>{readerIndex + 1} / {englishReaderPassages.length}</strong>
+          <button disabled={readerIndex === englishReaderPassages.length - 1} onClick={() => setReaderIndex(readerIndex + 1)}>Next <ChevronRight /></button>
         </div>
       </article>
 
@@ -1060,6 +1098,17 @@ export default function ResearchExpansion() {
             histories, and translating texts.
           </figcaption>
         </figure>
+        <div className="classroom-lessons">
+          <nav aria-label="Choose a source-based lesson">
+            {classroomLessons.map((lesson, index) => <button key={lesson.title} className={lessonIndex === index ? 'active' : ''} onClick={() => setLessonIndex(index)}><span>{String(index + 1).padStart(2, '0')}</span>{lesson.title}</button>)}
+          </nav>
+          <article>
+            <p>SEMINAR QUESTION</p>
+            <h4>{classroomLessons[lessonIndex].question}</h4>
+            <p>{classroomLessons[lessonIndex].method}</p>
+            <small>Source base: {classroomLessons[lessonIndex].source}</small>
+          </article>
+        </div>
         <div className="classroom-grid">
           <div className="research-cycle">
             <h4>Research cycle</h4>
@@ -1086,19 +1135,19 @@ export default function ResearchExpansion() {
             <h4>Narrated chronology</h4>
             {classroomTimeline.map((item, index) => (
               <article
-                key={item.title}
+                key={`${item.id}-${index}`}
                 className={narrating === index ? 'playing' : ''}
               >
                 <button
-                  aria-label={`${narrating === index ? 'Stop' : 'Listen to'} ${item.title}`}
+                  aria-label={`${narrating === index ? 'Stop' : 'Listen to'} ${item.label}`}
                   onClick={() => speakTimeline(index)}
                 >
                   {narrating === index ? <Pause /> : <Volume2 />}
                 </button>
                 <div>
-                  <span>{item.date}</span>
-                  <h5>{item.title}</h5>
-                  <p>{item.text}</p>
+                  <span>{item.displayDate}</span>
+                  <h5>{item.label}</h5>
+                  <p>{item.source}</p>
                 </div>
               </article>
             ))}
@@ -1115,7 +1164,7 @@ export default function ResearchExpansion() {
             </span>
           </div>
           <a
-            href="./downloads/mithila-vajji-anga-videha-classroom.pptx"
+            href="./downloads/mithila-vajji-anga-videha-classroom-expanded.pptx"
             download
           >
             <Download /> Download PowerPoint

@@ -418,6 +418,31 @@
   background: #173e72;
   outline: 4px solid #e4b75f99;
 }
+.expanded-map > button.gazetteer-marker { z-index: 1; width: 10px; height: 10px; }
+.expanded-map > button.gazetteer-marker span { width: 7px; height: 7px; padding: 0; border: 1px solid #fff; background: #1f6a56; opacity: .78; }
+.expanded-map > button.gazetteer-marker.active { z-index: 4; }
+.expanded-map > button.gazetteer-marker.active span { width: 13px; height: 13px; opacity: 1; }
+.map-evidence-band {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: .8rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #d4cab8;
+}
+.map-evidence-band h4, .map-evidence-band p { margin: 0 0 .4rem; }
+.map-evidence-band > div:nth-child(2) { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
+.map-evidence-band button { display: flex; flex-direction: column; text-align: left; border: 1px solid var(--line); background: #faf8f2; padding: .5rem; }
+.map-evidence-band button.active { border-color: var(--saffron); background: #fff5dd; }
+.map-evidence-band button span, .map-evidence-band small { color: var(--muted); font-size: .65rem; }
+.map-directory { margin-top: 1rem; }
+.map-directory label { max-width: 520px; display: flex; align-items: center; gap: .5rem; padding: .65rem; background: white; border: 1px solid var(--line); }
+.map-directory input { width: 100%; border: 0; outline: 0; }
+.map-directory > div { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin-top: .5rem; max-height: 340px; overflow: auto; background: var(--line); }
+.map-directory > div button { display: flex; flex-direction: column; text-align: left; border: 0; background: white; padding: .55rem; }
+.map-directory > div button.active { background: #fff1cf; box-shadow: inset 3px 0 var(--saffron); }
+.map-directory small { color: var(--muted); }
 
 .expanded-map > small {
   position: absolute;
@@ -665,6 +690,21 @@
   max-width: 680px;
   background: #ffffff24;
 }
+.reader-passages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  max-height: 240px;
+  overflow: auto;
+  margin-bottom: 1rem;
+  background: #ffffff24;
+}
+.reader-passages button { display: grid; grid-template-columns: 26px 1fr; gap: .35rem; text-align: left; border: 0; background: #172b48; color: #d9e1eb; padding: .55rem; font-size: .7rem; }
+.reader-passages button.active { background: #edc16f; color: #17233a; }
+.reader-passages span { color: #d8893d; font-weight: 900; }
+.reader-passages button.active span { color: #8d470e; }
+.reader-pagination { max-width: 900px; display: flex; align-items: center; justify-content: space-between; margin-top: .6rem; }
+.reader-pagination button { display: inline-flex; align-items: center; gap: .3rem; border: 1px solid #ffffff35; background: transparent; color: white; padding: .55rem .7rem; }
 
 .reader-tabs button {
   padding: 0.72rem;
@@ -788,6 +828,15 @@
   gap: 1rem;
   margin-top: 1rem;
 }
+.classroom-lessons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+.classroom-lessons nav { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
+.classroom-lessons nav button { display: grid; grid-template-columns: 28px 1fr; gap: .45rem; text-align: left; border: 0; background: #fff; padding: .65rem; font-size: .75rem; font-weight: 800; }
+.classroom-lessons nav button.active { background: var(--navy); color: white; }
+.classroom-lessons nav span { color: var(--saffron); }
+.classroom-lessons > article { background: #fff; border: 1px solid var(--line); padding: 1.2rem; }
+.classroom-lessons > article > p:first-child { color: var(--saffron); font-size: .68rem; font-weight: 900; letter-spacing: .1em; }
+.classroom-lessons > article h4 { font: 600 1.5rem Georgia, serif; margin: .3rem 0 .7rem; }
+.classroom-lessons > article small { color: var(--muted); }
 
 .research-cycle,
 .narrated-timeline {
@@ -962,6 +1011,9 @@
 }
 
 @media (max-width: 780px) {
+  .map-evidence-band, .classroom-lessons { grid-template-columns: 1fr; }
+  .map-directory > div { grid-template-columns: repeat(2, 1fr); }
+  .reader-passages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .research-expansion {
     margin: 0.7rem;
   }

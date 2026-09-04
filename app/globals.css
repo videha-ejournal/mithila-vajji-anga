@@ -29,6 +29,8 @@ body {
   font-size: 16px;
   line-height: 1.5;
 }
+body.large-text { font-size: 19px; }
+body.high-contrast { --paper: #fff; --surface: #fff; --ink: #000; --muted: #242424; --line: #555; --navy: #000; --navy-2: #111; --saffron: #9a3f00; }
 button,
 input,
 select {
@@ -144,6 +146,92 @@ button {
   color: white;
   padding: 0.5rem;
 }
+.research-shortcuts {
+  position: sticky;
+  top: 72px;
+  z-index: 24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1rem;
+  background: #fffdf8f5;
+  border-bottom: 1px solid #d7caa9;
+  box-shadow: 0 4px 12px #101a2d12;
+  backdrop-filter: blur(12px);
+}
+.videha-tools {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: .45rem;
+  padding: .48rem 1rem;
+  background: #efe4cc;
+  border-bottom: 1px solid #d4c29d;
+}
+.videha-tools > button,
+.videha-tools > a {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  border: 0;
+  background: transparent;
+  text-decoration: none;
+  padding: .25rem .45rem;
+  font-size: .76rem;
+  font-weight: 850;
+}
+.videha-tools svg { width: 16px; }
+.assistive-panel {
+  position: absolute;
+  z-index: 45;
+  top: calc(100% + .25rem);
+  right: clamp(1rem, 4vw, 4rem);
+  display: grid;
+  gap: .4rem;
+  min-width: 220px;
+  padding: .8rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px #0003;
+}
+.assistive-panel button,
+.assistive-panel a { border: 1px solid var(--line); background: #fff; padding: .5rem; text-align: left; text-decoration: none; }
+.back-to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 50;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: var(--saffron);
+  border-radius: 50%;
+  box-shadow: 0 5px 16px #0004;
+}
+.research-shortcuts strong {
+  color: var(--saffron);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.research-shortcuts a,
+.research-shortcuts button {
+  border: 1px solid #ccd3ce;
+  border-radius: 999px;
+  background: white;
+  padding: 0.45rem 0.8rem;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+.research-shortcuts span {
+  color: var(--saffron);
+}
 .intro {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -198,6 +286,35 @@ button {
   font:
     600 1.2rem Georgia,
     serif;
+}
+.supplied-manuscripts {
+  margin: 1rem clamp(1rem, 3vw, 2.5rem) 0;
+  padding: 1.15rem 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: white;
+  background: linear-gradient(115deg, var(--green), #17392f);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px #10291f22;
+}
+.supplied-manuscripts p,
+.supplied-manuscripts h2 { margin: 0; }
+.supplied-manuscripts p { color: #f2cb82; font-size: .68rem; font-weight: 900; letter-spacing: .12em; }
+.supplied-manuscripts h2 { font: 600 1.6rem Georgia, serif; }
+.supplied-manuscripts span { color: #dbe9e3; font-size: .82rem; }
+.supplied-manuscripts button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  border: 1px solid #ffffff50;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--green);
+  padding: .7rem .9rem;
+  font-weight: 900;
 }
 .time-control {
   display: grid;
@@ -1292,6 +1409,16 @@ footer p {
   .topbar nav button {
     justify-content: flex-start;
   }
+  .research-shortcuts {
+    top: 68px;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+  .research-shortcuts strong { display: none; }
+  .supplied-manuscripts {
+    align-items: flex-start;
+    flex-direction: column;
+  }
   .identity strong {
     font-size: 1.05rem;
   }
@@ -1586,6 +1713,27 @@ footer p {
 .method-diagram b {
   color: #e5bd72;
 }
+.idea-status-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin: 0 0 1rem;
+}
+.idea-status-filters button {
+  display: inline-flex;
+  gap: .45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  padding: .48rem .72rem;
+  font-size: .72rem;
+  font-weight: 850;
+}
+.idea-status-filters button.active {
+  background: var(--navy);
+  color: white;
+}
+.idea-status-filters span { color: var(--saffron); }
 .idea-list {
   border-top: 1px solid var(--line);
 }
@@ -1626,6 +1774,12 @@ footer p {
 }
 .idea-list details {
   padding: 0 1rem 1rem 4rem;
+}
+.planned-idea-note {
+  margin: -.25rem 1rem .75rem 4rem;
+  color: #7a5f2d;
+  font-size: .72rem;
+  font-style: italic;
 }
 .idea-list summary {
   display: flex;
