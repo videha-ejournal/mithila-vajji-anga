@@ -17,7 +17,7 @@ export default function UpdatesPage() {
   return (
     <main className="reference-page" id="top">
       <header className="reference-hero">
-        <a href="../#doors"><ArrowLeft /> Return to the four doors</a>
+        <a href="../index.html#doors"><ArrowLeft /> Return to the four doors</a>
         <p className="eyebrow">LIVING ARCHIVE STATUS</p>
         <h1>What is complete, what changed, and what comes next</h1>
         <p>This register makes the archive’s developing scope explicit. “Planned” means no completed supplied chapter is claimed.</p>

@@ -1325,7 +1325,7 @@ export default function ResearchExpansion() {
                 <div>
                   <span>{item.displayDate}</span>
                   <h5>{item.label}</h5>
-                  <a className="source-citation" href={`./sources/#record-${item.id}`}>{item.source}</a>
+                  <a className="source-citation" href={`./sources/index.html#record-${item.id}`}>{item.source}</a>
                 </div>
               </article>
             ))}
