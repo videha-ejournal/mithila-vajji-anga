@@ -911,6 +911,7 @@ export default function Home() {
   const [coverCategory, setCoverCategory] = useState('All');
   const [coverPlaying, setCoverPlaying] = useState(true);
   const [siteListening, setSiteListening] = useState(false);
+  const [listenStatus, setListenStatus] = useState('');
   const [assistiveOpen, setAssistiveOpen] = useState(false);
   const [translateOpen, setTranslateOpen] = useState(false);
   const [translationTarget, setTranslationTarget] = useState('mai');
@@ -919,6 +920,9 @@ export default function Home() {
   const [globalKind, setGlobalKind] = useState('All');
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const globalSearchRef = useRef<HTMLInputElement>(null);
+  const speechQueueRef = useRef<string[]>([]);
+  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const speechRunRef = useRef(0);
   const shownCovers = useMemo(
     () =>
       coverCategory === 'All'
@@ -987,23 +991,82 @@ export default function Home() {
     window.addEventListener('keydown', focusSearch);
     return () => window.removeEventListener('keydown', focusSearch);
   }, []);
+  useEffect(() => () => {
+    speechRunRef.current += 1;
+    window.speechSynthesis?.cancel();
+  }, []);
   const updateAssistive = <K extends keyof AssistivePrefs>(
     key: K,
     value: AssistivePrefs[K],
   ) => setAssistivePrefs((current) => ({ ...current, [key]: value }));
   const listenToPage = () => {
-    if (!('speechSynthesis' in window)) return;
-    if (siteListening) {
-      window.speechSynthesis.cancel();
-      setSiteListening(false);
+    if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+      setListenStatus('Listen is not supported by this browser.');
       return;
     }
-    const text = document.querySelector('main')?.textContent ?? '';
-    const utterance = new SpeechSynthesisUtterance(text.slice(0, 14000));
-    utterance.rate = 0.9;
-    utterance.onend = () => setSiteListening(false);
+    if (siteListening) {
+      speechRunRef.current += 1;
+      window.speechSynthesis.cancel();
+      speechQueueRef.current = [];
+      speechUtteranceRef.current = null;
+      setSiteListening(false);
+      setListenStatus('Reading stopped.');
+      return;
+    }
+    const text = (document.querySelector('main')?.textContent ?? '').replace(/\s+/g, ' ').trim();
+    if (!text) {
+      setListenStatus('No readable page text was found.');
+      return;
+    }
+    const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? [text];
+    const chunks: string[] = [];
+    sentences.forEach((sentence) => {
+      const cleaned = sentence.trim();
+      const previous = chunks.at(-1);
+      if (previous && previous.length + cleaned.length + 1 <= 1100) {
+        chunks[chunks.length - 1] = `${previous} ${cleaned}`;
+      } else if (cleaned.length <= 1100) {
+        chunks.push(cleaned);
+      } else {
+        for (let start = 0; start < cleaned.length; start += 1000) {
+          chunks.push(cleaned.slice(start, start + 1000));
+        }
+      }
+    });
+    speechRunRef.current += 1;
+    const run = speechRunRef.current;
+    speechQueueRef.current = chunks;
+    window.speechSynthesis.cancel();
+    const speakNext = () => {
+      if (speechRunRef.current !== run) return;
+      const chunk = speechQueueRef.current.shift();
+      if (!chunk) {
+        speechUtteranceRef.current = null;
+        setSiteListening(false);
+        setListenStatus('Reading finished.');
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(chunk);
+      const voices = window.speechSynthesis.getVoices();
+      utterance.voice = voices.find((voice) => voice.lang.toLowerCase() === 'en-in')
+        ?? voices.find((voice) => voice.lang.toLowerCase().startsWith('en'))
+        ?? null;
+      utterance.lang = utterance.voice?.lang ?? 'en-IN';
+      utterance.rate = 0.9;
+      utterance.onend = speakNext;
+      utterance.onerror = (event) => {
+        if (event.error === 'canceled' || event.error === 'interrupted') return;
+        speechQueueRef.current = [];
+        speechUtteranceRef.current = null;
+        setSiteListening(false);
+        setListenStatus('Reading could not continue. Please try Listen again.');
+      };
+      speechUtteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    };
     setSiteListening(true);
-    window.speechSynthesis.speak(utterance);
+    setListenStatus('Reading the page aloud. Select Listen again to stop.');
+    window.setTimeout(speakNext, 50);
   };
   const openTranslation = (target = translationTarget) => {
     const current = new URL(window.location.href);
@@ -1295,6 +1358,7 @@ export default function Home() {
         <button onClick={listenToPage} aria-pressed={siteListening}>
           {siteListening ? <Pause /> : <Volume2 />} सुनू · Listen
         </button>
+        <output className="sr-only" aria-live="polite">{listenStatus}</output>
         <button onClick={() => setTranslateOpen(!translateOpen)} aria-expanded={translateOpen} aria-controls="mva-translate-panel">
           <Languages /> Translate with AI <span>(ए.आइ. द्वारा अनुवाद करू)</span>
         </button>

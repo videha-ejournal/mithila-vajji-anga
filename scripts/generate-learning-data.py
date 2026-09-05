@@ -43,6 +43,31 @@ def short(text: str, limit: int = 260) -> str:
     return text[: limit - 1].rsplit(" ", 1)[0] + "…"
 
 
+def without_repeated_title_tail(title: str, text: str, section_headings=()) -> str:
+    """Remove a PDF-extraction fragment when a title suffix leaks into body text."""
+    text = clean(text)
+    if not section_headings:
+        return text
+    title_words = list(re.finditer(r"\w+", title, re.UNICODE))
+    text_words = list(re.finditer(r"\w+", text, re.UNICODE))
+    maximum = min(len(title_words), len(text_words), 12)
+    for size in range(maximum, 0, -1):
+        title_tail = [ascii_key(match.group()) for match in title_words[-size:]]
+        text_head = [ascii_key(match.group()) for match in text_words[:size]]
+        fragment = text[: text_words[size - 1].end()]
+        if title_tail == text_head:
+            remainder = text[text_words[size - 1].end() :].lstrip(" \t\r\n:;—–-.,")
+            first_heading = ascii_key(section_headings[0])
+            remainder_key = ascii_key(remainder)
+            if remainder_key == first_heading or remainder_key.startswith(f"{first_heading} "):
+                return remainder
+    return text
+
+
+def archive_excerpt(title: str, text: str, limit: int = 300, section_headings=()) -> str:
+    return short(without_repeated_title_tail(title, text, section_headings), limit)
+
+
 def load_source_chunks():
     chunks = []
     reader = PdfReader(str(HISTORY_PDF))
@@ -403,16 +428,16 @@ def archive_records(research, library, people, philosophy):
                     "id": chapter["id"],
                     "kind": "History chapter",
                     "title": chapter["title"],
-                    "text": short(chapter["summary"], 300),
+                    "text": archive_excerpt(chapter["title"], chapter["summary"], section_headings=chapter["sections"]),
                     "source": f"{chapter['collection']} · {chapter['volume']} · {chapter['part']} · {chapter['pages']}",
                 }
             )
     for work in library:
-        records.append({"id": work["id"], "kind": "Book", "title": work["title"], "text": short(work["description"], 300), "source": f"{work['creator']} · {work['sequence']} · {work['extent']}"})
+        records.append({"id": work["id"], "kind": "Book", "title": work["title"], "text": archive_excerpt(work["title"], work["description"]), "source": f"{work['creator']} · {work['sequence']} · {work['extent']}"})
     for person in people:
-        records.append({"id": person["id"], "kind": "Biographical index", "title": person["name"], "text": short(person["description"], 300), "source": person["source"]})
+        records.append({"id": person["id"], "kind": "Biographical index", "title": person["name"], "text": archive_excerpt(person["name"], person["description"]), "source": person["source"]})
     for chapter in philosophy:
-        records.append({"id": chapter["id"], "kind": "Philosophical argument", "title": chapter["title"], "text": short(chapter["summary"], 300), "source": f"Parallel Philosophy · {chapter['part']} · Chapter {chapter['number']}"})
+        records.append({"id": chapter["id"], "kind": "Philosophical argument", "title": chapter["title"], "text": archive_excerpt(chapter["title"], chapter["summary"]), "source": f"Parallel Philosophy · {chapter['part']} · Chapter {chapter['number']}"})
     return records
 
 
@@ -443,7 +468,7 @@ def build_historical_questions(research, chronology):
     ]
     chapter_titles = [chapter["title"] for chapter in chapters]
     for index, chapter in enumerate(chapters[:70]):
-        passage = re.sub(rf"^\s*{re.escape(chapter['title'])}\s*", "", chapter["summary"], count=1, flags=re.IGNORECASE)
+        passage = without_repeated_title_tail(chapter["title"], chapter["summary"], chapter["sections"])
         questions.append(
             {
                 "id": f"historical-chapter-{index + 1}",
