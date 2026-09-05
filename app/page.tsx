@@ -1726,7 +1726,7 @@ export default function Home() {
                 figures
               </p>
               <p>
-                <Check size={16} /> {places.length} places and heritage sites
+                <Check size={16} /> Curated explorer: {places.length} places and heritage sites · Map gazetteer: {learningData.places.length} sourced reference points
               </p>
             </article>
           </aside>
@@ -1755,7 +1755,7 @@ export default function Home() {
                 onClick={() => chooseTab('places')}
                 onKeyDown={(event) => handleResearchTabKeys(event, 'places')}
               >
-                <Building2 /> Places &amp; heritage <span>{places.length}</span>
+                <Building2 /> Curated places <span>{places.length}</span>
               </button>
               <button
                 id="research-tab-chapters"
@@ -1871,7 +1871,7 @@ export default function Home() {
                   <div>
                     <span>CONNECTED GEOGRAPHIES &amp; BUILT HERITAGE</span>
                     <h2>
-                      {filteredPlaces.length} places, corridors, temples,
+                      {filteredPlaces.length} curated places, corridors, temples,
                       palaces and sites
                     </h2>
                   </div>

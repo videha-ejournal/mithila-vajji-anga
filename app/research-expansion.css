@@ -1212,6 +1212,39 @@
   border: 1px solid var(--line);
   border-radius: 5px;
 }
+.graph-facet-key {
+  width: 100%;
+  color: #4f5a54;
+  font-size: .7rem;
+}
+.graph-facet-key summary {
+  width: max-content;
+  color: var(--green);
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.graph-facet-key > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .7rem;
+  margin-top: .5rem;
+  padding: .65rem;
+  background: #f7f3e8;
+  border: 1px solid #ddd2bd;
+}
+.graph-facet-key p { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; }
+.graph-facet-key p > strong { width: 100%; color: #6d3910; }
+.graph-facet-key button {
+  padding: .3rem .45rem;
+  color: #36433b;
+  background: #fff;
+  border: 1px solid #d7cab1;
+  border-radius: 999px;
+  font-size: .64rem;
+}
+.graph-facet-key button b { margin-left: .2rem; color: #8c4b11; }
+.graph-layout aside li small { color: #899aaf; font-size: .58rem; }
 .source-citation {
   color: #f0cc88;
   font-size: .68rem;
@@ -1223,6 +1256,7 @@
   .map-context-banner { display: block; }
   .map-context-banner span { display: block; margin-top: .25rem; text-align: left; }
   .graph-facets { grid-template-columns: 1fr; }
+  .graph-facet-key > div { grid-template-columns: 1fr; }
 }
 
 .graph-inventory {

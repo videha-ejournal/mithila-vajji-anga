@@ -428,7 +428,7 @@ export default function LearningLab() {
           </div>
           <div className="lab-stat-grid">
             <strong>
-              <b>{learningData.places.length}</b> mapped places
+              <b>{learningData.places.length}</b> map-gazetteer places
             </strong>
             <strong>
               <b>{learningData.chronology.length}</b> dated passages

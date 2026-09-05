@@ -343,6 +343,52 @@ const graphRegion = (node: GraphNode) => {
   return 'Transregional';
 };
 
+const graphEras = [
+  'Ancient',
+  'Medieval',
+  'Early modern',
+  'Colonial',
+  'Modern / contemporary',
+  'Multi-period',
+] as const;
+const graphRegions = [
+  'Mithila',
+  'Vajji',
+  'Anga',
+  'Nepal / borderland',
+  'India / Ganga context',
+  'Transregional',
+] as const;
+const graphEraCounts = Object.fromEntries(
+  graphEras.map((era) => [era, graphNodes.filter((node) => graphEra(node) === era).length]),
+) as Record<(typeof graphEras)[number], number>;
+const graphRegionCounts = Object.fromEntries(
+  graphRegions.map((region) => [region, graphNodes.filter((node) => graphRegion(node) === region).length]),
+) as Record<(typeof graphRegions)[number], number>;
+
+const controlledRelationLabel = (
+  selected: GraphNode,
+  candidate: GraphNode,
+  directCollection: boolean,
+  sameCollection: boolean,
+) => {
+  if (directCollection) return 'catalogued in';
+  if (sameCollection) {
+    if (selected.collectionKey === 'parallel-history') return 'co-indexed in Parallel History';
+    if (selected.collectionKey === 'parallel-philosophy') return 'co-indexed in Parallel Philosophy';
+    if (selected.collectionKey.startsWith('panji-')) return 'co-indexed in the same Panji volume';
+    return 'co-indexed in the same work';
+  }
+  const pair = new Set([selected.type, candidate.type]);
+  if (pair.has('People') && pair.has('Texts')) return 'person–text connection';
+  if (pair.has('People') && pair.has('Places')) return 'person–place connection';
+  if (pair.has('People') && pair.has('Ideas')) return 'person–idea connection';
+  if (pair.has('Texts') && pair.has('Places')) return 'text–place connection';
+  if (pair.has('Texts') && pair.has('Ideas')) return 'text–idea connection';
+  if (pair.has('Places') && pair.has('Ideas')) return 'place–idea connection';
+  return `related ${candidate.type.toLowerCase()}`;
+};
+
 const devanagariToTirhuta: Record<string, string> = Object.fromEntries([
   ['अ', '𑒁'],
   ['आ', '𑒂'],
@@ -563,14 +609,18 @@ export default function ResearchExpansion() {
           (sameCollection ? 7 : 0) +
           shared.reduce((total, term) => total + Math.min(term.length, 12), 0) +
           (node.type !== graphNode.type ? 2 : 0);
-        const relation = directCollection
-          ? 'catalogued in'
-          : sameCollection && shared[0]
-            ? `same indexed work · ${shared[0]}`
-            : shared[0]
-              ? `shared indexed term · ${shared[0]}`
-              : 'same indexed work';
-        return { node, relation, score, shared };
+        const relation = controlledRelationLabel(
+          graphNode,
+          node,
+          directCollection,
+          sameCollection,
+        );
+        const relationBasis = directCollection
+          ? 'Direct catalogue relation'
+          : sameCollection
+            ? 'Shared source collection'
+            : 'Index-derived thematic lead';
+        return { node, relation, relationBasis, score, shared };
       })
       .filter(
         (item) =>
@@ -814,7 +864,7 @@ export default function ResearchExpansion() {
           <span>02</span>
           <div>
             <p>HISTORICAL MAP</p>
-            <h3>Period and evidence layers reshape the landscape</h3>
+            <h3>{geoPlaces.length} sourced map places · period and evidence layers reshape the landscape</h3>
           </div>
         </div>
         <div className="map-controls-expanded">
@@ -971,9 +1021,10 @@ export default function ResearchExpansion() {
             ))}
           </div>
           <div className="graph-facets" aria-label="Knowledge graph facets">
-            <label><span>Era</span><select value={graphEraFilter} onChange={(event) => { setGraphEraFilter(event.target.value); setGraphPage(0); }}>{['All eras', 'Ancient', 'Medieval', 'Early modern', 'Colonial', 'Modern / contemporary', 'Multi-period'].map((era) => <option key={era}>{era}</option>)}</select></label>
-            <label><span>Region</span><select value={graphRegionFilter} onChange={(event) => { setGraphRegionFilter(event.target.value); setGraphPage(0); }}>{['All regions', 'Mithila', 'Vajji', 'Anga', 'Nepal / borderland', 'India / Ganga context', 'Transregional'].map((region) => <option key={region}>{region}</option>)}</select></label>
+            <label><span>Era</span><select value={graphEraFilter} onChange={(event) => { setGraphEraFilter(event.target.value); setGraphPage(0); }}><option>All eras</option>{graphEras.map((era) => <option key={era} value={era}>{era} ({graphEraCounts[era]})</option>)}</select></label>
+            <label><span>Region</span><select value={graphRegionFilter} onChange={(event) => { setGraphRegionFilter(event.target.value); setGraphPage(0); }}><option>All regions</option>{graphRegions.map((region) => <option key={region} value={region}>{region} ({graphRegionCounts[region]})</option>)}</select></label>
           </div>
+          <details className="graph-facet-key"><summary>Show all facet values and record counts</summary><div><p><strong>Era</strong>{graphEras.map((era) => <button key={era} onClick={() => { setGraphEraFilter(era); setGraphPage(0); }}>{era} <b>{graphEraCounts[era]}</b></button>)}</p><p><strong>Region</strong>{graphRegions.map((region) => <button key={region} onClick={() => { setGraphRegionFilter(region); setGraphPage(0); }}>{region} <b>{graphRegionCounts[region]}</b></button>)}</p></div></details>
         </div>
         <div className="graph-inventory" aria-label="Knowledge graph inventory">
           {(Object.keys(graphCounts) as GraphType[]).map((type) => (
@@ -1079,11 +1130,12 @@ export default function ResearchExpansion() {
             <h5>Connected records</h5>
             {relatedNodes.length ? (
               <ul>
-                {relatedNodes.map(({ relation, node }) => (
+                {relatedNodes.map(({ relation, relationBasis, node }) => (
                   <li key={`${relation}-${node.id}`}>
                     <button onClick={() => setSelectedNode(node.id)}>
                       <span>{relation}</span>
                       <b>{node.label}</b>
+                      <small>{relationBasis}</small>
                     </button>
                   </li>
                 ))}
