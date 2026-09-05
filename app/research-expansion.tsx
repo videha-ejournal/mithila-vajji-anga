@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import Image from 'next/image';
 import {
   Check,
@@ -323,6 +324,25 @@ const graphCounts = Object.fromEntries(
   ]),
 ) as Record<GraphType, number>;
 
+const graphEra = (node: GraphNode) => {
+  const text = `${node.label} ${node.note} ${node.source}`.toLowerCase();
+  if (/contemporary|twentieth|digital|modern/.test(text)) return 'Modern / contemporary';
+  if (/colonial|company rule|british/.test(text)) return 'Colonial';
+  if (/early.modern|mughal|oiniwar/.test(text)) return 'Early modern';
+  if (/medieval|karnata|pāla|pala/.test(text)) return 'Medieval';
+  if (/ancient|vedic|upanishad|buddh|jain|maurya|gupta/.test(text)) return 'Ancient';
+  return 'Multi-period';
+};
+const graphRegion = (node: GraphNode) => {
+  const text = `${node.label} ${node.note} ${node.source}`.toLowerCase();
+  if (/nepal|janakpur|kathmandu|simraungadh|madhesh|tarai/.test(text)) return 'Nepal / borderland';
+  if (/anga|champa|bhagalpur|munger/.test(text)) return 'Anga';
+  if (/vajji|vaiśāl|vaishal|licchavi/.test(text)) return 'Vajji';
+  if (/mithila|maithili|tirhut|darbhanga|videha/.test(text)) return 'Mithila';
+  if (/india|bihar|ganga/.test(text)) return 'India / Ganga context';
+  return 'Transregional';
+};
+
 const devanagariToTirhuta: Record<string, string> = Object.fromEntries([
   ['अ', '𑒁'],
   ['आ', '𑒂'],
@@ -443,9 +463,11 @@ export default function ResearchExpansion() {
   const [selectedGeoPlace, setSelectedGeoPlace] = useState(geoPlaces[0].id);
   const [mapSearch, setMapSearch] = useState('');
   const [graphType, setGraphType] = useState('All');
+  const [graphEraFilter, setGraphEraFilter] = useState('All eras');
+  const [graphRegionFilter, setGraphRegionFilter] = useState('All regions');
   const [graphSearch, setGraphSearch] = useState('');
   const [graphPage, setGraphPage] = useState(0);
-  const [selectedNode, setSelectedNode] = useState(graphNodes[0].id);
+  const [selectedNode, setSelectedNode] = useState('person-figure-18');
   const [readingMode, setReadingMode] = useState<ReadingMode>('English');
   const [readerIndex, setReaderIndex] = useState(0);
   const [readerSearch, setReaderSearch] = useState('');
@@ -492,11 +514,13 @@ export default function ResearchExpansion() {
       graphNodes.filter(
         (node) =>
           (graphType === 'All' || node.type === graphType) &&
+          (graphEraFilter === 'All eras' || graphEra(node) === graphEraFilter) &&
+          (graphRegionFilter === 'All regions' || graphRegion(node) === graphRegionFilter) &&
           `${node.label} ${node.note} ${node.source}`
             .toLowerCase()
             .includes(graphSearch.toLowerCase()),
       ),
-    [graphType, graphSearch],
+    [graphType, graphSearch, graphEraFilter, graphRegionFilter],
   );
   const graphNode =
     graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
@@ -616,6 +640,15 @@ export default function ResearchExpansion() {
     setNarrating(index);
     window.speechSynthesis.speak(utterance);
   };
+  const handleReaderTabKeys = (event: KeyboardEvent<HTMLButtonElement>, current: ReadingMode) => {
+    const modes: ReadingMode[] = ['English', 'Maithili (Devanagari)', 'Maithili (Tirhuta)'];
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const index = modes.indexOf(current);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? modes.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + modes.length) % modes.length;
+    setReadingMode(modes[next]);
+    requestAnimationFrame(() => document.getElementById(`reader-tab-${next}`)?.focus());
+  };
 
   return (
     <section
@@ -624,11 +657,11 @@ export default function ResearchExpansion() {
       aria-labelledby="research-wing-title"
     >
       <header className="wing-header">
-        <p>FIVE CONNECTED RESEARCH ROOMS</p>
-        <h2 id="research-wing-title">The expanded Videha research wing</h2>
+        <p>SPECIALIST WORKSPACES BEHIND THE FOUR DOORS</p>
+        <h2 id="research-wing-title">Go deeper after choosing a path</h2>
         <div
           className="wing-status"
-          aria-label="Five completed site improvements"
+          aria-label="Specialist archive workspaces"
         >
           {[
             'Book exhibitions',
@@ -827,6 +860,10 @@ export default function ResearchExpansion() {
               height={1080}
               alt="Modern orientation map of selected reference points in the Mithila, Vajji, and Anga study area"
             />
+            <div className="map-context-banner" role="note" aria-label="Important map interpretation notice">
+              <strong>Modern orientation—not a historical border map</strong>
+              <span>Points locate present-day reference places. No ancient or medieval frontier is claimed.</span>
+            </div>
             {visiblePlaces.map((item) => (
               <button
                 key={item.id}
@@ -887,7 +924,7 @@ export default function ResearchExpansion() {
           <aside><strong>{place.name}</strong><p>{place.note}</p><small>{place.layers.join(' · ')}</small></aside>
         </div>
         <div className="map-directory">
-          <label><Search /><span className="sr-only">Search 120 map places</span><input value={mapSearch} onChange={(event) => setMapSearch(event.target.value)} placeholder="Search 120 sourced places" /></label>
+          <label><Search /><span className="sr-only">Filter only the 120 map places</span><input value={mapSearch} onChange={(event) => setMapSearch(event.target.value)} placeholder="Filter only these 120 places" /></label>
           <div>{filteredGeoPlaces.map((item) => <button key={item.id} className={selectedGeoPlace === item.id ? 'active' : ''} onClick={() => setSelectedGeoPlace(item.id)}><b>{item.name}</b><small>{item.admin} · {item.countryCode}</small></button>)}</div>
         </div>
       </article>
@@ -903,14 +940,14 @@ export default function ResearchExpansion() {
         <div className="graph-tools">
           <label>
             <Search />
-            <span className="sr-only">Search the knowledge graph</span>
+            <span className="sr-only">Filter only the knowledge graph</span>
             <input
               value={graphSearch}
               onChange={(event) => {
                 setGraphSearch(event.target.value);
                 setGraphPage(0);
               }}
-              placeholder="Find a person, text, place, or idea"
+              placeholder="Filter this graph view"
             />
           </label>
           <div>
@@ -918,6 +955,7 @@ export default function ResearchExpansion() {
               <button
                 key={type}
                 className={graphType === type ? 'active' : ''}
+                aria-pressed={graphType === type}
                 onClick={() => {
                   setGraphType(type);
                   setGraphPage(0);
@@ -932,12 +970,17 @@ export default function ResearchExpansion() {
               </button>
             ))}
           </div>
+          <div className="graph-facets" aria-label="Knowledge graph facets">
+            <label><span>Era</span><select value={graphEraFilter} onChange={(event) => { setGraphEraFilter(event.target.value); setGraphPage(0); }}>{['All eras', 'Ancient', 'Medieval', 'Early modern', 'Colonial', 'Modern / contemporary', 'Multi-period'].map((era) => <option key={era}>{era}</option>)}</select></label>
+            <label><span>Region</span><select value={graphRegionFilter} onChange={(event) => { setGraphRegionFilter(event.target.value); setGraphPage(0); }}>{['All regions', 'Mithila', 'Vajji', 'Anga', 'Nepal / borderland', 'India / Ganga context', 'Transregional'].map((region) => <option key={region}>{region}</option>)}</select></label>
+          </div>
         </div>
         <div className="graph-inventory" aria-label="Knowledge graph inventory">
           {(Object.keys(graphCounts) as GraphType[]).map((type) => (
             <button
               key={type}
               className={graphType === type ? 'active' : ''}
+              aria-pressed={graphType === type}
               onClick={() => {
                 setGraphType(type);
                 setGraphPage(0);
@@ -947,10 +990,10 @@ export default function ResearchExpansion() {
               <span>{type}</span>
             </button>
           ))}
-          <p>
+          <output aria-live="polite">
             Showing {filteredGraphNodes.length} of {graphNodes.length} indexed
-            records
-          </p>
+            records · era and region facets are derived from indexed descriptions
+          </output>
         </div>
         <div className="graph-directory" aria-label="Searchable graph records">
           {directoryNodes.map((node) => (
@@ -1085,9 +1128,13 @@ export default function ResearchExpansion() {
             <button
               key={mode}
               role="tab"
+              id={`reader-tab-${['English', 'Maithili (Devanagari)', 'Maithili (Tirhuta)'].indexOf(mode)}`}
+              tabIndex={readingMode === mode ? 0 : -1}
               aria-selected={readingMode === mode}
+              aria-controls="reader-panel"
               className={readingMode === mode ? 'active' : ''}
               onClick={() => setReadingMode(mode)}
+              onKeyDown={(event) => handleReaderTabKeys(event, mode)}
             >
               {mode}
             </button>
@@ -1096,6 +1143,9 @@ export default function ResearchExpansion() {
         <div
           className={`reader-page ${readingMode === 'Maithili (Tirhuta)' ? 'tirhuta' : ''}`}
           role="tabpanel"
+          id="reader-panel"
+          aria-labelledby={`reader-tab-${['English', 'Maithili (Devanagari)', 'Maithili (Tirhuta)'].indexOf(readingMode)}`}
+          tabIndex={0}
         >
           <Languages />
           {readingMode === 'English' && (
@@ -1201,7 +1251,7 @@ export default function ResearchExpansion() {
                 <div>
                   <span>{item.displayDate}</span>
                   <h5>{item.label}</h5>
-                  <p>{item.source}</p>
+                  <a className="source-citation" href={`./sources/#record-${item.id}`}>{item.source}</a>
                 </div>
               </article>
             ))}

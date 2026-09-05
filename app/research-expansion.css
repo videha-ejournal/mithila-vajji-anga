@@ -1159,6 +1159,72 @@
   font-size: 0.68rem;
 }
 
+/* Connection-first graph and screenshot-safe map context */
+.map-context-banner {
+  position: absolute;
+  z-index: 8;
+  top: .65rem;
+  right: .65rem;
+  left: .65rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .65rem .8rem;
+  color: #2b2418;
+  background: #fff2c9f2;
+  border: 2px solid #9b5a14;
+  border-radius: 5px;
+  box-shadow: 0 4px 16px #0002;
+  font-size: .7rem;
+}
+.map-context-banner strong { color: #733400; text-transform: uppercase; letter-spacing: .05em; }
+.map-context-banner span { text-align: right; }
+.graph-room { display: flex; flex-direction: column; }
+.graph-room > .room-heading { order: 1; }
+.graph-room > .graph-tools { order: 2; }
+.graph-room > .graph-inventory { order: 3; }
+.graph-room > .graph-layout { order: 4; }
+.graph-room > .graph-directory { order: 5; }
+.graph-room > .graph-pagination { order: 6; }
+.graph-facets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(130px, 1fr));
+  gap: .5rem;
+}
+.graph-facets label {
+  min-width: 0;
+  display: grid;
+  gap: .2rem;
+  padding: 0;
+  border: 0;
+}
+.graph-facets label span {
+  color: var(--muted);
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.graph-facets select {
+  min-height: 41px;
+  padding: .45rem .6rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.source-citation {
+  color: #f0cc88;
+  font-size: .68rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 650px) {
+  .map-context-banner { display: block; }
+  .map-context-banner span { display: block; margin-top: .25rem; text-align: left; }
+  .graph-facets { grid-template-columns: 1fr; }
+}
+
 .graph-inventory {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1202,7 +1268,7 @@
   font-weight: 900;
   text-transform: uppercase;
 }
-.graph-inventory > p {
+.graph-inventory > output {
   grid-column: 1 / -1;
   margin: 0;
   color: #68716b;

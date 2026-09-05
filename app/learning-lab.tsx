@@ -415,15 +415,15 @@ export default function LearningLab() {
         <header className="lab-intro">
           <div>
             <span className="lab-kicker">
-              VIDEHA INTERACTIVE RESEARCH COMMONS
+              RESEARCH PRACTICE · REACHED THROUGH THE FOUR DOORS
             </span>
             <h2 id="learning-lab-title">
-              Read, test, compare, and keep the trail.
+              Test a claim and keep its evidence trail
             </h2>
             <p>
-              Twelve source-led activities built from the indexed books and
-              attached author manuscripts. Every large bank is searchable or
-              sequentially browseable; no fictional practice records remain.
+              These focused exercises are supporting tools—not another wayfinding
+              system. Enter through a door above, then use a practice when you
+              need to compare, verify, map, or save evidence.
             </p>
           </div>
           <div className="lab-stat-grid">

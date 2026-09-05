@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   BookOpen,
   Accessibility,
@@ -34,6 +36,7 @@ import deepData from './deep-data.json';
 import collectionDetailsData from './collection-details.json';
 import coverData from './cover-data.json';
 import ideasVolumeTwoData from './ideas-volume2.json';
+import learningData from './learning-data.json';
 import ResearchExpansion from './research-expansion';
 import LearningLab from './learning-lab';
 
@@ -116,6 +119,16 @@ type Tab =
   | 'people'
   | 'ideas'
   | 'sources';
+type GlobalSearchRecord = {
+  id: string;
+  title: string;
+  kind: 'People' | 'Histories' | 'Ideas' | 'Places' | 'Texts' | 'Chronology';
+  meta: string;
+  text: string;
+  route: Tab | 'historical-map' | 'knowledge-graph' | 'panji';
+  ref?: string;
+  year?: number;
+};
 type ContrastMode = 'off' | 'dark' | 'light';
 type ColourFilter = 'off' | 'gray' | 'invert';
 type AssistivePrefs = {
@@ -867,6 +880,18 @@ const sourceGroups = [
 const formatYear = (year: number) =>
   year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`;
 
+const globalSearchRecords: GlobalSearchRecord[] = [
+  ...people.map((person) => ({ id: `global-person-${person.id}`, title: person.name, kind: 'People' as const, meta: `${person.field} · ${person.era}`, text: person.description, route: 'people' as const, ref: person.id })),
+  ...chapters.map((chapter) => ({ id: `global-history-${chapter.id}`, title: chapter.title, kind: 'Histories' as const, meta: `${chapter.collection} · ${chapter.volume} · ${chapter.status}`, text: `${chapter.summary} ${chapter.sections.join(' ')}`, route: 'chapters' as const, ref: chapter.id })),
+  ...ideas.map((idea) => ({ id: `global-idea-${idea.id}`, title: idea.title, kind: 'Ideas' as const, meta: `${idea.volume} · ${idea.status}`, text: `${idea.summary} ${idea.purvapaksha ?? ''} ${idea.uttarapaksha ?? ''}`, route: 'ideas' as const, ref: idea.id })),
+  ...works.map((work) => ({ id: `global-work-${work.id}`, title: work.title, kind: 'Texts' as const, meta: `${work.sequence} · ${work.shelf}`, text: `${work.description} ${work.structure.join(' ')}`, route: 'library' as const, ref: work.id })),
+  ...places.map((place) => ({ id: `global-place-${place.id}`, title: place.name, kind: 'Places' as const, meta: `${place.country} · ${place.region}`, text: `${place.text} ${place.period}`, route: 'places' as const, ref: place.id })),
+  ...chronology.map((item, index) => ({ id: `global-chronology-${index}`, title: item.title, kind: 'Chronology' as const, meta: `${item.date} · ${item.region}`, text: `${item.text} ${item.evidence}`, route: 'chronology' as const, year: item.year })),
+  ...learningData.places.map((place) => ({ id: `global-map-${place.id}`, title: place.name, kind: 'Places' as const, meta: `${place.admin} · ${place.countryCode} · sourced map record`, text: `${place.context} ${place.frame}`, route: 'historical-map' as const })),
+  ...learningData.panji.map((entry) => ({ id: `global-panji-${entry.id}`, title: entry.heading, kind: 'Texts' as const, meta: `${entry.volume} · Panji manuscript heading`, text: `${entry.context} ${entry.canSupport}`, route: 'panji' as const })),
+  ...learningData.comparators.map((entry) => ({ id: `global-concept-${entry.id}`, title: entry.name, kind: 'Ideas' as const, meta: 'Parallel Philosophy comparison', text: `${entry.question} ${entry.purvapaksha} ${entry.uttarapaksha} ${entry.synthesis}`, route: 'knowledge-graph' as const })),
+];
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('chronology');
@@ -890,6 +915,10 @@ export default function Home() {
   const [translateOpen, setTranslateOpen] = useState(false);
   const [translationTarget, setTranslationTarget] = useState('mai');
   const [assistivePrefs, setAssistivePrefs] = useState(defaultAssistivePrefs);
+  const [globalQuery, setGlobalQuery] = useState('');
+  const [globalKind, setGlobalKind] = useState('All');
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const globalSearchRef = useRef<HTMLInputElement>(null);
   const shownCovers = useMemo(
     () =>
       coverCategory === 'All'
@@ -947,6 +976,17 @@ export default function Home() {
       Object.keys(classes).forEach((name) => document.body.classList.remove(name));
     };
   }, [assistivePrefs]);
+  useEffect(() => {
+    const focusSearch = (event: globalThis.KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        globalSearchRef.current?.focus();
+        setGlobalSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', focusSearch);
+    return () => window.removeEventListener('keydown', focusSearch);
+  }, []);
   const updateAssistive = <K extends keyof AssistivePrefs>(
     key: K,
     value: AssistivePrefs[K],
@@ -1070,6 +1110,22 @@ export default function Home() {
       ),
     [ideaStatus, query],
   );
+  const globalResults = useMemo(() => {
+    const needle = globalQuery.trim().toLowerCase();
+    if (needle.length < 2) return [];
+    return globalSearchRecords
+      .filter((record) => globalKind === 'All' || record.kind === globalKind)
+      .map((record) => {
+        const title = record.title.toLowerCase();
+        const haystack = `${record.title} ${record.meta} ${record.text}`.toLowerCase();
+        const score = title === needle ? 100 : title.startsWith(needle) ? 50 : title.includes(needle) ? 25 : haystack.includes(needle) ? 5 : 0;
+        return { record, score };
+      })
+      .filter((result) => result.score > 0)
+      .sort((a, b) => b.score - a.score || a.record.title.localeCompare(b.record.title))
+      .slice(0, 18)
+      .map((result) => result.record);
+  }, [globalKind, globalQuery]);
   const chapterDetail =
     chapters.find((c) => c.id === selectedChapter) ?? chapters[0];
   const placeDetail = places.find((p) => p.id === selectedPlace) ?? places[0];
@@ -1094,6 +1150,35 @@ export default function Home() {
         .getElementById('explorer')
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
     );
+  };
+  const openGlobalResult = (record: GlobalSearchRecord) => {
+    setGlobalSearchOpen(false);
+    if (record.route === 'historical-map' || record.route === 'knowledge-graph') {
+      document
+        .getElementById(record.route === 'historical-map' ? 'wing-2' : 'wing-3')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (record.route === 'panji') {
+      openShelf('Decoding the Panji', 'panji-1');
+      return;
+    }
+    if (record.route === 'people' && record.ref) setSelectedPerson(record.ref);
+    if (record.route === 'chapters' && record.ref) setSelectedChapter(record.ref);
+    if (record.route === 'ideas' && record.ref) setSelectedIdea(record.ref);
+    if (record.route === 'places' && record.ref) setSelectedPlace(record.ref);
+    if (record.route === 'library' && record.ref) setSelectedWork(record.ref);
+    if (record.route === 'chronology' && typeof record.year === 'number') setYear(record.year);
+    chooseTab(record.route);
+  };
+  const handleResearchTabKeys = (event: KeyboardEvent<HTMLButtonElement>, current: Tab) => {
+    const tabs: Tab[] = ['chronology', 'places', 'chapters', 'library', 'people', 'ideas', 'sources'];
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const currentIndex = tabs.indexOf(current);
+    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    chooseTab(tabs[nextIndex]);
+    requestAnimationFrame(() => document.getElementById(`research-tab-${tabs[nextIndex]}`)?.focus());
   };
   const openWork = (id: string) => {
     setActiveTab('library');
@@ -1164,24 +1249,9 @@ export default function Home() {
 
   return (
     <>
-      <a className="skip-link" href="#explorer">
-        Skip to explorer
+      <a className="skip-link" href="#doors">
+        Skip to the four research doors
       </a>
-      <nav className="research-shortcuts" aria-label="Research controls">
-        <strong>Research controls</strong>
-        <a href="#explorer">Explore</a>
-        <button onClick={() => chooseTab('ideas')}>Ideas <span>{ideas.length}</span></button>
-        <button onClick={() => chooseTab('chapters')}>Histories <span>{chapters.length}</span></button>
-        <button onClick={() => chooseTab('people')}>People <span>{people.length}</span></button>
-        <button onClick={() => chooseTab('chronology')}>Chronology <span>{chronology.length}</span></button>
-        <button onClick={() => chooseTab('places')}>Places</button>
-        <button onClick={() => chooseTab('library')}>Library <span>{works.length}</span></button>
-        <button onClick={() => chooseTab('sources')}>Sources</button>
-        <a href="#wing-2">Historical map</a>
-        <a href="#wing-4">Multiscript reader</a>
-        <a href="#wing-5">Classroom</a>
-        <a href="#learning-lab">Learning lab</a>
-      </nav>
       <header className="topbar">
         <a
           className="identity"
@@ -1205,41 +1275,10 @@ export default function Home() {
           {menuOpen ? <X /> : <Menu />}
         </button>
         <nav className={menuOpen ? 'open' : ''} aria-label="Primary navigation">
-          <a href="#explorer">Explore</a>
-          <button
-            onClick={() => {
-              chooseTab('ideas');
-              location.hash = 'explorer';
-            }}
-          >
-            Ideas
-          </button>
-          <button
-            onClick={() => {
-              chooseTab('chapters');
-              location.hash = 'explorer';
-            }}
-          >
-            Histories
-          </button>
-          <button
-            onClick={() => {
-              chooseTab('people');
-              location.hash = 'explorer';
-            }}
-          >
-            People
-          </button>
-          <button
-            onClick={() => {
-              chooseTab('library');
-              location.hash = 'explorer';
-            }}
-          >
-            Library
-          </button>
-          <a href="#research-wing">Research wing</a>
-          <a href="#learning-lab">Learning lab</a>
+          <a href="#doors">Four doors</a>
+          <a href="#archive-search">Search</a>
+          <a href="#explorer">Browse archive</a>
+          <Link href="./updates/">Status &amp; updates</Link>
           <a href="#about">About</a>
           <a
             className="videha"
@@ -1311,28 +1350,74 @@ export default function Home() {
             <p className="eyebrow">SOURCE-CONTROLLED REGIONAL ATLAS</p>
             <h1>Explore Mithila, Vajji and Anga</h1>
             <p>
-              Move through political, social, literary, genealogical,
-              architectural, and philosophical histories—across India and Nepal
-              and through the cumulative Videha archive.
+              A guided entrance to the Videha archive: genealogy, regional
+              history, philosophical debate, texts, and translation across
+              India and Nepal. New visitors can begin with one of four doors.
             </p>
           </div>
           <dl>
             <div>
-              <dt>Chronology</dt>
-              <dd>{chronology.length} anchors</dd>
+              <dt>History available</dt>
+              <dd>{completedHistoryCount} chapters</dd>
             </div>
             <div>
-              <dt>People index</dt>
-              <dd>{people.length} figures</dd>
+              <dt>Ideas available</dt>
+              <dd>{completedIdeaCount} debates</dd>
             </div>
             <div>
-              <dt>Parallel Philosophy</dt>
-              <dd>{ideas.length} ideas</dd>
+              <dt>Knowledge graph</dt>
+              <dd>880 records</dd>
+            </div>
+            <div>
+              <dt>Source chronology</dt>
+              <dd>{learningData.chronology.length} entries</dd>
             </div>
           </dl>
         </section>
 
-        <section className="research-studio" aria-labelledby="studio-title">
+        <section className="global-search" id="archive-search" aria-labelledby="archive-search-title">
+          <div className="global-search-heading">
+            <div>
+              <p className="eyebrow">ONE SEARCH · THE WHOLE ARCHIVE</p>
+              <h2 id="archive-search-title">Find a person, place, text, chapter, or idea</h2>
+              <p>Try “Vidyapati”, “Vaiśālī”, “Panji”, or “Nyāya”. Results open in the relevant research path.</p>
+            </div>
+            <span><Search /> Search across {globalSearchRecords.length.toLocaleString()} indexed records</span>
+          </div>
+          <div className="global-search-box">
+            <Search aria-hidden="true" />
+            <label className="sr-only" htmlFor="global-archive-search">Search the complete Videha archive</label>
+            <input
+              id="global-archive-search"
+              ref={globalSearchRef}
+              value={globalQuery}
+              onFocus={() => setGlobalSearchOpen(true)}
+              onChange={(event) => { setGlobalQuery(event.target.value); setGlobalSearchOpen(true); }}
+              onKeyDown={(event) => { if (event.key === 'Escape') setGlobalSearchOpen(false); if (event.key === 'Enter' && globalResults[0]) openGlobalResult(globalResults[0]); }}
+              placeholder="Search across the full archive…"
+              role="combobox"
+              aria-expanded={globalSearchOpen && globalQuery.trim().length >= 2}
+              aria-controls="global-search-results"
+              aria-autocomplete="list"
+            />
+            <kbd>Ctrl K</kbd>
+          </div>
+          <div className="global-search-facets" aria-label="Limit global search by record type">
+            {['All', 'People', 'Histories', 'Ideas', 'Places', 'Texts', 'Chronology'].map((kind) => <button key={kind} aria-pressed={globalKind === kind} onClick={() => setGlobalKind(kind)}>{kind}</button>)}
+          </div>
+          {globalSearchOpen && globalQuery.trim().length >= 2 && (
+            <div className="global-search-results" id="global-search-results" aria-label="Archive search results">
+              <output aria-live="polite">{globalResults.length ? `${globalResults.length} best matches` : 'No matching records'}</output>
+              {globalResults.map((record) => (
+                <button key={record.id} onClick={() => openGlobalResult(record)}>
+                  <span>{record.kind}</span><strong>{record.title}</strong><small>{record.meta}</small><ChevronRight aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="research-studio" id="doors" aria-labelledby="studio-title">
           <div className="studio-visual">
             <Image
               unoptimized
@@ -1345,46 +1430,20 @@ export default function Home() {
           <div className="studio-copy">
             <p>THE VIDEHA RESEARCH STUDIO</p>
             <h2 id="studio-title">Four doors into one archive</h2>
+            <p className="studio-introduction">Choose the question closest to yours. Each door leads to specialist tools without requiring you to understand the archive’s full structure first.</p>
             <div className="studio-doors">
-              <button
-                onClick={() => openShelf('Decoding the Panji', 'panji-1')}
-              >
-                <b>01</b>
-                <span>
-                  <strong>Decode a Panji</strong>
-                  <small>Open the internal contents of all six volumes</small>
-                </span>
-              </button>
-              <button onClick={() => chooseTab('ideas')}>
-                <b>02</b>
-                <span>
-                  <strong>Enter a debate</strong>
-                  <small>Pūrvapakṣa, proof test, Uttarapakṣa</small>
-                </span>
-              </button>
-              <button
-                onClick={() =>
-                  openShelf(
-                    'Sanskrit–Maithili Philosophical Texts',
-                    'atmatattvaviveka',
-                  )
-                }
-              >
-                <b>03</b>
-                <span>
-                  <strong>Follow a translation</strong>
-                  <small>Sanskrit source into living Maithili thought</small>
-                </span>
-              </button>
-              <button onClick={() => chooseTab('places')}>
-                <b>04</b>
-                <span>
-                  <strong>Travel the landscape</strong>
-                  <small>Rivers, temples, ruins, monasteries and cities</small>
-                </span>
-              </button>
+              <article><button onClick={() => openShelf('Decoding the Panji', 'panji-1')}><b>01</b><span><strong>Read genealogy</strong><small>Decode people, lineages, villages, and marriage relations</small></span></button><nav aria-label="Genealogy paths"><a href="#wing-1">Six Panji volumes</a><a href="#learning-lab">Panji laboratory</a></nav></article>
+              <article><button onClick={() => chooseTab('chronology')}><b>02</b><span><strong>Follow history</strong><small>Move from dated evidence to chapters and changing landscapes</small></span></button><nav aria-label="History paths"><a href="#explorer">178 chapters</a><a href="#wing-2">Historical map</a><Link href="./sources/">Cited records</Link></nav></article>
+              <article><button onClick={() => chooseTab('ideas')}><b>03</b><span><strong>Enter a debate</strong><small>Compare Pūrvapakṣa, Uttarapakṣa, and parallel conclusions</small></span></button><nav aria-label="Debate paths"><a href="#wing-3">Knowledge graph</a><a href="#wing-4">Multiscript reader</a></nav></article>
+              <article><button onClick={() => openShelf('Sanskrit–Maithili Philosophical Texts', 'atmatattvaviveka')}><b>04</b><span><strong>Work with texts</strong><small>Open translations, books, teaching material, and source practice</small></span></button><nav aria-label="Text and learning paths"><a href="#wing-5">Classroom</a><a href="#learning-lab">Research practice</a><a href="#cover-showcase">Library</a></nav></article>
             </div>
           </div>
+        </section>
+
+        <section className="project-status" id="project-status" aria-labelledby="project-status-title">
+          <div><p className="eyebrow">A LIVING, SOURCE-CONTROLLED ARCHIVE</p><h2 id="project-status-title">Clear about what is complete—and what comes next</h2></div>
+          <dl><div><dt>History</dt><dd>{completedHistoryCount} complete · {plannedHistoryCount} planned</dd></div><div><dt>Ideas</dt><dd>{completedIdeaCount} complete · {plannedIdeaCount} planned</dd></div><div><dt>Last updated</dt><dd><time dateTime="2026-09-05">5 September 2026</time></dd></div></dl>
+          <Link href="./updates/">Read the changelog and roadmap <ChevronRight /></Link>
         </section>
 
         <ResearchExpansion />
@@ -1393,6 +1452,7 @@ export default function Home() {
 
         <section
           className="cover-showcase"
+          id="cover-showcase"
           aria-labelledby="cover-showcase-title"
         >
           <div className="cover-introduction">
@@ -1627,7 +1687,7 @@ export default function Home() {
               </label>
             )}
             <label className="search-field">
-              <span>Search this view</span>
+              <span>Filter only the current archive view</span>
               <div>
                 <Search size={17} />
                 <input
@@ -1674,64 +1734,93 @@ export default function Home() {
           <div className="browse-panel">
             <div className="tabbar" role="tablist" aria-label="Research views">
               <button
+                id="research-tab-chronology"
                 role="tab"
+                tabIndex={activeTab === 'chronology' ? 0 : -1}
                 aria-selected={activeTab === 'chronology'}
+                aria-controls="research-panel"
                 className={activeTab === 'chronology' ? 'active' : ''}
                 onClick={() => chooseTab('chronology')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'chronology')}
               >
                 <CalendarDays /> Chronology <span>{chronology.length}</span>
               </button>
               <button
+                id="research-tab-places"
                 role="tab"
+                tabIndex={activeTab === 'places' ? 0 : -1}
                 aria-selected={activeTab === 'places'}
+                aria-controls="research-panel"
                 className={activeTab === 'places' ? 'active' : ''}
                 onClick={() => chooseTab('places')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'places')}
               >
                 <Building2 /> Places &amp; heritage <span>{places.length}</span>
               </button>
               <button
+                id="research-tab-chapters"
                 role="tab"
+                tabIndex={activeTab === 'chapters' ? 0 : -1}
                 aria-selected={activeTab === 'chapters'}
+                aria-controls="research-panel"
                 className={activeTab === 'chapters' ? 'active' : ''}
                 onClick={() => chooseTab('chapters')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'chapters')}
               >
                 <BookOpen /> Histories <span>{chapters.length}</span>
               </button>
               <button
+                id="research-tab-library"
                 role="tab"
+                tabIndex={activeTab === 'library' ? 0 : -1}
                 aria-selected={activeTab === 'library'}
+                aria-controls="research-panel"
                 className={activeTab === 'library' ? 'active' : ''}
                 onClick={() => chooseTab('library')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'library')}
               >
                 <Library /> Library <span>{works.length}</span>
               </button>
               <button
+                id="research-tab-people"
                 role="tab"
+                tabIndex={activeTab === 'people' ? 0 : -1}
                 aria-selected={activeTab === 'people'}
+                aria-controls="research-panel"
                 className={activeTab === 'people' ? 'active' : ''}
                 onClick={() => chooseTab('people')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'people')}
               >
                 <Users /> People <span>{people.length}</span>
               </button>
               <button
+                id="research-tab-ideas"
                 role="tab"
+                tabIndex={activeTab === 'ideas' ? 0 : -1}
                 aria-selected={activeTab === 'ideas'}
+                aria-controls="research-panel"
                 className={activeTab === 'ideas' ? 'active' : ''}
                 onClick={() => chooseTab('ideas')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'ideas')}
               >
                 <GitBranch /> Ideas &amp; debates{' '}
                 <span>{ideas.length}</span>
               </button>
               <button
+                id="research-tab-sources"
                 role="tab"
+                tabIndex={activeTab === 'sources' ? 0 : -1}
                 aria-selected={activeTab === 'sources'}
+                aria-controls="research-panel"
                 className={activeTab === 'sources' ? 'active' : ''}
                 onClick={() => chooseTab('sources')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'sources')}
               >
                 <FileText /> Sources <span>5</span>
               </button>
             </div>
 
+            <div id="research-panel" role="tabpanel" aria-labelledby={`research-tab-${activeTab}`} tabIndex={0}>
             {activeTab === 'chronology' && (
               <div className="tab-content chronology-view">
                 <div className="map-stage">
@@ -1752,7 +1841,7 @@ export default function Home() {
                     <span>{selectedEra.name}</span>
                     <h2>{filteredChronology.length} chronological anchors</h2>
                   </div>
-                  <small>Evidence status accompanies every entry</small>
+                  <Link href="./sources/">Open the 160-record cited source register</Link>
                 </div>
                 <div className="record-list">
                   {filteredChronology.map((item) => (
@@ -2171,6 +2260,7 @@ export default function Home() {
                 </div>
               </div>
             )}
+            </div>
           </div>
 
           <aside
