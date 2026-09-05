@@ -6,6 +6,7 @@ export const metadata = {
   title: 'Cited chronology records | Mithila–Vajji–Anga',
   description: 'Stable source records for the Videha historical research chronology.',
 };
+export const dynamic = 'force-static';
 
 export default function SourcesPage() {
   return (

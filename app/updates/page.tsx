@@ -5,6 +5,7 @@ export const metadata = {
   title: 'Status and roadmap | Mithila–Vajji–Anga',
   description: 'Changelog, completion status, and roadmap for the living Videha research archive.',
 };
+export const dynamic = 'force-static';
 
 const changes = [
   ['5 September 2026', 'Reframed the homepage around four research doors; added federated search, graph facets, map-context warning, stable source records, and keyboard improvements.'],
