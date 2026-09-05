@@ -18,7 +18,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "app" / "reader-maithili.json"
+OUTPUT = ROOT / "public" / "data" / "reader-maithili.json"
+SOURCE_READINGS = ROOT / "app" / "reader-maithili-source.json"
 CACHE = ROOT / "work" / "reader-maithili-cache.json"
 MOBILE_RESULT = re.compile(r'<div class="result-container">(.*?)</div>', re.S)
 
@@ -93,8 +94,12 @@ def reader_text(item: dict) -> str:
 def main() -> None:
     CACHE.parent.mkdir(exist_ok=True)
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
+    source_readings = json.loads(SOURCE_READINGS.read_text(encoding="utf-8"))
     records = reader_records()
-    record_chunks = {item["id"]: chunks(reader_text(item)) for item in records}
+    record_chunks = {
+        item["id"]: [] if item["id"] in source_readings else chunks(reader_text(item))
+        for item in records
+    }
     missing = list(dict.fromkeys(
         part for parts in record_chunks.values() for part in parts if part not in cache
     ))
@@ -111,10 +116,15 @@ def main() -> None:
     total_chunks = sum(len(parts) for parts in record_chunks.values())
     completed_chunks = 0
     for position, item in enumerate(records, 1):
+        if item["id"] in source_readings:
+            output[item["id"]] = source_readings[item["id"]]
+            print(f"[{position:03}/{len(records)}] {item['id']} (supplied Maithili)", flush=True)
+            continue
         translated_parts = [cache[part] for part in record_chunks[item["id"]]]
         completed_chunks += len(translated_parts)
         output[item["id"]] = "\n\n".join(translated_parts)
         print(f"[{position:03}/{len(records)}] {item['id']} ({completed_chunks}/{total_chunks} chunks)", flush=True)
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {len(output)} complete readings to {OUTPUT}")
 

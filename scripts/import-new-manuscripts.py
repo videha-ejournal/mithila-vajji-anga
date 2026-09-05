@@ -4,8 +4,10 @@ import json
 import re
 import time
 import html
+import argparse
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from docx import Document
@@ -14,8 +16,14 @@ from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "app"
-IDEAS_SOURCE = Path(r"C:\Users\DELL\Downloads\२५.docx")
-IDEAS_CHAPTER_46 = Path(r"C:\Users\DELL\Downloads\४६.docx")
+IDEAS_SOURCES = [
+    (Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\Gajendra_Thakur_Samanantar_Darshan_6x9\BILINGUAL volume 1 and 2\volume 2\1-48.docx"), 1, 48),
+    (Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\Gajendra_Thakur_Samanantar_Darshan_6x9\BILINGUAL volume 1 and 2\volume 2\49-67.docx"), 49, 67),
+    (Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\Gajendra_Thakur_Samanantar_Darshan_6x9\BILINGUAL volume 1 and 2\volume 2\68-80.docx"), 68, 80),
+    (Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\Gajendra_Thakur_Samanantar_Darshan_6x9\BILINGUAL volume 1 and 2\volume 2\81-95.docx"), 81, 95),
+    (Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\Gajendra_Thakur_Samanantar_Darshan_6x9\BILINGUAL volume 1 and 2\volume 2\96-100.docx"), 96, 100),
+]
+VOLUME_ONE_SOURCE = Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\Gajendra_Thakur_Samanantar_Darshan_6x9\BILINGUAL volume 1 and 2\volume 1\Gajendra_Thakur_Samanantar_Darshan_8x11_PrintReady.docx")
 POLITICAL_HISTORY_SOURCE = Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\KDP PAPERBACK\HISTORY_MITHILA_ANGA_VAJJI_KDP_PAGE636_FINAL_SAFE.pdf")
 HISTORY_SOURCES = [
     Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\Part 1-3\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Chapter25_6x9_Hardback.docx"),
@@ -25,6 +33,12 @@ HISTORY_SOURCES = [
     Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\Part 7\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_52_onward_Chapter64_6x9_Hardback.docx"),
     Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\Part 8\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_65_onward_Chapter73_6x9_Hardback.docx"),
     Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\Part 9\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_74_onward_Chapter86_6x9_Hardback.docx"),
+    Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\part 10\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_87_onward_Chapter96_6x9_Hardback.docx"),
+    Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\part 11-12\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_97_onward_Chapter106_6x9_Hardback.docx"),
+    Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\part 11-12\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_107_onward_Chapter116_6x9_Hardback.docx"),
+    Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\part 13\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_117_onward_Chapter131_6x9_Hardback.docx"),
+    Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\part 14\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_132_onward_Chapter142_6x9_Hardback.docx"),
+    Path(r"C:\Users\DELL\Desktop\01_DONE_FINAL\FINAL\History_of_Mithila_Vajji_Anga\00_Volume_2\part 15\History_Mithila_Vajji_Anga_Volume_II_Cumulative_Part_143_onward_Chapter150_6x9_Hardback.docx"),
 ]
 
 TRANSLATION_CACHE = ROOT / "work" / "maithili-english-cache.json"
@@ -44,6 +58,10 @@ SECTION_NAMES = {
     "समकालीन प्रयोग": "Contemporary applications",
     "अध्याय-निष्कर्ष": "Chapter conclusion",
     "अध्याय-ग्रन्थसूची": "Chapter bibliography",
+}
+SECTION_ALIASES = {
+    "भारतीय दार्शनिक संवाद": "भारतीय संवाद",
+    "मिथिला, वज्जि आ अंगक समानान्तर दृष्टि": "मिथिलाक समानान्तर दृष्टि",
 }
 
 ENGLISH_TITLES = [
@@ -210,7 +228,7 @@ def load_translation_cache() -> dict[str, str]:
     return {}
 
 
-def translate_maithili(text: str, cache: dict[str, str]) -> str:
+def translate_maithili(text: str, cache: dict[str, str], persist: bool = True) -> str:
     text = clean(text)
     if not text:
         return ""
@@ -231,8 +249,9 @@ def translate_maithili(text: str, cache: dict[str, str]) -> str:
                 data = json.loads(response.read().decode("utf-8"))
             translated = clean("".join(piece[0] for piece in data[0] if piece and piece[0]))
             cache[text] = translated
-            TRANSLATION_CACHE.parent.mkdir(parents=True, exist_ok=True)
-            TRANSLATION_CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
+            if persist:
+                TRANSLATION_CACHE.parent.mkdir(parents=True, exist_ok=True)
+                TRANSLATION_CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
             time.sleep(0.35)
             return translated
         except Exception as error:
@@ -273,8 +292,9 @@ def translate_maithili(text: str, cache: dict[str, str]) -> str:
             raise RuntimeError(f"Translation failed after API and mobile retries: {last_error}")
     translated = clean(" ".join(translated_chunks))
     cache[text] = translated
-    TRANSLATION_CACHE.parent.mkdir(parents=True, exist_ok=True)
-    TRANSLATION_CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
+    if persist:
+        TRANSLATION_CACHE.parent.mkdir(parents=True, exist_ok=True)
+        TRANSLATION_CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
     return translated
 
 
@@ -291,32 +311,50 @@ def clipped_join(paragraphs: list[str], limit: int) -> str:
 
 
 def parse_maithili_idea_chapters() -> dict[int, dict[str, object]]:
-    document = Document(IDEAS_CHAPTER_46)
-    starts: list[tuple[int, int, str]] = []
-    for index, paragraph in enumerate(document.paragraphs):
-        text = clean(paragraph.text)
-        match = re.match(r"^अध्याय\s+(\d+)\s*[—-]\s*(.+)$", text)
-        if match and 1 <= int(match.group(1)) <= 46:
-            starts.append((index, int(match.group(1)), match.group(2)))
     parsed: dict[int, dict[str, object]] = {}
-    for position, (start, number, title) in enumerate(starts):
-        end = starts[position + 1][0] if position + 1 < len(starts) else len(document.paragraphs)
-        buckets: dict[str, list[str]] = {label: [] for label in SECTION_LABELS}
-        active = "समस्या"
-        for paragraph in document.paragraphs[start + 1:end]:
+    for path, first, last in IDEAS_SOURCES:
+        document = Document(path)
+        starts_by_number: dict[int, tuple[int, int, str]] = {}
+        for index, paragraph in enumerate(document.paragraphs):
             text = clean(paragraph.text)
-            if not text:
-                continue
-            normalized_label = re.sub(r"^\d+\.\s*", "", text)
-            if normalized_label in SECTION_LABELS:
-                active = normalized_label
-                continue
-            if text.startswith("चित्र ") or text.startswith("तालिका "):
-                continue
-            buckets[active].append(text)
-        parsed[number] = {"title": title, "buckets": buckets}
-    if sorted(parsed) != list(range(1, 47)):
-        raise RuntimeError(f"Expected supplied ideas 1–46; found {sorted(parsed)}")
+            match = re.match(r"^अध्याय\s+(\d+)\s*[—-]\s*(.+)$", text)
+            if match and first <= int(match.group(1)) <= last:
+                # The final cumulative file contains an early plan entry for
+                # Chapter 100 and the completed chapter later; the last match
+                # is the completed source text.
+                starts_by_number[int(match.group(1))] = (index, int(match.group(1)), match.group(2))
+        starts = sorted(starts_by_number.values())
+        if [number for _, number, _ in starts] != list(range(first, last + 1)):
+            raise RuntimeError(f"Expected supplied ideas {first}–{last} in {path.name}; found {[number for _, number, _ in starts]}")
+        for position, (start, number, title) in enumerate(starts):
+            end = starts[position + 1][0] if position + 1 < len(starts) else len(document.paragraphs)
+            buckets: dict[str, list[str]] = {label: [] for label in SECTION_LABELS}
+            active = "समस्या"
+            combined_debate = False
+            for paragraph in document.paragraphs[start + 1:end]:
+                text = clean(paragraph.text)
+                if not text:
+                    continue
+                normalized_label = re.sub(r"^\d+[.।]\s*", "", text)
+                normalized_label = SECTION_ALIASES.get(normalized_label, normalized_label)
+                if normalized_label == "पूर्वपक्ष आ उत्तरपक्ष":
+                    active = "पूर्वपक्ष"
+                    combined_debate = True
+                    continue
+                if normalized_label in SECTION_LABELS:
+                    active = normalized_label
+                    combined_debate = False
+                    continue
+                if text.startswith("चित्र ") or text.startswith("तालिका ") or re.match(r"^अध्याय\s+\d+[–-]\d+\s+पूर्ण", text):
+                    continue
+                if combined_debate and text.startswith("पूर्वपक्ष"):
+                    active = "पूर्वपक्ष"
+                elif combined_debate and text.startswith("उत्तर"):
+                    active = "उत्तरपक्ष"
+                buckets[active].append(text)
+            parsed[number] = {"title": title, "buckets": buckets, "source": path.name}
+    if sorted(parsed) != list(range(1, 101)):
+        raise RuntimeError(f"Expected supplied ideas 1–100; found {sorted(parsed)}")
     return parsed
 
 
@@ -325,17 +363,30 @@ def build_ideas():
     ideas = json.loads(ideas_path.read_text(encoding="utf-8"))
     source_chapters = parse_maithili_idea_chapters()
     cache = load_translation_cache()
+    translation_sources = []
+    for number in range(47, 101):
+        buckets = source_chapters[number]["buckets"]
+        translation_sources.extend([
+            clipped_join(buckets["समस्या"][:3] + buckets["मूल प्रतिपादन"][:3], 4300),
+            clipped_join(buckets["पूर्वपक्ष"][:5], 3600),
+            clipped_join(buckets["उत्तरपक्ष"][:5], 3600),
+            clipped_join(buckets["अध्याय-निष्कर्ष"][:4], 3600),
+        ])
+    missing = [text for text in dict.fromkeys(translation_sources) if text and text not in cache]
+    if missing:
+        print(f"Translating {len(missing)} uncached Volume II passages", flush=True)
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = {executor.submit(translate_maithili, text, {}, False): text for text in missing}
+            for position, future in enumerate(as_completed(futures), 1):
+                source = futures[future]
+                cache[source] = future.result()
+                if position % 10 == 0 or position == len(missing):
+                    TRANSLATION_CACHE.parent.mkdir(parents=True, exist_ok=True)
+                    TRANSLATION_CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
+                    print(f"Translated {position}/{len(missing)} passages", flush=True)
+    maithili_readings: dict[str, str] = {}
     for record in ideas:
         number = record["number"]
-        if number > 46:
-            record["status"] = "Planned"
-            record["summary"] = "This chapter remains an approved plan entry. No completed English argument is claimed."
-            record["source"] = "Gajendra Thakur’s Parallel Philosophy, Volume II · approved plan entry"
-            record.pop("purvapaksha", None)
-            record.pop("uttarapaksha", None)
-            record.pop("synthesis", None)
-            record.pop("sections", None)
-            continue
         chapter = source_chapters[number]
         buckets = chapter["buckets"]
         summary_source = clipped_join(buckets["समस्या"][:3] + buckets["मूल प्रतिपादन"][:3], 4300)
@@ -348,19 +399,105 @@ def build_ideas():
             if count:
                 suffix = f" · {count} source passage{'s' if count != 1 else ''}"
                 section_index.append(f"{SECTION_NAMES[label]}{suffix}")
+        if number > 46:
+            record.update({
+                "summary": translate_maithili(summary_source, cache),
+                "purvapaksha": translate_maithili(purva_source, cache),
+                "uttarapaksha": translate_maithili(uttara_source, cache),
+                "synthesis": translate_maithili(synthesis_source, cache),
+            })
         record.update({
             "title": ENGLISH_TITLES[number - 1],
             "part": part_for(number),
             "status": "Available in English",
-            "summary": translate_maithili(summary_source, cache),
-            "purvapaksha": translate_maithili(purva_source, cache),
-            "uttarapaksha": translate_maithili(uttara_source, cache),
-            "synthesis": translate_maithili(synthesis_source, cache),
             "sections": section_index,
             "source": f"Gajendra Thakur’s Parallel Philosophy, Volume II · supplied Maithili Chapter {number} · English translation",
         })
+        maithili_parts = [f"अध्याय {number} — {chapter['title']}"]
+        for label in SECTION_LABELS:
+            passage = clipped_join(buckets[label], 2600)
+            if passage:
+                maithili_parts.extend([label, passage])
+        maithili_readings[record["id"]] = "\n\n".join(maithili_parts)
     ideas_path.write_text(json.dumps(ideas, ensure_ascii=False, indent=2), encoding="utf-8")
+    (APP / "reader-maithili-source.json").write_text(json.dumps(maithili_readings, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return ideas
+
+
+def build_volume_one_ideas():
+    document = Document(VOLUME_ONE_SOURCE)
+    maithili_starts = []
+    english_starts = []
+    for index, paragraph in enumerate(document.paragraphs):
+        text = clean(paragraph.text)
+        maithili_match = re.match(r"^अध्याय\s+(\d+)\s*[—-]\s*(.+)$", text)
+        english_match = re.match(r"^Chapter\s+(\d+)\s*[—-]\s*(.+)$", text)
+        if paragraph.style.name == "Heading 2" and maithili_match and 1 <= int(maithili_match.group(1)) <= 72:
+            maithili_starts.append((index, int(maithili_match.group(1)), maithili_match.group(2)))
+        if paragraph.style.name == "PP Chapter Title" and english_match and 1 <= int(english_match.group(1)) <= 72:
+            english_starts.append((index, int(english_match.group(1)), english_match.group(2)))
+    expected = list(range(1, 73))
+    if [number for _, number, _ in maithili_starts] != expected or [number for _, number, _ in english_starts] != expected:
+        raise RuntimeError("The bilingual Volume I must contain one ordered Maithili and English record for Chapters 1–72.")
+
+    deep_path = APP / "deep-data.json"
+    deep = json.loads(deep_path.read_text(encoding="utf-8"))
+    records = {record["number"]: record for record in deep["philosophyChapters"]}
+    source_path = APP / "reader-maithili-source.json"
+    maithili_readings = json.loads(source_path.read_text(encoding="utf-8")) if source_path.exists() else {}
+
+    for position, (start, number, maithili_title) in enumerate(maithili_starts):
+        end = maithili_starts[position + 1][0] if position + 1 < len(maithili_starts) else english_starts[0][0]
+        paragraphs = [f"अध्याय {number} — {maithili_title}"]
+        for paragraph in document.paragraphs[start + 1:end]:
+            text = clean(paragraph.text)
+            if text == "अध्याय-ग्रन्थसूची":
+                break
+            if text:
+                paragraphs.append(text)
+        maithili_readings[f"reader-v1-{records[number]['id']}"] = "\n\n".join(paragraphs)
+
+    for position, (start, number, english_title) in enumerate(english_starts):
+        end = english_starts[position + 1][0] if position + 1 < len(english_starts) else len(document.paragraphs)
+        sections = []
+        buckets = {"summary": [], "purvapaksha": [], "uttarapaksha": [], "synthesis": []}
+        active = "summary"
+        for paragraph in document.paragraphs[start + 1:end]:
+            text = clean(paragraph.text)
+            if not text:
+                continue
+            style = paragraph.style.name
+            if style == "PP Section Heading":
+                sections.append(text)
+                active = "summary"
+                continue
+            if style == "PP Argument Heading":
+                if text.startswith("Pūrvapakṣa"):
+                    active = "purvapaksha"
+                elif text.startswith("Uttarapakṣa"):
+                    active = "uttarapaksha"
+                buckets[active].append(text.split(":", 1)[-1].strip())
+                continue
+            if style == "PP Chapter End Heading":
+                if "Bibliography" in text:
+                    break
+                if "Conclusion" in text:
+                    active = "synthesis"
+                    continue
+            buckets[active].append(text)
+        record = records[number]
+        record.update({
+            "title": english_title,
+            "summary": clipped_join(buckets["summary"], 4300),
+            "sections": sections,
+            "purvapaksha": clipped_join(buckets["purvapaksha"], 3600),
+            "uttarapaksha": clipped_join(buckets["uttarapaksha"], 3600),
+            "synthesis": clipped_join(buckets["synthesis"], 3600),
+            "source": f"Gajendra Thakur’s Parallel Philosophy, Volume I · supplied bilingual Chapter {number}",
+        })
+    deep_path.write_text(json.dumps(deep, ensure_ascii=False, indent=2), encoding="utf-8")
+    source_path.write_text(json.dumps(maithili_readings, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return deep["philosophyChapters"]
 
 
 def enrich_history():
@@ -374,7 +511,7 @@ def enrich_history():
         for index, paragraph in enumerate(paragraphs):
             text = clean(paragraph.text)
             match = re.match(r"^Chapter\s+(\d+)\s*[—-]\s*(.+)$", text, re.IGNORECASE)
-            if match and 1 <= int(match.group(1)) <= 86:
+            if match and 1 <= int(match.group(1)) <= 150:
                 starts.append((index, int(match.group(1)), match.group(2)))
         for position, (start, number, title) in enumerate(starts):
             end = starts[position + 1][0] if position + 1 < len(starts) else len(paragraphs)
@@ -394,7 +531,7 @@ def enrich_history():
             record["title"] = title
             record["status"] = "Complete"
             record["pages"] = f"Supplied cumulative manuscript · Chapters {starts[0][1]}–{starts[-1][1]}"
-            record["summary"] = " ".join(body)[:2400]
+            record["summary"] = clipped_join(body, 2400)
             record["sections"] = sections
             imported.append({"number": number, "title": title, "sections": len(sections), "source": path.name})
     research_path.write_text(json.dumps(research, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -440,7 +577,21 @@ def enrich_political_history_sections():
 
 
 if __name__ == "__main__":
-    ideas = build_ideas()
-    history = enrich_history()
-    political = enrich_political_history_sections()
-    print(json.dumps({"ideas": len(ideas), "availableIdeas": sum(item["status"].startswith("Available") for item in ideas), "plannedIdeas": sum(item["status"] == "Planned" for item in ideas), "suppliedHistoryChapters": len(history), "politicalHistoryChapters": len(political)}, indent=2))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--history-only", action="store_true", help="Import only the supplied history manuscripts.")
+    parser.add_argument("--ideas-only", action="store_true", help="Import only the supplied philosophy manuscripts and translations.")
+    parser.add_argument("--volume-one-only", action="store_true", help="Import only the supplied bilingual Volume I philosophy manuscript.")
+    args = parser.parse_args()
+    if sum((args.history_only, args.ideas_only, args.volume_one_only)) > 1:
+        parser.error("Choose only one focused import mode.")
+    if args.volume_one_only:
+        volume_one = build_volume_one_ideas()
+        print(json.dumps({"suppliedVolumeOneIdeas": len(volume_one)}, indent=2))
+        raise SystemExit(0)
+    history = [] if args.ideas_only else enrich_history()
+    if args.history_only:
+        print(json.dumps({"suppliedHistoryChapters": len(history)}, indent=2))
+    else:
+        ideas = build_ideas()
+        political = {} if args.ideas_only else enrich_political_history_sections()
+        print(json.dumps({"ideas": len(ideas), "availableIdeas": sum(item["status"].startswith("Available") for item in ideas), "plannedIdeas": sum(item["status"] == "Planned" for item in ideas), "suppliedHistoryChapters": len(history), "politicalHistoryChapters": len(political)}, indent=2))

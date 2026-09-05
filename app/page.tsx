@@ -206,7 +206,6 @@ const chapters = [
   ...researchData.social,
 ] as Chapter[];
 const completedHistoryCount = chapters.filter((chapter) => chapter.status === 'Complete').length;
-const plannedHistoryCount = chapters.length - completedHistoryCount;
 const works = libraryData as Work[];
 const philosophyChapters = deepData.philosophyChapters as PhilosophyChapter[];
 const ideas: IdeaRecord[] = [
@@ -225,7 +224,6 @@ const ideas: IdeaRecord[] = [
   })),
 ];
 const completedIdeaCount = ideas.filter((idea) => idea.status !== 'Planned').length;
-const plannedIdeaCount = ideas.length - completedIdeaCount;
 const people = deepData.people as Person[];
 const collectionDetails = collectionDetailsData as Record<
   string,
@@ -1536,7 +1534,7 @@ export default function Home() {
 
         <section className="project-status" id="project-status" aria-labelledby="project-status-title">
           <div><p className="eyebrow">A LIVING, SOURCE-CONTROLLED ARCHIVE</p><h2 id="project-status-title">Clear about what is complete—and what comes next</h2></div>
-          <dl><div><dt>History</dt><dd>{completedHistoryCount} complete · {plannedHistoryCount} planned</dd></div><div><dt>Ideas</dt><dd>{completedIdeaCount} complete · {plannedIdeaCount} planned</dd></div><div><dt>Last updated</dt><dd><time dateTime="2026-09-05">5 September 2026</time></dd></div></dl>
+          <dl><div><dt>History</dt><dd>{completedHistoryCount} out of {chapters.length} completed</dd></div><div><dt>Ideas</dt><dd>{completedIdeaCount} out of {ideas.length} completed</dd></div><div><dt>Last updated</dt><dd><time dateTime="2026-09-06">6 September 2026</time></dd></div></dl>
           <p className="count-key"><strong>Count key:</strong> 178 histories and 172 ideas are editorial chapter catalogues. The Knowledge Graph counts a different unit—880 searchable nodes, including 244 idea nodes made from debate chapters and extracted comparison concepts. “People” and “figures” both refer to the same 138-record biographical index.</p>
           <a href="./updates/index.html">Read the changelog and roadmap <ChevronRight /></a>
         </section>
@@ -1814,10 +1812,10 @@ export default function Home() {
             <article className="status-card">
               <h2>Archive at a glance</h2>
               <p className="archive-count-line">
-                <Check size={16} /> 178 historical chapters indexed · {completedHistoryCount} completed history chapters
+                <Check size={16} /> {completedHistoryCount} out of {chapters.length} historical chapters completed
               </p>
               <p>
-                <Check size={16} /> 172 philosophy ideas indexed · {completedIdeaCount} complete · {plannedIdeaCount} planned
+                <Check size={16} /> {completedIdeaCount} out of {ideas.length} philosophy ideas completed
               </p>
               <p>
                 <Check size={16} /> {people.length} literary and intellectual
@@ -2014,7 +2012,7 @@ export default function Home() {
                     <span>COMPLETE RESEARCH INDEX</span>
                     <h2>{filteredChapters.length} chapters</h2>
                   </div>
-                  <small>{completedHistoryCount} complete · {plannedHistoryCount} planned</small>
+                  <small>{completedHistoryCount} out of {chapters.length} completed</small>
                 </div>
                 <div className="chapter-list">
                   {filteredChapters.map((chapter) => (
@@ -2238,7 +2236,7 @@ export default function Home() {
                       {filteredIdeas.length} of {ideas.length} ideas
                     </h2>
                   </div>
-                  <small>172 indexed ideas · {completedIdeaCount} complete · {plannedIdeaCount} planned</small>
+                  <small>{completedIdeaCount} out of {ideas.length} completed</small>
                 </div>
                 <div className="idea-status-filters" aria-label="Filter ideas by completion status">
                   {['All ideas', 'Available', 'Planned'].map((filter) => (
@@ -2689,8 +2687,7 @@ export default function Home() {
                 </button>
               </h3>
               <p>
-                A 172-idea philosophical architecture—{completedIdeaCount} complete and {plannedIdeaCount}
-                retained as future scope—together with the 100-volume Parallel
+                A complete 172-idea philosophical architecture—72 ideas in Volume I and 100 in Volume II—together with the 100-volume Parallel
                 History of Mithilā and Maithilī literature.
               </p>
               <div className="work-links">

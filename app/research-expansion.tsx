@@ -24,7 +24,6 @@ import deepData from './deep-data.json';
 import learningData from './learning-data.json';
 import researchData from './research-data.json';
 import ideasVolumeTwoData from './ideas-volume2.json';
-import readerMaithiliData from './reader-maithili.json';
 
 type Work = (typeof libraryData)[number];
 type MapLayer = 'Polities' | 'Learning' | 'Sacred' | 'Trade' | 'Archives';
@@ -67,8 +66,6 @@ const readerPassages: ReaderPassage[] = [
   })),
 ];
 const readerCompleteCount = readerPassages.filter((item) => item.status === 'Complete').length;
-const readerPlannedCount = readerPassages.length - readerCompleteCount;
-const readerMaithili = readerMaithiliData as Record<string, string>;
 
 const mapPlaces: Array<{
   id: string;
@@ -503,7 +500,7 @@ const classroomLessons = [
   { title: 'Read a dated claim', question: 'What does a date establish—and what remains uncertain?', method: 'Compare label, date wording, and cited source before treating an event as an anchor.', source: '160-entry source-controlled chronology' },
   { title: 'Map without inventing borders', question: 'How can places be mapped when territorial limits changed?', method: 'Separate modern coordinates from dated political, sacred, trade, learning, and archival evidence.', source: '120-place orientation gazetteer + eight dated anchors' },
   { title: 'Open Chapters 52–86', question: 'How does social and cultural history extend the political narrative?', method: 'Use the supplied chapter headings and section maps to move from chapter claim to internal evidence structure.', source: 'Three supplied cumulative Volume II manuscripts' },
-  { title: 'Follow the linguistic turn', question: 'Why did twentieth-century philosophy place language at the centre?', method: 'Read the completed philosophy sequence, then distinguish it from the 75 ideas retained as future scope.', source: 'Gajendra Thakur’s Parallel Philosophy, Volumes I–II' },
+  { title: 'Follow the linguistic turn', question: 'Why did twentieth-century philosophy place language at the centre?', method: 'Read the complete 172-idea sequence across both volumes, comparing supplied English, supplied Maithili, and Tirhuta script views.', source: 'Gajendra Thakur’s Parallel Philosophy, Volumes I–II' },
   { title: 'Test a relation', question: 'Does a shared word prove a historical connection?', method: 'Use the graph as a discovery aid, then verify every inferred relation in the cited record.', source: 'People, texts, places, and ideas knowledge graph' },
   { title: 'Decode a Panji record', question: 'Which link is genealogical, marital, territorial, or remembered?', method: 'Track person, lineage, village, marriage, and maternal links without collapsing them into one relation.', source: 'Decoding the Panji of Mithila, Volumes I–VI' },
 ];
@@ -553,12 +550,33 @@ export default function ResearchExpansion() {
   const [readerIndex, setReaderIndex] = useState(0);
   const [readerSearch, setReaderSearch] = useState('');
   const [readerCopied, setReaderCopied] = useState(false);
+  const [readerMaithili, setReaderMaithili] = useState<Record<string, string>>({});
+  const [readerMaithiliStatus, setReaderMaithiliStatus] = useState<'idle' | 'ready' | 'error'>('idle');
   const [narrating, setNarrating] = useState<number | null>(null);
   const [lessonIndex, setLessonIndex] = useState(0);
 
   useEffect(() => {
     return () => window.speechSynthesis?.cancel();
   }, []);
+
+  useEffect(() => {
+    if (readingMode === 'English' || readerMaithiliStatus !== 'idle') return;
+    let active = true;
+    fetch('./data/reader-maithili.json')
+      .then((response) => {
+        if (!response.ok) throw new Error(`Reader data returned ${response.status}`);
+        return response.json() as Promise<Record<string, string>>;
+      })
+      .then((data) => {
+        if (!active) return;
+        setReaderMaithili(data);
+        setReaderMaithiliStatus('ready');
+      })
+      .catch(() => {
+        if (active) setReaderMaithiliStatus('error');
+      });
+    return () => { active = false; };
+  }, [readingMode, readerMaithiliStatus]);
 
   const work = libraryData.find((item) => item.id === workId) ?? libraryData[0];
   const workCovers = matchingCovers(work);
@@ -1177,7 +1195,7 @@ export default function ResearchExpansion() {
           <span>04</span>
           <div>
             <p>MULTISCRIPT READER</p>
-            <h3>{readerPassages.length} ideas · {readerCompleteCount} completed · {readerPlannedCount} planned for future supplied chapters</h3>
+            <h3>{readerCompleteCount} out of {readerPassages.length} ideas completed</h3>
           </div>
         </div>
         <label className="reader-search">
@@ -1224,7 +1242,7 @@ export default function ResearchExpansion() {
           <Languages />
           {readingMode === 'English' && (
             <>
-              <p className="script-label">SUPPLIED ENGLISH READING</p>
+              <p className="script-label">{readerIdea.volume === 'Volume I' ? 'SUPPLIED ENGLISH READING' : 'ENGLISH TRANSLATION OF SUPPLIED MAITHILI'}</p>
               <h4>{readerIdea.title}</h4>
               <p>{readerIdea.summary}</p>
               {readerIdea.purvapaksha && <div className="reader-debate"><strong>Pūrvapakṣa</strong><p>{readerIdea.purvapaksha}</p></div>}
@@ -1237,12 +1255,13 @@ export default function ResearchExpansion() {
           {readingMode !== 'English' && readerIdea.status === 'Planned' && (
             <div className="reader-notice"><p className="script-label">PLANNED</p><h4>{readerIdea.title}</h4><p>No completed English chapter is claimed. When the chapter is supplied, this same record will receive its Google Maithili translation and Tirhuta conversion.</p></div>
           )}
-          {readingMode !== 'English' && readerIdea.status !== 'Planned' && !readerTranslation && <p className="reader-notice">The maintained Maithili reading is not yet available for this chapter.</p>}
+          {readingMode !== 'English' && readerMaithiliStatus === 'idle' && !readerTranslation && <p className="reader-notice">Loading the supplied Maithili reading…</p>}
+          {readingMode !== 'English' && readerMaithiliStatus === 'error' && !readerTranslation && <p className="reader-notice">The supplied Maithili reading could not be loaded. Please refresh and try again.</p>}
           {readingMode === 'Maithili (Devanagari)' && readerTranslation && (
-            <><p className="script-label">GOOGLE TRANSLATE · ENGLISH → MAITHILI</p><p lang="mai">{readerTranslation}</p><small>Machine translation prepared for reliable offline reading; scholarly review is recommended.</small></>
+            <><p className="script-label">SUPPLIED MAITHILI READING</p><p lang="mai">{readerTranslation}</p><small>Source text from the supplied {readerIdea.volume} manuscript.</small></>
           )}
           {readingMode === 'Maithili (Tirhuta)' && readerTranslation && (
-            <><p className="script-label">VIDEHA CONVERTER · MAITHILI DEVANAGARI → TIRHUTA</p><p className="tirhuta-text" lang="mai-Tirh">{_toTirhuta(readerTranslation)}</p><small>Converted from the Google Maithili result. Unicode Tirhuta rendering depends on font support.</small></>
+            <><p className="script-label">VIDEHA CONVERTER · MAITHILI DEVANAGARI → TIRHUTA</p><p className="tirhuta-text" lang="mai-Tirh">{_toTirhuta(readerTranslation)}</p><small>Converted from the supplied Maithili source. Unicode Tirhuta rendering depends on font support.</small></>
           )}
           {(readingMode === 'English' || readerTranslation) && (
             <button className="reader-copy" onClick={async () => { const text = readingMode === 'English' ? readerEnglishText : readingMode === 'Maithili (Tirhuta)' ? _toTirhuta(readerTranslation) : readerTranslation; await navigator.clipboard.writeText(text); setReaderCopied(true); }}><Copy /> {readerCopied ? 'Copied' : 'Copy passage'}</button>

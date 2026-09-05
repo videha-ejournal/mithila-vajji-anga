@@ -5,7 +5,10 @@ A responsive, accessible historical research portal for the connected histories 
 ## Structure
 
 - `app/page.tsx` — page content, search, filters, and navigation
-- `app/research-data.json` — the 178-chapter historical programme, including completed Chapter 1–35 coverage for Volume II
+- `app/research-data.json` — the completed 178-chapter historical programme: 28 chapters in Volume I and 150 chapters in Volume II
+- `app/deep-data.json` and `app/ideas-volume2.json` — the completed 172-idea Parallel Philosophy programme
+- `app/reader-maithili-source.json` — source-controlled supplied Maithili readings for all 172 philosophy chapters
+- `public/data/reader-maithili.json` — on-demand Multiscript Reader bundle, kept out of the initial page download
 - `app/library-data.json` — the Panji, parallel research, and Sanskrit–Maithili philosophy shelves
 - `app/globals.css` — visual system and responsive layout
 - `app/layout.tsx` — site metadata and document shell
