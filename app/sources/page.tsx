@@ -1,5 +1,5 @@
 import { ArrowLeft, ExternalLink, FileText } from 'lucide-react';
-import Link from 'next/link';
+/* oxlint-disable next/no-html-link-for-pages -- GitHub Pages uses full document navigation for exported secondary routes. */
 import learningData from '../learning-data.json';
 
 export const metadata = {
@@ -12,14 +12,14 @@ export default function SourcesPage() {
   return (
     <main className="reference-page" id="top">
       <header className="reference-hero">
-        <Link href="../#doors"><ArrowLeft /> Return to the four doors</Link>
+        <a href="../#doors"><ArrowLeft /> Return to the four doors</a>
         <p className="eyebrow">VIDEHA SOURCE REGISTER</p>
         <h1>Stable records for the research chronology</h1>
         <p>Each entry has a permanent fragment link for citation and verification. Page references identify the supplied research volume; public facsimile links will be added only when an approved digital edition is available.</p>
         <div className="reference-meta"><strong>{learningData.chronology.length} cited entries</strong><span>Last updated 5 September 2026</span></div>
       </header>
       <nav className="reference-actions" aria-label="Source register controls">
-        <Link href="../#wing-2">Historical map</Link><Link href="../#explorer">Browse histories</Link><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink /></a>
+        <a href="../#wing-2">Historical map</a><a href="../#explorer">Browse histories</a><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink /></a>
       </nav>
       <section className="source-register" aria-labelledby="source-register-title">
         <h2 id="source-register-title">Chronology source records</h2>

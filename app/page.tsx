@@ -1,9 +1,10 @@
 'use client';
 
+/* oxlint-disable next/no-html-link-for-pages -- GitHub Pages uses full document navigation for exported secondary routes. */
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   BookOpen,
   Accessibility,
@@ -1367,7 +1368,7 @@ export default function Home() {
           <a href="#archive-search">Search</a>
           <a href="#explorer">Browse archive</a>
           <a href="#research-wing">Research rooms</a>
-          <Link href="./updates/">Status &amp; updates</Link>
+          <a href="./updates/">Status &amp; updates</a>
           <a href="#about">About</a>
         </nav>
         <a className="videha-home" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink size={15} /></a>
@@ -1464,7 +1465,7 @@ export default function Home() {
           <aside className="archive-method">
             <strong>How to read this archive</strong>
             <p>Entries distinguish supplied text, editorial interpretation, inferred discovery links, and planned material. Dates, map points, and contested claims carry source or method notes so they can be checked rather than merely accepted.</p>
-            <Link href="./sources/">Read the evidentiary method <ChevronRight /></Link>
+            <a href="./sources/">Read the evidentiary method <ChevronRight /></a>
           </aside>
         </section>
 
@@ -1484,7 +1485,7 @@ export default function Home() {
             <p className="studio-introduction">Choose the question closest to yours. Each door leads to specialist tools without requiring you to understand the archive’s full structure first.</p>
             <div className="studio-doors">
               <article><button onClick={() => openShelf('Decoding the Panji', 'panji-1')}><b>01</b><span><strong>Read genealogy</strong><small>Decode people, lineages, villages, and marriage relations</small></span></button><nav aria-label="Genealogy paths"><a href="#wing-1">Six Panji volumes</a><a href="#learning-lab">Panji laboratory</a></nav></article>
-              <article><button onClick={() => chooseTab('chronology')}><b>02</b><span><strong>Follow history</strong><small>Move from dated evidence to chapters and changing landscapes</small></span></button><nav aria-label="History paths"><a href="#explorer">178 chapters</a><a href="#wing-2">Historical map</a><Link href="./sources/">Cited records</Link></nav></article>
+              <article><button onClick={() => chooseTab('chronology')}><b>02</b><span><strong>Follow history</strong><small>Move from dated evidence to chapters and changing landscapes</small></span></button><nav aria-label="History paths"><a href="#explorer">178 chapters</a><a href="#wing-2">Historical map</a><a href="./sources/">Cited records</a></nav></article>
               <article><button onClick={() => chooseTab('ideas')}><b>03</b><span><strong>Enter a debate</strong><small>Compare Pūrvapakṣa, Uttarapakṣa, and parallel conclusions</small></span></button><nav aria-label="Debate paths"><a href="#wing-3">Knowledge graph</a><a href="#wing-4">Multiscript reader</a></nav></article>
               <article><button onClick={() => openShelf('Sanskrit–Maithili Philosophical Texts', 'atmatattvaviveka')}><b>04</b><span><strong>Work with texts</strong><small>Open translations, books, teaching material, and source practice</small></span></button><nav aria-label="Text and learning paths"><a href="#wing-5">Classroom</a><a href="#learning-lab">Research practice</a><a href="#cover-showcase">Library</a></nav></article>
             </div>
@@ -1537,7 +1538,7 @@ export default function Home() {
           <div><p className="eyebrow">A LIVING, SOURCE-CONTROLLED ARCHIVE</p><h2 id="project-status-title">Clear about what is complete—and what comes next</h2></div>
           <dl><div><dt>History</dt><dd>{completedHistoryCount} complete · {plannedHistoryCount} planned</dd></div><div><dt>Ideas</dt><dd>{completedIdeaCount} complete · {plannedIdeaCount} planned</dd></div><div><dt>Last updated</dt><dd><time dateTime="2026-09-05">5 September 2026</time></dd></div></dl>
           <p className="count-key"><strong>Count key:</strong> 178 histories and 172 ideas are editorial chapter catalogues. The Knowledge Graph counts a different unit—880 searchable nodes, including 244 idea nodes made from debate chapters and extracted comparison concepts. “People” and “figures” both refer to the same 138-record biographical index.</p>
-          <Link href="./updates/">Read the changelog and roadmap <ChevronRight /></Link>
+          <a href="./updates/">Read the changelog and roadmap <ChevronRight /></a>
         </section>
 
         <ResearchExpansion />
@@ -1938,7 +1939,7 @@ export default function Home() {
                     <span>{selectedEra.name}</span>
                     <h2>{filteredChronology.length} chronological anchors</h2>
                   </div>
-                  <Link href="./sources/">Open the 160-record cited source register</Link>
+                  <a href="./sources/">Open the 160-record cited source register</a>
                 </div>
                 <div className="record-list">
                   {filteredChronology.map((item) => (
