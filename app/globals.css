@@ -21,6 +21,7 @@
 html {
   scroll-behavior: smooth;
 }
+main[id], section[id], article[id] { scroll-margin-top: 128px; }
 body {
   margin: 0;
   background: var(--paper);
@@ -68,8 +69,8 @@ main#top > .learning-lab { order: 7; }
 main#top > .cover-showcase { order: 8; }
 main#top > .provenance { order: 9; }
 /* One front-door sequence: search, four doors, status, then specialist rooms. */
-main#top > .global-search { order: 2; }
-main#top > .research-studio { order: 3; }
+main#top > .research-studio { order: 2; }
+main#top > .global-search { order: 3; }
 main#top > .project-status { order: 4; }
 main#top > .time-control { order: 5; }
 main#top > .workspace { order: 6; }
@@ -108,8 +109,9 @@ main#top > .provenance { order: 11; }
   align-items: center;
   justify-content: space-between;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem);
-  position: relative;
-  z-index: 30;
+  position: sticky;
+  top: 0;
+  z-index: 60;
   box-shadow: 0 2px 8px #0002;
 }
 .identity {
@@ -169,7 +171,16 @@ main#top > .provenance { order: 11; }
 .topbar nav button:focus {
   background: #ffffff13;
 }
-.topbar nav .videha {
+.videha-home {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .65rem .85rem;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+  font-size: .84rem;
+  font-weight: 800;
   background: var(--saffron);
   border-color: var(--saffron);
 }
@@ -218,6 +229,31 @@ main#top > .provenance { order: 11; }
   font-weight: 850;
 }
 .videha-tools svg { width: 16px; }
+.journey-nav {
+  position: sticky;
+  top: 72px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 48px;
+  padding: .38rem clamp(.75rem, 3vw, 2rem);
+  color: #26332d;
+  background: #fffdf8f5;
+  border-bottom: 1px solid #d7caa9;
+  box-shadow: 0 4px 12px #101a2d12;
+  backdrop-filter: blur(12px);
+}
+.journey-nav > p { display: flex; align-items: baseline; gap: .35rem; min-width: max-content; margin: 0; }
+.journey-nav > p span { color: #6e756f; font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.journey-nav > p strong { color: #8b4810; font: 700 .86rem Georgia, serif; }
+.journey-nav > p small { color: #6e756f; font-size: .64rem; }
+.journey-nav nav { display: flex; gap: .22rem; overflow-x: auto; }
+.journey-nav nav a { display: inline-flex; align-items: center; gap: .3rem; min-height: 34px; padding: .3rem .48rem; border-radius: 4px; color: #526058; text-decoration: none; font-size: .68rem; font-weight: 800; white-space: nowrap; }
+.journey-nav nav a b { display: grid; place-items: center; width: 20px; height: 20px; border: 1px solid #c9b894; border-radius: 50%; font-size: .6rem; }
+.journey-nav nav a.active { color: white; background: var(--green); }
+.journey-nav nav a.active b { border-color: #ffffff80; }
 .assistive-panel,
 .translate-panel {
   position: absolute;
@@ -313,11 +349,21 @@ main#top > .provenance { order: 11; }
   letter-spacing: -0.035em;
   margin: 0;
 }
-.intro > div > p:last-child {
+.intro > div > p:not(.eyebrow) {
   color: var(--muted);
   max-width: 800px;
   margin: 0.9rem 0 0;
 }
+.intro-actions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
+.intro-actions a { display: inline-flex; align-items: center; gap: .3rem; padding: .56rem .68rem; color: white; background: var(--green); border: 1px solid var(--green); border-radius: 4px; text-decoration: none; font-size: .73rem; font-weight: 850; }
+.intro-actions a b { color: #f2cd82; font-size: .62rem; }
+.intro-actions a.intro-search { color: var(--green); background: white; }
+.intro-actions svg { width: 15px; }
+.archive-method { align-self: stretch; max-width: 560px; padding: 1.05rem 1.15rem; background: #f8f2e5; border: 1px solid #d7c9aa; border-top: 4px solid var(--saffron); }
+.archive-method strong { font: 700 1.12rem Georgia, serif; }
+.archive-method p { margin: .45rem 0 .7rem; color: #4e5b54; font-size: .8rem; }
+.archive-method a { display: inline-flex; align-items: center; gap: .3rem; color: var(--green); font-size: .72rem; font-weight: 850; }
+.archive-method svg { width: 15px; }
 .intro dl {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1462,6 +1508,11 @@ footer p {
   .topbar nav.open {
     display: flex;
   }
+  .videha-home { display: none; }
+  .journey-nav { top: 68px; justify-content: flex-start; overflow-x: auto; }
+  .journey-nav > p { position: sticky; left: 0; z-index: 2; padding-right: .5rem; background: #fffdf8; }
+  .journey-nav > p small span { display: none; }
+  .journey-nav nav a span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .topbar nav a,
   .topbar nav button {
     justify-content: flex-start;
@@ -2327,6 +2378,8 @@ footer p {
 .project-status dt { color: var(--muted); font-size: .64rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .project-status dd { margin: .2rem 0 0; font-weight: 800; font-size: .78rem; }
 .project-status > a { display: flex; gap: .35rem; align-items: center; color: var(--green); font-size: .74rem; font-weight: 900; }
+.count-key { grid-column: 1 / -1; margin: -.3rem 0 0; padding-top: .75rem; color: #56635b; border-top: 1px solid var(--line); font-size: .72rem; line-height: 1.55; }
+.count-key strong { color: #713a0b; }
 .result-heading > a { color: var(--green); font-size: .72rem; font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Stable source register and living-project status */

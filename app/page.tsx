@@ -231,6 +231,14 @@ const collectionDetails = collectionDetailsData as Record<
   CollectionDetail
 >;
 const covers = coverData as Cover[];
+const journeySections = [
+  { id: 'doors', label: 'Choose a path' },
+  { id: 'archive-search', label: 'Search' },
+  { id: 'explorer', label: 'Browse archive' },
+  { id: 'wing-2', label: 'Historical map' },
+  { id: 'wing-3', label: 'Knowledge graph' },
+  { id: 'learning-lab', label: 'Research practice' },
+] as const;
 const coverCategories = [
   'All',
   'Histories',
@@ -912,6 +920,7 @@ export default function Home() {
   const [coverPlaying, setCoverPlaying] = useState(true);
   const [siteListening, setSiteListening] = useState(false);
   const [listenStatus, setListenStatus] = useState('');
+  const [currentJourney, setCurrentJourney] = useState('doors');
   const [assistiveOpen, setAssistiveOpen] = useState(false);
   const [translateOpen, setTranslateOpen] = useState(false);
   const [translationTarget, setTranslationTarget] = useState('mai');
@@ -994,6 +1003,22 @@ export default function Home() {
   useEffect(() => () => {
     speechRunRef.current += 1;
     window.speechSynthesis?.cancel();
+  }, []);
+  useEffect(() => {
+    const sections = journeySections
+      .map(({ id }) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const current = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
+        if (current?.target.id) setCurrentJourney(current.target.id);
+      },
+      { rootMargin: '-18% 0px -68% 0px', threshold: [0, 0.1, 0.5] },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
   }, []);
   const updateAssistive = <K extends keyof AssistivePrefs>(
     key: K,
@@ -1338,20 +1363,14 @@ export default function Home() {
           {menuOpen ? <X /> : <Menu />}
         </button>
         <nav className={menuOpen ? 'open' : ''} aria-label="Primary navigation">
-          <a href="#doors">Four doors</a>
+          <a href="#doors">Start</a>
           <a href="#archive-search">Search</a>
           <a href="#explorer">Browse archive</a>
+          <a href="#research-wing">Research rooms</a>
           <Link href="./updates/">Status &amp; updates</Link>
           <a href="#about">About</a>
-          <a
-            className="videha"
-            href="https://www.videha.co.in/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Videha <ExternalLink size={15} />
-          </a>
         </nav>
+        <a className="videha-home" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink size={15} /></a>
       </header>
 
       <div className="videha-tools" aria-label="Videha accessibility tools">
@@ -1408,6 +1427,21 @@ export default function Home() {
         )}
       </div>
 
+      <aside className="journey-nav" aria-label="Page sections">
+        <p>
+          <span>You are in</span>
+          <strong>{journeySections.find((section) => section.id === currentJourney)?.label}</strong>
+          <small><span>Section </span>{journeySections.findIndex((section) => section.id === currentJourney) + 1}/{journeySections.length}</small>
+        </p>
+        <nav aria-label="Jump to a page section">
+          {journeySections.map((section, index) => (
+            <a key={section.id} href={`#${section.id}`} className={currentJourney === section.id ? 'active' : ''} aria-current={currentJourney === section.id ? 'location' : undefined}>
+              <b>{index + 1}</b><span>{section.label}</span>
+            </a>
+          ))}
+        </nav>
+      </aside>
+
       <main id="top">
         <section className="intro">
           <div>
@@ -1416,27 +1450,45 @@ export default function Home() {
             <p>
               A guided entrance to the Videha archive: genealogy, regional
               history, philosophical debate, texts, and translation across
-              India and Nepal. New visitors can begin with one of four doors.
+              India and Nepal. Choose a research question first; the archive
+              will then lead you to the relevant evidence, chapter, or tool.
             </p>
+            <nav className="intro-actions" aria-label="Four direct research paths">
+              <a href="#wing-1"><b>01</b> Genealogy</a>
+              <a href="#explorer"><b>02</b> History</a>
+              <a href="#wing-3"><b>03</b> Debate</a>
+              <a href="#wing-4"><b>04</b> Texts</a>
+              <a className="intro-search" href="#archive-search"><Search /> Search archive</a>
+            </nav>
           </div>
-          <dl>
-            <div>
-              <dt>History available</dt>
-              <dd>{completedHistoryCount} chapters</dd>
+          <aside className="archive-method">
+            <strong>How to read this archive</strong>
+            <p>Entries distinguish supplied text, editorial interpretation, inferred discovery links, and planned material. Dates, map points, and contested claims carry source or method notes so they can be checked rather than merely accepted.</p>
+            <Link href="./sources/">Read the evidentiary method <ChevronRight /></Link>
+          </aside>
+        </section>
+
+        <section className="research-studio" id="doors" aria-labelledby="studio-title">
+          <div className="studio-visual">
+            <Image
+              unoptimized
+              src="./assets/research-studio-panorama.png"
+              width={1944}
+              height={808}
+              alt="Illustrated research panorama: Panji decoding, philosophical debate, manuscript translation and the India–Nepal landscape"
+            />
+          </div>
+          <div className="studio-copy">
+            <p>THE VIDEHA RESEARCH STUDIO</p>
+            <h2 id="studio-title">Four doors into one archive</h2>
+            <p className="studio-introduction">Choose the question closest to yours. Each door leads to specialist tools without requiring you to understand the archive’s full structure first.</p>
+            <div className="studio-doors">
+              <article><button onClick={() => openShelf('Decoding the Panji', 'panji-1')}><b>01</b><span><strong>Read genealogy</strong><small>Decode people, lineages, villages, and marriage relations</small></span></button><nav aria-label="Genealogy paths"><a href="#wing-1">Six Panji volumes</a><a href="#learning-lab">Panji laboratory</a></nav></article>
+              <article><button onClick={() => chooseTab('chronology')}><b>02</b><span><strong>Follow history</strong><small>Move from dated evidence to chapters and changing landscapes</small></span></button><nav aria-label="History paths"><a href="#explorer">178 chapters</a><a href="#wing-2">Historical map</a><Link href="./sources/">Cited records</Link></nav></article>
+              <article><button onClick={() => chooseTab('ideas')}><b>03</b><span><strong>Enter a debate</strong><small>Compare Pūrvapakṣa, Uttarapakṣa, and parallel conclusions</small></span></button><nav aria-label="Debate paths"><a href="#wing-3">Knowledge graph</a><a href="#wing-4">Multiscript reader</a></nav></article>
+              <article><button onClick={() => openShelf('Sanskrit–Maithili Philosophical Texts', 'atmatattvaviveka')}><b>04</b><span><strong>Work with texts</strong><small>Open translations, books, teaching material, and source practice</small></span></button><nav aria-label="Text and learning paths"><a href="#wing-5">Classroom</a><a href="#learning-lab">Research practice</a><a href="#cover-showcase">Library</a></nav></article>
             </div>
-            <div>
-              <dt>Ideas available</dt>
-              <dd>{completedIdeaCount} debates</dd>
-            </div>
-            <div>
-              <dt>Knowledge graph</dt>
-              <dd>880 records</dd>
-            </div>
-            <div>
-              <dt>Source chronology</dt>
-              <dd>{learningData.chronology.length} entries</dd>
-            </div>
-          </dl>
+          </div>
         </section>
 
         <section className="global-search" id="archive-search" aria-labelledby="archive-search-title">
@@ -1481,32 +1533,10 @@ export default function Home() {
           )}
         </section>
 
-        <section className="research-studio" id="doors" aria-labelledby="studio-title">
-          <div className="studio-visual">
-            <Image
-              unoptimized
-              src="./assets/research-studio-panorama.png"
-              width={1944}
-              height={808}
-              alt="Illustrated research panorama: Panji decoding, philosophical debate, manuscript translation and the India–Nepal landscape"
-            />
-          </div>
-          <div className="studio-copy">
-            <p>THE VIDEHA RESEARCH STUDIO</p>
-            <h2 id="studio-title">Four doors into one archive</h2>
-            <p className="studio-introduction">Choose the question closest to yours. Each door leads to specialist tools without requiring you to understand the archive’s full structure first.</p>
-            <div className="studio-doors">
-              <article><button onClick={() => openShelf('Decoding the Panji', 'panji-1')}><b>01</b><span><strong>Read genealogy</strong><small>Decode people, lineages, villages, and marriage relations</small></span></button><nav aria-label="Genealogy paths"><a href="#wing-1">Six Panji volumes</a><a href="#learning-lab">Panji laboratory</a></nav></article>
-              <article><button onClick={() => chooseTab('chronology')}><b>02</b><span><strong>Follow history</strong><small>Move from dated evidence to chapters and changing landscapes</small></span></button><nav aria-label="History paths"><a href="#explorer">178 chapters</a><a href="#wing-2">Historical map</a><Link href="./sources/">Cited records</Link></nav></article>
-              <article><button onClick={() => chooseTab('ideas')}><b>03</b><span><strong>Enter a debate</strong><small>Compare Pūrvapakṣa, Uttarapakṣa, and parallel conclusions</small></span></button><nav aria-label="Debate paths"><a href="#wing-3">Knowledge graph</a><a href="#wing-4">Multiscript reader</a></nav></article>
-              <article><button onClick={() => openShelf('Sanskrit–Maithili Philosophical Texts', 'atmatattvaviveka')}><b>04</b><span><strong>Work with texts</strong><small>Open translations, books, teaching material, and source practice</small></span></button><nav aria-label="Text and learning paths"><a href="#wing-5">Classroom</a><a href="#learning-lab">Research practice</a><a href="#cover-showcase">Library</a></nav></article>
-            </div>
-          </div>
-        </section>
-
         <section className="project-status" id="project-status" aria-labelledby="project-status-title">
           <div><p className="eyebrow">A LIVING, SOURCE-CONTROLLED ARCHIVE</p><h2 id="project-status-title">Clear about what is complete—and what comes next</h2></div>
           <dl><div><dt>History</dt><dd>{completedHistoryCount} complete · {plannedHistoryCount} planned</dd></div><div><dt>Ideas</dt><dd>{completedIdeaCount} complete · {plannedIdeaCount} planned</dd></div><div><dt>Last updated</dt><dd><time dateTime="2026-09-05">5 September 2026</time></dd></div></dl>
+          <p className="count-key"><strong>Count key:</strong> 178 histories and 172 ideas are editorial chapter catalogues. The Knowledge Graph counts a different unit—880 searchable nodes, including 244 idea nodes made from debate chapters and extracted comparison concepts. “People” and “figures” both refer to the same 138-record biographical index.</p>
           <Link href="./updates/">Read the changelog and roadmap <ChevronRight /></Link>
         </section>
 
@@ -1564,6 +1594,7 @@ export default function Home() {
                     width={currentCover.width}
                     height={currentCover.height}
                     alt={`${currentCover.title}, ${currentCover.sequence}, ${currentCover.side}`}
+                    loading="lazy"
                   />
                 </div>
                 <figcaption aria-live="polite">
@@ -1599,8 +1630,8 @@ export default function Home() {
                 {coverPlaying ? 'Pause' : 'Play'}
               </button>
               <span>
-                {String(coverIndex + 1).padStart(2, '0')} /{' '}
-                {String(shownCovers.length).padStart(2, '0')}
+                Cover {String(coverIndex + 1).padStart(2, '0')} of{' '}
+                {String(shownCovers.length).padStart(2, '0')} · {shownCovers.length} images total
               </span>
             </div>
 
@@ -1619,6 +1650,8 @@ export default function Home() {
                       width={cover.width}
                       height={cover.height}
                       alt=""
+                      aria-hidden="true"
+                      loading="lazy"
                     />
                   </button>
                 </li>

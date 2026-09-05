@@ -137,19 +137,38 @@ const activities: Array<{
   },
 ];
 
+const indexWords = (value: string) =>
+  value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().match(/[a-z0-9]+/g) ?? [];
+const cleanArchiveExcerpt = (title: string, text: string, sections: string[] = []) => {
+  if (!sections.length) return text;
+  const titleWords = indexWords(title);
+  const textMatches = [...text.matchAll(/[\p{L}\p{N}]+/gu)];
+  const firstSection = indexWords(sections[0]).join(' ');
+  for (let size = Math.min(titleWords.length, textMatches.length, 12); size > 0; size -= 1) {
+    const titleTail = titleWords.slice(-size).join(' ');
+    const textHead = textMatches.slice(0, size).map((match) => indexWords(match[0])[0]).join(' ');
+    if (titleTail !== textHead) continue;
+    const end = (textMatches[size - 1].index ?? 0) + textMatches[size - 1][0].length;
+    const remainder = text.slice(end).replace(/^[\s:;—–.,-]+/, '');
+    const remainderWords = indexWords(remainder).join(' ');
+    if (remainderWords === firstSection || remainderWords.startsWith(`${firstSection} `)) return remainder;
+  }
+  return text;
+};
+
 const archiveRecords = [
   ...researchData.political.map((c) => ({
     id: c.id,
     kind: 'History chapter',
     title: c.title,
-    text: `${c.summary} ${c.sections.join(' ')}`,
+    text: `${cleanArchiveExcerpt(c.title, c.summary, c.sections)} ${c.sections.join(' ')}`,
     source: `${c.collection} · ${c.volume} · ${c.part} · ${c.pages}`,
   })),
   ...researchData.social.map((c) => ({
     id: c.id,
     kind: 'History chapter',
     title: c.title,
-    text: `${c.summary} ${c.sections.join(' ')}`,
+    text: `${cleanArchiveExcerpt(c.title, c.summary, c.sections)} ${c.sections.join(' ')}`,
     source: `${c.collection} · ${c.volume} · ${c.part} · ${c.pages}`,
   })),
   ...libraryData.map((w) => ({

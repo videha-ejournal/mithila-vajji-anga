@@ -184,6 +184,16 @@ const geoPosition = (latitude: number, longitude: number) => ({
   x: 5 + ((longitude - geoBounds.minLon) / (geoBounds.maxLon - geoBounds.minLon || 1)) * 90,
   y: 5 + ((geoBounds.maxLat - latitude) / (geoBounds.maxLat - geoBounds.minLat || 1)) * 90,
 });
+const geoPlaceLayers = (place: (typeof geoPlaces)[number]): MapLayer[] => {
+  const text = `${place.name} ${place.context} ${place.frame}`.toLowerCase();
+  const layers: MapLayer[] = [];
+  if (/polity|kingdom|court|state|empire|capital|administr|district|sovereign/.test(text)) layers.push('Polities');
+  if (/learn|school|education|language|liter|scholar|university|manuscript/.test(text)) layers.push('Learning');
+  if (/sacred|temple|shrine|pilgr|buddh|jain|monast|sita|janaka/.test(text)) layers.push('Sacred');
+  if (/trade|market|route|rail|port|merchant|commodity|crossing|traffic/.test(text)) layers.push('Trade');
+  if (/archive|record|inscription|grant|plate|survey|report|contents|diagram/.test(text)) layers.push('Archives');
+  return layers.length ? layers : ['Archives'];
+};
 
 type GraphType = 'People' | 'Texts' | 'Places' | 'Ideas';
 type GraphNode = {
@@ -268,6 +278,8 @@ const graphNodes: GraphNode[] = [
 ];
 
 const graphStopWords = new Set([
+  'across',
+  'against',
   'about',
   'after',
   'also',
@@ -278,14 +290,28 @@ const graphStopWords = new Set([
   'being',
   'between',
   'chapter',
+  'contemporary',
   'could',
+  'demonstrate',
+  'development',
+  'different',
+  'evidence',
   'from',
+  'however',
+  'historical',
   'history',
   'indexed',
+  'including',
   'into',
+  'major',
+  'many',
+  'other',
   'mithila',
   'parallel',
   'source',
+  'study',
+  'system',
+  'tradition',
   'their',
   'these',
   'this',
@@ -302,6 +328,11 @@ const graphStopWords = new Set([
   'within',
   'would',
 ]);
+const graphShortConcepts = new Set([
+  'anga', 'bihar', 'caste', 'court', 'ganga', 'jaina', 'logic', 'nepal',
+  'nyaya', 'panji', 'print', 'ritual', 'sacred', 'tarai', 'trade', 'vajji',
+  'vedic', 'women',
+]);
 
 const graphTerms = (value: string) =>
   new Set(
@@ -310,7 +341,7 @@ const graphTerms = (value: string) =>
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .split(/[^a-z0-9]+/)
-      .filter((term) => term.length > 3 && !graphStopWords.has(term)),
+      .filter((term) => (term.length > 5 || graphShortConcepts.has(term)) && !graphStopWords.has(term)),
   );
 
 const graphNodeTerms = new globalThis.Map(
@@ -323,6 +354,9 @@ const graphCounts = Object.fromEntries(
     graphNodes.filter((node) => node.type === type).length,
   ]),
 ) as Record<GraphType, number>;
+const graphLetters = [...new Set(graphNodes.map((node) => node.label.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').charAt(0).toUpperCase()))]
+  .filter((letter) => /[A-Z]/.test(letter))
+  .sort();
 
 const graphEra = (node: GraphNode) => {
   const text = `${node.label} ${node.note} ${node.source}`.toLowerCase();
@@ -511,8 +545,9 @@ export default function ResearchExpansion() {
   const [graphType, setGraphType] = useState('All');
   const [graphEraFilter, setGraphEraFilter] = useState('All eras');
   const [graphRegionFilter, setGraphRegionFilter] = useState('All regions');
+  const [graphLetter, setGraphLetter] = useState('All letters');
   const [graphSearch, setGraphSearch] = useState('');
-  const [graphPage, setGraphPage] = useState(0);
+  const [graphVisibleCount, setGraphVisibleCount] = useState(48);
   const [selectedNode, setSelectedNode] = useState('person-figure-18');
   const [readingMode, setReadingMode] = useState<ReadingMode>('English');
   const [readerIndex, setReaderIndex] = useState(0);
@@ -549,12 +584,14 @@ export default function ResearchExpansion() {
     visiblePlaces[0] ??
     mapPlaces[0];
   const filteredGeoPlaces = geoPlaces.filter((item) =>
+    geoPlaceLayers(item).some((layer) => mapLayers.includes(layer)) &&
     `${item.name} ${item.admin} ${item.countryCode} ${item.context}`
       .toLowerCase()
       .includes(mapSearch.toLowerCase()),
   );
   const geoPlace =
-    geoPlaces.find((item) => item.id === selectedGeoPlace) ?? geoPlaces[0];
+    filteredGeoPlaces.find((item) => item.id === selectedGeoPlace) ??
+    filteredGeoPlaces[0] ?? geoPlaces[0];
   const filteredGraphNodes = useMemo(
     () =>
       graphNodes.filter(
@@ -562,11 +599,12 @@ export default function ResearchExpansion() {
           (graphType === 'All' || node.type === graphType) &&
           (graphEraFilter === 'All eras' || graphEra(node) === graphEraFilter) &&
           (graphRegionFilter === 'All regions' || graphRegion(node) === graphRegionFilter) &&
+          (graphLetter === 'All letters' || node.label.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toUpperCase().startsWith(graphLetter)) &&
           `${node.label} ${node.note} ${node.source}`
             .toLowerCase()
             .includes(graphSearch.toLowerCase()),
       ),
-    [graphType, graphSearch, graphEraFilter, graphRegionFilter],
+    [graphType, graphSearch, graphEraFilter, graphRegionFilter, graphLetter],
   );
   const graphNode =
     graphNodes.find((node) => node.id === selectedNode) ?? graphNodes[0];
@@ -631,11 +669,7 @@ export default function ResearchExpansion() {
       )
       .slice(0, 20);
   }, [graphNode]);
-  const graphPageCount = Math.max(1, Math.ceil(filteredGraphNodes.length / 48));
-  const directoryNodes = filteredGraphNodes.slice(
-    graphPage * 48,
-    graphPage * 48 + 48,
-  );
+  const directoryNodes = filteredGraphNodes.slice(0, graphVisibleCount);
   const sceneNodes = [
     graphNode,
     ...relatedNodes.map((item) => item.node),
@@ -758,6 +792,8 @@ export default function ResearchExpansion() {
                       width={cover.width}
                       height={cover.height}
                       alt=""
+                      aria-hidden="true"
+                      loading="lazy"
                     />
                   )}
                   <span>
@@ -926,7 +962,7 @@ export default function ResearchExpansion() {
                 {item.name}
               </button>
             ))}
-            {geoPlaces.map((item) => {
+            {filteredGeoPlaces.map((item) => {
               const position = geoPosition(item.latitude, item.longitude);
               return (
                 <button
@@ -939,10 +975,6 @@ export default function ResearchExpansion() {
                 ><span></span></button>
               );
             })}
-            <small>
-              Modern reference points only. No ancient or medieval frontier is
-              implied.
-            </small>
           </div>
           <aside>
             <Map />
@@ -962,7 +994,7 @@ export default function ResearchExpansion() {
         <div className="map-evidence-band">
           <div>
             <h4>Period-sensitive evidence anchors</h4>
-            <p>The year and evidence-layer controls change only the eight dated anchors; the 120 small points remain as a modern gazetteer and never imply an ancient frontier.</p>
+            <p>The year control changes the dated historical anchors. Evidence-layer buttons filter both those anchors and the sourced gazetteer list below.</p>
           </div>
           <div>
             {visiblePlaces.map((item) => (
@@ -974,8 +1006,9 @@ export default function ResearchExpansion() {
           <aside><strong>{place.name}</strong><p>{place.note}</p><small>{place.layers.join(' · ')}</small></aside>
         </div>
         <div className="map-directory">
-          <label><Search /><span className="sr-only">Filter only the 120 map places</span><input value={mapSearch} onChange={(event) => setMapSearch(event.target.value)} placeholder="Filter only these 120 places" /></label>
-          <div>{filteredGeoPlaces.map((item) => <button key={item.id} className={selectedGeoPlace === item.id ? 'active' : ''} onClick={() => setSelectedGeoPlace(item.id)}><b>{item.name}</b><small>{item.admin} · {item.countryCode}</small></button>)}</div>
+          <header><div><h4>Sourced place directory</h4><p>Search by place or source context; category filters are derived from terms in each cited passage.</p></div><output aria-live="polite">{filteredGeoPlaces.length} of {geoPlaces.length} places</output></header>
+          <label><Search /><span className="sr-only">Filter the sourced place directory</span><input value={mapSearch} onChange={(event) => setMapSearch(event.target.value)} placeholder="Type a place, district, or source term" /></label>
+          <div>{filteredGeoPlaces.map((item) => <button key={item.id} className={selectedGeoPlace === item.id ? 'active' : ''} onClick={() => setSelectedGeoPlace(item.id)}><b>{item.name}</b><small>{item.admin} · {item.countryCode}</small><span>{geoPlaceLayers(item).join(' · ')}</span></button>)}</div>
         </div>
       </article>
 
@@ -995,7 +1028,7 @@ export default function ResearchExpansion() {
               value={graphSearch}
               onChange={(event) => {
                 setGraphSearch(event.target.value);
-                setGraphPage(0);
+                setGraphVisibleCount(48);
               }}
               placeholder="Filter this graph view"
             />
@@ -1008,7 +1041,7 @@ export default function ResearchExpansion() {
                 aria-pressed={graphType === type}
                 onClick={() => {
                   setGraphType(type);
-                  setGraphPage(0);
+                  setGraphVisibleCount(48);
                 }}
               >
                 {type}{' '}
@@ -1021,10 +1054,11 @@ export default function ResearchExpansion() {
             ))}
           </div>
           <div className="graph-facets" aria-label="Knowledge graph facets">
-            <label><span>Era</span><select value={graphEraFilter} onChange={(event) => { setGraphEraFilter(event.target.value); setGraphPage(0); }}><option>All eras</option>{graphEras.map((era) => <option key={era} value={era}>{era} ({graphEraCounts[era]})</option>)}</select></label>
-            <label><span>Region</span><select value={graphRegionFilter} onChange={(event) => { setGraphRegionFilter(event.target.value); setGraphPage(0); }}><option>All regions</option>{graphRegions.map((region) => <option key={region} value={region}>{region} ({graphRegionCounts[region]})</option>)}</select></label>
+            <label><span>Era</span><select value={graphEraFilter} onChange={(event) => { setGraphEraFilter(event.target.value); setGraphVisibleCount(48); }}><option>All eras</option>{graphEras.map((era) => <option key={era} value={era}>{era} ({graphEraCounts[era]})</option>)}</select></label>
+            <label><span>Region</span><select value={graphRegionFilter} onChange={(event) => { setGraphRegionFilter(event.target.value); setGraphVisibleCount(48); }}><option>All regions</option>{graphRegions.map((region) => <option key={region} value={region}>{region} ({graphRegionCounts[region]})</option>)}</select></label>
+            <label><span>Initial letter</span><select value={graphLetter} onChange={(event) => { setGraphLetter(event.target.value); setGraphVisibleCount(48); }}><option>All letters</option>{graphLetters.map((letter) => <option key={letter}>{letter}</option>)}</select></label>
           </div>
-          <details className="graph-facet-key"><summary>Show all facet values and record counts</summary><div><p><strong>Era</strong>{graphEras.map((era) => <button key={era} onClick={() => { setGraphEraFilter(era); setGraphPage(0); }}>{era} <b>{graphEraCounts[era]}</b></button>)}</p><p><strong>Region</strong>{graphRegions.map((region) => <button key={region} onClick={() => { setGraphRegionFilter(region); setGraphPage(0); }}>{region} <b>{graphRegionCounts[region]}</b></button>)}</p></div></details>
+          <details className="graph-facet-key"><summary>Show all facet values and record counts</summary><div><p><strong>Era</strong>{graphEras.map((era) => <button key={era} onClick={() => { setGraphEraFilter(era); setGraphVisibleCount(48); }}>{era} <b>{graphEraCounts[era]}</b></button>)}</p><p><strong>Region</strong>{graphRegions.map((region) => <button key={region} onClick={() => { setGraphRegionFilter(region); setGraphVisibleCount(48); }}>{region} <b>{graphRegionCounts[region]}</b></button>)}</p></div></details>
         </div>
         <div className="graph-inventory" aria-label="Knowledge graph inventory">
           {(Object.keys(graphCounts) as GraphType[]).map((type) => (
@@ -1034,7 +1068,7 @@ export default function ResearchExpansion() {
               aria-pressed={graphType === type}
               onClick={() => {
                 setGraphType(type);
-                setGraphPage(0);
+                setGraphVisibleCount(48);
               }}
             >
               <strong>{graphCounts[type]}</strong>
@@ -1058,22 +1092,10 @@ export default function ResearchExpansion() {
             </button>
           ))}
         </div>
-        <div className="graph-pagination">
-          <button
-            disabled={graphPage === 0}
-            onClick={() => setGraphPage(graphPage - 1)}
-          >
-            <ChevronLeft /> Previous 48
-          </button>
-          <strong>
-            Page {graphPage + 1} of {graphPageCount}
-          </strong>
-          <button
-            disabled={graphPage >= graphPageCount - 1}
-            onClick={() => setGraphPage(graphPage + 1)}
-          >
-            Next 48 <ChevronRight />
-          </button>
+        <div className="graph-pagination graph-load-more">
+          <progress value={directoryNodes.length} max={Math.max(1, filteredGraphNodes.length)} aria-label={`${directoryNodes.length} of ${filteredGraphNodes.length} graph records shown`} />
+          <strong>Showing {directoryNodes.length} of {filteredGraphNodes.length}</strong>
+          {directoryNodes.length < filteredGraphNodes.length && <button onClick={() => setGraphVisibleCount((count) => count + 48)}>Show 48 more <ChevronRight /></button>}
         </div>
         <div className="graph-layout">
           <div
