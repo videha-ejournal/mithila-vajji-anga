@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './atlas-feature.css';
 
 :root {
   --navy: #101a2d;

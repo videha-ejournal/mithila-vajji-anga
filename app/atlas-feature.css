@@ -1,0 +1,17 @@
+main#top > .literary-atlas-feature{order:1}
+.literary-atlas-feature{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:clamp(18px,2.5vw,36px);margin:0;padding:clamp(24px,3vw,40px) clamp(1rem,3vw,2.5rem);background:var(--navy);color:#fff8eb;border-bottom:4px solid #d5ab60}
+.literary-atlas-mark{font:500 clamp(30px,4vw,55px)/1 Georgia,serif;letter-spacing:-.07em;border:1px solid #9a8a6d;padding:22px 14px;color:#efcf94}
+.literary-atlas-mark span{font-size:.65em;padding:0 4px}
+.literary-atlas-kicker{font-size:.65rem!important;letter-spacing:.13em;font-weight:700;color:#efcf94!important;margin:0 0 12px!important}
+.literary-atlas-copy h2{font:500 clamp(23px,2.6vw,36px)/1.2 Georgia,serif;margin:0 0 9px;letter-spacing:-.025em}
+.literary-atlas-copy h2 a{color:inherit;text-decoration:none}.literary-atlas-copy h2 a:hover{text-decoration:underline;text-underline-offset:5px}.literary-atlas-copy h2 span{color:#efcf94}
+.literary-atlas-copy p{font-size:.85rem;line-height:1.65;margin:7px 0 0;color:#dae0e8;max-width:66ch}
+.literary-atlas-copy p.literary-atlas-maithili{font-size:1rem;color:#efcf94}
+.literary-atlas-actions{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.literary-atlas-actions a{display:inline-flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px;color:#fff8eb;font-size:.85rem;text-underline-offset:5px}
+.literary-atlas-actions a.literary-atlas-primary{background:#f2ddb3;color:#17211d;padding:13px 17px;text-decoration:none;font-weight:700;border:1px solid #f2ddb3;transition:background .18s}
+.literary-atlas-actions a.literary-atlas-primary:hover{background:#fff8eb}.literary-atlas-actions svg{width:17px;height:17px;flex-shrink:0}
+@media(max-width:1100px){.literary-atlas-feature{grid-template-columns:auto minmax(0,1fr)}.literary-atlas-actions{grid-column:2;flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px 22px}}
+@media(max-width:600px){.literary-atlas-feature{grid-template-columns:minmax(0,1fr);gap:18px}.literary-atlas-mark{display:none}.literary-atlas-actions{grid-column:1}.literary-atlas-copy h2{font-size:28px}.literary-atlas-kicker{line-height:1.7}}
+@media(prefers-reduced-motion:reduce){.literary-atlas-actions a{transition:none}}
+@media print{.literary-atlas-feature{background:white;color:black;border:1px solid #555;break-inside:avoid}.literary-atlas-feature p,.literary-atlas-feature h2 span,.literary-atlas-actions a{color:black!important}}

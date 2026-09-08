@@ -1467,6 +1467,20 @@ export default function Home() {
           </aside>
         </section>
 
+        <section className="literary-atlas-feature" aria-labelledby="literary-atlas-title">
+          <div className="literary-atlas-mark" aria-hidden="true">P<span>×</span>G</div>
+          <div className="literary-atlas-copy">
+            <p className="literary-atlas-kicker">FROM THE VIDEHA LIBRARY · A LITERARY ATLAS</p>
+            <h2 id="literary-atlas-title"><a href="https://videha-ejournal.github.io/gajendra-preeti/en/">Preeti Thakur <span>&amp;</span> Gajendra Thakur</a></h2>
+            <p className="literary-atlas-maithili" lang="mai">प्रीति ठाकुर आ गजेन्द्र ठाकुर</p>
+            <p>Picture stories, literature, translation and manuscript archives—with an English criticism reading room.</p>
+          </div>
+          <nav className="literary-atlas-actions" aria-label="Explore the Preeti and Gajendra literary atlas">
+            <a className="literary-atlas-primary" href="https://videha-ejournal.github.io/gajendra-preeti/en/">Explore the literary atlas <ExternalLink aria-hidden="true" /></a>
+            <a href="https://videha-ejournal.github.io/gajendra-preeti/" lang="mai">मैथिलीमे पढ़ू <span aria-hidden="true">↗</span></a>
+          </nav>
+        </section>
+
         <section className="research-studio" id="doors" aria-labelledby="studio-title">
           <div className="studio-visual">
             <Image
