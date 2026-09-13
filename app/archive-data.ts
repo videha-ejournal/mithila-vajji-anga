@@ -1,5 +1,6 @@
 import archiveUnitsData from './generated/archive-units.json';
 import archiveMaithiliData from './generated/archive-maithili.json';
+import literatureInventoryData from './literature-inventory.json';
 import libraryData from './library-data.json';
 
 export type ArchiveGroup = 'philosophy' | 'literature' | 'panji';
@@ -22,6 +23,15 @@ export type ArchiveUnit = {
   region: string;
 };
 
+export type LiteratureInventoryRecord = {
+  number: number;
+  tome: 'I' | 'II' | 'III' | 'IV';
+  title: string;
+  sections: string[];
+  sourceNote: string;
+  verificationSources: string[];
+};
+
 export type LibraryWork = {
   id: string;
   shelf: string;
@@ -37,6 +47,9 @@ export type LibraryWork = {
 export const archiveBasePath = '/mithila-vajji-anga';
 export const archiveUnits = archiveUnitsData as ArchiveUnit[];
 export const archiveMaithili = archiveMaithiliData as Record<string, string>;
+export const literatureInventory = (literatureInventoryData as LiteratureInventoryRecord[])
+  .slice()
+  .sort((a, b) => a.number - b.number);
 export const libraryWorks = libraryData as LibraryWork[];
 
 const parallelPhilosophyBase = libraryWorks.find((work) => work.id === 'parallel-philosophy');
