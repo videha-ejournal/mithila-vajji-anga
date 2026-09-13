@@ -40,10 +40,18 @@ const javascriptFiles = walk(path.join(root, '_next'))
   }))
   .sort((a, b) => b.bytes - a.bytes);
 
+const isInitialChunk = (chunk) =>
+  Boolean(chunk) &&
+  initialFiles.some(
+    ({ file }) =>
+      path.relative(root, file).replaceAll(path.sep, '/') === chunk.file,
+  );
 const learningChunk = javascriptFiles.find((item) => item.file.includes('learning-data'));
-const learningChunkIsInitial = learningChunk
-  ? initialFiles.some(({ file }) => path.relative(root, file).replaceAll(path.sep, '/') === learningChunk.file)
-  : false;
+const collectionDetailsChunk = javascriptFiles.find((item) =>
+  item.file.includes('collection-details'),
+);
+const learningChunkIsInitial = isInitialChunk(learningChunk);
+const collectionDetailsChunkIsInitial = isInitialChunk(collectionDetailsChunk);
 
 const sourceLearningBytes = statSync('app/learning-data.json').size;
 const liteSearchBytes = statSync('app/generated/specialist-search-lite.json').size;
@@ -57,6 +65,8 @@ const imageReport = existsSync(imageReportPath)
 const checks = {
   initialJavaScriptUnderBudget: initialJavaScriptBytes <= 2_800_000,
   specialistLearningChunkDeferred: Boolean(learningChunk) && !learningChunkIsInitial,
+  collectionDetailsDeferred:
+    Boolean(collectionDetailsChunk) && !collectionDetailsChunkIsInitial,
   lightweightSearchIndex: liteSearchRatio <= 0.5,
   imagePipelineRan: imageReport.optimized === true,
   imagesUseNextGenerationFormat:
@@ -74,6 +84,8 @@ const report = {
   largestJavaScriptChunks: javascriptFiles.slice(0, 12),
   learningChunk: learningChunk ?? null,
   learningChunkIsInitial,
+  collectionDetailsChunk: collectionDetailsChunk ?? null,
+  collectionDetailsChunkIsInitial,
   sourceLearningBytes,
   liteSearchBytes,
   liteSearchRatio,
