@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-09-13",
+  "policy": "Map only records whose source-work identity is established by the archive corpus. Exact source PDF objects are resolved at build time against the commit-pinned Videha source catalogue. PDF page locators are not asserted until independently verified against the cited PDF edition.",
+  "exact": [
+    {"recordType":"text","recordId":"panji-1","sourcePdfPath":"DECODING_PANJI_1.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"panji-2","sourcePdfPath":"DECODING_PANJI_2.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"panji-3","sourcePdfPath":"DECODING_PANJI_3.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"panji-4","sourcePdfPath":"DECODING_PANJI_4.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"panji-5","sourcePdfPath":"DECODING_PANJI_5.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"panji-6","sourcePdfPath":"DECODING_PANJI_6.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"parallel-philosophy","sourcePdfPath":"GAJENDRA_THAKUR_PARALLEL_PHILOSOPHY.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"parallel-history","sourcePdfPath":"VIDEHA_Parallel_History.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"atmatattvaviveka","sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_Atmatattvaviveka.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"bhamati","sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_Bhamati.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"nyayakusumanjali","sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_NYAYAKUSUMANJALI.pdf","relation":"exact-source-work","evidenceStatus":"verified"},
+    {"recordType":"text","recordId":"tattvacintamani","sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_Tattvacintamani.pdf","relation":"exact-source-work","evidenceStatus":"verified"}
+  ],
+  "rules": [
+    {"recordType":"history","recordIdPrefix":"political-","sourcePdfPath":"HISTORY_MITHILA_ANGA_VAJJI.pdf","relation":"chapter-in-source-work","evidenceStatus":"verified"},
+    {"recordType":"history","recordIdPrefix":"social-","sourcePdfPath":"History_Mithila_Vajji_Anga_Volume_II_merge.pdf","relation":"chapter-in-source-work","evidenceStatus":"verified"},
+    {"recordType":"idea","recordIdPrefix":"philosophy-v2-","sourcePdfPath":"Samanantar_Darshan_Volume_II_merge.pdf","relation":"chapter-in-source-work","evidenceStatus":"verified"},
+    {"recordType":"idea","recordIdPrefix":"philosophy-","sourcePdfPath":"GAJENDRA_THAKUR_PARALLEL_PHILOSOPHY.pdf","relation":"chapter-in-source-work","evidenceStatus":"verified"}
+  ]
+}
