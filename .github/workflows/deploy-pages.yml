@@ -3,6 +3,8 @@ name: Deploy Mithila–Vajji–Anga to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -11,7 +13,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -27,14 +29,28 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Build static site
+      - name: Lint source
+        run: npm run lint
+      - name: Build static site and scholarly export
         run: npm run build
+      - name: Verify scholarly export
+        run: |
+          test -f dist/client/records/index.html
+          test -f dist/client/records-index.json
+          test -f dist/client/data/releases/2026.09/records.json
+          test -f dist/client/data/releases/2026.09/SHA256SUMS.txt
+          test -f dist/client/sitemap.xml
+          test -f dist/client/robots.txt
+          test -f dist/client/manifest.webmanifest
+          node -e "const r=require('./dist/client/data/scholarly-export-report.json'); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
       - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist/client
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
