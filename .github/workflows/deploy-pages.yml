@@ -41,11 +41,17 @@ jobs:
           REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
           GITHUB_API_TOKEN: ${{ github.token }}
         run: npm run build
-      - name: Verify scholarly export, archive identity, source library and performance contract
+      - name: Verify scholarly export, archive identity, history pages, source library and performance contract
         run: |
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
           test -f dist/client/about/index.html
+          test -f dist/client/history/index.html
+          test -f dist/client/chapters/political-1/index.html
+          test -f dist/client/chapters/political-28/index.html
+          test -f dist/client/chapters/social-1/index.html
+          test -f dist/client/chapters/social-150/index.html
+          test "$(find dist/client/chapters -mindepth 2 -maxdepth 2 -type f -name index.html | wc -l | tr -d ' ')" -eq 178
           test -f dist/client/source-library/index.html
           test -f dist/client/source-library/catalog.json
           test -f dist/client/source-library/SHA256SUMS.txt
@@ -62,7 +68,12 @@ jobs:
           grep -q "Digital Humanities Research Environment for Mithila, Vajji" dist/client/index.html
           grep -q "Videha Digital Research Archive" dist/client/about/index.html
           grep -q "Videha Digital Research Archive" dist/client/records/index.html
+          grep -q "Two histories, one connected regional archive" dist/client/history/index.html
+          grep -q "Detailed chapter description" dist/client/chapters/political-1/index.html
+          grep -q "Detailed chapter description" dist/client/chapters/social-150/index.html
           grep -q "source-library/" dist/client/sitemap.xml
+          grep -q "chapters/political-1/" dist/client/sitemap.xml
+          grep -q "chapters/social-150/" dist/client/sitemap.xml
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/source-library/catalog.json','utf8')); const s=r.sourceRepositories?.[0]; if(r.name!=='Videha Digital Research Archive · Source PDF Library'||!Array.isArray(r.books)||r.externalCount<1||!s||s.repository!=='videha-ejournal/videha-ejournal'||!s.sourceCommit||r.books.some(b=>b.sourceType==='external-github'&&(!b.sourceCommit||!b.gitBlobSha||!b.githubUrl))) process.exit(1); console.log({sourcePdfCount:r.count,externalPdfCount:r.externalCount,sourceCommit:s.sourceCommit})"

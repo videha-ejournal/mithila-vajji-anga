@@ -145,6 +145,7 @@ export default function ScholarlyToolbar() {
         <summary>Archive tools</summary>
         <nav aria-label="Permanent scholarly resources">
           <a href={`${site}/about/`}>About archive</a>
+          <a href={`${site}/history/`}>History volumes</a>
           <a href={`${site}/records/`}>Permanent records</a>
           <a href={`${site}/compare/`}>Compare</a>
           <a href={`${site}/method/`}>Method</a>
