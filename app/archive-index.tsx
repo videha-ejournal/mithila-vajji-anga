@@ -2,6 +2,7 @@
 
 import type { ArchiveGroup } from './archive-data';
 import {
+  archiveBasePath,
   archiveGroups,
   getLibraryWork,
   groupRoute,
@@ -29,7 +30,9 @@ export default function ArchiveIndex({ group, language }: ArchiveIndexProps) {
       <div className={styles.shell}>
         <div className={styles.topline}>
           <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
-            <a href={isMaithili ? '/' : '/en/'}>{isMaithili ? 'मुख्य अभिलेखागार' : 'Archive home'}</a>
+            <a href={isMaithili ? `${archiveBasePath}/` : `${archiveBasePath}/en/`}>
+              {isMaithili ? 'मुख्य अभिलेखागार' : 'Archive home'}
+            </a>
             <span aria-hidden="true">/</span>
             <span>{title}</span>
           </nav>
