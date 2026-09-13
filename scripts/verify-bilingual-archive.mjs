@@ -4,8 +4,12 @@ const units = JSON.parse(readFileSync('app/generated/archive-units.json', 'utf8'
 const maithili = JSON.parse(readFileSync('app/generated/archive-maithili.json', 'utf8'));
 const literatureInventoryPath = 'app/literature-inventory.json';
 const maithiliReviewPath = 'app/maithili-research-review.json';
+const panjiCorrectionsPath = 'app/panji-source-corrections.json';
 const maithiliReviews = existsSync(maithiliReviewPath)
   ? JSON.parse(readFileSync(maithiliReviewPath, 'utf8'))
+  : {};
+const panjiCorrections = existsSync(panjiCorrectionsPath)
+  ? JSON.parse(readFileSync(panjiCorrectionsPath, 'utf8'))
   : {};
 
 const genericLiterature = [
@@ -92,6 +96,39 @@ function verifyMaithiliResearchReview(unit) {
   }
 }
 
+function verifyPanjiCorrections() {
+  for (const [correctionKey, correction] of Object.entries(panjiCorrections)) {
+    const match = /^(panji-[1-6])\/(\d+)$/.exec(correctionKey);
+    if (!match) throw new Error(`Invalid Panji source-correction key: ${correctionKey}`);
+
+    const workId = match[1];
+    const number = Number(match[2]);
+    const unitKey = `panji/${workId}/${String(number).padStart(3, '0')}`;
+    const unit = units.find((item) => item.key === unitKey);
+    if (!unit) throw new Error(`Verified Panji source correction was not applied because the generated unit is missing: ${correctionKey}`);
+
+    const expectedTitle = String(correction?.title ?? '').trim();
+    if (!expectedTitle || String(unit.title ?? '').trim() !== expectedTitle) {
+      throw new Error(`Verified Panji source title was not applied exactly: ${unitKey}`);
+    }
+
+    const expectedSource = String(correction?.source ?? '').trim();
+    if (!expectedSource || String(unit.sourceCorrection?.source ?? '').trim() !== expectedSource) {
+      throw new Error(`Panji source-correction provenance is missing or mismatched: ${unitKey}`);
+    }
+    if (!String(unit.sourceCorrection?.verification ?? '').trim()) {
+      throw new Error(`Panji source-correction verification note is missing: ${unitKey}`);
+    }
+
+    const sections = new Set((Array.isArray(unit.sections) ? unit.sections : []).map((value) => String(value).trim()));
+    for (const section of Array.isArray(correction?.prependSections) ? correction.prependSections : []) {
+      if (!sections.has(String(section).trim())) {
+        throw new Error(`Panji source correction did not restore subsection '${section}': ${unitKey}`);
+      }
+    }
+  }
+}
+
 verifyLiteratureInventory();
 
 if (!Array.isArray(units)) {
@@ -102,6 +139,9 @@ if (!maithili || Array.isArray(maithili) || typeof maithili !== 'object') {
 }
 if (!maithiliReviews || Array.isArray(maithiliReviews) || typeof maithiliReviews !== 'object') {
   throw new Error('app/maithili-research-review.json must contain an object keyed by archive unit');
+}
+if (!panjiCorrections || Array.isArray(panjiCorrections) || typeof panjiCorrections !== 'object') {
+  throw new Error('app/panji-source-corrections.json must contain an object keyed by work/chapter');
 }
 
 if (units.length === 0) {
@@ -162,6 +202,8 @@ for (const unit of units) {
   verifyMaithiliResearchReview(unit);
 }
 
+verifyPanjiCorrections();
+
 const literature = units.filter((unit) => unit.group === 'literature');
 if (literature.length !== 0) {
   const numbers = literature.map((unit) => unit.number).sort((a, b) => a - b);
@@ -201,4 +243,4 @@ if (philosophy.length !== 0) {
   }
 }
 
-console.log(`Verified ${units.length} bilingual archive units; source-grounded detail and paired-language gates passed.`);
+console.log(`Verified ${units.length} bilingual archive units; source-grounded detail, source corrections and paired-language gates passed.`);
