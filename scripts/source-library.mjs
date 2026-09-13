@@ -12,6 +12,13 @@ const EXTERNAL_REPOSITORY_URL = `https://github.com/${EXTERNAL_REPOSITORY}`;
 const EXTERNAL_CATALOG_PATH = 'data/videha-pdf-catalog.json';
 const requireExternal = process.env.REQUIRE_EXTERNAL_SOURCE_LIBRARY === '1';
 
+const REQUIRED_CURATED_SOURCE_METADATA = [
+  ['37_CHILDREN_NOVELS.pdf', 'en'],
+  ['GAJENDRA_THAKUR_SAMAGRA_37_MAITHILI_CHILDREN_NOVELS.pdf', 'mai'],
+  ['Gohi_Jalsamadhi_Bal_Sanskaran.pdf', 'mai'],
+  ['Gohi_Sabhak_Beech_Jalsamadhi.pdf', 'mai'],
+];
+
 const walk = (directory) =>
   existsSync(directory)
     ? readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -77,6 +84,12 @@ async function loadExternalSourceRepository() {
   const pdfBlobs = (tree.tree ?? []).filter(
     (item) => item.type === 'blob' && item.path?.toLowerCase().endsWith('.pdf'),
   );
+  const pinnedUrl = (relatedPath) => relatedPath
+    ? `https://raw.githubusercontent.com/${EXTERNAL_REPOSITORY}/${sourceCommit}/${encodePath(relatedPath)}`
+    : null;
+  const pinnedGithubUrl = (relatedPath) => relatedPath
+    ? `${EXTERNAL_REPOSITORY_URL}/blob/${sourceCommit}/${encodePath(relatedPath)}`
+    : null;
 
   const items = pdfBlobs.map((item) => {
     const supplied = catalogByPath.get(item.path);
@@ -95,6 +108,18 @@ async function loadExternalSourceRepository() {
       sourceCommit,
       sourceCommitDate,
       gitBlobSha: item.sha,
+      sourceSha256: supplied?.sha256 ?? null,
+      language: supplied?.language ?? null,
+      languageCode: supplied?.languageCode ?? null,
+      editionNote: supplied?.editionNote ?? null,
+      translationOf: supplied?.translationOf ?? null,
+      translationOfTitle: supplied?.translationOfTitle ?? null,
+      translationOfUrl: pinnedUrl(supplied?.translationOf),
+      translationOfGithubUrl: pinnedGithubUrl(supplied?.translationOf),
+      translatedAs: supplied?.translatedAs ?? null,
+      translatedAsTitle: supplied?.translatedAsTitle ?? null,
+      translatedAsUrl: pinnedUrl(supplied?.translatedAs),
+      translatedAsGithubUrl: pinnedGithubUrl(supplied?.translatedAs),
       url: `https://raw.githubusercontent.com/${EXTERNAL_REPOSITORY}/${sourceCommit}/${pinnedPath}`,
       githubUrl: `${EXTERNAL_REPOSITORY_URL}/blob/${sourceCommit}/${pinnedPath}`,
       currentPublishedUrl: supplied?.url ?? null,
@@ -107,6 +132,7 @@ async function loadExternalSourceRepository() {
     branch: EXTERNAL_BRANCH,
     sourceCommit,
     sourceCommitDate,
+    sourceCatalogSchemaVersion: catalog.schemaVersion ?? null,
     sourceCatalogVersion: catalog.version ?? null,
     sourceCatalogCount: catalog.count ?? null,
     items,
@@ -140,6 +166,23 @@ try {
 }
 
 const externalItems = externalSource?.items ?? [];
+if (requireExternal) {
+  const externalByFilename = new Map(externalItems.map((item) => [item.filename, item]));
+  for (const [filename, languageCode] of REQUIRED_CURATED_SOURCE_METADATA) {
+    const sourceItem = externalByFilename.get(filename);
+    if (!sourceItem) throw new Error(`Required curated source PDF is missing: ${filename}`);
+    if (sourceItem.languageCode !== languageCode) {
+      throw new Error(`Required language metadata mismatch for ${filename}: expected ${languageCode}, found ${sourceItem.languageCode ?? 'none'}`);
+    }
+  }
+  const englishTranslation = externalByFilename.get('37_CHILDREN_NOVELS.pdf');
+  const maithiliOriginal = externalByFilename.get('GAJENDRA_THAKUR_SAMAGRA_37_MAITHILI_CHILDREN_NOVELS.pdf');
+  if (englishTranslation?.translationOf !== maithiliOriginal?.filename
+      || maithiliOriginal?.translatedAs !== englishTranslation?.filename) {
+    throw new Error('The Maithili-original ↔ English-translation relationship for the 37 children novels is incomplete.');
+  }
+}
+
 const items = [...externalItems, ...localItems].sort((a, b) => a.title.localeCompare(b.title));
 const books = items.filter((item) => item.sourceRole === 'book-or-research-document');
 const supportDocuments = items.filter((item) => item.sourceRole !== 'book-or-research-document');
@@ -162,6 +205,7 @@ const catalog = {
         branch: externalSource.branch,
         sourceCommit: externalSource.sourceCommit,
         sourceCommitDate: externalSource.sourceCommitDate,
+        sourceCatalogSchemaVersion: externalSource.sourceCatalogSchemaVersion,
         sourceCatalogVersion: externalSource.sourceCatalogVersion,
         sourceCatalogCount: externalSource.sourceCatalogCount,
       }]
@@ -175,7 +219,7 @@ writeFileSync(
   path.join(outputRoot, 'SHA256SUMS.txt'),
   localItems.length
     ? `# SHA-256 checksums for PDFs physically published by the archive repository.\n${localItems.map((book) => `${book.sha256}  ${book.filename}`).join('\n')}\n`
-    : '# No local archive PDFs in this build. External source PDFs are identified by commit-pinned Git blob IDs; see GIT-BLOB-IDS.txt and catalog.json.\n',
+    : '# No local archive PDFs in this build. External source PDFs are identified by commit-pinned Git blob IDs; source SHA-256 values, where supplied, are preserved in catalog.json.\n',
 );
 writeFileSync(
   path.join(outputRoot, 'GIT-BLOB-IDS.txt'),
@@ -193,6 +237,12 @@ writeFileSync(
 
 const renderItem = (book) => {
   const external = book.sourceType === 'external-github';
+  const relationshipRows = [
+    book.language ? `<dt>Language</dt><dd>${escapeHtml(book.language)}${book.languageCode ? ` (<code>${escapeHtml(book.languageCode)}</code>)` : ''}</dd>` : '',
+    book.editionNote ? `<dt>Edition / relation note</dt><dd>${escapeHtml(book.editionNote)}</dd>` : '',
+    book.translationOfUrl ? `<dt>Translation of</dt><dd><a href="${escapeHtml(book.translationOfUrl)}">${escapeHtml(book.translationOfTitle || book.translationOf)}</a> · <a href="${escapeHtml(book.translationOfGithubUrl)}">exact source object</a></dd>` : '',
+    book.translatedAsUrl ? `<dt>English translation</dt><dd><a href="${escapeHtml(book.translatedAsUrl)}">${escapeHtml(book.translatedAsTitle || book.translatedAs)}</a> · <a href="${escapeHtml(book.translatedAsGithubUrl)}">exact source object</a></dd>` : '',
+  ].filter(Boolean).join('');
   return `
       <article class="book">
         <h2><a href="${escapeHtml(book.url)}">${escapeHtml(book.title)}</a></h2>
@@ -200,8 +250,9 @@ const renderItem = (book) => {
         <dl>
           <dt>Format</dt><dd>PDF</dd>
           <dt>Size</dt><dd>${formatMb(book.bytes)}</dd>
+          ${relationshipRows}
           ${external
-            ? `<dt>Source repository</dt><dd><a href="${escapeHtml(book.repositoryUrl)}">${escapeHtml(book.repository)}</a></dd><dt>Version</dt><dd><code>${book.sourceCommit.slice(0, 12)}</code> · commit-pinned</dd><dt>Git blob ID</dt><dd><code>${book.gitBlobSha}</code></dd>`
+            ? `<dt>Source repository</dt><dd><a href="${escapeHtml(book.repositoryUrl)}">${escapeHtml(book.repository)}</a></dd><dt>Version</dt><dd><code>${book.sourceCommit.slice(0, 12)}</code> · commit-pinned</dd><dt>Git blob ID</dt><dd><code>${book.gitBlobSha}</code></dd>${book.sourceSha256 ? `<dt>Source SHA-256</dt><dd><code>${book.sourceSha256}</code></dd>` : ''}`
             : `<dt>SHA-256</dt><dd><code>${book.sha256}</code></dd>`}
         </dl>
         ${external
@@ -228,6 +279,23 @@ const itemList = items.map((book, index) => ({
     version: book.sourceCommit ?? undefined,
     identifier: book.gitBlobSha ? `git-blob:${book.gitBlobSha}` : `sha256:${book.sha256}`,
     sameAs: book.githubUrl ?? undefined,
+    inLanguage: book.languageCode ?? book.language ?? undefined,
+    translationOfWork: book.translationOfUrl
+      ? {
+          '@type': 'DigitalDocument',
+          name: book.translationOfTitle ?? book.translationOf,
+          contentUrl: book.translationOfUrl,
+          inLanguage: 'mai',
+        }
+      : undefined,
+    workTranslation: book.translatedAsUrl
+      ? {
+          '@type': 'DigitalDocument',
+          name: book.translatedAsTitle ?? book.translatedAs,
+          contentUrl: book.translatedAsUrl,
+          inLanguage: 'en',
+        }
+      : undefined,
     isPartOf: book.repositoryUrl
       ? { '@type': 'Collection', name: book.repository, url: book.repositoryUrl }
       : { '@type': 'WebSite', name: 'Videha Digital Research Archive', url: SITE },
@@ -278,7 +346,7 @@ if (existsSync(sitemapPath)) {
 }
 
 const identityStyle = `<style id="videha-archive-identity-style">.videha-archive-identity{box-sizing:border-box;width:100%;padding:.55rem 1rem;background:#0d2742;color:#fff;font:600 13px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center}.videha-archive-identity a{color:#fff!important;font-weight:800;text-decoration:none}.videha-archive-identity span{opacity:.88}.videha-archive-identity a:focus-visible{outline:3px solid #e39b45;outline-offset:2px}@media print{.videha-archive-identity{display:none}}</style>`;
-const identityStrip = `<div class="videha-archive-identity" role="note"><a href="${SITE}">Videha Digital Research Archive</a> <span>· Digital Humanities Research Environment for Mithila, Vajji &amp; Anga</span></div>`;
+const identityStrip = `<div class="videha-archive-identity" role="note"><a href="${SITE}">Videha Digital Research Archive</a> <span>· Digital Humanities Research Environment for Mithila, Vajji & Anga</span></div>`;
 const identityRoots = ['records', 'compare', 'method', 'data', 'accessibility', 'rights'];
 let identityPages = 0;
 for (const root of identityRoots) {
