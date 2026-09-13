@@ -19,6 +19,13 @@ const runNodeScript = (script, options = {}) =>
 const runtimeData = runNodeScript('scripts/prepare-runtime-data.mjs');
 if (runtimeData.status !== 0) process.exit(runtimeData.status ?? 1);
 
+// Source structure is part of the publication contract even while generated
+// bilingual detail payloads remain intentionally empty. Run the strict Panji
+// audit before archive verification so CI catches malformed/missing chapter
+// headings instead of only validating whatever happens to be generated.
+const panjiSourceAudit = runNodeScript('scripts/audit-panji-source.mjs', { args: ['--strict'] });
+if (panjiSourceAudit.status !== 0) process.exit(panjiSourceAudit.status ?? 1);
+
 const archiveVerification = runNodeScript('scripts/verify-bilingual-archive.mjs');
 if (archiveVerification.status !== 0) process.exit(archiveVerification.status ?? 1);
 
