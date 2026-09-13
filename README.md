@@ -56,18 +56,32 @@ The archive identity page is:
 
 ## Source PDF Library
 
-Repository PDFs can be published as verifiable source objects rather than isolated downloads. Put PDFs inside:
+The principal PDF corpus is maintained separately at:
 
-`public/books/`
+`https://github.com/videha-ejournal/videha-ejournal`
 
-The build will automatically create:
+That source repository automatically publishes a lightweight PDF catalogue after PDF changes. During every verified archive build, `scripts/source-library.mjs` reads the source catalogue and the exact Git tree, then publishes a version-specific Source PDF Library without copying the large binary corpus into this website repository.
 
-- stable public PDF URLs under `/mithila-vajji-anga/books/`;
-- `/source-library/` — an independently discoverable source-library page;
-- `/source-library/catalog.json` — a machine-readable PDF catalogue;
-- `/source-library/SHA256SUMS.txt` — SHA-256 verification checksums.
+For each external PDF the generated archive catalogue records:
 
-PDF filenames are used as provisional display titles. For best scholarly presentation, use clear filenames such as `History_of_Mithila_Volume_I.pdf`, `Decoding_the_Panji_Volume_I.pdf`, or `Parallel_Philosophy_Volume_I.pdf`. The original PDFs remain unchanged.
+- source repository and branch;
+- exact source commit;
+- exact Git blob ID;
+- file size and media type;
+- commit-pinned raw PDF URL;
+- commit-pinned GitHub object URL;
+- current source-repository Pages URL where supplied.
+
+The generated outputs are:
+
+- `/source-library/` — independently discoverable human-readable source library;
+- `/source-library/catalog.json` — combined machine-readable catalogue;
+- `/source-library/GIT-BLOB-IDS.txt` — exact Git object IDs for external PDFs;
+- `/source-library/SHA256SUMS.txt` — SHA-256 checksums for any PDFs physically stored under this repository’s optional `public/books/` path.
+
+The archive workflow also runs daily at 02:17 UTC (07:47 IST), in addition to normal pushes and manual runs, so newly uploaded or reduced PDFs in the dedicated source repository are incorporated automatically after that repository’s catalogue workflow completes.
+
+External Git blob IDs are not described as SHA-256 checksums; each identifier type is preserved accurately. Indexing a PDF does not change its copyright or licence.
 
 ## Performance and media delivery
 
@@ -92,9 +106,11 @@ The interactive interface includes a skip link, semantic landmarks, keyboard-ope
 4. Run `npm run lint`.
 5. Run `npm run build` before publishing; the static site and scholarly export are written to `dist/client/`.
 
+Local builds attempt to read the external public PDF repository and gracefully continue with local PDFs if it is temporarily unreachable. CI sets `REQUIRE_EXTERNAL_SOURCE_LIBRARY=1`, so production publication fails rather than silently omitting the dedicated source repository.
+
 ## Deploy on GitHub Pages
 
-The GitHub Actions workflow validates lint, the complete static build, scholarly export, permanent-record QA, datasets, sitemap, robots file, PWA manifest, archive identity page, PDF source-library catalogue and performance contract on pull requests. Pushes to `main` additionally deploy the verified `dist/client/` artifact to GitHub Pages.
+The GitHub Actions workflow validates lint, the complete static build, scholarly export, permanent-record QA, datasets, sitemap, robots file, PWA manifest, archive identity page, commit-pinned external PDF source-library catalogue and performance contract on pull requests. Pushes to `main` additionally deploy the verified `dist/client/` artifact to GitHub Pages. A daily scheduled build refreshes the external source-PDF catalogue.
 
 The build automatically handles the project path at `videha-ejournal.github.io/mithila-vajji-anga/`.
 
