@@ -4,6 +4,7 @@ import { ArrowLeft, Check, CircleDashed } from 'lucide-react';
 export const metadata = {
   title: 'Status and roadmap | Mithila–Vajji–Anga',
   description: 'Changelog, completion status, release history, and roadmap for the living Videha research archive.',
+  alternates: { canonical: 'https://videha-ejournal.github.io/mithila-vajji-anga/updates/' },
 };
 export const dynamic = 'force-static';
 
