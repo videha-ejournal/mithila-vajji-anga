@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * *'
 
 permissions:
   contents: read
@@ -36,8 +38,10 @@ jobs:
       - name: Build static site, scholarly export and performance layer
         env:
           REQUIRE_IMAGE_OPTIMIZATION: '1'
+          REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
+          GITHUB_API_TOKEN: ${{ github.token }}
         run: npm run build
-      - name: Verify scholarly export, archive identity and performance contract
+      - name: Verify scholarly export, archive identity, source library and performance contract
         run: |
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
@@ -45,6 +49,7 @@ jobs:
           test -f dist/client/source-library/index.html
           test -f dist/client/source-library/catalog.json
           test -f dist/client/source-library/SHA256SUMS.txt
+          test -f dist/client/source-library/GIT-BLOB-IDS.txt
           test -f dist/client/data/releases/2026.09/records.json
           test -f dist/client/data/releases/2026.09/SHA256SUMS.txt
           test -f dist/client/data/scholarly-export-report.json
@@ -60,7 +65,7 @@ jobs:
           grep -q "source-library/" dist/client/sitemap.xml
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
-          node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/source-library/catalog.json','utf8')); if(r.name!=='Videha Digital Research Archive · Source PDF Library'||!Array.isArray(r.books)) process.exit(1); console.log({sourcePdfCount:r.count})"
+          node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/source-library/catalog.json','utf8')); const s=r.sourceRepositories?.[0]; if(r.name!=='Videha Digital Research Archive · Source PDF Library'||!Array.isArray(r.books)||r.externalCount<1||!s||s.repository!=='videha-ejournal/videha-ejournal'||!s.sourceCommit||r.books.some(b=>b.sourceType==='external-github'&&(!b.sourceCommit||!b.gitBlobSha||!b.githubUrl))) process.exit(1); console.log({sourcePdfCount:r.count,externalPdfCount:r.externalCount,sourceCommit:s.sourceCommit})"
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
