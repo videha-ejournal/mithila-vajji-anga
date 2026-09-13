@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
+const sourceRepository = 'https://github.com/videha-ejournal/videha-ejournal';
 
 export const metadata: Metadata = {
   title: 'About the Archive',
@@ -13,6 +14,7 @@ const links = [
   ['Permanent records', `${site}/records/`],
   ['Versioned research data', `${site}/data/`],
   ['Source PDF library', `${site}/source-library/`],
+  ['Dedicated PDF repository', sourceRepository],
   ['Editorial method', `${site}/method/`],
   ['Rights and licensing', `${site}/rights/`],
   ['Accessibility', `${site}/accessibility/`],
@@ -50,6 +52,7 @@ export default function AboutArchive() {
           <li>Versioned JSON, CSV, NDJSON and GeoJSON research releases with SHA-256 checksums.</li>
           <li>Evidence-status labels, editorial method, rights matrix, accessibility statement and source-controlled QA.</li>
           <li>Shareable research-state URLs, comparison tools, multilingual search support and offline/PWA infrastructure.</li>
+          <li>Commit-pinned source-book objects from the dedicated Videha PDF repository, with Git object identifiers and machine-readable provenance.</li>
         </ul>
         <p>
           Release <strong>2026.09</strong> publishes <strong>780 permanent research records</strong> and a formal
@@ -63,12 +66,20 @@ export default function AboutArchive() {
         <p>
           The books, manuscripts and translations remain foundational scholarly sources, but the archive is the wider
           research environment that connects those sources to structured records, evidence notes, citations, data,
-          search, comparison and discovery. Repository PDFs can therefore be treated as source objects inside the
-          archive rather than as isolated downloads.
+          search, comparison and discovery. Repository PDFs are therefore treated as source objects inside the archive
+          rather than as isolated downloads.
         </p>
         <p>
-          The <a href={`${site}/source-library/`}>Source PDF Library</a> publishes a machine-readable catalogue and
-          checksums for any PDFs placed in the repository’s <code>public/books/</code> directory.
+          The principal PDF corpus is maintained in the dedicated public repository{' '}
+          <a href={sourceRepository}>videha-ejournal/videha-ejournal</a>. The{' '}
+          <a href={`${site}/source-library/`}>Source PDF Library</a> records the exact source-repository commit and Git
+          blob ID for each indexed PDF and links to a commit-pinned copy. This means a later replacement on the source
+          repository’s <code>main</code> branch does not silently alter the version cited by a particular archive build.
+        </p>
+        <p>
+          The source repository rebuilds its lightweight PDF catalogue after PDF changes, while this archive performs a
+          daily refresh in addition to its normal deployment builds. Newly added or reduced PDFs therefore enter the
+          archive catalogue automatically after they are pushed successfully.
         </p>
       </section>
 
@@ -76,8 +87,9 @@ export default function AboutArchive() {
         <h2>How to cite and verify</h2>
         <p>
           Cite the most specific permanent record whenever possible. For computational or corpus-level work, cite the
-          relevant versioned dataset release. Checksums allow downloaded release files and source PDFs to be verified
-          independently.
+          relevant versioned dataset release. Research-data release files use SHA-256 checksums. Externally stored source
+          PDFs are identified by their exact source commit and Git blob ID; these Git identifiers are kept distinct from
+          SHA-256 and are not mislabeled as cryptographic release checksums.
         </p>
       </section>
 
