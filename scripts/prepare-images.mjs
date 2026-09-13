@@ -27,7 +27,7 @@ if (cleanup) {
 let sharp;
 try {
   ({ default: sharp } = await import('sharp'));
-} catch (error) {
+} catch {
   const report = {
     optimized: false,
     reason: 'sharp is not installed; production CI installs it before the build.',
