@@ -8,6 +8,7 @@ import {
   groupRoute,
   literatureInventory,
   panjiWorkInventory,
+  philosophyWorkInventory,
   routeFor,
   workUnits,
 } from './archive-data';
@@ -62,11 +63,17 @@ export default function ArchiveIndex({ group, language }: ArchiveIndexProps) {
           {config.workIds.map((workId) => {
             const work = getLibraryWork(workId);
             const units = workUnits(group, workId);
+            const philosophySourceInventory =
+              group === 'philosophy' ? philosophyWorkInventory(workId) : [];
             const literatureSourceInventory =
               group === 'literature' && workId === 'parallel-history' ? literatureInventory : [];
             const panjiSourceInventory = group === 'panji' ? panjiWorkInventory(workId) : [];
             const verifiedSourceInventory =
-              literatureSourceInventory.length > 0 ? literatureSourceInventory : panjiSourceInventory;
+              philosophySourceInventory.length > 0
+                ? philosophySourceInventory
+                : literatureSourceInventory.length > 0
+                  ? literatureSourceInventory
+                  : panjiSourceInventory;
             if (!work) return null;
             return (
               <article className={styles.card} key={workId}>
@@ -80,13 +87,17 @@ export default function ArchiveIndex({ group, language }: ArchiveIndexProps) {
                       ? `${units.length} स्रोत-सत्यापित स्थायी इकाइ`
                       : `${units.length} source-verified permanent units`
                     : verifiedSourceInventory.length > 0
-                      ? group === 'panji'
+                      ? group === 'philosophy'
                         ? isMaithili
-                          ? `${verifiedSourceInventory.length} अध्यायक स्रोत-सूची कठोर संरचना-जाँचसँ सत्यापित अछि। मैथिली शोध-संस्करणक स्रोत-मिलान आ पाठ-जाँच पूरा भेलापर मात्र स्थायी अध्याय-लिंक सक्रिय होएत।`
-                          : `${verifiedSourceInventory.length} source chapters passed the strict structural audit. Detail links remain disabled until the paired Maithili research editions pass editorial source review.`
-                        : isMaithili
-                          ? `${verifiedSourceInventory.length} अध्यायक स्रोत-सूची सत्यापित अछि। मैथिली शोध-संस्करण आ जोड़ीदार स्थायी पृष्ठक पाठ-जाँच पूरा भेलापर मात्र अध्याय-लिंक सक्रिय होएत।`
-                          : `${verifiedSourceInventory.length} chapter titles are source-verified. Detail links remain disabled until the paired Maithili research editions and permanent-page payloads pass validation.`
+                          ? `${verifiedSourceInventory.length} स्रोत-द्विभाषी अध्यायक सूची सत्यापित अछि। जोड़ीदार पाठ-सामग्री अभिलेखागार-जाँच पार भेलापर मात्र स्थायी अध्याय-लिंक सक्रिय होएत।`
+                          : `${verifiedSourceInventory.length} source-bilingual chapters passed the structural audit. Permanent detail links remain disabled until the paired reader payload passes archive validation.`
+                        : group === 'panji'
+                          ? isMaithili
+                            ? `${verifiedSourceInventory.length} अध्यायक स्रोत-सूची कठोर संरचना-जाँचसँ सत्यापित अछि। मैथिली शोध-संस्करणक स्रोत-मिलान आ पाठ-जाँच पूरा भेलापर मात्र स्थायी अध्याय-लिंक सक्रिय होएत।`
+                            : `${verifiedSourceInventory.length} source chapters passed the strict structural audit. Detail links remain disabled until the paired Maithili research editions pass editorial source review.`
+                          : isMaithili
+                            ? `${verifiedSourceInventory.length} अध्यायक स्रोत-सूची सत्यापित अछि। मैथिली शोध-संस्करण आ जोड़ीदार स्थायी पृष्ठक पाठ-जाँच पूरा भेलापर मात्र अध्याय-लिंक सक्रिय होएत।`
+                            : `${verifiedSourceInventory.length} chapter titles are source-verified. Detail links remain disabled until the paired Maithili research editions and permanent-page payloads pass validation.`
                       : isMaithili
                         ? 'स्रोत-सूची सत्यापनाधीन अछि — कोनो बनावटी अध्याय प्रकाशित नहि कएल जाइत अछि।'
                         : 'Source inventory pending verification — no synthetic chapters published.'}
