@@ -1,13 +1,14 @@
 {
-  "name": "Mithila–Vajji–Anga · Videha Historical Research",
-  "short_name": "MVA Research",
+  "name": "Videha Digital Research Archive · Digital Humanities Research Environment for Mithila, Vajji & Anga",
+  "short_name": "Videha Archive",
   "id": "/mithila-vajji-anga/",
   "start_url": "/mithila-vajji-anga/",
   "scope": "/mithila-vajji-anga/",
   "display": "standalone",
   "background_color": "#fbfaf6",
   "theme_color": "#0d2742",
-  "description": "A source-controlled scholarly research portal for Mithila, Vajji and Anga.",
+  "description": "A permanent, citable, machine-readable and versioned digital humanities research environment for Mithila, Vajji and Anga.",
+  "categories": ["education", "research", "reference"],
   "icons": [
     {
       "src": "/mithila-vajji-anga/favicon.svg",
