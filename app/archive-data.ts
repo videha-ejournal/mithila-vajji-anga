@@ -34,6 +34,7 @@ export type LibraryWork = {
   structure: string[];
 };
 
+export const archiveBasePath = '/mithila-vajji-anga';
 export const archiveUnits = archiveUnitsData as ArchiveUnit[];
 export const archiveMaithili = archiveMaithiliData as Record<string, string>;
 export const libraryWorks = libraryData as LibraryWork[];
@@ -109,11 +110,11 @@ export function maithiliReading(unit: ArchiveUnit) {
 }
 
 export function routeFor(unit: ArchiveUnit, language: 'mai' | 'en') {
-  const prefix = language === 'en' ? '/en' : '';
-  return `${prefix}/${unit.group}/${unit.workId}/${unit.unitId}/`;
+  const languagePrefix = language === 'en' ? '/en' : '';
+  return `${archiveBasePath}${languagePrefix}/${unit.group}/${unit.workId}/${unit.unitId}/`;
 }
 
 export function groupRoute(group: ArchiveGroup, language: 'mai' | 'en') {
-  const prefix = language === 'en' ? '/en' : '';
-  return `${prefix}/${group}/`;
+  const languagePrefix = language === 'en' ? '/en' : '';
+  return `${archiveBasePath}${languagePrefix}/${group}/`;
 }
