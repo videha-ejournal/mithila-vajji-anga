@@ -138,7 +138,8 @@
   list-style: none;
 }
 
-.unitList a {
+.unitList a,
+.unitList > li > span {
   display: block;
   height: 100%;
   padding: .8rem .9rem;
@@ -147,6 +148,11 @@
   background: var(--surface);
   color: var(--ink);
   text-decoration: none;
+}
+
+.unitList > li > span {
+  border-style: dashed;
+  background: #fffdf8;
 }
 
 .unitList a:hover,
