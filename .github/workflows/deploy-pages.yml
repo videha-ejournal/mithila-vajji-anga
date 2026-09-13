@@ -29,20 +29,28 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Install production image optimizer
+        run: npm install --no-save --package-lock=false sharp@0.35.4
       - name: Lint source
         run: npm run lint
-      - name: Build static site and scholarly export
+      - name: Build static site, scholarly export and performance layer
+        env:
+          REQUIRE_IMAGE_OPTIMIZATION: '1'
         run: npm run build
-      - name: Verify scholarly export
+      - name: Verify scholarly export and performance contract
         run: |
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
           test -f dist/client/data/releases/2026.09/records.json
           test -f dist/client/data/releases/2026.09/SHA256SUMS.txt
+          test -f dist/client/data/scholarly-export-report.json
+          test -f dist/client/data/performance-report.json
+          test -f dist/client/data/image-optimization-report.json
           test -f dist/client/sitemap.xml
           test -f dist/client/robots.txt
           test -f dist/client/manifest.webmanifest
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
+          node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
