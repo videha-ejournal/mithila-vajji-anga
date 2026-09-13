@@ -58,7 +58,7 @@ if (prefixedAssets && existsSync(prefixedAssets)) {
   rmSync(`dist/client/${repository}`, { recursive: true, force: true });
 }
 
-for (const route of ['sources', 'updates']) {
+for (const route of ['sources', 'updates', 'about']) {
   const exportedPage = `dist/client/${route}.html`;
   if (existsSync(exportedPage)) {
     const cleanUrlDirectory = `dist/client/${route}`;
@@ -71,6 +71,9 @@ runNodeScript('scripts/prepare-images.mjs', { args: ['--cleanup'] });
 
 const scholarly = runNodeScript('scripts/scholarly-export.mjs');
 if (scholarly.status !== 0) process.exit(scholarly.status ?? 1);
+
+const sourceLibrary = runNodeScript('scripts/source-library.mjs');
+if (sourceLibrary.status !== 0) process.exit(sourceLibrary.status ?? 1);
 
 const performance = runNodeScript('scripts/performance-report.mjs');
 if (performance.status !== 0) process.exit(performance.status ?? 1);
