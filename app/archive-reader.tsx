@@ -1,7 +1,7 @@
 /* oxlint-disable next/no-html-link-for-pages -- GitHub Pages archive routes use exported documents. */
 
 import type { ArchiveGroup, ArchiveUnit } from './archive-data';
-import { groupRoute, maithiliReading, routeFor, workUnits } from './archive-data';
+import { archiveBasePath, groupRoute, maithiliReading, routeFor, workUnits } from './archive-data';
 import styles from './archive/archive.module.css';
 
 type ArchiveReaderProps = {
@@ -34,7 +34,9 @@ export default function ArchiveReader({ unit, language }: ArchiveReaderProps) {
       <div className={styles.shell}>
         <div className={styles.topline}>
           <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
-            <a href={isMaithili ? '/' : '/en/'}>{isMaithili ? 'मुख्य अभिलेखागार' : 'Archive home'}</a>
+            <a href={isMaithili ? `${archiveBasePath}/` : `${archiveBasePath}/en/`}>
+              {isMaithili ? 'मुख्य अभिलेखागार' : 'Archive home'}
+            </a>
             <span aria-hidden="true">/</span>
             <a href={groupRoute(unit.group, language)}>{unit.group}</a>
             <span aria-hidden="true">/</span>
