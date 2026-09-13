@@ -6,6 +6,11 @@ const SITE = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
 const sourceRoot = 'public/books';
 const outputRoot = 'dist/client/source-library';
 const sitemapPath = 'dist/client/sitemap.xml';
+const EXTERNAL_REPOSITORY = 'videha-ejournal/videha-ejournal';
+const EXTERNAL_BRANCH = 'main';
+const EXTERNAL_REPOSITORY_URL = `https://github.com/${EXTERNAL_REPOSITORY}`;
+const EXTERNAL_CATALOG_PATH = 'data/videha-pdf-catalog.json';
+const requireExternal = process.env.REQUIRE_EXTERNAL_SOURCE_LIBRARY === '1';
 
 const walk = (directory) =>
   existsSync(directory)
@@ -29,48 +34,190 @@ const titleFromFilename = (filename) =>
     .trim();
 
 const encodePath = (value) => value.split('/').map(encodeURIComponent).join('/');
+const recordId = (value) => value
+  .replace(/\.pdf$/i, '')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-|-$/g, '');
 const sha256 = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
+const formatMb = (bytes) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 
-const pdfs = walk(sourceRoot).filter((file) => file.toLowerCase().endsWith('.pdf'));
-const books = pdfs.map((file) => {
+const githubHeaders = {
+  Accept: 'application/vnd.github+json',
+  'User-Agent': 'Videha-Digital-Research-Archive',
+  ...(process.env.GITHUB_API_TOKEN
+    ? { Authorization: `Bearer ${process.env.GITHUB_API_TOKEN}` }
+    : {}),
+};
+
+async function fetchJson(url, headers = githubHeaders) {
+  const response = await fetch(url, { headers });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${url}`);
+  return response.json();
+}
+
+async function loadExternalSourceRepository() {
+  const branch = await fetchJson(
+    `https://api.github.com/repos/${EXTERNAL_REPOSITORY}/branches/${EXTERNAL_BRANCH}`,
+  );
+  const sourceCommit = branch.commit.sha;
+  const sourceCommitDate = branch.commit.commit?.committer?.date
+    ?? branch.commit.commit?.author?.date
+    ?? null;
+  const tree = await fetchJson(
+    `https://api.github.com/repos/${EXTERNAL_REPOSITORY}/git/trees/${sourceCommit}?recursive=1`,
+  );
+  if (tree.truncated) throw new Error('External source-repository tree was truncated by GitHub.');
+
+  const catalog = await fetchJson(
+    `https://raw.githubusercontent.com/${EXTERNAL_REPOSITORY}/${sourceCommit}/${EXTERNAL_CATALOG_PATH}`,
+    { 'User-Agent': 'Videha-Digital-Research-Archive' },
+  );
+  const catalogByPath = new Map((catalog.items ?? []).map((item) => [item.path, item]));
+  const pdfBlobs = (tree.tree ?? []).filter(
+    (item) => item.type === 'blob' && item.path?.toLowerCase().endsWith('.pdf'),
+  );
+
+  const items = pdfBlobs.map((item) => {
+    const supplied = catalogByPath.get(item.path);
+    const pinnedPath = encodePath(item.path);
+    return {
+      id: `external-${recordId(item.path)}`,
+      title: supplied?.title || titleFromFilename(item.path),
+      filename: item.path,
+      mediaType: 'application/pdf',
+      bytes: item.size ?? 0,
+      sourceType: 'external-github',
+      sourceRole: supplied ? 'book-or-research-document' : 'repository-support',
+      repository: EXTERNAL_REPOSITORY,
+      repositoryUrl: EXTERNAL_REPOSITORY_URL,
+      branch: EXTERNAL_BRANCH,
+      sourceCommit,
+      sourceCommitDate,
+      gitBlobSha: item.sha,
+      url: `https://raw.githubusercontent.com/${EXTERNAL_REPOSITORY}/${sourceCommit}/${pinnedPath}`,
+      githubUrl: `${EXTERNAL_REPOSITORY_URL}/blob/${sourceCommit}/${pinnedPath}`,
+      currentPublishedUrl: supplied?.url ?? null,
+    };
+  }).sort((a, b) => a.title.localeCompare(b.title));
+
+  return {
+    repository: EXTERNAL_REPOSITORY,
+    repositoryUrl: EXTERNAL_REPOSITORY_URL,
+    branch: EXTERNAL_BRANCH,
+    sourceCommit,
+    sourceCommitDate,
+    sourceCatalogVersion: catalog.version ?? null,
+    sourceCatalogCount: catalog.count ?? null,
+    items,
+  };
+}
+
+const localPdfs = walk(sourceRoot).filter((file) => file.toLowerCase().endsWith('.pdf'));
+const localItems = localPdfs.map((file) => {
   const relative = path.relative(sourceRoot, file).replaceAll(path.sep, '/');
   const bytes = statSync(file).size;
   return {
-    id: relative.replace(/\.pdf$/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    id: `local-${recordId(relative)}`,
     title: titleFromFilename(relative),
     filename: relative,
     mediaType: 'application/pdf',
     bytes,
+    sourceType: 'local-archive',
+    sourceRole: 'book-or-research-document',
     sha256: sha256(file),
     url: `${SITE}books/${encodePath(relative)}`,
   };
 });
 
+let externalSource = null;
+try {
+  externalSource = await loadExternalSourceRepository();
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (requireExternal) throw new Error(`External Videha PDF source library is required but unavailable: ${message}`);
+  console.warn(`External Videha PDF source library unavailable; continuing with local PDFs only: ${message}`);
+}
+
+const externalItems = externalSource?.items ?? [];
+const items = [...externalItems, ...localItems].sort((a, b) => a.title.localeCompare(b.title));
+const books = items.filter((item) => item.sourceRole === 'book-or-research-document');
+const supportDocuments = items.filter((item) => item.sourceRole !== 'book-or-research-document');
+
 mkdirSync(outputRoot, { recursive: true });
 const catalog = {
   name: 'Videha Digital Research Archive · Source PDF Library',
-  description: 'Machine-readable catalogue of source PDFs published with the Videha Digital Research Archive.',
+  description: 'Machine-readable catalogue of source PDFs used by the Videha Digital Research Archive, including commit-pinned objects from the dedicated Videha PDF repository.',
   generatedAt: new Date().toISOString(),
   archive: SITE,
-  count: books.length,
+  count: items.length,
+  bookCount: books.length,
+  supportDocumentCount: supportDocuments.length,
+  localCount: localItems.length,
+  externalCount: externalItems.length,
+  sourceRepositories: externalSource
+    ? [{
+        repository: externalSource.repository,
+        repositoryUrl: externalSource.repositoryUrl,
+        branch: externalSource.branch,
+        sourceCommit: externalSource.sourceCommit,
+        sourceCommitDate: externalSource.sourceCommitDate,
+        sourceCatalogVersion: externalSource.sourceCatalogVersion,
+        sourceCatalogCount: externalSource.sourceCatalogCount,
+      }]
+    : [],
   books,
+  supportDocuments,
+  items,
 };
 writeFileSync(path.join(outputRoot, 'catalog.json'), `${JSON.stringify(catalog, null, 2)}\n`);
 writeFileSync(
   path.join(outputRoot, 'SHA256SUMS.txt'),
-  books.map((book) => `${book.sha256}  ${book.filename}`).join('\n') + (books.length ? '\n' : ''),
+  localItems.length
+    ? `# SHA-256 checksums for PDFs physically published by the archive repository.\n${localItems.map((book) => `${book.sha256}  ${book.filename}`).join('\n')}\n`
+    : '# No local archive PDFs in this build. External source PDFs are identified by commit-pinned Git blob IDs; see GIT-BLOB-IDS.txt and catalog.json.\n',
+);
+writeFileSync(
+  path.join(outputRoot, 'GIT-BLOB-IDS.txt'),
+  externalSource
+    ? [
+        `# Source repository: ${externalSource.repository}`,
+        `# Branch observed: ${externalSource.branch}`,
+        `# Source commit: ${externalSource.sourceCommit}`,
+        '# Git blob IDs below identify exact PDF objects in that commit. They are Git object IDs, not SHA-256 checksums.',
+        ...externalItems.map((book) => `${book.gitBlobSha}  ${book.filename}`),
+        '',
+      ].join('\n')
+    : '# No external GitHub PDF source repository was available in this build.\n',
 );
 
-const rows = books.length
-  ? books.map((book) => `
+const renderItem = (book) => {
+  const external = book.sourceType === 'external-github';
+  return `
       <article class="book">
         <h2><a href="${escapeHtml(book.url)}">${escapeHtml(book.title)}</a></h2>
         <p><code>${escapeHtml(book.filename)}</code></p>
-        <dl><dt>Format</dt><dd>PDF</dd><dt>Size</dt><dd>${(book.bytes / 1024 / 1024).toFixed(2)} MB</dd><dt>SHA-256</dt><dd><code>${book.sha256}</code></dd></dl>
-      </article>`).join('')
-  : `<section class="empty"><h2>PDF source-library infrastructure is ready</h2><p>No repository PDFs are indexed in this build yet. Add PDFs under <code>public/books/</code>; the next verified build will publish stable PDF URLs, a JSON catalogue and SHA-256 checksums automatically.</p></section>`;
+        <dl>
+          <dt>Format</dt><dd>PDF</dd>
+          <dt>Size</dt><dd>${formatMb(book.bytes)}</dd>
+          ${external
+            ? `<dt>Source repository</dt><dd><a href="${escapeHtml(book.repositoryUrl)}">${escapeHtml(book.repository)}</a></dd><dt>Version</dt><dd><code>${book.sourceCommit.slice(0, 12)}</code> · commit-pinned</dd><dt>Git blob ID</dt><dd><code>${book.gitBlobSha}</code></dd>`
+            : `<dt>SHA-256</dt><dd><code>${book.sha256}</code></dd>`}
+        </dl>
+        ${external
+          ? `<p class="record-links"><a href="${escapeHtml(book.url)}">Open pinned PDF</a> · <a href="${escapeHtml(book.githubUrl)}">View exact source object on GitHub</a>${book.currentPublishedUrl ? ` · <a href="${escapeHtml(book.currentPublishedUrl)}">Current published copy</a>` : ''}</p>`
+          : ''}
+      </article>`;
+};
 
-const itemList = books.map((book, index) => ({
+const rows = books.length
+  ? books.map(renderItem).join('')
+  : `<section class="empty"><h2>PDF source-library infrastructure is ready</h2><p>No source PDFs are indexed in this build yet.</p></section>`;
+const supportRows = supportDocuments.length
+  ? `<section class="support"><h2>Repository support documents</h2><p>These PDFs exist in the source repository but are not listed in its generated book catalogue.</p>${supportDocuments.map(renderItem).join('')}</section>`
+  : '';
+
+const itemList = items.map((book, index) => ({
   '@type': 'ListItem',
   position: index + 1,
   item: {
@@ -78,7 +225,12 @@ const itemList = books.map((book, index) => ({
     name: book.title,
     encodingFormat: 'application/pdf',
     contentUrl: book.url,
-    identifier: `sha256:${book.sha256}`,
+    version: book.sourceCommit ?? undefined,
+    identifier: book.gitBlobSha ? `git-blob:${book.gitBlobSha}` : `sha256:${book.sha256}`,
+    sameAs: book.githubUrl ?? undefined,
+    isPartOf: book.repositoryUrl
+      ? { '@type': 'Collection', name: book.repository, url: book.repositoryUrl }
+      : { '@type': 'WebSite', name: 'Videha Digital Research Archive', url: SITE },
   },
 }));
 
@@ -88,24 +240,29 @@ const jsonLd = {
   name: 'Videha Digital Research Archive · Source PDF Library',
   url: `${SITE}source-library/`,
   isPartOf: { '@type': 'WebSite', name: 'Videha Digital Research Archive', url: SITE },
-  mainEntity: { '@type': 'ItemList', numberOfItems: books.length, itemListElement: itemList },
+  mainEntity: { '@type': 'ItemList', numberOfItems: items.length, itemListElement: itemList },
 };
+
+const sourceProvenance = externalSource
+  ? `<p><strong>Dedicated source repository:</strong> <a href="${externalSource.repositoryUrl}">${externalSource.repository}</a>. This build indexes <strong>${externalItems.length}</strong> PDFs at source commit <code>${externalSource.sourceCommit}</code>. Links labelled “Open pinned PDF” are bound to that exact commit, so the archive record does not silently change when a later PDF replaces a file on <code>main</code>.</p>`
+  : '<p>The dedicated external PDF repository was unavailable during this build; only local archive PDFs are listed.</p>';
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Source PDF Library | Videha Digital Research Archive</title>
-<meta name="description" content="Source PDF library and machine-readable PDF catalogue for the Videha Digital Research Archive.">
+<meta name="description" content="Version-pinned source PDF library and machine-readable PDF catalogue for the Videha Digital Research Archive.">
 <link rel="canonical" href="${SITE}source-library/">
 <script type="application/ld+json">${JSON.stringify(jsonLd).replaceAll('<', '\\u003c')}</script>
 <style>
-body{margin:0;background:#fbfaf6;color:#172437;font:17px/1.65 Georgia,"Times New Roman",serif}main{max-width:1000px;margin:auto;padding:3rem 1.2rem 4rem}h1{font-size:clamp(2.2rem,6vw,4.6rem);line-height:1;color:#0d2742;margin:.4rem 0 1rem}.kicker{font:800 .78rem/1.4 system-ui,sans-serif;letter-spacing:.16em;color:#8c3d24}.subtitle{font-size:1.25rem;font-weight:700;color:#8c3d24}.meta{padding:1rem 0 2rem;border-bottom:1px solid #cbc5b9}.tools{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.2rem 0}.tools a{font:700 .9rem system-ui,sans-serif;color:#174c7d;text-decoration:none;border:1px solid #b8c0c8;border-radius:999px;padding:.5rem .75rem;background:white}.book{padding:1.3rem 0;border-bottom:1px solid #ddd7ca}.book h2{margin:.1rem 0}.book dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem .8rem}.book dt{font-weight:700}.book dd{margin:0;overflow-wrap:anywhere}code{font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:#f1eee7;padding:.1rem .3rem;border-radius:4px}.empty{margin:2rem 0;padding:1.4rem;border:1px solid #d3ccc0;background:white;border-radius:10px}a{color:#174c7d}a:focus-visible{outline:3px solid #e39b45;outline-offset:3px}
+body{margin:0;background:#fbfaf6;color:#172437;font:17px/1.65 Georgia,"Times New Roman",serif}main{max-width:1000px;margin:auto;padding:3rem 1.2rem 4rem}h1{font-size:clamp(2.2rem,6vw,4.6rem);line-height:1;color:#0d2742;margin:.4rem 0 1rem}.kicker{font:800 .78rem/1.4 system-ui,sans-serif;letter-spacing:.16em;color:#8c3d24}.subtitle{font-size:1.25rem;font-weight:700;color:#8c3d24}.meta{padding:1rem 0 2rem;border-bottom:1px solid #cbc5b9}.tools,.record-links{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.2rem 0}.tools a,.record-links a{font:700 .9rem system-ui,sans-serif;color:#174c7d;text-decoration:none;border:1px solid #b8c0c8;border-radius:999px;padding:.5rem .75rem;background:white}.book{padding:1.3rem 0;border-bottom:1px solid #ddd7ca}.book h2{margin:.1rem 0}.book dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem .8rem}.book dt{font-weight:700}.book dd{margin:0;overflow-wrap:anywhere}code{font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:#f1eee7;padding:.1rem .3rem;border-radius:4px}.empty,.support{margin:2rem 0;padding:1.4rem;border:1px solid #d3ccc0;background:white;border-radius:10px}a{color:#174c7d}a:focus-visible{outline:3px solid #e39b45;outline-offset:3px}
 </style></head><body><main>
 <p class="kicker">VIDEHA DIGITAL RESEARCH ARCHIVE</p><h1>Source PDF Library</h1>
 <p class="subtitle">Primary and foundational book objects for the Digital Humanities Research Environment for Mithila, Vajji &amp; Anga</p>
-<div class="meta"><p><strong>${books.length}</strong> repository PDF${books.length === 1 ? '' : 's'} indexed. Each indexed file has a stable archive URL, file size and SHA-256 checksum.</p>
-<div class="tools"><a href="./catalog.json">Machine-readable catalogue (JSON)</a><a href="./SHA256SUMS.txt">SHA-256 checksums</a><a href="${SITE}about/">About the archive</a><a href="${SITE}records/">Permanent records</a></div></div>
-${rows}
-<footer><p><a href="${SITE}">← Videha Digital Research Archive</a></p><p>© Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN 2229-547X</p></footer>
+<div class="meta"><p><strong>${books.length}</strong> book/research PDF${books.length === 1 ? '' : 's'} indexed${supportDocuments.length ? `, plus ${supportDocuments.length} repository-support PDF${supportDocuments.length === 1 ? '' : 's'}` : ''}. External objects are version-pinned to the exact source-repository commit observed by this build.</p>
+${sourceProvenance}
+<div class="tools"><a href="./catalog.json">Machine-readable catalogue (JSON)</a><a href="./GIT-BLOB-IDS.txt">Pinned Git blob IDs</a><a href="./SHA256SUMS.txt">Local SHA-256 checksums</a><a href="${SITE}about/">About the archive</a><a href="${SITE}records/">Permanent records</a></div></div>
+${rows}${supportRows}
+<footer><p><a href="${SITE}">← Videha Digital Research Archive</a></p><p>© Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN 2229-547X</p><p>Listing a PDF here does not change its copyright or licence; the source document’s own rights statement remains controlling.</p></footer>
 </main></body></html>`;
 writeFileSync(path.join(outputRoot, 'index.html'), html);
 
@@ -136,4 +293,4 @@ for (const root of identityRoots) {
   }
 }
 
-console.log(`Source PDF library: ${books.length} PDF${books.length === 1 ? '' : 's'} indexed; archive identity applied to ${identityPages} scholarly pages.`);
+console.log(`Source PDF library: ${books.length} book/research PDF${books.length === 1 ? '' : 's'} indexed (${externalItems.length} external, ${localItems.length} local); archive identity applied to ${identityPages} scholarly pages.`);
