@@ -1,10 +1,15 @@
 """Generate source-grounded permanent-page data for Philosophy, Literature and Panji.
 
-The English side is assembled only from source-controlled archive metadata.  The
+The English side is assembled only from source-controlled archive metadata. The
 Maithili side prefers supplied Maithili readings and otherwise uses the same
 maintenance-time Google mobile translation strategy already used by the
-Multiscript Reader.  Visitors therefore receive static Maithili HTML; no live
+Multiscript Reader. Visitors therefore receive static Maithili HTML; no live
 translation request is made from a reader's browser.
+
+Parallel Literature is intentionally stricter than the other collections. Its
+permanent pages are emitted only when app/literature-inventory.json contains a
+complete, source-verified Chapters 1–100 inventory. Missing chapters are never
+filled with generic or synthetic titles.
 """
 
 from __future__ import annotations
@@ -27,6 +32,7 @@ UNITS_OUTPUT = GENERATED / "archive-units.json"
 MAITHILI_OUTPUT = GENERATED / "archive-maithili.json"
 CACHE = WORK / "archive-maithili-cache.json"
 READER_MAITHILI = ROOT / "public" / "data" / "reader-maithili.json"
+LITERATURE_INVENTORY = APP / "literature-inventory.json"
 
 SOURCE_REPO = "https://github.com/videha-ejournal/videha-ejournal/blob/main"
 PDF_FILES = {
@@ -47,13 +53,14 @@ PDF_FILES = {
 
 MOBILE_RESULT = re.compile(r'<div class="result-container">(.*?)</div>', re.S)
 CHAPTER_RE = re.compile(r"^\s*Chapter\s+(\d+)\b\s*[:.\-–—]?\s*(.*)$", re.I)
-VOLUME_RE = re.compile(
-    r"^\s*(?:Tome\s+[IVXLCDM]+\s*[,.:\-–—]?\s*)?Volume\s+([0-9]+|[IVXLCDM]+)\b\s*[:.\-–—]?\s*(.*)$",
-    re.I,
-)
 FRONT_MATTER = re.compile(
     r"^(?:preface|foreword|acknowledg|author.?s note|note on |abbreviations?|contents|bibliography|references|index|appendix|source note)",
     re.I,
+)
+GENERIC_LITERATURE = (
+    re.compile(r"^A Parallel History of Mithil[aā] & Maithil[iī] Literature\s*[—-]\s*Volume\s+\d+$", re.I),
+    re.compile(r"^Parallel (?:History|Literature).*Volume\s+\d+$", re.I),
+    re.compile(r"^Chapter\s+\d+$", re.I),
 )
 
 
@@ -63,19 +70,6 @@ def load(name: str) -> Any:
 
 def normalized(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
-
-
-def roman_to_int(value: str) -> int:
-    if value.isdigit():
-        return int(value)
-    values = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
-    total = 0
-    previous = 0
-    for letter in reversed(value.upper()):
-        current = values.get(letter, 0)
-        total += -current if current < previous else current
-        previous = max(previous, current)
-    return total
 
 
 def trim_sections(sections: list[str], limit: int = 28) -> list[str]:
@@ -187,33 +181,64 @@ def parse_top_level_units(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return meaningful or units
 
 
-def parse_literature_volumes(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    units: list[dict[str, Any]] = []
-    current: dict[str, Any] | None = None
+def load_literature_inventory() -> list[dict[str, Any]]:
+    """Return the complete verified Literature inventory, or nothing at all.
+
+    Partial publication is intentionally impossible. A maintainer may build the
+    rest of the bilingual archive before Literature verification is finished,
+    but Literature detail pages appear only after all Chapters 1–100 have been
+    committed with real titles.
+    """
+    if not LITERATURE_INVENTORY.exists():
+        print(
+            "Parallel Literature inventory is not yet committed; emitting no Literature detail units.",
+            flush=True,
+        )
+        return []
+
+    raw = json.loads(LITERATURE_INVENTORY.read_text(encoding="utf-8"))
+    if not isinstance(raw, list):
+        raise RuntimeError("app/literature-inventory.json must contain an array")
+    if len(raw) != 100:
+        raise RuntimeError(
+            "Parallel Literature inventory must contain exactly 100 source-verified chapters; "
+            f"found {len(raw)}"
+        )
+
+    inventory: list[dict[str, Any]] = []
     seen: set[int] = set()
-    for item in items:
-        title = normalized(str(item.get("title", "")))
+    for record in raw:
+        if not isinstance(record, dict):
+            raise RuntimeError("Every Literature inventory entry must be an object")
+        number = int(record.get("number", 0))
+        title = normalized(str(record.get("title", "")))
+        if number < 1 or number > 100 or number in seen:
+            raise RuntimeError(f"Invalid or duplicate Parallel Literature chapter number: {number}")
         if not title:
-            continue
-        match = VOLUME_RE.match(title)
-        if match:
-            number = roman_to_int(match.group(1))
-            if 1 <= number <= 100 and number not in seen:
-                if current:
-                    units.append(current)
-                seen.add(number)
-                tail = normalized(match.group(2))
-                current = {
-                    "number": number,
-                    "title": tail or f"Parallel Literature · Volume {number}",
-                    "sections": [],
-                }
-                continue
-        if current:
-            current["sections"].append(title)
-    if current:
-        units.append(current)
-    return sorted(units, key=lambda item: item["number"])
+            raise RuntimeError(f"Missing Parallel Literature source title for Chapter {number}")
+        if any(pattern.match(title) for pattern in GENERIC_LITERATURE):
+            raise RuntimeError(f"Synthetic/generic Parallel Literature title refused: Chapter {number} — {title}")
+        seen.add(number)
+        inventory.append(
+            {
+                "number": number,
+                "title": title,
+                "sections": [normalized(str(value)) for value in record.get("sections", []) if normalized(str(value))],
+                "sourceNote": normalized(
+                    str(
+                        record.get(
+                            "sourceNote",
+                            f"VIDEHA_Parallel_History.pdf · source-verified Chapter {number}",
+                        )
+                    )
+                ),
+            }
+        )
+
+    inventory.sort(key=lambda item: item["number"])
+    if [item["number"] for item in inventory] != list(range(1, 101)):
+        raise RuntimeError("Parallel Literature inventory must cover Chapters 1–100 without gaps")
+    return inventory
 
 
 def panji_contexts(learning_panji: list[dict[str, Any]], volume_number: int, sections: list[str]) -> list[str]:
@@ -302,7 +327,11 @@ def build_units() -> tuple[list[dict[str, Any]], dict[str, str]]:
     for item in deep["philosophyChapters"]:
         number = int(item["number"])
         description_parts = [item["summary"]]
-        for field, label in (("purvapaksha", "Pūrvapakṣa"), ("uttarapaksha", "Uttarapakṣa"), ("synthesis", "Parallel conclusion")):
+        for field, label in (
+            ("purvapaksha", "Pūrvapakṣa"),
+            ("uttarapaksha", "Uttarapakṣa"),
+            ("synthesis", "Parallel conclusion"),
+        ):
             if item.get(field):
                 description_parts.append(f"{label}: {item[field]}")
         add_unit(
@@ -329,7 +358,11 @@ def build_units() -> tuple[list[dict[str, Any]], dict[str, str]]:
             continue
         number = int(item["number"])
         description_parts = [item["summary"]]
-        for field, label in (("purvapaksha", "Pūrvapakṣa"), ("uttarapaksha", "Uttarapakṣa"), ("synthesis", "Parallel conclusion")):
+        for field, label in (
+            ("purvapaksha", "Pūrvapakṣa"),
+            ("uttarapaksha", "Uttarapakṣa"),
+            ("synthesis", "Parallel conclusion"),
+        ):
             if item.get(field):
                 description_parts.append(f"{label}: {item[field]}")
         add_unit(
@@ -377,7 +410,7 @@ def build_units() -> tuple[list[dict[str, Any]], dict[str, str]]:
                 authorship=classical_authorship[work_id],
             )
 
-    # Six Decoding Panji volumes — English originals with new static Maithili page readings.
+    # Six Decoding Panji volumes — English originals with new static Maithili research-page readings.
     for volume_number in range(1, 7):
         work_id = f"panji-{volume_number}"
         work = library[work_id]
@@ -387,8 +420,18 @@ def build_units() -> tuple[list[dict[str, Any]], dict[str, str]]:
             parsed = parse_top_level_units(detail["items"])
         for position, unit in enumerate(parsed, 1):
             number = int(unit.get("number") or position)
-            contexts = panji_contexts(learning.get("panji", []), volume_number, [unit["title"], *unit["sections"]])
-            description = structural_description(unit["title"], unit["sections"], work["title"], "panji", contexts)
+            contexts = panji_contexts(
+                learning.get("panji", []),
+                volume_number,
+                [unit["title"], *unit["sections"]],
+            )
+            description = structural_description(
+                unit["title"],
+                unit["sections"],
+                work["title"],
+                "panji",
+                contexts,
+            )
             add_unit(
                 units,
                 group="panji",
@@ -400,47 +443,32 @@ def build_units() -> tuple[list[dict[str, Any]], dict[str, str]]:
                 description=description,
                 sections=unit["sections"],
                 source_note=f"{detail['source']} · {detail['paragraphs']:,} source paragraphs · {detail['tables']} tables",
-                source_language="English source volume · Maithili research-page translation generated and stored statically",
+                source_language="English source volume · Maithili research edition prepared for the Videha Digital Research Archive",
                 authorship="Gajendra Thakur · Videha",
             )
 
-    # Parallel Literature.  Prefer the source-controlled manuscript map when present;
-    # otherwise derive 100 stable volume records from the known cumulative series identity.
+    # Parallel Literature — publish all verified Chapters 1–100 together or publish none.
     literature_work = library["parallel-history"]
-    literature_detail = details.get("parallel-history")
-    literature_units: list[dict[str, Any]] = []
-    literature_source_note = "A Parallel History of Mithilā & Maithilī Literature · Tomes I–IV · Volumes 1–100"
-    if literature_detail:
-        literature_units = parse_literature_volumes(literature_detail["items"])
-        literature_source_note = (
-            f"{literature_detail['source']} · {literature_detail['paragraphs']:,} source paragraphs · "
-            f"{literature_detail['tables']} tables"
-        )
-    if len(literature_units) < 100:
-        known = {int(unit["number"]): unit for unit in literature_units}
-        literature_units = [
-            known.get(number, {
-                "number": number,
-                "title": f"A Parallel History of Mithilā & Maithilī Literature — Volume {number}",
-                "sections": literature_work["structure"],
-            })
-            for number in range(1, 101)
-        ]
-    for unit in literature_units[:100]:
+    for unit in load_literature_inventory():
         number = int(unit["number"])
-        description = structural_description(unit["title"], unit.get("sections", []), literature_work["title"], "literature")
+        description = structural_description(
+            unit["title"],
+            unit.get("sections", []),
+            literature_work["title"],
+            "literature",
+        )
         add_unit(
             units,
             group="literature",
             work_id="parallel-history",
             work_title=literature_work["title"],
-            work_sequence=f"Volume {number} of 100",
+            work_sequence=f"Chapter {number} of 100",
             number=number,
             title=unit["title"],
             description=description,
             sections=unit.get("sections", []),
-            source_note=literature_source_note,
-            source_language="English source series · Maithili research-page translation generated and stored statically",
+            source_note=unit["sourceNote"],
+            source_language="English source series · Maithili research edition prepared for the Videha Digital Research Archive",
             authorship="Gajendra Thakur · Videha · Series ISBN 978-93-5812-486-6",
         )
 
@@ -455,7 +483,11 @@ def chunks(text: str, limit: int = 1800) -> list[str]:
         if len(remaining) <= limit:
             result.append(remaining)
             break
-        candidates = [remaining.rfind("\n\n", 0, limit), remaining.rfind(". ", 0, limit), remaining.rfind(" ", 0, limit)]
+        candidates = [
+            remaining.rfind("\n\n", 0, limit),
+            remaining.rfind(". ", 0, limit),
+            remaining.rfind(" ", 0, limit),
+        ]
         cut = max(max(candidates), int(limit * 0.65))
         if remaining[cut : cut + 2] == ". ":
             cut += 1
@@ -484,7 +516,7 @@ def google_mobile_translate(text: str) -> str:
         except Exception:
             if attempt == 6:
                 raise
-            time.sleep(2 ** attempt)
+            time.sleep(2**attempt)
     raise RuntimeError("translation failed")
 
 
@@ -538,14 +570,24 @@ def validate(units: list[dict[str, Any]], maithili: dict[str, str]) -> None:
         "parallel-philosophy-2": sum(unit["workId"] == "parallel-philosophy-2" for unit in units),
         "parallel-history": sum(unit["workId"] == "parallel-history" for unit in units),
         "panji-volumes": len({unit["workId"] for unit in units if unit["group"] == "panji"}),
-        "classical-philosophy": len({unit["workId"] for unit in units if unit["workId"] in {"atmatattvaviveka", "bhamati", "nyayakusumanjali", "tattvacintamani"}}),
+        "classical-philosophy": len(
+            {
+                unit["workId"]
+                for unit in units
+                if unit["workId"]
+                in {"atmatattvaviveka", "bhamati", "nyayakusumanjali", "tattvacintamani"}
+            }
+        ),
     }
     if counts["parallel-philosophy-1"] != 72:
         raise RuntimeError(f"Parallel Philosophy I expected 72 units, got {counts['parallel-philosophy-1']}")
     if counts["parallel-philosophy-2"] != 100:
         raise RuntimeError(f"Parallel Philosophy II expected 100 units, got {counts['parallel-philosophy-2']}")
-    if counts["parallel-history"] != 100:
-        raise RuntimeError(f"Parallel Literature expected 100 volume units, got {counts['parallel-history']}")
+    if counts["parallel-history"] not in (0, 100):
+        raise RuntimeError(
+            "Parallel Literature must be unpublished or a complete verified 1–100 inventory; "
+            f"got {counts['parallel-history']} units"
+        )
     if counts["panji-volumes"] != 6:
         raise RuntimeError("All six Decoding Panji volumes must contribute permanent units")
     if counts["classical-philosophy"] != 4:
