@@ -13,9 +13,22 @@ const pagePerformanceTransform = () => ({
         "import learningData from './learning-data.json';",
         "import specialistSearchData from './generated/specialist-search-lite.json';",
       )
+      .replace("import collectionDetailsData from './collection-details.json';\n", '')
       .replace(
         "import ResearchExpansion from './research-expansion';\nimport LearningLab from './learning-lab';",
         "import DeferredResearchRooms from './deferred-research-rooms';",
+      )
+      .replace(
+        "const collectionDetails = collectionDetailsData as Record<\n  string,\n  CollectionDetail\n>;\n",
+        '',
+      )
+      .replace(
+        "  const [activeTab, setActiveTab] = useState<Tab>('chronology');",
+        "  const [activeTab, setActiveTab] = useState<Tab>('chronology');\n  const [collectionDetails, setCollectionDetails] = useState<Record<string, CollectionDetail>>({});",
+      )
+      .replace(
+        "  const globalSearchRef = useRef<HTMLInputElement>(null);",
+        `  const globalSearchRef = useRef<HTMLInputElement>(null);\n  useEffect(() => {\n    if (activeTab !== 'library' || Object.keys(collectionDetails).length) return;\n    let active = true;\n    import('./collection-details.json').then(({ default: data }) => {\n      if (active) setCollectionDetails(data as Record<string, CollectionDetail>);\n    });\n    return () => { active = false; };\n  }, [activeTab, collectionDetails]);`,
       )
       .replace(
         /  \.\.\.learningData\.places\.map[\s\S]*?route: 'knowledge-graph' as const \}\)\),\n/,
@@ -32,11 +45,12 @@ const pagePerformanceTransform = () => ({
 
     if (
       next.includes('learningData.') ||
+      next.includes('collectionDetailsData') ||
       next.includes('<ResearchExpansion />') ||
       next.includes('<LearningLab />')
     ) {
       throw new Error(
-        'Performance transform did not fully detach the specialist research payload from the initial page.',
+        'Performance transform did not fully detach deferred research payloads from the initial page.',
       );
     }
 
