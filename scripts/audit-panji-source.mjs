@@ -36,6 +36,14 @@ function parseChapters(items) {
     const level = Number(item?.level ?? 99);
     if (!title) continue;
 
+    // Section-only labels, especially "Chapter N Source Notes", must be
+    // attached to the current chapter before the generic Chapter-N matcher
+    // runs; otherwise they would be misread as duplicate chapters.
+    if (sectionOnlyTitles.some((pattern) => pattern.test(title))) {
+      if (current) current.sections.push(title);
+      continue;
+    }
+
     const match = chapterPattern.exec(title);
     if (match) {
       finish();
@@ -56,7 +64,7 @@ function parseChapters(items) {
     // A title split away from a bare "Chapter N" marker is accepted only when
     // it is another top-level heading. Lower-level headings are evidence about
     // chapter structure, never a safe substitute for a missing chapter title.
-    if (!current.title && level === 1 && !sectionOnlyTitles.some((pattern) => pattern.test(title))) {
+    if (!current.title && level === 1) {
       current.title = title;
       current.titleSource = 'following top-level heading';
       continue;
