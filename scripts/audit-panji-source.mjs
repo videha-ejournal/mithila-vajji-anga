@@ -1,9 +1,11 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const details = JSON.parse(readFileSync('app/collection-details.json', 'utf8'));
 const corrections = JSON.parse(readFileSync('app/panji-source-corrections.json', 'utf8'));
 const strict = process.argv.includes('--strict');
 const jsonOutput = process.argv.includes('--json');
+const writeInventory = process.argv.includes('--write-inventory');
+const inventoryPath = 'app/generated/panji-inventory.json';
 
 const chapterPattern = /^\s*Chapter\s+(\d+)\b\s*[:.\-–—]?\s*(.*)$/i;
 const genericChapterPattern = /^Chapter\s+\d+$/i;
@@ -85,6 +87,11 @@ function applyVerifiedCorrection(workId, chapter) {
 
   chapter.title = title;
   chapter.titleSource = `verified source correction · ${source}`;
+  chapter.sections = [
+    ...(Array.isArray(correction.prependSections) ? correction.prependSections.map(clean) : []),
+    ...chapter.sections,
+  ].filter(Boolean);
+  chapter.sections = [...new Set(chapter.sections)];
 }
 
 function auditVolume(volumeNumber) {
@@ -135,6 +142,7 @@ function auditVolume(volumeNumber) {
       number: chapter.number,
       title: chapter.title,
       titleSource: chapter.titleSource,
+      sections: chapter.sections,
       sectionCount: chapter.sections.length,
     })),
     errors,
@@ -154,6 +162,38 @@ const failures = [
   ...report.flatMap((volume) => volume.errors.map((error) => `${volume.workId}: ${error}`)),
   ...correctionErrors,
 ];
+
+if (writeInventory) {
+  if (failures.length > 0) {
+    console.error(`Refusing to write ${inventoryPath}: Panji source audit has ${failures.length} unresolved issue(s).`);
+  } else {
+    const inventory = report.flatMap((volume) =>
+      volume.chapters.map((chapter) => {
+        const correctionKey = `${volume.workId}/${chapter.number}`;
+        const correction = corrections?.[correctionKey];
+        return {
+          workId: volume.workId,
+          number: chapter.number,
+          title: chapter.title,
+          titleSource: chapter.titleSource,
+          sections: chapter.sections,
+          source: volume.source,
+          sourceParagraphs: volume.sourceParagraphs,
+          sourceTables: volume.sourceTables,
+          sourceCorrection: correction
+            ? {
+                source: clean(correction.source),
+                sourcePages: clean(correction.sourcePages),
+                verification: clean(correction.verification),
+              }
+            : null,
+        };
+      }),
+    );
+    writeFileSync(inventoryPath, `${JSON.stringify(inventory, null, 2)}\n`, 'utf8');
+    console.log(`Wrote ${inventory.length} verified Panji source chapter record(s) to ${inventoryPath}.`);
+  }
+}
 
 if (jsonOutput) {
   console.log(JSON.stringify({ volumes: report, corrections, failures }, null, 2));
