@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 const details = JSON.parse(readFileSync('app/collection-details.json', 'utf8'));
+const corrections = JSON.parse(readFileSync('app/panji-source-corrections.json', 'utf8'));
 const strict = process.argv.includes('--strict');
 const jsonOutput = process.argv.includes('--json');
 
@@ -66,6 +67,26 @@ function parseChapters(items) {
   return chapters;
 }
 
+function applyVerifiedCorrection(workId, chapter) {
+  if (chapter.title) return;
+  const key = `${workId}/${chapter.number}`;
+  const correction = corrections?.[key];
+  if (!correction) return;
+
+  const title = clean(correction.title);
+  const source = clean(correction.source);
+  const verification = clean(correction.verification);
+  if (!title || !source || !verification) {
+    throw new Error(`Incomplete Panji source correction: ${key}`);
+  }
+  if (genericChapterPattern.test(title) || sectionOnlyTitles.some((pattern) => pattern.test(title))) {
+    throw new Error(`Invalid corrected Panji chapter title: ${key} — ${title}`);
+  }
+
+  chapter.title = title;
+  chapter.titleSource = `verified source correction · ${source}`;
+}
+
 function auditVolume(volumeNumber) {
   const workId = `panji-${volumeNumber}`;
   const detail = details[workId];
@@ -80,6 +101,8 @@ function auditVolume(volumeNumber) {
   }
 
   const chapters = parseChapters(detail.items);
+  for (const chapter of chapters) applyVerifiedCorrection(workId, chapter);
+
   const errors = [];
   const seen = new Set();
 
@@ -119,10 +142,21 @@ function auditVolume(volumeNumber) {
 }
 
 const report = Array.from({ length: 6 }, (_, index) => auditVolume(index + 1));
-const failures = report.flatMap((volume) => volume.errors.map((error) => `${volume.workId}: ${error}`));
+const parsedKeys = new Set(
+  report.flatMap((volume) => volume.chapters.map((chapter) => `${volume.workId}/${chapter.number}`)),
+);
+const correctionErrors = [];
+for (const key of Object.keys(corrections)) {
+  if (!parsedKeys.has(key)) correctionErrors.push(`Correction does not match a parsed Panji chapter: ${key}`);
+}
+
+const failures = [
+  ...report.flatMap((volume) => volume.errors.map((error) => `${volume.workId}: ${error}`)),
+  ...correctionErrors,
+];
 
 if (jsonOutput) {
-  console.log(JSON.stringify({ volumes: report, failures }, null, 2));
+  console.log(JSON.stringify({ volumes: report, corrections, failures }, null, 2));
 } else {
   console.log('Decoding Panji source-structure audit');
   for (const volume of report) {
@@ -130,10 +164,14 @@ if (jsonOutput) {
     for (const chapter of volume.chapters.filter((item) => !item.title)) {
       console.log(`  unresolved: Chapter ${chapter.number}`);
     }
+    for (const chapter of volume.chapters.filter((item) => String(item.titleSource ?? '').startsWith('verified source correction'))) {
+      console.log(`  corrected: Chapter ${chapter.number} — ${chapter.title}`);
+    }
     for (const error of volume.errors) {
       console.log(`  ERROR: ${error}`);
     }
   }
+  for (const error of correctionErrors) console.log(`  ERROR: ${error}`);
   console.log(failures.length === 0 ? 'Panji source structure is publication-ready.' : `${failures.length} source-structure issue(s) require resolution before Panji detail publication.`);
 }
 
