@@ -37,10 +37,14 @@ jobs:
         env:
           REQUIRE_IMAGE_OPTIMIZATION: '1'
         run: npm run build
-      - name: Verify scholarly export and performance contract
+      - name: Verify scholarly export, archive identity and performance contract
         run: |
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
+          test -f dist/client/about/index.html
+          test -f dist/client/source-library/index.html
+          test -f dist/client/source-library/catalog.json
+          test -f dist/client/source-library/SHA256SUMS.txt
           test -f dist/client/data/releases/2026.09/records.json
           test -f dist/client/data/releases/2026.09/SHA256SUMS.txt
           test -f dist/client/data/scholarly-export-report.json
@@ -49,8 +53,13 @@ jobs:
           test -f dist/client/sitemap.xml
           test -f dist/client/robots.txt
           test -f dist/client/manifest.webmanifest
+          grep -q "Videha Digital Research Archive" dist/client/index.html
+          grep -q "Digital Humanities Research Environment for Mithila, Vajji" dist/client/index.html
+          grep -q "Videha Digital Research Archive" dist/client/about/index.html
+          grep -q "source-library/" dist/client/sitemap.xml
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
+          node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/source-library/catalog.json','utf8')); if(r.name!=='Videha Digital Research Archive · Source PDF Library'||!Array.isArray(r.books)) process.exit(1); console.log({sourcePdfCount:r.count})"
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
