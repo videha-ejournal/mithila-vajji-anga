@@ -6,6 +6,7 @@ import {
   archiveGroups,
   getLibraryWork,
   groupRoute,
+  literatureInventory,
   routeFor,
   workUnits,
 } from './archive-data';
@@ -51,7 +52,7 @@ export default function ArchiveIndex({ group, language }: ArchiveIndexProps) {
           <p className={styles.deck}>{deck}</p>
           <p className={styles.status}>
             {isMaithili
-              ? 'केवल स्रोत-सत्यापित अध्याय/इकाइएँ स्थायी पृष्ठ बनैत छथि। अप्रमाणित शीर्षक, बनावटी अध्याय अथवा सामान्य placeholder प्रकाशित नहि कएल जाएत।'
+              ? 'केवल स्रोत-सत्यापित अध्याय वा इकाइकेँ स्थायी पृष्ठ बनाओल जाइत अछि। अप्रमाणित शीर्षक, बनावटी अध्याय वा सामान्य placeholder प्रकाशित नहि कएल जाइत अछि।'
               : 'Only source-verified chapters or units receive permanent pages. Unverified titles, synthetic chapters and generic placeholders are not published.'}
           </p>
         </header>
@@ -60,6 +61,8 @@ export default function ArchiveIndex({ group, language }: ArchiveIndexProps) {
           {config.workIds.map((workId) => {
             const work = getLibraryWork(workId);
             const units = workUnits(group, workId);
+            const verifiedSourceInventory =
+              group === 'literature' && workId === 'parallel-history' ? literatureInventory : [];
             if (!work) return null;
             return (
               <article className={styles.card} key={workId}>
@@ -72,9 +75,13 @@ export default function ArchiveIndex({ group, language }: ArchiveIndexProps) {
                     ? isMaithili
                       ? `${units.length} स्रोत-सत्यापित स्थायी इकाइ`
                       : `${units.length} source-verified permanent units`
-                    : isMaithili
-                      ? 'स्रोत-सूची सत्यापनाधीन — कोनो बनावटी अध्याय प्रकाशित नहि'
-                      : 'Source inventory pending verification — no synthetic chapters published'}
+                    : verifiedSourceInventory.length > 0
+                      ? isMaithili
+                        ? `${verifiedSourceInventory.length} अध्यायक स्रोत-सूची सत्यापित अछि। मैथिली शोध-संस्करण आ जोड़ीदार स्थायी पृष्ठक पाठ-जाँच पूरा भेलापर मात्र अध्याय-लिंक सक्रिय होएत।`
+                        : `${verifiedSourceInventory.length} chapter titles are source-verified. Detail links remain disabled until the paired Maithili research editions and permanent-page payloads pass validation.`
+                      : isMaithili
+                        ? 'स्रोत-सूची सत्यापनाधीन अछि — कोनो बनावटी अध्याय प्रकाशित नहि कएल जाइत अछि।'
+                        : 'Source inventory pending verification — no synthetic chapters published.'}
                 </p>
                 {units.length > 0 && (
                   <ul className={styles.unitList}>
@@ -86,6 +93,20 @@ export default function ArchiveIndex({ group, language }: ArchiveIndexProps) {
                           </span>
                           {unit.title}
                         </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {units.length === 0 && verifiedSourceInventory.length > 0 && (
+                  <ul className={styles.unitList} aria-label={isMaithili ? 'सत्यापित अंग्रेजी स्रोत-सूची' : 'Verified English source inventory'}>
+                    {verifiedSourceInventory.map((record) => (
+                      <li key={record.number}>
+                        <span>
+                          <span className={styles.unitNo}>
+                            {isMaithili ? 'अध्याय' : 'Chapter'} {record.number} · Tome {record.tome}
+                          </span>
+                          {record.title}
+                        </span>
                       </li>
                     ))}
                   </ul>
