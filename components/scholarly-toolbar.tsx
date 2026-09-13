@@ -88,6 +88,13 @@ function enhanceImages() {
   }
 }
 
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker
+    .register('/mithila-vajji-anga/sw.js', { scope: '/mithila-vajji-anga/' })
+    .catch(() => undefined);
+}
+
 export default function ScholarlyToolbar() {
   const [copied, setCopied] = useState(false);
   const [translated, setTranslated] = useState(false);
@@ -109,16 +116,17 @@ export default function ScholarlyToolbar() {
     const observer = new MutationObserver(() => enhanceImages());
     observer.observe(document.body, { childList: true, subtree: true });
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/mithila-vajji-anga/sw.js', { scope: '/mithila-vajji-anga/' }).catch(() => undefined);
-      }, { once: true });
+    if (document.readyState === 'complete') {
+      registerServiceWorker();
+    } else {
+      window.addEventListener('load', registerServiceWorker, { once: true });
     }
 
     return () => {
       document.removeEventListener('input', eventHandler, true);
       document.removeEventListener('change', eventHandler, true);
       document.removeEventListener('click', eventHandler, true);
+      window.removeEventListener('load', registerServiceWorker);
       observer.disconnect();
     };
   }, []);
