@@ -13,7 +13,7 @@
     "format": "oxfmt",
     "audit:panji": "node scripts/audit-panji-source.mjs",
     "audit:panji:strict": "node scripts/audit-panji-source.mjs --strict",
-    "generate:archive": "node scripts/audit-panji-source.mjs --strict && python scripts/generate-bilingual-archive.py && node scripts/verify-bilingual-archive.mjs"
+    "generate:archive": "node scripts/audit-panji-source.mjs --strict && python scripts/generate-bilingual-archive.py && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs"
   },
   "dependencies": {
     "react": "19.2.6",
