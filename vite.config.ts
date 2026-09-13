@@ -41,6 +41,38 @@ const pagePerformanceTransform = () => ({
       .replace(
         /\n\s*<ResearchExpansion \/>\s*\n\s*<LearningLab \/>\s*\n/,
         '\n        <DeferredResearchRooms />\n',
+      )
+      .replace(
+        '<small>Videha historical research</small>',
+        '<small>Videha Digital Research Archive</small>',
+      )
+      .replace(
+        `<p className="eyebrow">SOURCE-CONTROLLED REGIONAL ATLAS</p>\n            <h1>Explore Mithila, Vajji and Anga</h1>\n            <p>\n              A guided entrance to the Videha archive: genealogy, regional\n              history, philosophical debate, texts, and translation across\n              India and Nepal. Choose a research question first; the archive\n              will then lead you to the relevant evidence, chapter, or tool.\n            </p>`,
+        `<p className="eyebrow">VIDEHA DIGITAL RESEARCH ARCHIVE</p>\n            <h1>Videha Digital Research Archive</h1>\n            <p><strong>Digital Humanities Research Environment for Mithila, Vajji &amp; Anga</strong></p>\n            <p>\n              A permanent, citable, machine-readable and versioned research environment for genealogy, regional\n              history, philosophical debate, texts, translation, people, places and chronology across\n              India and Nepal. Begin with a research question; the archive leads to the relevant evidence,\n              permanent record, citation or specialist tool.\n            </p>`,
+      )
+      .replace(
+        '<p>THE VIDEHA RESEARCH STUDIO</p>',
+        '<p>DIGITAL HUMANITIES RESEARCH ENVIRONMENT</p>',
+      )
+      .replace(
+        '<h2 id="studio-title">Four doors into one archive</h2>',
+        '<h2 id="studio-title">Four doors into the Videha Digital Research Archive</h2>',
+      )
+      .replace(
+        '<p>THE VIDEHA RESEARCH ECOSYSTEM</p>',
+        '<p>VIDEHA DIGITAL RESEARCH ARCHIVE</p>',
+      )
+      .replace(
+        '<h2>History joined to genealogy, literature, and philosophy</h2>',
+        '<h2>A citable digital humanities environment for Mithila, Vajji &amp; Anga</h2>',
+      )
+      .replace(
+        '<a href="./updates/index.html">Status &amp; updates</a>\n          <a href="#about">About</a>',
+        '<a href="./updates/index.html">Status &amp; updates</a>\n          <a href="./about/index.html">About / Archive</a>\n          <a href="./source-library/index.html">Source PDFs</a>',
+      )
+      .replaceAll(
+        '<small>A Videha research project</small>',
+        '<small>Videha Digital Research Archive</small>',
       );
 
     if (
@@ -52,6 +84,13 @@ const pagePerformanceTransform = () => ({
       throw new Error(
         'Performance transform did not fully detach deferred research payloads from the initial page.',
       );
+    }
+
+    if (
+      !next.includes('Videha Digital Research Archive') ||
+      !next.includes('Digital Humanities Research Environment for Mithila, Vajji &amp; Anga')
+    ) {
+      throw new Error('Archive identity transform did not apply to the homepage.');
     }
 
     return { code: next, map: null };

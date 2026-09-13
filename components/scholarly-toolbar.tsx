@@ -140,14 +140,16 @@ export default function ScholarlyToolbar() {
   };
 
   return (
-    <aside className="scholarly-toolbar" aria-label="Scholarly tools">
+    <aside className="scholarly-toolbar" aria-label="Videha Digital Research Archive tools">
       <details>
-        <summary>Research tools</summary>
+        <summary>Archive tools</summary>
         <nav aria-label="Permanent scholarly resources">
+          <a href={`${site}/about/`}>About archive</a>
           <a href={`${site}/records/`}>Permanent records</a>
           <a href={`${site}/compare/`}>Compare</a>
           <a href={`${site}/method/`}>Method</a>
           <a href={`${site}/data/`}>Data</a>
+          <a href={`${site}/source-library/`}>Source PDFs</a>
           <a href={`${site}/accessibility/`}>Accessibility</a>
           <a href={`${site}/rights/`}>Rights</a>
         </nav>
@@ -155,7 +157,7 @@ export default function ScholarlyToolbar() {
         <p><strong>Translation notice:</strong> machine-generated translations are convenience copies only; cite the source-controlled Videha text.</p>
       </details>
       <style>{`
-        .scholarly-toolbar{position:fixed;right:14px;bottom:14px;z-index:10000;max-width:min(390px,calc(100vw - 28px));font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#152238;filter:none!important}
+        .scholarly-toolbar{position:fixed;right:14px;bottom:14px;z-index:10000;max-width:min(420px,calc(100vw - 28px));font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#152238;filter:none!important}
         .scholarly-toolbar details{background:#fffdf8;border:1px solid #bfc6cc;border-radius:12px;box-shadow:0 10px 30px rgba(13,39,66,.18);overflow:hidden}
         .scholarly-toolbar summary{cursor:pointer;background:#0d2742;color:white;padding:.7rem .9rem;font-weight:800;letter-spacing:.02em}
         .scholarly-toolbar nav{display:flex;flex-wrap:wrap;gap:.4rem;padding:.75rem .75rem .35rem}

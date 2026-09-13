@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this research portal or its structured data, please cite the relevant permanent record or dataset release."
-title: "Mithila–Vajji–Anga: Videha Historical Research"
+message: "If you use the Videha Digital Research Archive, cite the relevant permanent record when possible, or cite the versioned dataset release for corpus-level use."
+title: "Videha Digital Research Archive: Digital Humanities Research Environment for Mithila, Vajji & Anga"
 type: dataset
 authors:
   - family-names: "Thakur"
@@ -12,10 +12,13 @@ url: "https://videha-ejournal.github.io/mithila-vajji-anga/"
 repository-code: "https://github.com/videha-ejournal/mithila-vajji-anga"
 license: "CC-BY-4.0"
 abstract: >-
-  A source-controlled digital humanities research environment for the connected
-  histories, genealogy, literature, philosophy, places, and texts of Mithila,
-  Vajji, and Anga across India and Nepal. Repository-authored software code is
-  separately licensed under MIT; see RIGHTS.md for the full rights matrix.
+  The Videha Digital Research Archive is a source-controlled digital humanities
+  research environment for the connected histories, genealogy, literature,
+  philosophy, places, texts and chronology of Mithila, Vajji and Anga across
+  India and Nepal. Its publication layer provides permanent record URLs,
+  citation exports, structured metadata, versioned datasets and checksum-based
+  verification. Repository-authored software code is separately licensed under
+  MIT; see RIGHTS.md for the full rights matrix.
 identifiers:
   - type: other
     value: "ISSN 2229-547X"

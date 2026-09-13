@@ -5,21 +5,29 @@ import './research-expansion.css';
 import './learning-lab.css';
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
+const archiveName = 'Videha Digital Research Archive';
+const archiveSubtitle = 'Digital Humanities Research Environment for Mithila, Vajji & Anga';
+const archiveTitle = `${archiveName} | ${archiveSubtitle}`;
+const archiveDescription =
+  'A permanent, citable, machine-readable, versioned and independently discoverable digital humanities research environment for the connected histories, genealogy, literature, philosophy, places, texts and chronology of Mithila, Vajji and Anga across India and Nepal.';
 const previewImage = 'https://videha-ejournal.github.io/mithila-vajji-anga/assets/research-studio-panorama.png';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Mithila–Vajji–Anga | Videha Historical Research',
-    template: '%s | Mithila–Vajji–Anga',
+    default: archiveTitle,
+    template: `%s | ${archiveName}`,
   },
-  description:
-    'A scholarly, source-controlled research portal for the connected histories, genealogy, literature, philosophy, places, and texts of Mithila, Vajji, and Anga across India and Nepal.',
-  applicationName: 'Mithila–Vajji–Anga · Videha Historical Research',
+  description: archiveDescription,
+  applicationName: archiveName,
   authors: [{ name: 'Gajendra Thakur', url: 'https://www.videha.co.in/' }],
   creator: 'Gajendra Thakur',
   publisher: 'Videha Maithili eJournal',
   keywords: [
+    'Videha Digital Research Archive',
+    'digital humanities research environment',
+    'digital archive',
+    'research data',
     'Mithila',
     'Vajji',
     'Anga',
@@ -36,16 +44,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: siteUrl,
-    siteName: 'Mithila–Vajji–Anga',
-    title: 'Mithila–Vajji–Anga | Videha Historical Research',
-    description:
-      'A source-controlled digital humanities research environment for Mithila, Vajji, and Anga.',
-    images: [{ url: previewImage, width: 1944, height: 808, alt: 'Videha research panorama for Mithila, Vajji and Anga' }],
+    siteName: archiveName,
+    title: archiveTitle,
+    description: archiveDescription,
+    images: [{ url: previewImage, width: 1944, height: 808, alt: 'Videha Digital Research Archive research panorama for Mithila, Vajji and Anga' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Mithila–Vajji–Anga | Videha Historical Research',
-    description: 'A source-controlled digital humanities research environment for Mithila, Vajji, and Anga.',
+    title: archiveTitle,
+    description: archiveDescription,
     images: [previewImage],
   },
   robots: {
@@ -56,17 +63,18 @@ export const metadata: Metadata = {
   manifest: 'https://videha-ejournal.github.io/mithila-vajji-anga/manifest.webmanifest',
   icons: { icon: './favicon.svg' },
   other: {
-    'citation_title': 'Mithila–Vajji–Anga | Videha Historical Research',
+    'citation_title': archiveTitle,
     'citation_author': 'Gajendra Thakur',
     'citation_journal_title': 'Videha Maithili eJournal',
     'citation_issn': '2229-547X',
     'citation_publication_date': '2026',
     'citation_online_date': '2026-09-13',
+    'DC.title': archiveTitle,
     'DC.creator': 'Gajendra Thakur',
     'DC.publisher': 'Videha Maithili eJournal',
     'DC.identifier': 'ISSN 2229-547X',
     'DC.language': 'en',
-    'DC.type': 'InteractiveResource',
+    'DC.type': 'Digital Research Archive; InteractiveResource; Dataset',
   },
 };
 
@@ -77,17 +85,35 @@ const structuredData = {
       '@type': 'WebSite',
       '@id': `${siteUrl}#website`,
       url: siteUrl,
-      name: 'Mithila–Vajji–Anga · Videha Historical Research',
-      description: 'A source-controlled digital humanities research portal for the connected histories of Mithila, Vajji, and Anga.',
+      name: archiveName,
+      alternateName: archiveSubtitle,
+      description: archiveDescription,
       inLanguage: ['en', 'mai'],
       author: { '@id': `${siteUrl}#gajendra-thakur` },
       publisher: { '@id': `${siteUrl}#videha` },
+      dateModified: '2026-09-13',
+      about: [
+        { '@type': 'Place', name: 'Mithila' },
+        { '@type': 'Place', name: 'Vajji' },
+        { '@type': 'Place', name: 'Anga' },
+      ],
+    },
+    {
+      '@type': 'DataCatalog',
+      '@id': `${siteUrl}#catalog`,
+      name: archiveTitle,
+      url: siteUrl,
+      description: archiveDescription,
+      creator: { '@id': `${siteUrl}#gajendra-thakur` },
+      publisher: { '@id': `${siteUrl}#videha` },
+      dataset: { '@id': `${siteUrl}#dataset` },
+      isAccessibleForFree: true,
       dateModified: '2026-09-13',
     },
     {
       '@type': 'Dataset',
       '@id': `${siteUrl}#dataset`,
-      name: 'Mithila–Vajji–Anga scholarly research dataset',
+      name: 'Videha Digital Research Archive structured research dataset for Mithila, Vajji & Anga',
       url: `${siteUrl}data/`,
       creator: { '@id': `${siteUrl}#gajendra-thakur` },
       publisher: { '@id': `${siteUrl}#videha` },
@@ -95,6 +121,7 @@ const structuredData = {
       version: '2026.09',
       license: 'https://creativecommons.org/licenses/by/4.0/',
       isAccessibleForFree: true,
+      includedInDataCatalog: { '@id': `${siteUrl}#catalog` },
     },
     {
       '@type': 'Person',
