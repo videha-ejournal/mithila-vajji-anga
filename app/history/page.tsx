@@ -1,3 +1,5 @@
+/* oxlint-disable next/no-html-link-for-pages -- GitHub Pages uses full document navigation for exported history routes. */
+
 import type { Metadata } from 'next';
 import researchData from '../research-data.json';
 import styles from './history.module.css';
