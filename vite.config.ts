@@ -8,7 +8,7 @@ const pagePerformanceTransform = () => ({
   transform(code: string, id: string) {
     if (!/[\\/]app[\\/]page\.tsx(?:\?|$)/.test(id)) return null;
 
-    let next = code
+    const next = code
       .replace(
         "import learningData from './learning-data.json';",
         "import specialistSearchData from './generated/specialist-search-lite.json';",
