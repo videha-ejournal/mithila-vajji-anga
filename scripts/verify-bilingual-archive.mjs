@@ -10,6 +10,13 @@ const genericLiterature = [
   /^Chapter\s+\d+$/i,
 ];
 
+const invalidPanjiTitles = [
+  /^Chapter\s+\d+$/i,
+  /^Opening$/i,
+  /^Chapter\s+\d+\s+Source Notes$/i,
+  /^Source Notes$/i,
+];
+
 function expectedTome(number) {
   if (number >= 1 && number <= 25) return 'I';
   if (number <= 50) return 'II';
@@ -98,14 +105,33 @@ for (const unit of units) {
   if (!unit.workId || !unit.unitId || !Number.isInteger(unit.number) || unit.number < 1) {
     throw new Error(`Invalid route identity for ${unit.key}`);
   }
-  if (!String(unit.title ?? '').trim()) {
+
+  const title = String(unit.title ?? '').trim();
+  if (!title) {
     throw new Error(`Missing source title for ${unit.key}`);
   }
   if (!String(unit.sourcePdf ?? '').includes('github.com/videha-ejournal/videha-ejournal/blob/main/')) {
     throw new Error(`Archive unit does not point to the source repository PDF: ${unit.key}`);
   }
-  if (unit.group === 'literature' && genericLiterature.some((pattern) => pattern.test(unit.title.trim()))) {
-    throw new Error(`Synthetic/generic Literature title refused: ${unit.key} — ${unit.title}`);
+  if (!String(unit.description ?? '').trim() || String(unit.description).trim().length < 280) {
+    throw new Error(`Archive unit does not have a substantive description: ${unit.key}`);
+  }
+  if (unit.group === 'literature' && genericLiterature.some((pattern) => pattern.test(title))) {
+    throw new Error(`Synthetic/generic Literature title refused: ${unit.key} — ${title}`);
+  }
+  if (unit.group === 'panji') {
+    if (invalidPanjiTitles.some((pattern) => pattern.test(title))) {
+      throw new Error(`Unresolved or subsection-only Panji title refused: ${unit.key} — ${title}`);
+    }
+    if (!Array.isArray(unit.sections) || unit.sections.filter((value) => String(value).trim()).length < 2) {
+      throw new Error(`Panji permanent page needs at least two source-indexed subsections: ${unit.key}`);
+    }
+    if (!String(unit.sourceLanguage ?? '').includes('Maithili research edition prepared for the Videha Digital Research Archive')) {
+      throw new Error(`Panji unit is missing the required Maithili research-edition disclosure: ${unit.key}`);
+    }
+    if (!String(unit.sourceNote ?? '').includes('source paragraphs')) {
+      throw new Error(`Panji unit is missing source-document structural provenance: ${unit.key}`);
+    }
   }
   if (!String(maithili[unit.key] ?? '').trim()) {
     throw new Error(`Missing paired Maithili reading for ${unit.key}`);
@@ -124,8 +150,13 @@ const panji = units.filter((unit) => unit.group === 'panji');
 if (panji.length !== 0) {
   const volumes = new Set(panji.map((unit) => unit.workId));
   for (let number = 1; number <= 6; number += 1) {
-    if (!volumes.has(`panji-${number}`)) {
-      throw new Error(`Missing source-grounded permanent units for panji-${number}`);
+    const workId = `panji-${number}`;
+    if (!volumes.has(workId)) {
+      throw new Error(`Missing source-grounded permanent units for ${workId}`);
+    }
+    const workUnits = panji.filter((unit) => unit.workId === workId).sort((a, b) => a.number - b.number);
+    if (workUnits.length < 1 || workUnits.some((unit, index) => unit.number !== index + 1)) {
+      throw new Error(`${workId} must expose a contiguous source-grounded chapter sequence beginning at Chapter 1.`);
     }
   }
 }
@@ -146,4 +177,4 @@ if (philosophy.length !== 0) {
   }
 }
 
-console.log(`Verified ${units.length} bilingual archive units; no synthetic Literature titles detected.`);
+console.log(`Verified ${units.length} bilingual archive units; source-grounded detail and paired-language gates passed.`);
