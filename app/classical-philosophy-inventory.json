@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "status": "source-verification-in-progress",
+  "works": {
+    "bhamati": {
+      "status": "pending",
+      "sourceDocument": "Bhamati_English_Translation_FINAL.docx",
+      "maithiliSourceReady": false,
+      "units": []
+    },
+    "atmatattvaviveka": {
+      "status": "pending",
+      "sourceDocument": "Atmatattvaviveka_Complete_English_Translation_FINAL.docx",
+      "maithiliSourceReady": false,
+      "units": []
+    },
+    "nyayakusumanjali": {
+      "status": "pending",
+      "sourceDocument": "",
+      "maithiliSourceReady": false,
+      "units": []
+    },
+    "tattvacintamani": {
+      "status": "pending",
+      "sourceDocument": "",
+      "maithiliSourceReady": false,
+      "units": []
+    }
+  }
+}
