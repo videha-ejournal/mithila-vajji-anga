@@ -75,6 +75,9 @@ if (scholarly.status !== 0) process.exit(scholarly.status ?? 1);
 const sourceLibrary = runNodeScript('scripts/source-library.mjs');
 if (sourceLibrary.status !== 0) process.exit(sourceLibrary.status ?? 1);
 
+const translationSourcePairs = runNodeScript('scripts/verify-translation-source-pairs.mjs');
+if (translationSourcePairs.status !== 0) process.exit(translationSourcePairs.status ?? 1);
+
 const recordSourceProvenance = runNodeScript('scripts/record-source-provenance.mjs');
 if (recordSourceProvenance.status !== 0) process.exit(recordSourceProvenance.status ?? 1);
 

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "policy": "Pairs below are asserted only after the exact Maithili original PDF and its English translation are both present in the dedicated Videha source repository. Page locators are not asserted here.",
+  "pairs": [
+    {
+      "english": "ENGLISH_MAITHILI_GRAMMAR_GHAZAL_HISTORY.pdf",
+      "maithiliOriginal": "MAITHILI_GAZALAK_VYAKARAN_O_ITIHAAS.pdf",
+      "originalAuthor": "Ashish Anchinhar",
+      "translator": "Gajendra Thakur"
+    },
+    {
+      "english": "ENGLISH_MAITHILI_WEB_JOURNALISM.pdf",
+      "maithiliOriginal": "MAITHILI_WEB_JOURNALISM.pdf",
+      "originalAuthor": "Ashish Anchinhar",
+      "translator": "Gajendra Thakur"
+    },
+    {
+      "english": "ENGLISH_MAULAIL_GACHHAK_PHOOL.pdf",
+      "maithiliOriginal": "MAULAIL_GACHHAK_PHOOL.pdf",
+      "originalAuthor": "Jagdish Prasad Mandal",
+      "translator": "Gajendra Thakur"
+    }
+  ]
+}
