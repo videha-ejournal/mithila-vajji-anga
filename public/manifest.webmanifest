@@ -1,0 +1,19 @@
+{
+  "name": "Mithila–Vajji–Anga · Videha Historical Research",
+  "short_name": "MVA Research",
+  "id": "/mithila-vajji-anga/",
+  "start_url": "/mithila-vajji-anga/",
+  "scope": "/mithila-vajji-anga/",
+  "display": "standalone",
+  "background_color": "#fbfaf6",
+  "theme_color": "#0d2742",
+  "description": "A source-controlled scholarly research portal for Mithila, Vajji and Anga.",
+  "icons": [
+    {
+      "src": "/mithila-vajji-anga/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
