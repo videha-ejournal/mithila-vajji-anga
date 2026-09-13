@@ -41,7 +41,7 @@ jobs:
           REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
           GITHUB_API_TOKEN: ${{ github.token }}
         run: npm run build
-      - name: Verify scholarly export, archive identity, history pages, source library and performance contract
+      - name: Verify scholarly export, archive identity, history pages, bilingual collections, source library and performance contract
         run: |
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
@@ -52,6 +52,13 @@ jobs:
           test -f dist/client/chapters/social-1/index.html
           test -f dist/client/chapters/social-150/index.html
           test "$(find dist/client/chapters -mindepth 2 -maxdepth 2 -type f -name index.html | wc -l | tr -d ' ')" -eq 178
+          test -f dist/client/philosophy/index.html
+          test -f dist/client/literature/index.html
+          test -f dist/client/panji/index.html
+          test -f dist/client/en/index.html
+          test -f dist/client/en/philosophy/index.html
+          test -f dist/client/en/literature/index.html
+          test -f dist/client/en/panji/index.html
           test -f dist/client/source-library/index.html
           test -f dist/client/source-library/catalog.json
           test -f dist/client/source-library/SHA256SUMS.txt
@@ -71,9 +78,21 @@ jobs:
           grep -q "Two histories, one connected regional archive" dist/client/history/index.html
           grep -q "Detailed chapter description" dist/client/chapters/political-1/index.html
           grep -q "Detailed chapter description" dist/client/chapters/social-150/index.html
+          grep -q "द्विभाषी संरचना" dist/client/philosophy/index.html
+          grep -q "द्विभाषी संरचना" dist/client/literature/index.html
+          grep -q "द्विभाषी संरचना" dist/client/panji/index.html
+          grep -q "Bilingual architecture" dist/client/en/philosophy/index.html
+          grep -q "Bilingual architecture" dist/client/en/literature/index.html
+          grep -q "Bilingual architecture" dist/client/en/panji/index.html
           grep -q "source-library/" dist/client/sitemap.xml
           grep -q "chapters/political-1/" dist/client/sitemap.xml
           grep -q "chapters/social-150/" dist/client/sitemap.xml
+          grep -q "philosophy/" dist/client/sitemap.xml
+          grep -q "literature/" dist/client/sitemap.xml
+          grep -q "panji/" dist/client/sitemap.xml
+          grep -q "en/philosophy/" dist/client/sitemap.xml
+          grep -q "en/literature/" dist/client/sitemap.xml
+          grep -q "en/panji/" dist/client/sitemap.xml
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/source-library/catalog.json','utf8')); const s=r.sourceRepositories?.[0]; if(r.name!=='Videha Digital Research Archive · Source PDF Library'||!Array.isArray(r.books)||r.externalCount<1||!s||s.repository!=='videha-ejournal/videha-ejournal'||!s.sourceCommit||r.books.some(b=>b.sourceType==='external-github'&&(!b.sourceCommit||!b.gitBlobSha||!b.githubUrl))) process.exit(1); console.log({sourcePdfCount:r.count,externalPdfCount:r.externalCount,sourceCommit:s.sourceCommit})"
