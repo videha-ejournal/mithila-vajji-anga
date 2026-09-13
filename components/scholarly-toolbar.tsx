@@ -17,8 +17,7 @@ function setNativeValue(element: HTMLInputElement | HTMLSelectElement, value: st
   const prototype = element instanceof HTMLInputElement
     ? HTMLInputElement.prototype
     : HTMLSelectElement.prototype;
-  const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-  if (descriptor?.set) Reflect.apply(descriptor.set, element, [value]);
+  Object.getOwnPropertyDescriptor(prototype, 'value')?.set?.call(element, value);
   element.dispatchEvent(new Event(element instanceof HTMLInputElement ? 'input' : 'change', { bubbles: true }));
 }
 
