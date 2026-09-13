@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ArchiveGroup, ArchiveUnit } from './archive-data';
 import { archiveUnits, routeFor } from './archive-data';
 
-const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga';
+const siteOrigin = 'https://videha-ejournal.github.io';
 
 export function staticParamsFor(group: ArchiveGroup) {
   return archiveUnits
@@ -20,7 +20,7 @@ export function metadataFor(unit: ArchiveUnit | undefined, language: 'mai' | 'en
   const isMaithili = language === 'mai';
   const route = routeFor(unit, language);
   const paired = routeFor(unit, isMaithili ? 'en' : 'mai');
-  const canonical = `${siteUrl}${route}`;
+  const canonical = `${siteOrigin}${route}`;
   const description = unit.description.replace(/\s+/g, ' ').trim().slice(0, 300);
 
   return {
@@ -29,8 +29,8 @@ export function metadataFor(unit: ArchiveUnit | undefined, language: 'mai' | 'en
     alternates: {
       canonical,
       languages: isMaithili
-        ? { en: `${siteUrl}${paired}` }
-        : { mai: `${siteUrl}${paired}` },
+        ? { en: `${siteOrigin}${paired}` }
+        : { mai: `${siteOrigin}${paired}` },
     },
     openGraph: {
       type: 'article',
