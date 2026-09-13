@@ -40,6 +40,16 @@ for (const route of ['sources', 'updates']) {
   }
 }
 
+// Build the durable scholarly layer after the interactive export exists.
+// This creates permanent record pages, citation files, dataset releases,
+// expanded discovery files, comparison/search tools, and offline/PWA assets.
+const scholarly = spawnSync(process.execPath, ['scripts/scholarly-export.mjs'], {
+  stdio: 'inherit',
+});
+if (scholarly.status !== 0) {
+  process.exit(scholarly.status ?? 1);
+}
+
 if (build.status !== 0) {
   console.warn('The static export completed; a platform shutdown warning was ignored.');
 }
