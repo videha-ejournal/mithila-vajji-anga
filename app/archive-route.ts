@@ -22,15 +22,16 @@ export function metadataFor(unit: ArchiveUnit | undefined, language: 'mai' | 'en
   const paired = routeFor(unit, isMaithili ? 'en' : 'mai');
   const canonical = `${siteOrigin}${route}`;
   const description = unit.description.replace(/\s+/g, ' ').trim().slice(0, 300);
+  const languageAlternates: Record<string, string> = isMaithili
+    ? { en: `${siteOrigin}${paired}` }
+    : { mai: `${siteOrigin}${paired}` };
 
   return {
     title: `${unit.title} — ${unit.workTitle}`,
     description,
     alternates: {
       canonical,
-      languages: isMaithili
-        ? { en: `${siteOrigin}${paired}` }
-        : { mai: `${siteOrigin}${paired}` },
+      languages: languageAlternates,
     },
     openGraph: {
       type: 'article',
