@@ -5,6 +5,7 @@ import learningData from '../learning-data.json';
 export const metadata = {
   title: 'Cited chronology records | Mithila–Vajji–Anga',
   description: 'Stable source records for the Videha historical research chronology.',
+  alternates: { canonical: 'https://videha-ejournal.github.io/mithila-vajji-anga/sources/' },
 };
 export const dynamic = 'force-static';
 
@@ -16,10 +17,10 @@ export default function SourcesPage() {
         <p className="eyebrow">VIDEHA SOURCE REGISTER</p>
         <h1>Stable records for the research chronology</h1>
         <p>Each entry has a permanent fragment link for citation and verification. Page references identify the supplied research volume; public facsimile links will be added only when an approved digital edition is available.</p>
-        <div className="reference-meta"><strong>{learningData.chronology.length} cited entries</strong><span>Last updated 6 September 2026</span></div>
+        <div className="reference-meta"><strong>{learningData.chronology.length} cited entries</strong><span>Source corpus retained; scholarly infrastructure updated 13 September 2026</span></div>
       </header>
       <nav className="reference-actions" aria-label="Source register controls">
-        <a href="../index.html#wing-2">Historical map</a><a href="../index.html#explorer">Browse histories</a><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink /></a>
+        <a href="../index.html#wing-2">Historical map</a><a href="../index.html#explorer">Browse histories</a><a href="../records/">Permanent records</a><a href="../method/">Editorial method</a><a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha <ExternalLink /></a>
       </nav>
       <section className="source-register" aria-labelledby="source-register-title">
         <h2 id="source-register-title">Chronology source records</h2>
