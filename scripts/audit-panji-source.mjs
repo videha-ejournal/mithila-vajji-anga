@@ -128,7 +128,7 @@ function auditVolume(volumeNumber) {
   }
 
   const numbers = [...seen].sort((a, b) => a - b);
-  if (numbers.length > 0 && numbers.some((number, index) => number !== index + 1)) {
+  if (numbers.some((number, index) => number !== index + 1)) {
     errors.push(`Chapter numbering is not contiguous from 1: ${numbers.join(', ')}`);
   }
 
