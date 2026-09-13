@@ -1,6 +1,7 @@
 import archiveUnitsData from './generated/archive-units.json';
 import archiveMaithiliData from './generated/archive-maithili.json';
 import panjiInventoryData from './generated/panji-inventory.json';
+import philosophyInventoryData from './generated/philosophy-inventory.json';
 import literatureInventoryData from './literature-inventory.json';
 import libraryData from './library-data.json';
 
@@ -49,6 +50,16 @@ export type PanjiInventoryRecord = {
   };
 };
 
+export type PhilosophyInventoryRecord = {
+  workId: 'parallel-philosophy-1' | 'parallel-philosophy-2';
+  number: number;
+  title: string;
+  part: string;
+  sections: string[];
+  source: string;
+  sourceLabel: string;
+};
+
 export type LibraryWork = {
   id: string;
   shelf: string;
@@ -68,6 +79,9 @@ export const literatureInventory = (literatureInventoryData as LiteratureInvento
   .slice()
   .sort((a, b) => a.number - b.number);
 export const panjiInventory = (panjiInventoryData as PanjiInventoryRecord[])
+  .slice()
+  .sort((a, b) => a.workId.localeCompare(b.workId) || a.number - b.number);
+export const philosophyInventory = (philosophyInventoryData as PhilosophyInventoryRecord[])
   .slice()
   .sort((a, b) => a.workId.localeCompare(b.workId) || a.number - b.number);
 export const libraryWorks = libraryData as LibraryWork[];
@@ -156,6 +170,10 @@ export function workUnits(group: ArchiveGroup, workId: string) {
 
 export function panjiWorkInventory(workId: string) {
   return panjiInventory.filter((record) => record.workId === workId);
+}
+
+export function philosophyWorkInventory(workId: string) {
+  return philosophyInventory.filter((record) => record.workId === workId);
 }
 
 export function getArchiveUnit(group: ArchiveGroup, workId: string, unitId: string) {
