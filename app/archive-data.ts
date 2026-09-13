@@ -1,0 +1,119 @@
+import archiveUnitsData from './generated/archive-units.json';
+import archiveMaithiliData from './generated/archive-maithili.json';
+import libraryData from './library-data.json';
+
+export type ArchiveGroup = 'philosophy' | 'literature' | 'panji';
+
+export type ArchiveUnit = {
+  key: string;
+  group: ArchiveGroup;
+  workId: string;
+  workTitle: string;
+  workSequence: string;
+  unitId: string;
+  number: number;
+  title: string;
+  description: string;
+  sections: string[];
+  sourceNote: string;
+  sourcePdf: string;
+  sourceLanguage: string;
+  authorship: string;
+  region: string;
+};
+
+export type LibraryWork = {
+  id: string;
+  shelf: string;
+  sequence: string;
+  title: string;
+  subtitle: string;
+  creator: string;
+  extent: string;
+  description: string;
+  structure: string[];
+};
+
+export const archiveUnits = archiveUnitsData as ArchiveUnit[];
+export const archiveMaithili = archiveMaithiliData as Record<string, string>;
+export const libraryWorks = libraryData as LibraryWork[];
+
+export const archiveGroups: Record<
+  ArchiveGroup,
+  {
+    maithiliTitle: string;
+    englishTitle: string;
+    maithiliDeck: string;
+    englishDeck: string;
+    workIds: string[];
+  }
+> = {
+  philosophy: {
+    maithiliTitle: 'समानान्तर दर्शन',
+    englishTitle: 'Parallel Philosophy',
+    maithiliDeck:
+      'मिथिला–वज्जि–अंग बौद्धिक अभिलेखागारक दार्शनिक स्रोत। उपलब्ध स्रोत स्वयं मैथिली–अंग्रेजी द्विभाषी छथि; संस्कृत मूल, टीका आ अनुवादक-सम्पादकक भूमिका अलग-अलग स्पष्ट राखल गेल अछि।',
+    englishDeck:
+      'Philosophical sources in the Mithila–Vajji–Anga intellectual archive. These works are source-bilingual in Maithili and English; original Sanskrit authorship, commentary and translator-editor roles remain distinct.',
+    workIds: [
+      'parallel-philosophy-1',
+      'parallel-philosophy-2',
+      'bhamati',
+      'atmatattvaviveka',
+      'nyayakusumanjali',
+      'tattvacintamani',
+    ],
+  },
+  literature: {
+    maithiliTitle: 'समानान्तर साहित्य इतिहास',
+    englishTitle: 'Parallel Literature',
+    maithiliDeck:
+      'मिथिला–वज्जि–अंगक समानान्तर इतिहास लेल साहित्यिक स्रोत। मूल अंग्रेजी अध्यायकेँ प्रमाणित स्रोत-सूचीक आधार पर जोड़ल जाएत; नव मैथिली पाठकेँ स्पष्ट रूपेँ विदेह डिजिटल रिसर्च आर्काइव लेल तैयार शोध-संस्करण कहल जाएत।',
+    englishDeck:
+      'Literary-history sources for the parallel history of Mithila–Vajji–Anga. Only chapters with a verified source inventory are exposed; newly prepared Maithili texts are identified as research editions for the Videha Digital Research Archive.',
+    workIds: ['parallel-history'],
+  },
+  panji: {
+    maithiliTitle: 'पञ्जी शोध',
+    englishTitle: 'Decoding Panji',
+    maithiliDeck:
+      'मिथिलाक पञ्जीकेँ वंशावली, सम्बन्ध, बसावट, सामाजिक स्मृति आ दीर्घकालीन अभिलेखक रूपमे पढ़बाक छह-खण्डीय स्रोत-समूह। अंग्रेजी मूलक संग नव मैथिली शोध-संस्करण स्पष्ट रूपेँ अलग चिन्हित रहत।',
+    englishDeck:
+      'A six-volume source corpus reading Mithila’s Panji as genealogy, kinship, settlement, social memory and a long-duration archive. English originals remain visible beside clearly identified Maithili research editions.',
+    workIds: ['panji-1', 'panji-2', 'panji-3', 'panji-4', 'panji-5', 'panji-6'],
+  },
+};
+
+export function groupUnits(group: ArchiveGroup) {
+  return archiveUnits.filter((unit) => unit.group === group);
+}
+
+export function workUnits(group: ArchiveGroup, workId: string) {
+  return archiveUnits
+    .filter((unit) => unit.group === group && unit.workId === workId)
+    .sort((a, b) => a.number - b.number);
+}
+
+export function getArchiveUnit(group: ArchiveGroup, workId: string, unitId: string) {
+  return archiveUnits.find(
+    (unit) => unit.group === group && unit.workId === workId && unit.unitId === unitId,
+  );
+}
+
+export function getLibraryWork(workId: string) {
+  return libraryWorks.find((work) => work.id === workId);
+}
+
+export function maithiliReading(unit: ArchiveUnit) {
+  return archiveMaithili[unit.key] || '';
+}
+
+export function routeFor(unit: ArchiveUnit, language: 'mai' | 'en') {
+  const prefix = language === 'en' ? '/en' : '';
+  return `${prefix}/${unit.group}/${unit.workId}/${unit.unitId}/`;
+}
+
+export function groupRoute(group: ArchiveGroup, language: 'mai' | 'en') {
+  const prefix = language === 'en' ? '/en' : '';
+  return `${prefix}/${group}/`;
+}
