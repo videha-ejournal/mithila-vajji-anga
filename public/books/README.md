@@ -1,10 +1,32 @@
 # Source PDFs for the Videha Digital Research Archive
 
-Place source PDF books in this directory to publish them through the archive’s verified Source PDF Library.
+The archive supports two PDF-source paths.
 
-## What the build does automatically
+## Preferred path for the main book corpus
 
-For every `.pdf` file under `public/books/` (including subdirectories), the production build publishes:
+The large book corpus is maintained in the dedicated public repository:
+
+`https://github.com/videha-ejournal/videha-ejournal`
+
+That repository automatically rebuilds `data/videha-pdf-catalog.json` whenever PDFs change. The Mithila–Vajji–Anga archive consumes that catalogue and the exact Git tree during its verified build.
+
+For every external PDF, the archive records:
+
+- the display title and repository path;
+- file size;
+- the exact source-repository commit observed by the build;
+- the exact Git blob ID;
+- a commit-pinned raw PDF URL;
+- a commit-pinned GitHub source-object URL;
+- the current published GitHub Pages PDF URL when supplied by the source catalogue.
+
+This avoids duplicating hundreds of megabytes of PDFs in the website repository while still making the source objects version-specific and machine-readable.
+
+The archive rebuilds daily as well as on normal site pushes, so newly uploaded PDFs in the dedicated source repository are automatically discovered after its catalogue workflow completes.
+
+## Optional local archive PDFs
+
+PDFs may still be placed directly in this `public/books/` directory. For every local `.pdf` file here, including subdirectories, the production build publishes:
 
 - a stable public URL under `https://videha-ejournal.github.io/mithila-vajji-anga/books/`;
 - an entry in `https://videha-ejournal.github.io/mithila-vajji-anga/source-library/`;
@@ -13,22 +35,20 @@ For every `.pdf` file under `public/books/` (including subdirectories), the prod
 
 The original PDF is not altered.
 
-## Recommended filenames
+## Machine-readable verification
 
-Use descriptive filenames that can serve as provisional scholarly titles, for example:
+The generated Source PDF Library publishes:
 
-- `History_of_Mithila_Vajji_Anga_Volume_I.pdf`
-- `History_of_Mithila_Vajji_Anga_Volume_II.pdf`
-- `Decoding_the_Panji_of_Mithila_Volume_I.pdf`
-- `Parallel_Philosophy_Volume_I.pdf`
-- `Parallel_History_of_Mithila_and_Maithili_Literature_Tome_I.pdf`
+- `/source-library/catalog.json` — combined local and external source-object catalogue;
+- `/source-library/GIT-BLOB-IDS.txt` — exact Git object IDs for externally stored PDFs;
+- `/source-library/SHA256SUMS.txt` — SHA-256 checksums for PDFs physically stored in this archive repository.
 
-Avoid opaque names such as `book1.pdf` when possible.
+Git blob IDs and SHA-256 are different identifier systems and are labelled separately.
 
 ## Rights
 
-Adding a PDF to this directory publishes the file; it does not change its copyright or licence. The archive-level CC BY 4.0 data licence does not automatically relicense book PDFs. Keep the applicable rights statement inside each PDF or document the rights separately.
+Indexing or publishing a PDF does not change its copyright or licence. The archive-level CC BY 4.0 data licence does not automatically relicense book PDFs. The rights statement inside each PDF or its separately documented rights remains controlling.
 
-## Repository size
+## File size
 
-GitHub imposes file-size and repository limits. Very large PDFs should be optimized or hosted in a suitable archival repository and linked from the archive rather than committed if they exceed GitHub’s practical limits.
+Large PDFs should remain in the dedicated `videha-ejournal/videha-ejournal` source repository where practical. Files that exceed GitHub’s accepted individual-file size must be reduced before a normal Git push; once a reduced file is pushed successfully, the source catalogue and archive refresh pipelines will discover it automatically.
