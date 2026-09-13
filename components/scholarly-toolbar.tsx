@@ -17,15 +17,15 @@ function setNativeValue(element: HTMLInputElement | HTMLSelectElement, value: st
   const prototype = element instanceof HTMLInputElement
     ? HTMLInputElement.prototype
     : HTMLSelectElement.prototype;
-  const setter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
-  setter?.call(element, value);
+  const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+  if (descriptor?.set) Reflect.apply(descriptor.set, element, [value]);
   element.dispatchEvent(new Event(element instanceof HTMLInputElement ? 'input' : 'change', { bubbles: true }));
 }
 
-function labelledSelect(labelText: string) {
-  return Array.from(document.querySelectorAll<HTMLLabelElement>('.filter-panel label'))
-    .find((label) => label.textContent?.trim().startsWith(labelText))
-    ?.querySelector<HTMLSelectElement>('select') ?? null;
+function labelledSelect(labelText: string): HTMLSelectElement | null {
+  const label = Array.from(document.querySelectorAll<HTMLLabelElement>('.filter-panel label'))
+    .find((candidate) => candidate.textContent?.trim().startsWith(labelText));
+  return (label?.querySelector('select') as HTMLSelectElement | null) ?? null;
 }
 
 function currentTab() {
@@ -97,10 +97,8 @@ function registerServiceWorker() {
 
 export default function ScholarlyToolbar() {
   const [copied, setCopied] = useState(false);
-  const [translated, setTranslated] = useState(false);
 
   useEffect(() => {
-    setTranslated(window.location.hostname.includes('.translate.goog'));
     restoreInterfaceFromUrl();
     enhanceImages();
 
@@ -143,8 +141,8 @@ export default function ScholarlyToolbar() {
   };
 
   return (
-    <aside className={`scholarly-toolbar ${translated ? 'translation-active' : ''}`} aria-label="Scholarly tools">
-      <details open={translated ? true : undefined}>
+    <aside className="scholarly-toolbar" aria-label="Scholarly tools">
+      <details>
         <summary>Research tools</summary>
         <nav aria-label="Permanent scholarly resources">
           <a href={`${site}/records/`}>Permanent records</a>
@@ -165,7 +163,6 @@ export default function ScholarlyToolbar() {
         .scholarly-toolbar nav a{color:#174c7d;background:#f3f6f8;border:1px solid #d5dbe0;border-radius:999px;padding:.35rem .55rem;text-decoration:none;font-weight:700}
         .scholarly-toolbar button{margin:.25rem .75rem .45rem;border:1px solid #0d2742;border-radius:8px;background:#0d2742;color:white;padding:.5rem .65rem;font:inherit;font-weight:700;cursor:pointer}
         .scholarly-toolbar p{margin:.25rem .75rem .75rem;padding:.55rem .65rem;border-left:4px solid #b45d1a;background:#fff5df;font-size:.82rem}
-        .scholarly-toolbar.translation-active details{border-color:#b45d1a;border-width:2px}
         .scholarly-toolbar a:focus-visible,.scholarly-toolbar button:focus-visible,.scholarly-toolbar summary:focus-visible{outline:3px solid #e39b45;outline-offset:2px}
         @media(max-width:640px){.scholarly-toolbar{right:8px;bottom:8px;max-width:calc(100vw - 16px)}.scholarly-toolbar details:not([open]){max-width:180px}}
         @media print{.scholarly-toolbar{display:none!important}}
