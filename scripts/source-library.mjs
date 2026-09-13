@@ -19,7 +19,7 @@ const escapeHtml = (value) => String(value)
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
   .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;');
+  .replaceAll(String.fromCharCode(34), '&quot;');
 
 const titleFromFilename = (filename) =>
   path.basename(filename, path.extname(filename))
