@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, maxImagePreview: 'large', maxSnippet: -1 },
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   manifest: 'https://videha-ejournal.github.io/mithila-vajji-anga/manifest.webmanifest',
   icons: { icon: './favicon.svg' },
