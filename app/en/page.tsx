@@ -1,6 +1,7 @@
 /* oxlint-disable next/no-html-link-for-pages -- GitHub Pages archive routes use exported documents. */
 
 import type { Metadata } from 'next';
+import { archiveBasePath } from '../archive-data';
 import styles from '../archive/archive.module.css';
 
 export const metadata: Metadata = {
@@ -14,17 +15,17 @@ export const metadata: Metadata = {
 
 const collections = [
   {
-    href: '/en/philosophy/',
+    href: `${archiveBasePath}/en/philosophy/`,
     title: 'Parallel Philosophy',
     text: 'Six bilingual philosophical sources: Parallel Philosophy I–II, Bhāmatī, Ātmatattvaviveka, Nyāyakusumāñjali and Tattvacintāmaṇi.',
   },
   {
-    href: '/en/literature/',
+    href: `${archiveBasePath}/en/literature/`,
     title: 'Parallel Literature',
     text: 'The English source edition of A Parallel History of Mithilā & Maithilī Literature, exposed only from a verified chapter inventory.',
   },
   {
-    href: '/en/panji/',
+    href: `${archiveBasePath}/en/panji/`,
     title: 'Decoding Panji',
     text: 'Six English source volumes on genealogy, kinship, settlement, social memory and archival practice in Mithila.',
   },
@@ -36,10 +37,10 @@ export default function EnglishArchivePage() {
       <div className={styles.shell}>
         <div className={styles.topline}>
           <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
-            <a href="/">Maithili primary edition</a>
+            <a href={`${archiveBasePath}/`}>Maithili primary edition</a>
           </nav>
           <nav className={styles.language} aria-label="Language">
-            <a href="/" hrefLang="mai">मैथिली</a>
+            <a href={`${archiveBasePath}/`} hrefLang="mai">मैथिली</a>
           </nav>
         </div>
         <header className={styles.hero}>
@@ -61,7 +62,7 @@ export default function EnglishArchivePage() {
         <section className={styles.source}>
           <h2>History remains intact</h2>
           <p>The existing two-volume History corpus and all 178 completed chapter pages remain unchanged by this bilingual archive expansion.</p>
-          <p><a className={styles.textLink} href="/history/">Browse History →</a></p>
+          <p><a className={styles.textLink} href={`${archiveBasePath}/history/`}>Browse History →</a></p>
         </section>
       </div>
     </main>
