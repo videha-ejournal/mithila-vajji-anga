@@ -39,6 +39,32 @@ export const archiveUnits = archiveUnitsData as ArchiveUnit[];
 export const archiveMaithili = archiveMaithiliData as Record<string, string>;
 export const libraryWorks = libraryData as LibraryWork[];
 
+const parallelPhilosophyBase = libraryWorks.find((work) => work.id === 'parallel-philosophy');
+const parallelPhilosophyVolumes: Record<string, LibraryWork> = {
+  'parallel-philosophy-1': {
+    id: 'parallel-philosophy-1',
+    shelf: 'Parallel Research',
+    sequence: 'Volume I',
+    title: 'Parallel Philosophy — Volume I',
+    subtitle: parallelPhilosophyBase?.subtitle ?? 'Mithila’s parallel philosophical tradition in Indian and global conversation',
+    creator: 'Gajendra Thakur · Videha · ISSN 2229-547X',
+    extent: '72 source-bilingual chapters',
+    description: parallelPhilosophyBase?.description ?? 'A source-bilingual Maithili–English philosophical research volume.',
+    structure: parallelPhilosophyBase?.structure ?? [],
+  },
+  'parallel-philosophy-2': {
+    id: 'parallel-philosophy-2',
+    shelf: 'Parallel Research',
+    sequence: 'Volume II',
+    title: 'Parallel Philosophy — Volume II',
+    subtitle: 'Continuation of the parallel philosophical programme through modern, postcolonial and contemporary debates',
+    creator: 'Gajendra Thakur · Videha · ISSN 2229-547X',
+    extent: '100 source-bilingual chapters',
+    description: 'A source-bilingual Maithili–English continuation of the Parallel Philosophy project, extending the archive through critical theory, philosophy of mind, science, technology, AI and reconstructive parallel philosophy.',
+    structure: parallelPhilosophyBase?.structure ?? [],
+  },
+};
+
 export const archiveGroups: Record<
   ArchiveGroup,
   {
@@ -102,7 +128,7 @@ export function getArchiveUnit(group: ArchiveGroup, workId: string, unitId: stri
 }
 
 export function getLibraryWork(workId: string) {
-  return libraryWorks.find((work) => work.id === workId);
+  return parallelPhilosophyVolumes[workId] ?? libraryWorks.find((work) => work.id === workId);
 }
 
 export function maithiliReading(unit: ArchiveUnit) {
