@@ -120,4 +120,20 @@ if (existsSync(sitemapPath)) {
   writeFileSync(sitemapPath, sitemap);
 }
 
-console.log(`Source PDF library: ${books.length} PDF${books.length === 1 ? '' : 's'} indexed.`);
+const identityStyle = `<style id="videha-archive-identity-style">.videha-archive-identity{box-sizing:border-box;width:100%;padding:.55rem 1rem;background:#0d2742;color:#fff;font:600 13px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center}.videha-archive-identity a{color:#fff!important;font-weight:800;text-decoration:none}.videha-archive-identity span{opacity:.88}.videha-archive-identity a:focus-visible{outline:3px solid #e39b45;outline-offset:2px}@media print{.videha-archive-identity{display:none}}</style>`;
+const identityStrip = `<div class="videha-archive-identity" role="note"><a href="${SITE}">Videha Digital Research Archive</a> <span>· Digital Humanities Research Environment for Mithila, Vajji &amp; Anga</span></div>`;
+const identityRoots = ['records', 'compare', 'method', 'data', 'accessibility', 'rights'];
+let identityPages = 0;
+for (const root of identityRoots) {
+  for (const file of walk(path.join('dist/client', root)).filter((item) => item.endsWith('.html'))) {
+    let page = readFileSync(file, 'utf8');
+    if (page.includes('videha-archive-identity')) continue;
+    if (!/<body(?:\s[^>]*)?>/i.test(page)) continue;
+    if (page.includes('</head>')) page = page.replace('</head>', `${identityStyle}</head>`);
+    page = page.replace(/<body([^>]*)>/i, `<body$1>${identityStrip}`);
+    writeFileSync(file, page);
+    identityPages += 1;
+  }
+}
+
+console.log(`Source PDF library: ${books.length} PDF${books.length === 1 ? '' : 's'} indexed; archive identity applied to ${identityPages} scholarly pages.`);
