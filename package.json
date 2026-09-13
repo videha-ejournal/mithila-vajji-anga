@@ -7,15 +7,17 @@
   },
   "scripts": {
     "dev": "vinext dev",
-    "build": "node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && node scripts/build-optimized.mjs",
+    "build": "node scripts/validate-classical-philosophy-inventory.mjs && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && node scripts/build-optimized.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
     "audit:philosophy": "node scripts/audit-parallel-philosophy-source.mjs",
     "audit:philosophy:strict": "node scripts/audit-parallel-philosophy-source.mjs --strict",
+    "audit:classical-philosophy": "node scripts/validate-classical-philosophy-inventory.mjs",
+    "audit:classical-philosophy:complete": "node scripts/validate-classical-philosophy-inventory.mjs --require-complete",
     "audit:panji": "node scripts/audit-panji-source.mjs",
     "audit:panji:strict": "node scripts/audit-panji-source.mjs --strict",
-    "generate:archive": "node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs"
+    "generate:archive": "node scripts/validate-classical-philosophy-inventory.mjs --require-complete && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs"
   },
   "dependencies": {
     "react": "19.2.6",
