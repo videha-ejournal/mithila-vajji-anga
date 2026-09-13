@@ -3,8 +3,10 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   renameSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
@@ -58,13 +60,64 @@ if (prefixedAssets && existsSync(prefixedAssets)) {
   rmSync(`dist/client/${repository}`, { recursive: true, force: true });
 }
 
-for (const route of ['sources', 'updates', 'about']) {
+for (const route of ['sources', 'updates', 'about', 'history']) {
   const exportedPage = `dist/client/${route}.html`;
   if (existsSync(exportedPage)) {
     const cleanUrlDirectory = `dist/client/${route}`;
     mkdirSync(cleanUrlDirectory, { recursive: true });
     copyFileSync(exportedPage, `${cleanUrlDirectory}/index.html`);
   }
+}
+
+const chapterExportDirectory = 'dist/client/chapters';
+if (existsSync(chapterExportDirectory)) {
+  for (const entry of readdirSync(chapterExportDirectory, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.html')) continue;
+    const slug = entry.name.slice(0, -5);
+    const exportedPage = `${chapterExportDirectory}/${entry.name}`;
+    const cleanUrlDirectory = `${chapterExportDirectory}/${slug}`;
+    mkdirSync(cleanUrlDirectory, { recursive: true });
+    copyFileSync(exportedPage, `${cleanUrlDirectory}/index.html`);
+  }
+}
+
+try {
+  const research = JSON.parse(readFileSync('app/research-data.json', 'utf8'));
+  const chapterIds = [...(research.political ?? []), ...(research.social ?? [])]
+    .map((chapter) => chapter.id)
+    .filter(Boolean);
+  const baseUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
+  const permanentRoutes = [
+    '',
+    'history/',
+    'about/',
+    'sources/',
+    'updates/',
+    'records/',
+    'compare/',
+    'method/',
+    'data/',
+    'source-library/',
+    'accessibility/',
+    'rights/',
+  ];
+  const urls = [
+    ...permanentRoutes,
+    ...chapterIds.map((id) => `chapters/${id}/`),
+  ];
+  const sitemap = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...urls.map(
+      (route) =>
+        `  <url><loc>${baseUrl}${route}</loc><lastmod>2026-09-13</lastmod></url>`,
+    ),
+    '</urlset>',
+    '',
+  ].join('\n');
+  writeFileSync('dist/client/sitemap.xml', sitemap);
+} catch (error) {
+  console.warn('Could not regenerate the history-aware sitemap:', error);
 }
 
 runNodeScript('scripts/prepare-images.mjs', { args: ['--cleanup'] });
