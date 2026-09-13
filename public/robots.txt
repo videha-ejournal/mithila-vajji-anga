@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://videha-ejournal.github.io/mithila-vajji-anga/sitemap.xml
