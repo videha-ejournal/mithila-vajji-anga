@@ -4,12 +4,16 @@ import type { Metadata } from 'next';
 import { archiveBasePath } from '../archive-data';
 import styles from '../archive/archive.module.css';
 
+const languageAlternates: Record<string, string> = {
+  mai: 'https://videha-ejournal.github.io/mithila-vajji-anga/',
+};
+
 export const metadata: Metadata = {
   title: 'English Edition — Mithila–Vajji–Anga Digital Research Archive',
   description: 'English edition of the Videha source-controlled archive for the parallel history of Mithila, Vajji and Anga.',
   alternates: {
     canonical: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
-    languages: { mai: 'https://videha-ejournal.github.io/mithila-vajji-anga/' },
+    languages: languageAlternates,
   },
 };
 
