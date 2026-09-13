@@ -56,6 +56,7 @@ jobs:
           grep -q "Videha Digital Research Archive" dist/client/index.html
           grep -q "Digital Humanities Research Environment for Mithila, Vajji" dist/client/index.html
           grep -q "Videha Digital Research Archive" dist/client/about/index.html
+          grep -q "Videha Digital Research Archive" dist/client/records/index.html
           grep -q "source-library/" dist/client/sitemap.xml
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
