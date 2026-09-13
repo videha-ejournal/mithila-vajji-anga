@@ -11,12 +11,16 @@ const EXTERNAL_BRANCH = 'main';
 const EXTERNAL_REPOSITORY_URL = `https://github.com/${EXTERNAL_REPOSITORY}`;
 const EXTERNAL_CATALOG_PATH = 'data/videha-pdf-catalog.json';
 const requireExternal = process.env.REQUIRE_EXTERNAL_SOURCE_LIBRARY === '1';
+const GOHI_FAMILY_ID = 'gohi-sabhak-beech-jalsamadhi';
+const GOHI_ORIGINAL = 'Gohi_Sabhak_Beech_Jalsamadhi.pdf';
 
 const REQUIRED_CURATED_SOURCE_METADATA = [
   ['37_CHILDREN_NOVELS.pdf', 'en'],
   ['GAJENDRA_THAKUR_SAMAGRA_37_MAITHILI_CHILDREN_NOVELS.pdf', 'mai'],
   ['Gohi_Jalsamadhi_Bal_Sanskaran.pdf', 'mai'],
+  ['Gohi_Jalsamadhi_Kishor_Sanskaran.pdf', 'mai'],
   ['Gohi_Sabhak_Beech_Jalsamadhi.pdf', 'mai'],
+  ['Water_Burial_Among_the_Crocodiles.pdf', 'en'],
 ];
 
 const walk = (directory) =>
@@ -94,9 +98,17 @@ async function loadExternalSourceRepository() {
   const items = pdfBlobs.map((item) => {
     const supplied = catalogByPath.get(item.path);
     const pinnedPath = encodePath(item.path);
+    const relatedResources = Array.isArray(supplied?.relatedResources)
+      ? supplied.relatedResources.map((related) => ({
+          ...related,
+          url: pinnedUrl(related.path),
+          githubUrl: pinnedGithubUrl(related.path),
+        }))
+      : [];
     return {
       id: `external-${recordId(item.path)}`,
       title: supplied?.title || titleFromFilename(item.path),
+      alternateTitle: supplied?.alternateTitle ?? null,
       filename: item.path,
       mediaType: 'application/pdf',
       bytes: item.size ?? 0,
@@ -112,6 +124,16 @@ async function loadExternalSourceRepository() {
       language: supplied?.language ?? null,
       languageCode: supplied?.languageCode ?? null,
       editionNote: supplied?.editionNote ?? null,
+      seriesTitle: supplied?.seriesTitle ?? null,
+      seriesPart: supplied?.seriesPart ?? null,
+      workFamilyId: supplied?.workFamilyId ?? null,
+      workFamilyTitle: supplied?.workFamilyTitle ?? null,
+      workFamilyRole: supplied?.workFamilyRole ?? null,
+      isBasedOn: supplied?.isBasedOn ?? null,
+      isBasedOnTitle: supplied?.isBasedOnTitle ?? null,
+      isBasedOnUrl: pinnedUrl(supplied?.isBasedOn),
+      isBasedOnGithubUrl: pinnedGithubUrl(supplied?.isBasedOn),
+      relatedResources,
       translationOf: supplied?.translationOf ?? null,
       translationOfTitle: supplied?.translationOfTitle ?? null,
       translationOfUrl: pinnedUrl(supplied?.translationOf),
@@ -167,6 +189,9 @@ try {
 
 const externalItems = externalSource?.items ?? [];
 if (requireExternal) {
+  if ((externalSource?.sourceCatalogSchemaVersion ?? 0) < 4) {
+    throw new Error(`External source catalogue schema v4 or newer is required; found ${externalSource?.sourceCatalogSchemaVersion ?? 'none'}.`);
+  }
   const externalByFilename = new Map(externalItems.map((item) => [item.filename, item]));
   for (const [filename, languageCode] of REQUIRED_CURATED_SOURCE_METADATA) {
     const sourceItem = externalByFilename.get(filename);
@@ -181,11 +206,52 @@ if (requireExternal) {
       || maithiliOriginal?.translatedAs !== englishTranslation?.filename) {
     throw new Error('The Maithili-original ↔ English-translation relationship for the 37 children novels is incomplete.');
   }
+
+  const gohiOriginal = externalByFilename.get(GOHI_ORIGINAL);
+  const gohiEnglish = externalByFilename.get('Water_Burial_Among_the_Crocodiles.pdf');
+  const gohiBal = externalByFilename.get('Gohi_Jalsamadhi_Bal_Sanskaran.pdf');
+  const gohiKishor = externalByFilename.get('Gohi_Jalsamadhi_Kishor_Sanskaran.pdf');
+  const gohiTeaching = externalByFilename.get('Videha_Teaching_Gohi_Jalsamadhi.pdf');
+  const gohiTeachingMerge = externalByFilename.get('Gohi_Jalsamadhi_Teaching_merge.pdf');
+  if (gohiOriginal?.workFamilyRole !== 'principal-work' || gohiOriginal?.workFamilyId !== GOHI_FAMILY_ID) {
+    throw new Error('Gohi Sabhak Beech Jalsamadhi must be catalogued as the principal work of its work family.');
+  }
+  if (gohiEnglish?.translationOf !== GOHI_ORIGINAL || gohiOriginal?.translatedAs !== gohiEnglish?.filename) {
+    throw new Error('The Gohi Sabhak Beech Jalsamadhi ↔ Water-Burial Among the Crocodiles translation relationship is incomplete.');
+  }
+  for (const derivative of [gohiBal, gohiKishor, gohiTeaching, gohiTeachingMerge]) {
+    if (!derivative || derivative.workFamilyId !== GOHI_FAMILY_ID || derivative.isBasedOn !== GOHI_ORIGINAL) {
+      throw new Error('A Gohi adaptation or teaching resource is missing its principal-work relationship.');
+    }
+  }
+  const gohiRelatedPaths = new Set((gohiOriginal.relatedResources ?? []).map((item) => item.path));
+  for (const requiredPath of [
+    'Gohi_Jalsamadhi_Bal_Sanskaran.pdf',
+    'Gohi_Jalsamadhi_Kishor_Sanskaran.pdf',
+    'Water_Burial_Among_the_Crocodiles.pdf',
+    'Videha_Teaching_Gohi_Jalsamadhi.pdf',
+    'Gohi_Jalsamadhi_Teaching_merge.pdf',
+  ]) {
+    if (!gohiRelatedPaths.has(requiredPath)) throw new Error(`Gohi principal-work record is missing related resource: ${requiredPath}`);
+  }
+
+  const gadyaOne = externalByFilename.get('GADYA_PADYA_BHARTI_1.pdf');
+  const gadyaTwo = externalByFilename.get('GAJENDRA_THAKUR_SAMAGRA_ANUVAD_KHAND.pdf');
+  if (gadyaOne?.seriesTitle !== 'GADYA PADYA BHARTI' || gadyaOne?.seriesPart !== 1
+      || gadyaTwo?.seriesTitle !== 'GADYA PADYA BHARTI' || gadyaTwo?.seriesPart !== 2) {
+    throw new Error('GADYA PADYA BHARTI 1–2 series metadata is incomplete.');
+  }
 }
 
 const items = [...externalItems, ...localItems].sort((a, b) => a.title.localeCompare(b.title));
 const books = items.filter((item) => item.sourceRole === 'book-or-research-document');
 const supportDocuments = items.filter((item) => item.sourceRole !== 'book-or-research-document');
+const gohiFamilyBooks = books
+  .filter((item) => item.workFamilyId === GOHI_FAMILY_ID)
+  .sort((a, b) => {
+    const order = { 'principal-work': 0, 'bal-sanskaran': 1, 'kishor-sanskaran': 2, 'english-translation': 3, 'teaching-resource': 4 };
+    return (order[a.workFamilyRole] ?? 99) - (order[b.workFamilyRole] ?? 99) || a.title.localeCompare(b.title);
+  });
 
 mkdirSync(outputRoot, { recursive: true });
 const catalog = {
@@ -198,6 +264,9 @@ const catalog = {
   supportDocumentCount: supportDocuments.length,
   localCount: localItems.length,
   externalCount: externalItems.length,
+  workFamilies: gohiFamilyBooks.length
+    ? [{ id: GOHI_FAMILY_ID, title: 'Gohi Sabhak Beech Jalsamadhi', members: gohiFamilyBooks.map((item) => item.id) }]
+    : [],
   sourceRepositories: externalSource
     ? [{
         repository: externalSource.repository,
@@ -235,13 +304,29 @@ writeFileSync(
     : '# No external GitHub PDF source repository was available in this build.\n',
 );
 
+const roleLabel = (role) => ({
+  'principal-work': 'Principal work',
+  'bal-sanskaran': 'Bal Sanskaran',
+  'kishor-sanskaran': 'Kishor Sanskaran',
+  'english-translation': 'English translation',
+  'teaching-resource': 'Teaching resource',
+}[role] ?? role);
+
 const renderItem = (book) => {
   const external = book.sourceType === 'external-github';
+  const relatedResourceRow = book.relatedResources?.length
+    ? `<dt>Related work-family resources</dt><dd><ul>${book.relatedResources.map((related) => `<li>${escapeHtml(roleLabel(related.relation))}: <a href="${escapeHtml(related.url)}">${escapeHtml(related.title || related.path)}</a> · <a href="${escapeHtml(related.githubUrl)}">exact source object</a></li>`).join('')}</ul></dd>`
+    : '';
   const relationshipRows = [
+    book.alternateTitle ? `<dt>Alternate title</dt><dd>${escapeHtml(book.alternateTitle)}</dd>` : '',
     book.language ? `<dt>Language</dt><dd>${escapeHtml(book.language)}${book.languageCode ? ` (<code>${escapeHtml(book.languageCode)}</code>)` : ''}</dd>` : '',
+    book.seriesTitle ? `<dt>Series</dt><dd>${escapeHtml(book.seriesTitle)}${book.seriesPart ? ` · Part ${escapeHtml(book.seriesPart)}` : ''}</dd>` : '',
+    book.workFamilyTitle ? `<dt>Work family</dt><dd>${escapeHtml(book.workFamilyTitle)}${book.workFamilyRole ? ` · ${escapeHtml(roleLabel(book.workFamilyRole))}` : ''}</dd>` : '',
     book.editionNote ? `<dt>Edition / relation note</dt><dd>${escapeHtml(book.editionNote)}</dd>` : '',
+    book.isBasedOnUrl ? `<dt>Based on</dt><dd><a href="${escapeHtml(book.isBasedOnUrl)}">${escapeHtml(book.isBasedOnTitle || book.isBasedOn)}</a> · <a href="${escapeHtml(book.isBasedOnGithubUrl)}">exact source object</a></dd>` : '',
     book.translationOfUrl ? `<dt>Translation of</dt><dd><a href="${escapeHtml(book.translationOfUrl)}">${escapeHtml(book.translationOfTitle || book.translationOf)}</a> · <a href="${escapeHtml(book.translationOfGithubUrl)}">exact source object</a></dd>` : '',
     book.translatedAsUrl ? `<dt>English translation</dt><dd><a href="${escapeHtml(book.translatedAsUrl)}">${escapeHtml(book.translatedAsTitle || book.translatedAs)}</a> · <a href="${escapeHtml(book.translatedAsGithubUrl)}">exact source object</a></dd>` : '',
+    relatedResourceRow,
   ].filter(Boolean).join('');
   return `
       <article class="book">
@@ -267,6 +352,9 @@ const rows = books.length
 const supportRows = supportDocuments.length
   ? `<section class="support"><h2>Repository support documents</h2><p>These PDFs exist in the source repository but are not listed in its generated book catalogue.</p>${supportDocuments.map(renderItem).join('')}</section>`
   : '';
+const gohiFamilySection = gohiFamilyBooks.length
+  ? `<section class="work-family"><p class="kicker">CURATED WORK FAMILY</p><h2>Gohi Sabhak Beech Jalsamadhi</h2><p>The archive treats <strong>Gohi Sabhak Beech Jalsamadhi</strong> as the principal Maithili novel and the largest Maithili novel in the Videha corpus. The Bal Sanskaran, Kishor Sanskaran, English translation <em>Water-Burial Among the Crocodiles</em>, and both teaching resources are catalogued as related records rather than as unrelated books.</p><ul>${gohiFamilyBooks.map((book) => `<li><strong>${escapeHtml(roleLabel(book.workFamilyRole))}:</strong> <a href="${escapeHtml(book.url)}">${escapeHtml(book.title)}</a></li>`).join('')}</ul></section>`
+  : '';
 
 const itemList = items.map((book, index) => ({
   '@type': 'ListItem',
@@ -274,12 +362,19 @@ const itemList = items.map((book, index) => ({
   item: {
     '@type': 'DigitalDocument',
     name: book.title,
+    alternateName: book.alternateTitle ?? undefined,
     encodingFormat: 'application/pdf',
     contentUrl: book.url,
     version: book.sourceCommit ?? undefined,
     identifier: book.gitBlobSha ? `git-blob:${book.gitBlobSha}` : `sha256:${book.sha256}`,
     sameAs: book.githubUrl ?? undefined,
     inLanguage: book.languageCode ?? book.language ?? undefined,
+    about: book.workFamilyTitle
+      ? { '@type': 'CreativeWork', name: book.workFamilyTitle, identifier: book.workFamilyId ?? undefined }
+      : undefined,
+    isBasedOn: book.isBasedOnUrl
+      ? { '@type': 'DigitalDocument', name: book.isBasedOnTitle ?? book.isBasedOn, contentUrl: book.isBasedOnUrl }
+      : undefined,
     translationOfWork: book.translationOfUrl
       ? {
           '@type': 'DigitalDocument',
@@ -296,6 +391,13 @@ const itemList = items.map((book, index) => ({
           inLanguage: 'en',
         }
       : undefined,
+    hasPart: book.relatedResources?.length
+      ? book.relatedResources.map((related) => ({ '@type': 'DigitalDocument', name: related.title ?? related.path, contentUrl: related.url }))
+      : undefined,
+    additionalProperty: [
+      book.seriesTitle ? { '@type': 'PropertyValue', name: 'Series', value: `${book.seriesTitle}${book.seriesPart ? ` · Part ${book.seriesPart}` : ''}` } : undefined,
+      book.workFamilyRole ? { '@type': 'PropertyValue', name: 'Work-family role', value: roleLabel(book.workFamilyRole) } : undefined,
+    ].filter(Boolean),
     isPartOf: book.repositoryUrl
       ? { '@type': 'Collection', name: book.repository, url: book.repositoryUrl }
       : { '@type': 'WebSite', name: 'Videha Digital Research Archive', url: SITE },
@@ -322,13 +424,14 @@ const html = `<!doctype html>
 <link rel="canonical" href="${SITE}source-library/">
 <script type="application/ld+json">${JSON.stringify(jsonLd).replaceAll('<', '\\u003c')}</script>
 <style>
-body{margin:0;background:#fbfaf6;color:#172437;font:17px/1.65 Georgia,"Times New Roman",serif}main{max-width:1000px;margin:auto;padding:3rem 1.2rem 4rem}h1{font-size:clamp(2.2rem,6vw,4.6rem);line-height:1;color:#0d2742;margin:.4rem 0 1rem}.kicker{font:800 .78rem/1.4 system-ui,sans-serif;letter-spacing:.16em;color:#8c3d24}.subtitle{font-size:1.25rem;font-weight:700;color:#8c3d24}.meta{padding:1rem 0 2rem;border-bottom:1px solid #cbc5b9}.tools,.record-links{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.2rem 0}.tools a,.record-links a{font:700 .9rem system-ui,sans-serif;color:#174c7d;text-decoration:none;border:1px solid #b8c0c8;border-radius:999px;padding:.5rem .75rem;background:white}.book{padding:1.3rem 0;border-bottom:1px solid #ddd7ca}.book h2{margin:.1rem 0}.book dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem .8rem}.book dt{font-weight:700}.book dd{margin:0;overflow-wrap:anywhere}code{font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:#f1eee7;padding:.1rem .3rem;border-radius:4px}.empty,.support{margin:2rem 0;padding:1.4rem;border:1px solid #d3ccc0;background:white;border-radius:10px}a{color:#174c7d}a:focus-visible{outline:3px solid #e39b45;outline-offset:3px}
+body{margin:0;background:#fbfaf6;color:#172437;font:17px/1.65 Georgia,"Times New Roman",serif}main{max-width:1000px;margin:auto;padding:3rem 1.2rem 4rem}h1{font-size:clamp(2.2rem,6vw,4.6rem);line-height:1;color:#0d2742;margin:.4rem 0 1rem}.kicker{font:800 .78rem/1.4 system-ui,sans-serif;letter-spacing:.16em;color:#8c3d24}.subtitle{font-size:1.25rem;font-weight:700;color:#8c3d24}.meta{padding:1rem 0 2rem;border-bottom:1px solid #cbc5b9}.tools,.record-links{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.2rem 0}.tools a,.record-links a{font:700 .9rem system-ui,sans-serif;color:#174c7d;text-decoration:none;border:1px solid #b8c0c8;border-radius:999px;padding:.5rem .75rem;background:white}.book{padding:1.3rem 0;border-bottom:1px solid #ddd7ca}.book h2{margin:.1rem 0}.book dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem .8rem}.book dt{font-weight:700}.book dd{margin:0;overflow-wrap:anywhere}.book dd ul{margin:.2rem 0;padding-left:1.2rem}.work-family{margin:2rem 0;padding:1.4rem;border:2px solid #b7a57a;background:#fffdf7;border-radius:10px}.work-family h2{margin:.2rem 0 .7rem;color:#0d2742}code{font:13px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;background:#f1eee7;padding:.1rem .3rem;border-radius:4px}.empty,.support{margin:2rem 0;padding:1.4rem;border:1px solid #d3ccc0;background:white;border-radius:10px}a{color:#174c7d}a:focus-visible{outline:3px solid #e39b45;outline-offset:3px}
 </style></head><body><main>
 <p class="kicker">VIDEHA DIGITAL RESEARCH ARCHIVE</p><h1>Source PDF Library</h1>
 <p class="subtitle">Primary and foundational book objects for the Digital Humanities Research Environment for Mithila, Vajji &amp; Anga</p>
 <div class="meta"><p><strong>${books.length}</strong> book/research PDF${books.length === 1 ? '' : 's'} indexed${supportDocuments.length ? `, plus ${supportDocuments.length} repository-support PDF${supportDocuments.length === 1 ? '' : 's'}` : ''}. External objects are version-pinned to the exact source-repository commit observed by this build.</p>
 ${sourceProvenance}
 <div class="tools"><a href="./catalog.json">Machine-readable catalogue (JSON)</a><a href="./GIT-BLOB-IDS.txt">Pinned Git blob IDs</a><a href="./SHA256SUMS.txt">Local SHA-256 checksums</a><a href="${SITE}about/">About the archive</a><a href="${SITE}records/">Permanent records</a></div></div>
+${gohiFamilySection}
 ${rows}${supportRows}
 <footer><p><a href="${SITE}">← Videha Digital Research Archive</a></p><p>© Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN 2229-547X</p><p>Listing a PDF here does not change its copyright or licence; the source document’s own rights statement remains controlling.</p></footer>
 </main></body></html>`;
