@@ -3,6 +3,10 @@ import { existsSync, readFileSync } from 'node:fs';
 const units = JSON.parse(readFileSync('app/generated/archive-units.json', 'utf8'));
 const maithili = JSON.parse(readFileSync('app/generated/archive-maithili.json', 'utf8'));
 const literatureInventoryPath = 'app/literature-inventory.json';
+const maithiliReviewPath = 'app/maithili-research-review.json';
+const maithiliReviews = existsSync(maithiliReviewPath)
+  ? JSON.parse(readFileSync(maithiliReviewPath, 'utf8'))
+  : {};
 
 const genericLiterature = [
   /^A Parallel History of Mithil[aā] & Maithil[iī] Literature\s*[—-]\s*Volume\s+\d+$/i,
@@ -77,6 +81,17 @@ function verifyLiteratureInventory() {
   console.log('Verified canonical Parallel Literature inventory: Chapters 1–100, Tome boundaries I–IV, titles and source provenance.');
 }
 
+function verifyMaithiliResearchReview(unit) {
+  if (unit.group !== 'literature' && unit.group !== 'panji') return;
+  const review = maithiliReviews?.[unit.key];
+  if (!review || review.status !== 'editorially-reviewed' || review.sourceChecked !== true) {
+    throw new Error(`Maithili research edition is not editorially source-reviewed: ${unit.key}`);
+  }
+  if (!String(review.note ?? '').trim()) {
+    throw new Error(`Maithili research-edition review record needs a note: ${unit.key}`);
+  }
+}
+
 verifyLiteratureInventory();
 
 if (!Array.isArray(units)) {
@@ -84,6 +99,9 @@ if (!Array.isArray(units)) {
 }
 if (!maithili || Array.isArray(maithili) || typeof maithili !== 'object') {
   throw new Error('archive-maithili.json must contain an object keyed by archive unit');
+}
+if (!maithiliReviews || Array.isArray(maithiliReviews) || typeof maithiliReviews !== 'object') {
+  throw new Error('app/maithili-research-review.json must contain an object keyed by archive unit');
 }
 
 if (units.length === 0) {
@@ -119,6 +137,11 @@ for (const unit of units) {
   if (unit.group === 'literature' && genericLiterature.some((pattern) => pattern.test(title))) {
     throw new Error(`Synthetic/generic Literature title refused: ${unit.key} — ${title}`);
   }
+  if (unit.group === 'literature') {
+    if (!String(unit.sourceLanguage ?? '').includes('Maithili research edition prepared for the Videha Digital Research Archive')) {
+      throw new Error(`Literature unit is missing the required Maithili research-edition disclosure: ${unit.key}`);
+    }
+  }
   if (unit.group === 'panji') {
     if (invalidPanjiTitles.some((pattern) => pattern.test(title))) {
       throw new Error(`Unresolved or subsection-only Panji title refused: ${unit.key} — ${title}`);
@@ -136,6 +159,7 @@ for (const unit of units) {
   if (!String(maithili[unit.key] ?? '').trim()) {
     throw new Error(`Missing paired Maithili reading for ${unit.key}`);
   }
+  verifyMaithiliResearchReview(unit);
 }
 
 const literature = units.filter((unit) => unit.group === 'literature');
