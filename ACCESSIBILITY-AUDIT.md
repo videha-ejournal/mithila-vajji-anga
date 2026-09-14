@@ -3,7 +3,7 @@
 Release audit date: **14 September 2026**  
 Target: **WCAG 2.2 AA-oriented conformance process**  
 Engineering verification: **RELEASE-BLOCKING CI GATE**  
-Manual certification status: **PENDING**
+Manual certification status: PENDING
 
 This ledger separates release-engineering safeguards from testing that must be performed with real browsers, devices, keyboards, screen readers, zoom/reflow settings and touch input. Passing CI is not represented as full WCAG 2.2 AA certification.
 
