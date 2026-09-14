@@ -69,6 +69,11 @@ export function historyChapterMetadata(id: string, language: HistoryLanguage): M
   const volume = volumeFor(chapter);
   const maiUrl = `${site}/chapters/${chapter.id}/`;
   const enUrl = `${site}/en/chapters/${chapter.id}/`;
+  const languageAlternates: Record<string, string> = {
+    mai: maiUrl,
+    en: enUrl,
+    'x-default': maiUrl,
+  };
   return {
     title: mai
       ? `अध्याय ${chapter.number}: ${chapter.title} — ${volume.shortMai}`
@@ -76,7 +81,7 @@ export function historyChapterMetadata(id: string, language: HistoryLanguage): M
     description: description(chapter, language),
     alternates: {
       canonical: mai ? maiUrl : enUrl,
-      languages: { mai: maiUrl, en: enUrl, 'x-default': maiUrl },
+      languages: languageAlternates,
     },
     openGraph: {
       type: 'article',
