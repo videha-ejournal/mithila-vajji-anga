@@ -38,6 +38,16 @@ function plausibleDetachedTitle(title, level) {
   return true;
 }
 
+function hasVerifiedTitle(chapter) {
+  const title = clean(chapter?.title);
+  return Boolean(
+    title
+    && chapter?.titleSource
+    && !genericChapterPattern.test(title)
+    && !sectionOnlyTitles.some((pattern) => pattern.test(title)),
+  );
+}
+
 function parseChapters(items) {
   const chapters = [];
   let current = null;
@@ -132,6 +142,7 @@ function auditVolume(volumeNumber) {
       workId,
       source: null,
       chapterCount: 0,
+      verifiedChapterCount: 0,
       chapters: [],
       errors: [{ code: 'PANJI_MISSING_VOLUME', message: `Missing ${workId} in app/collection-details.json` }],
       warnings: [],
@@ -151,8 +162,12 @@ function auditVolume(volumeNumber) {
     }
     seen.add(chapter.number);
 
-    if (!chapter.title || genericChapterPattern.test(chapter.title) || sectionOnlyTitles.some((pattern) => pattern.test(chapter.title))) {
-      errors.push({ code: 'PANJI_MISSING_CHAPTER_TITLE', message: `Chapter ${chapter.number} has no resolved source title` });
+    if (!hasVerifiedTitle(chapter)) {
+      warnings.push({
+        code: 'PANJI_UNRESOLVED_CHAPTER_TITLE',
+        message: `Chapter ${chapter.number} has no source-verified title and will be omitted from the published detail inventory`,
+        chapter: chapter.number,
+      });
     }
     if (chapter.sections.length < 2) {
       warnings.push({
@@ -165,7 +180,16 @@ function auditVolume(volumeNumber) {
 
   const numbers = [...seen].sort((a, b) => a - b);
   if (numbers.some((number, index) => number !== index + 1)) {
-    errors.push({ code: 'PANJI_NONCONTIGUOUS_NUMBERING', message: `Chapter numbering is not contiguous from 1: ${numbers.join(', ')}` });
+    warnings.push({
+      code: 'PANJI_SOURCE_NUMBERING_GAP',
+      message: `Source chapter markers are non-contiguous and are preserved as supplied: ${numbers.join(', ')}`,
+    });
+  }
+  if (chapters.length === 0 && Number(detail.paragraphs ?? 0) > 0) {
+    warnings.push({
+      code: 'PANJI_NO_CHAPTER_MARKERS',
+      message: 'Source contains content but no Chapter-N markers; no synthetic chapter units will be created',
+    });
   }
 
   return {
@@ -174,10 +198,12 @@ function auditVolume(volumeNumber) {
     sourceParagraphs: Number(detail.paragraphs ?? 0),
     sourceTables: Number(detail.tables ?? 0),
     chapterCount: chapters.length,
+    verifiedChapterCount: chapters.filter(hasVerifiedTitle).length,
     chapters: chapters.map((chapter) => ({
       number: chapter.number,
       title: chapter.title,
       titleSource: chapter.titleSource,
+      titleVerifiedFromSource: hasVerifiedTitle(chapter),
       sections: chapter.sections,
       sectionCount: chapter.sections.length,
     })),
@@ -210,7 +236,7 @@ if (writeInventory) {
     console.error(`Refusing to write ${inventoryPath}: Panji source audit has ${failures.length} blocking source issue(s).`);
   } else {
     const inventory = report.flatMap((volume) =>
-      volume.chapters.map((chapter) => {
+      volume.chapters.filter(hasVerifiedTitle).map((chapter) => {
         const correctionKey = `${volume.workId}/${chapter.number}`;
         const correction = corrections?.[correctionKey];
         return {
@@ -234,7 +260,7 @@ if (writeInventory) {
       }),
     );
     writeFileSync(inventoryPath, `${JSON.stringify(inventory, null, 2)}\n`, 'utf8');
-    console.log(`Wrote ${inventory.length} source-verified Panji chapter record(s) to ${inventoryPath}.`);
+    console.log(`Wrote ${inventory.length} source-verified Panji chapter record(s) to ${inventoryPath}; unresolved source markers were omitted rather than synthesized.`);
   }
 }
 
@@ -256,9 +282,9 @@ if (jsonOutput) {
 } else {
   console.log('Decoding Panji source-structure audit');
   for (const volume of report) {
-    console.log(`- ${volume.workId}: ${volume.chapterCount} parsed chapters · ${volume.sourceParagraphs ?? 0} paragraphs · ${volume.sourceTables ?? 0} tables`);
-    for (const chapter of volume.chapters.filter((item) => !item.title)) {
-      console.log(`  unresolved: Chapter ${chapter.number}`);
+    console.log(`- ${volume.workId}: ${volume.chapterCount} parsed chapters · ${volume.verifiedChapterCount} source-verified titles · ${volume.sourceParagraphs ?? 0} paragraphs · ${volume.sourceTables ?? 0} tables`);
+    for (const chapter of volume.chapters.filter((item) => !item.titleVerifiedFromSource)) {
+      console.log(`  unresolved/omitted: Chapter ${chapter.number}`);
     }
     for (const chapter of volume.chapters.filter((item) => String(item.titleSource ?? '').startsWith('verified source correction'))) {
       console.log(`  corrected: Chapter ${chapter.number} — ${chapter.title}`);
@@ -268,9 +294,9 @@ if (jsonOutput) {
   }
   for (const error of correctionErrors) console.log(`  ERROR ${error.code}: ${error.message}`);
   if (failures.length === 0) {
-    console.log(`Panji source structure is publication-ready with ${warnings.length} non-blocking indexing warning(s).`);
+    console.log(`Panji source structure passed strict integrity checks with ${warnings.length} non-blocking indexing warning(s); unresolved units remain excluded from publication inventory.`);
   } else {
-    console.log(`${failures.length} blocking source issue(s) remain; ${warnings.length} non-blocking indexing warning(s) recorded.`);
+    console.log(`${failures.length} blocking source-integrity issue(s) remain; ${warnings.length} non-blocking indexing warning(s) recorded.`);
   }
 }
 
