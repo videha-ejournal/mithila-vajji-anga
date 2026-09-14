@@ -22,7 +22,7 @@ function tags(html, rel) { return [...html.matchAll(/<link\b[^>]*>/gi)].map((m)=
 function attr(tag, name) { return tag.match(new RegExp(`\\b${name}=["']([^"']+)["']`,'i'))?.[1] ?? ''; }
 function canonical(html) { const tag=tags(html,'canonical')[0]; return tag?attr(tag,'href'):''; }
 function hasAlt(html, code, href) { return tags(html,'alternate').some((tag)=>attr(tag,'hreflang').toLowerCase()===code.toLowerCase()&&attr(tag,'href')===href); }
-function styles(html) { return tags(html,'stylesheet').map((tag)=>attr(tag,'href')).sort(); }
+function styles(html) { return tags(html,'stylesheet').map((tag)=>attr(tag,'href')).sort((a,b)=>a.localeCompare(b)); }
 function optionValues(html) { return [...html.matchAll(/<option\b[^>]*\bvalue=["']([^"']+)["']/gi)].map((m)=>m[1]); }
 async function countIndexFiles(dir) { let count=0; for(const entry of await readdir(dir,{withFileTypes:true})){const full=path.join(dir,entry.name); if(entry.isDirectory()) count+=await countIndexFiles(full); else if(entry.isFile()&&entry.name==='index.html') count+=1;} return count; }
 
