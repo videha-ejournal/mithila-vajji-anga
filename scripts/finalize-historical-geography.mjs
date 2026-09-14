@@ -29,11 +29,13 @@ let totalModernPoints = 0;
 let totalUnasserted = 0;
 let totalVerifiedHistorical = 0;
 let totalHistoricalBoundaries = 0;
+let publishedRelease = null;
 
 for (const release of releaseDirectories) {
   const releaseRoot = join(RELEASES_ROOT, release);
   const geojsonPath = join(releaseRoot, 'places.geojson');
   if (!existsSync(geojsonPath)) continue;
+  publishedRelease = release;
 
   const geojson = readJson(geojsonPath);
   if (geojson.type !== 'FeatureCollection' || !Array.isArray(geojson.features)) {
@@ -149,6 +151,9 @@ for (const release of releaseDirectories) {
   totalHistoricalBoundaries += boundaryFeatureCount;
 }
 
+if (!publishedRelease) {
+  throw new Error('No places.geojson release was found for historical-geography finalization.');
+}
 if (!existsSync(DATA_INDEX)) {
   throw new Error('Research data index is missing after scholarly export.');
 }
@@ -160,7 +165,7 @@ if (!dataHtml.includes(oldGeoDescription) && !dataHtml.includes(newGeoDescriptio
 }
 dataHtml = dataHtml.replace(oldGeoDescription, newGeoDescription);
 const geoRowEnd = '</a></td></tr><tr><td>Metadata</td>';
-const manifestRow = '</a></td></tr><tr><td>Historical geography manifest</td><td>Coordinate roles, historical-geometry status, evidence requirements and boundary counts</td><td><a href="/mithila-vajji-anga/data/releases/2026.09/historical-geography.json">historical-geography.json</a></td></tr><tr><td>Metadata</td>';
+const manifestRow = `</a></td></tr><tr><td>Historical geography manifest</td><td>Coordinate roles, historical-geometry status, evidence requirements and boundary counts</td><td><a href="/mithila-vajji-anga/data/releases/${publishedRelease}/historical-geography.json">historical-geography.json</a></td></tr><tr><td>Metadata</td>`;
 if (!dataHtml.includes('historical-geography.json')) {
   if (!dataHtml.includes(geoRowEnd)) throw new Error('Could not locate the data-table insertion point for historical geography.');
   dataHtml = dataHtml.replace(geoRowEnd, manifestRow);
