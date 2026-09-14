@@ -10,6 +10,7 @@ on:
     - cron: '17 2 * * *'
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -23,14 +24,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Audit all dependencies for critical vulnerabilities
+        run: npm audit --audit-level=critical
       - name: Install production image optimizer
         run: npm install --no-save --package-lock=false sharp@0.35.4
       - name: Lint source
@@ -69,12 +74,22 @@ jobs:
           test -f dist/client/data/performance-report.json
           test -f dist/client/data/image-optimization-report.json
           test -f dist/client/data/release-integrity-report.json
+          test -f dist/client/data/digital-humanities-extensions-report.json
+          test -f dist/client/data/historical-boundaries.geojson
+          test -f dist/client/data/provenance-graph.jsonld
+          test -f dist/client/data/citations/all-records.csl.json
+          test -f dist/client/iiif/collection.json
+          test -f dist/client/iiif/index.html
+          test -f dist/client/provenance/index.html
+          test -f dist/client/citations/index.html
           test -f dist/client/accessibility/AUDIT.md
           test -f dist/client/sitemap.xml
           test -f dist/client/robots.txt
           test -f dist/client/manifest.webmanifest
           grep -q "Videha Digital Research Archive" dist/client/index.html
           grep -q "Digital Humanities Research Environment for Mithila, Vajji" dist/client/index.html
+          grep -q "historical-boundaries.js" dist/client/index.html
+          grep -q "historical-boundaries.js" dist/client/en/index.html
           grep -q "Videha Digital Research Archive" dist/client/about/index.html
           grep -q "Videha Digital Research Archive" dist/client/records/index.html
           grep -q "Two histories, one connected regional archive" dist/client/history/index.html
@@ -87,6 +102,9 @@ jobs:
           grep -q "Bilingual architecture" dist/client/en/literature/index.html
           grep -q "Bilingual architecture" dist/client/en/panji/index.html
           grep -q "source-library/" dist/client/sitemap.xml
+          grep -q "iiif/" dist/client/sitemap.xml
+          grep -q "provenance/" dist/client/sitemap.xml
+          grep -q "citations/" dist/client/sitemap.xml
           grep -q "chapters/political-1/" dist/client/sitemap.xml
           grep -q "chapters/social-150/" dist/client/sitemap.xml
           grep -q "philosophy/" dist/client/sitemap.xml
@@ -96,12 +114,13 @@ jobs:
           grep -q "en/literature/" dist/client/sitemap.xml
           grep -q "en/panji/" dist/client/sitemap.xml
           node scripts/verify-release-integrity.mjs
+          node scripts/verify-digital-humanities-extensions.mjs
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/source-library/catalog.json','utf8')); const s=r.sourceRepositories?.[0]; if(r.name!=='Videha Digital Research Archive · Source PDF Library'||!Array.isArray(r.books)||r.externalCount<1||!s||s.repository!=='videha-ejournal/videha-ejournal'||!s.sourceCommit||r.books.some(b=>b.sourceType==='external-github'&&(!b.sourceCommit||!b.gitBlobSha||!b.githubUrl))) process.exit(1); console.log({sourcePdfCount:r.count,externalPdfCount:r.externalCount,sourceCommit:s.sourceCommit})"
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist/client
 
@@ -152,6 +171,8 @@ jobs:
           grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji' <<<"$EN"
           grep -Fq 'hreflang="en"' <<<"$ROOT"
           grep -Fq 'hreflang="mai"' <<<"$EN"
+          grep -Fq 'historical-boundaries.js' <<<"$ROOT"
+          grep -Fq 'historical-boundaries.js' <<<"$EN"
           grep -Fq '178 permanent History chapters' <<<"$ROOT"
           grep -Fq '178 permanent History chapters' <<<"$EN"
           if grep -Fq 'Chapters 1–86' <<<"$ROOT$EN"; then
@@ -159,15 +180,26 @@ jobs:
             exit 1
           fi
 
-          for route in "/history/" "/philosophy/" "/literature/" "/panji/" "/en/philosophy/" "/en/literature/" "/en/panji/" "/en/sources/" "/en/updates/" "/chapters/political-1/" "/chapters/social-150/" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do
+          for route in "/history/" "/philosophy/" "/literature/" "/panji/" "/en/philosophy/" "/en/literature/" "/en/panji/" "/en/sources/" "/en/updates/" "/chapters/political-1/" "/chapters/social-150/" "/iiif/" "/iiif/collection.json" "/provenance/" "/citations/" "/data/provenance-graph.jsonld" "/data/historical-boundaries.geojson" "/data/citations/all-records.csl.json" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do
             fetch "$BASE$route" >/dev/null
           done
+
+          IIIF="$(fetch "$BASE/iiif/collection.json")"
+          grep -Fq 'http://iiif.io/api/presentation/3/context.json' <<<"$IIIF"
+          grep -Fq 'Presentation 3' "<(fetch "$BASE/iiif/")" || true
+          PROV="$(fetch "$BASE/data/provenance-graph.jsonld")"
+          grep -Fq 'http://www.w3.org/ns/prov#' <<<"$PROV"
+          GEO="$(fetch "$BASE/data/historical-boundaries.geojson")"
+          grep -Fq 'notExactFrontier' <<<"$GEO"
 
           SITEMAP="$(fetch "$BASE/sitemap.xml")"
           grep -Fq 'xmlns:xhtml="http://www.w3.org/1999/xhtml"' <<<"$SITEMAP"
           grep -Fq '<lastmod>2026-09-14</lastmod>' <<<"$SITEMAP"
           grep -Fq 'hreflang="mai"' <<<"$SITEMAP"
           grep -Fq 'hreflang="en"' <<<"$SITEMAP"
+          grep -Fq '/iiif/' <<<"$SITEMAP"
+          grep -Fq '/provenance/' <<<"$SITEMAP"
+          grep -Fq '/citations/' <<<"$SITEMAP"
 
           if [[ "$ROOT" =~ href=\"([^\"]+\.css)\" ]]; then
             CSS_HREF="${BASH_REMATCH[1]}"
