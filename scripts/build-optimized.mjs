@@ -19,6 +19,9 @@ const runNodeScript = (script, options = {}) =>
 const runtimeData = runNodeScript('scripts/prepare-runtime-data.mjs');
 if (runtimeData.status !== 0) process.exit(runtimeData.status ?? 1);
 
+const specialistSplit = runNodeScript('scripts/split-specialist-data.mjs');
+if (specialistSplit.status !== 0) process.exit(specialistSplit.status ?? 1);
+
 // Panji source structure is still being verified volume by volume. A normal
 // site build reports those unresolved structures but must not block unrelated
 // collection landing pages. Permanent Panji detail generation remains guarded
@@ -203,6 +206,12 @@ if (recordSourceProvenance.status !== 0) process.exit(recordSourceProvenance.sta
 
 const publishedEditionLinks = runNodeScript('scripts/expose-current-published-editions.mjs');
 if (publishedEditionLinks.status !== 0) process.exit(publishedEditionLinks.status ?? 1);
+
+const digitalHumanitiesExtensions = runNodeScript('scripts/digital-humanities-extensions.mjs');
+if (digitalHumanitiesExtensions.status !== 0) process.exit(digitalHumanitiesExtensions.status ?? 1);
+
+const digitalHumanitiesVerification = runNodeScript('scripts/verify-digital-humanities-extensions.mjs');
+if (digitalHumanitiesVerification.status !== 0) process.exit(digitalHumanitiesVerification.status ?? 1);
 
 const performance = runNodeScript('scripts/performance-report.mjs');
 if (performance.status !== 0) process.exit(performance.status ?? 1);
