@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import ScholarlyToolbar from '../components/scholarly-toolbar';
 import EditionSwitch from '../components/edition-switch';
 import VidehaPublicationIdentity from '../components/videha-publication-identity';
+import libraryData from './library-data.json';
 import './globals.css';
 import './bilingual-editions.css';
 import './research-expansion.css';
@@ -99,6 +100,20 @@ export const metadata: Metadata = {
   },
 };
 
+const isbnBookNodes = libraryData.flatMap((work) => {
+  const isbn = work.extent.match(/ISBN\s+([0-9-]{13,17})/i)?.[1];
+  if (!isbn) return [];
+  return [{
+    '@type': 'Book',
+    '@id': `${siteUrl}#publication-${work.id}`,
+    name: work.title,
+    isbn,
+    creator: work.creator,
+    publisher: { '@id': `${siteUrl}#videha` },
+    isPartOf: { '@id': `${siteUrl}#catalog` },
+  }];
+});
+
 const structuredData = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -162,6 +177,7 @@ const structuredData = {
       sameAs: [videhaMirrorUrl, videhaGithubUrl],
       identifier: 'ISSN 2229-547X',
     },
+    ...isbnBookNodes,
   ],
 };
 
