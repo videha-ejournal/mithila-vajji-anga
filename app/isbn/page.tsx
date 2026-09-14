@@ -83,6 +83,10 @@ export default function IsbnRegistryPage() {
           changes and language editions remain separate bibliographic entities unless explicitly
           identified as the same edition. A PDF inherits an ISBN only when it is demonstrably that edition.
         </p>
+        <p>
+          By editorial instruction, the source spreadsheet column <strong>Name of Publishing Agency/Publisher</strong>
+          is excluded completely: it is not stored, exported, validated or used for reconciliation.
+        </p>
       </section>
 
       <section>
@@ -104,11 +108,11 @@ export default function IsbnRegistryPage() {
       <section>
         <h2>Machine-readable authority data</h2>
         <p>
-          The downloadable registry preserves the complete portal-derived record set, including title,
-          author/editor, language, edition, year, publication date, product form, country, allotment status,
-          publisher, administrator, application identifiers, portal verification notes and allotment counters.
-          The build fails if record count, uniqueness, ISBN-13 check digits, administrator totals, equivalence
-          mappings or canonical archive ISBN assignments drift from this authority.
+          The downloadable registry preserves the approved portal-derived fields: title, author/editor,
+          language, edition, year, publication date, product form, country, allotment status, administrator,
+          application identifiers, portal verification notes and allotment counters. The excluded publishing-agency
+          column is absent from both JSON and CSV. The build fails if record count, uniqueness, ISBN-13 check digits,
+          administrator totals, equivalence mappings or canonical archive ISBN assignments drift from this authority.
         </p>
       </section>
 
