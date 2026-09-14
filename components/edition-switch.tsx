@@ -1,15 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
 
 export default function EditionSwitch() {
-  const [active, setActive] = useState<'mai' | 'en'>('mai');
-
-  useEffect(() => {
-    setActive(window.location.pathname.includes('/mithila-vajji-anga/en/') ? 'en' : 'mai');
-  }, []);
+  const pathname = usePathname();
+  const active: 'mai' | 'en' = pathname?.includes('/en/') ? 'en' : 'mai';
 
   return (
     <nav className="edition-switch" aria-label="Archive edition">
