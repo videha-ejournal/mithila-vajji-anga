@@ -6,7 +6,6 @@ const SOURCE = path.join(ROOT, 'app/archive-english.tsx');
 const TARGET = path.join(ROOT, 'app/home-maithili.tsx');
 const DICTIONARY = path.join(ROOT, 'data/maithili-interface.json');
 
-const normalize = (value) => value.replace(/\s+/g, ' ').trim();
 const source = await readFile(SOURCE, 'utf8');
 const dictionary = JSON.parse(await readFile(DICTIONARY, 'utf8'));
 
@@ -19,7 +18,7 @@ for (const [english, maithili] of Object.entries(dictionary.exact ?? {})) {
   const forms = [
     [`>${english}<`, `>${maithili}<`],
     [`'${english.replaceAll("'", "\\'")}'`, `'${maithili.replaceAll("'", "\\'")}'`],
-    [`\"${english.replaceAll('"', '\\"')}\"`, `\"${maithili.replaceAll('"', '\\"')}\"`],
+    [`"${english.replaceAll('"', '\\"')}"`, `"${maithili.replaceAll('"', '\\"')}"`],
     [`>${english} `, `>${maithili} `],
   ];
   for (const [from, to] of forms) {
