@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "primaryBase": "https://www.videha.co.in/",
+  "mirrorBase": "https://videha-ejournal.github.io/videha/",
+  "requiredIdentityMarkers": [
+    "2229-547X"
+  ],
+  "targets": [
+    {
+      "id": "home",
+      "primary": "https://www.videha.co.in/",
+      "mirror": "https://videha-ejournal.github.io/videha/"
+    },
+    {
+      "id": "archive",
+      "primary": "https://www.videha.co.in/archive.htm",
+      "mirror": "https://videha-ejournal.github.io/videha/archive.htm"
+    },
+    {
+      "id": "videha-index",
+      "primary": "https://www.videha.co.in/videha.htm",
+      "mirror": "https://videha-ejournal.github.io/videha/videha.htm"
+    }
+  ],
+  "policy": {
+    "availabilityFailureBlocksParityJob": true,
+    "missingIssnBlocksParityJob": true,
+    "contentDriftIsReportedNotAutoOverwritten": true,
+    "hostSpecificCanonicalUrlsAreNormalizedBeforeFingerprinting": true
+  }
+}
