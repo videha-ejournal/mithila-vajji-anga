@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import HistoryView from '../../history-view';
 
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
+const languageAlternates: Record<string, string> = {
+  mai: `${site}/history/`,
+  en: `${site}/en/history/`,
+  'x-default': `${site}/history/`,
+};
 
 export const metadata: Metadata = {
   title: 'History of Mithila, Vajji & Anga — Complete Chapter Index',
@@ -9,11 +14,7 @@ export const metadata: Metadata = {
     'Permanent English chapter index for Gajendra Thakur’s two-volume history of Mithila, Vajji and Anga across India and Nepal.',
   alternates: {
     canonical: `${site}/en/history/`,
-    languages: {
-      mai: `${site}/history/`,
-      en: `${site}/en/history/`,
-      'x-default': `${site}/history/`,
-    },
+    languages: languageAlternates,
   },
   other: { 'DC.language': 'en' },
 };
