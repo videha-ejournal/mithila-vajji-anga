@@ -1,0 +1,10 @@
+{
+  "panji-6/5": {
+    "title": "Harisinghdev, the Panjikars, and the Official Beginning of the System",
+    "prependSections": ["Opening"],
+    "reason": "The structured collection-details extraction omitted the top-level chapter title between the Chapter 5 marker and the first subsection, causing the first subsection to be promoted incorrectly.",
+    "source": "Decoding_Panji_Volume_6_Final.pdf",
+    "sourcePages": "46–55",
+    "verification": "Library source text shows Chapter 5 followed by the title 'Harisinghdev, the Panjikars, and the Official Beginning of the System', then the subsection 'Opening'."
+  }
+}

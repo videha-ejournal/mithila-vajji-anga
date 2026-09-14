@@ -1,0 +1,248 @@
+.page {
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.shell {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.25rem 0 4rem;
+}
+
+.topline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.breadcrumbs,
+.language {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  align-items: center;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.breadcrumbs a,
+.language a,
+.textLink {
+  color: var(--green);
+  text-underline-offset: 3px;
+}
+
+.language a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: .4rem .65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  text-decoration: none;
+}
+
+.hero {
+  padding: clamp(1.4rem, 4vw, 2.8rem);
+  border: 1px solid #d7caa9;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fffdf8, #f0e3c8);
+  box-shadow: 0 10px 30px #101a2d10;
+}
+
+.eyebrow {
+  margin: 0 0 .55rem;
+  color: #8b4810;
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.card h2,
+.reader h2,
+.source h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.hero h1 {
+  max-width: 22ch;
+  margin: 0;
+  color: var(--navy);
+  font-size: clamp(2rem, 6vw, 4.3rem);
+  line-height: 1.02;
+}
+
+.deck {
+  max-width: 78ch;
+  margin: 1rem 0 0;
+  color: #465149;
+  font: 1.02rem/1.7 Georgia, 'Times New Roman', serif;
+}
+
+.status {
+  margin-top: 1rem;
+  padding: .8rem 1rem;
+  border-left: 4px solid var(--gold);
+  background: #fffaf0;
+  font-size: .88rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.card,
+.reader,
+.source {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 1.15rem;
+  box-shadow: 0 5px 18px #101a2d0b;
+}
+
+.card h2 {
+  margin: .15rem 0 .4rem;
+  color: var(--navy);
+  font-size: 1.2rem;
+}
+
+.meta {
+  margin: 0 0 .65rem;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.card p {
+  margin: .55rem 0;
+}
+
+.unitList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: .65rem;
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unitList a,
+.unitList > li > span {
+  display: block;
+  height: 100%;
+  padding: .8rem .9rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.unitList > li > span {
+  border-style: dashed;
+  background: #fffdf8;
+}
+
+.unitList a:hover,
+.unitList a:focus-visible {
+  border-color: var(--gold);
+  box-shadow: 0 4px 14px #101a2d12;
+}
+
+.unitNo {
+  display: block;
+  margin-bottom: .25rem;
+  color: #8b4810;
+  font-size: .7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.reader,
+.source {
+  margin-top: 1.2rem;
+}
+
+.reader p {
+  max-width: 78ch;
+  white-space: pre-line;
+  font: 1.04rem/1.85 Georgia, 'Times New Roman', serif;
+}
+
+.source dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: .65rem 1rem;
+  margin: 0;
+}
+
+.source dt {
+  color: var(--muted);
+  font-size: .76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.source dd {
+  margin: 0;
+}
+
+.sections {
+  columns: 2 290px;
+  padding-left: 1.2rem;
+}
+
+.sections li {
+  break-inside: avoid;
+  margin-bottom: .45rem;
+}
+
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+  margin-top: 1.2rem;
+}
+
+.pager a {
+  padding: .8rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  text-decoration: none;
+}
+
+.pager a:last-child {
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(100% - 1rem, 1120px);
+  }
+  .source dl {
+    grid-template-columns: 1fr;
+  }
+  .source dt {
+    margin-top: .45rem;
+  }
+  .pager {
+    grid-template-columns: 1fr;
+  }
+  .pager a:last-child {
+    text-align: left;
+  }
+}
