@@ -25,11 +25,11 @@ function digits(value) {
 function validIsbn13(value) {
   const d = digits(value);
   if (d.length !== 13) return false;
-  const total = [...d.slice(0, 12)].reduce(
-    (sum, ch, index) => sum + Number(ch) * (index % 2 === 0 ? 1 : 3),
-    0,
-  );
-  return ((10 - (total % 10)) % 10) === Number(d.at(-1));
+  let total = 0;
+  for (let index = 0; index < 12; index += 1) {
+    total += Number(d[index]) * (index % 2 === 0 ? 1 : 3);
+  }
+  return ((10 - (total % 10)) % 10) === Number(d[12]);
 }
 
 function isbnFromExtent(extent) {
