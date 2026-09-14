@@ -56,6 +56,31 @@
 .topbar { top: 44px; }
 .journey-nav { top: 116px; }
 
+.videha-publication-identity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: .25rem .45rem;
+  padding: .48rem clamp(.8rem, 3vw, 2rem);
+  border-bottom: 1px solid #ddcfaa;
+  background: #fff8e6;
+  color: #29323c;
+  font: 700 .78rem/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: center;
+}
+.videha-publication-identity strong { color: #7b241c; }
+.videha-publication-identity a {
+  color: #174c7d;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+.videha-publication-identity a:focus-visible {
+  outline: 3px solid #e39b45;
+  outline-offset: 2px;
+}
+
 .edition-page {
   min-height: 100vh;
   background: var(--paper);
@@ -205,4 +230,5 @@
   .topbar { top: 78px; }
   .journey-nav { top: 150px; }
   .edition-hero h1 { max-width: none; }
+  .videha-publication-identity { font-size: .72rem; }
 }
