@@ -12,14 +12,6 @@ const sources = [
 ];
 
 mkdirSync(GENERATED, { recursive: true });
-
-const slug = (value) => String(value)
-  .normalize('NFKD')
-  .replace(/[\u0300-\u036f]/g, '')
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, '-')
-  .replace(/^-|-$/g, '') || 'root';
-
 const jsonBytes = (value) => Buffer.byteLength(JSON.stringify(value));
 
 function chunkArray(items) {
@@ -70,18 +62,18 @@ for (const config of sources) {
   const declarations = [];
   const chunkMeta = [];
   let importIndex = 0;
+  let fileIndex = 0;
 
   const emitParts = (key, value) => {
-    const keySlug = slug(key);
     const parts = Array.isArray(value) ? chunkArray(value) : [value];
     const variables = [];
-    parts.forEach((part, index) => {
-      const filename = `${config.name}-${keySlug}-part-${index}.json`;
+    parts.forEach((part, partIndex) => {
+      const filename = `${config.name}-chunk-${fileIndex++}.json`;
       const variable = `part${importIndex++}`;
       const bytes = emitJson(filename, part);
       imports.push(`import ${variable} from './${filename}';`);
       variables.push(variable);
-      chunkMeta.push({ key, part: index, filename, bytes, records: Array.isArray(part) ? part.length : null });
+      chunkMeta.push({ key, part: partIndex, filename, bytes, records: Array.isArray(part) ? part.length : null });
       report.largestGeneratedChunkBytes = Math.max(report.largestGeneratedChunkBytes, bytes);
     });
     return Array.isArray(value) ? `[${variables.map((variable) => `...${variable}`).join(', ')}]` : variables[0];
