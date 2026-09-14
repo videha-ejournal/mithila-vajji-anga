@@ -42,7 +42,7 @@ function canonical(html) {
   return tag ? attr(tag, 'href') : '';
 }
 function stylesheetHrefs(html) {
-  return linkTags(html, 'stylesheet').map((tag) => attr(tag, 'href')).sort();
+  return linkTags(html, 'stylesheet').map((tag) => attr(tag, 'href')).sort((a, b) => a.localeCompare(b));
 }
 function countTag(html, tag) {
   return (html.match(new RegExp(`<${tag}\\b`, 'gi')) ?? []).length;
