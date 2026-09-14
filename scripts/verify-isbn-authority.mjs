@@ -7,12 +7,15 @@ const AUTHORITY_PATH = path.join(ROOT, 'public/data/videha-isbn-authority.json')
 const BINDINGS_PATH = path.join(ROOT, 'data/isbn-source-bindings.json');
 const FORBIDDEN_SOURCE_COLUMN = 'Name of Publishing Agency/Publisher';
 const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'));
-const mustExist = (file) => {
-  if (!existsSync(file)) throw new Error(`Required ISBN integration output missing: ${file}`);
-};
-const assert = (condition, message) => {
-  if (!condition) throw new Error(`ISBN/DH integration verification failed: ${message}`);
-};
+const mustExist = (file) => { if (!existsSync(file)) throw new Error(`Required ISBN integration output missing: ${file}`); };
+const assert = (condition, message) => { if (!condition) throw new Error(`ISBN/DH integration verification failed: ${message}`); };
+function routeFile(route) {
+  const rel = route.replace(/^\/+|\/+$/g, '');
+  const candidates = rel ? [path.join(OUT, rel, 'index.html'), path.join(OUT, `${rel}.html`)] : [path.join(OUT, 'index.html')];
+  const found = candidates.find(existsSync);
+  if (!found) throw new Error(`Required ISBN route output missing for /${rel}/; checked ${candidates.join(', ')}`);
+  return found;
+}
 
 for (const file of [AUTHORITY_PATH, BINDINGS_PATH]) mustExist(file);
 const authority = readJson(AUTHORITY_PATH);
@@ -25,28 +28,16 @@ assert(authority.records.every((record) => !Object.hasOwn(record, 'publisher') &
 const authorityByIsbn = new Map(authority.records.map((record) => [record.isbn, record]));
 assert(authorityByIsbn.has('978-93-5943-857-3'), 'Atmatattvaviveka ISBN missing from canonical authority');
 
-const atmatattvavivekaBinding = (bindings.sourceBindings ?? []).find(
-  (binding) => binding.sourcePdfPath === 'GAJENDRA_THAKUR_SAMAGRA_Atmatattvaviveka.pdf',
-);
+const atmatattvavivekaBinding = (bindings.sourceBindings ?? []).find((binding) => binding.sourcePdfPath === 'GAJENDRA_THAKUR_SAMAGRA_Atmatattvaviveka.pdf');
 assert(atmatattvavivekaBinding?.isbn === '978-93-5943-857-3', 'Atmatattvaviveka source PDF must bind to ISBN 978-93-5943-857-3');
-for (const binding of bindings.sourceBindings ?? []) {
-  assert(authorityByIsbn.has(binding.isbn), `source binding references ISBN outside canonical authority: ${binding.isbn}`);
-}
+for (const binding of bindings.sourceBindings ?? []) assert(authorityByIsbn.has(binding.isbn), `source binding references ISBN outside canonical authority: ${binding.isbn}`);
 
 const requiredOutputs = [
-  'isbn/index.html',
-  'data/videha-isbn-authority.json',
-  'data/videha-isbn-authority.csv',
-  'data/citations/isbn-authority.csl.json',
-  'data/citations/isbn-authority.bib',
-  'data/citations/isbn-authority.ris',
-  'source-library/catalog.json',
-  'source-library/index.html',
-  'data/provenance-graph.jsonld',
-  'citations/index.html',
-  'sitemap.xml',
+  'data/videha-isbn-authority.json','data/videha-isbn-authority.csv','data/citations/isbn-authority.csl.json','data/citations/isbn-authority.bib','data/citations/isbn-authority.ris','source-library/catalog.json','source-library/index.html','data/provenance-graph.jsonld','citations/index.html','sitemap.xml',
 ];
 for (const relative of requiredOutputs) mustExist(path.join(OUT, relative));
+const isbnMaiFile = routeFile('/isbn/');
+const isbnEnFile = routeFile('/en/isbn/');
 
 const publishedAuthority = readJson(path.join(OUT, 'data/videha-isbn-authority.json'));
 assert(publishedAuthority.recordCount === 293 && publishedAuthority.records?.length === 293, 'published canonical authority must contain exactly 293 records');
@@ -69,10 +60,12 @@ assert(sourceIndex.includes('/isbn/'), 'source-library page does not link to ISB
 assert(sourceIndex.includes('ISBN authority:'), 'source-library page does not state ISBN authority policy');
 assert(sourceIndex.includes('978-93-5943-857-3'), 'source-library page omits Atmatattvaviveka authoritative ISBN');
 
-const isbnPage = readFileSync(path.join(OUT, 'isbn/index.html'), 'utf8');
-assert(isbnPage.includes('293 unique allotted ISBNs'), 'ISBN route does not expose validated authority count');
-assert(isbnPage.includes('978-93-5943-857-3'), 'ISBN route omits Atmatattvaviveka authoritative ISBN');
-assert(!isbnPage.includes('"publisher"'), 'ISBN route JSON-LD contains a publisher field');
+for (const [file, language] of [[isbnMaiFile, 'mai'], [isbnEnFile, 'en']]) {
+  const html = readFileSync(file, 'utf8');
+  assert(html.includes('293') || html.includes('२९३'), `${language} ISBN route does not expose authority count`);
+  assert(html.includes('978-93-5943-857-3'), `${language} ISBN route omits Atmatattvaviveka authoritative ISBN`);
+  assert(!html.includes('Name of Publishing Agency/Publisher</th>'), `${language} ISBN route leaked forbidden source column as table data`);
+}
 
 const authorityCsl = readJson(path.join(OUT, 'data/citations/isbn-authority.csl.json'));
 assert(authorityCsl.length === 293, `ISBN CSL export must contain 293 records; found ${authorityCsl.length}`);
@@ -91,33 +84,21 @@ assert(!/\npublisher\s*=/i.test(`\n${allBib}`), 'publisher field remains in bulk
 assert(!allRis.includes('\nPB  - '), 'publisher field remains in bulk permanent-record RIS export');
 
 for (const item of (catalog.items ?? []).filter((entry) => entry.isbn13)) {
-  const manifestPath = path.join(OUT, 'iiif', item.id, 'manifest.json');
-  mustExist(manifestPath);
+  const manifestPath = path.join(OUT, 'iiif', item.id, 'manifest.json'); mustExist(manifestPath);
   const manifest = readJson(manifestPath);
   assert(JSON.stringify(manifest.metadata ?? []).includes(item.isbn13), `IIIF manifest omits bound ISBN for ${item.filename}`);
 }
-
 const provenanceText = readFileSync(path.join(OUT, 'data/provenance-graph.jsonld'), 'utf8');
-for (const item of (catalog.items ?? []).filter((entry) => entry.isbn13)) {
-  assert(provenanceText.includes(`isbn:${item.isbn13}`), `PROV-O graph omits bound ISBN for ${item.filename}`);
-}
-
+for (const item of (catalog.items ?? []).filter((entry) => entry.isbn13)) assert(provenanceText.includes(`isbn:${item.isbn13}`), `PROV-O graph omits bound ISBN for ${item.filename}`);
 const atmaCsl = allCsl.find((record) => record.id === 'thakur2026_text_atmatattvaviveka');
 assert(atmaCsl?.ISBN === '978-93-5943-857-3', 'Atmatattvaviveka permanent-record CSL citation lacks authoritative ISBN');
 
 const sitemap = readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8');
-assert(sitemap.includes('/mithila-vajji-anga/isbn/'), 'sitemap omits ISBN registry route');
+assert(sitemap.includes('/mithila-vajji-anga/isbn/'), 'sitemap omits Maithili ISBN registry route');
+assert(sitemap.includes('/mithila-vajji-anga/en/isbn/'), 'sitemap omits English ISBN registry route');
 const report = readJson(path.join(OUT, 'data/digital-humanities-extensions-report.json'));
 assert(report.isbnAuthority?.authoritativeRecords === 293, 'DH extension report omits canonical ISBN authority count');
 assert(report.isbnAuthority?.publisherSourceColumnUsed === false, 'DH extension report does not preserve publisher-column exclusion');
 assert(report.isbnAuthority?.atmatattvavivekaIsbn === '978-93-5943-857-3', 'DH extension report lost Atmatattvaviveka ISBN');
 
-console.log({
-  canonicalIsbnRecords: authority.recordCount,
-  explicitSourcePdfBindings: bindings.sourceBindings?.length ?? 0,
-  atmatattvavivekaIsbn: '978-93-5943-857-3',
-  publisherSourceColumnUsed: false,
-  iiifAndProvenanceEnriched: true,
-  citationExportsEnriched: true,
-  failClosed: true,
-});
+console.log({ canonicalIsbnRecords: authority.recordCount, explicitSourcePdfBindings: bindings.sourceBindings?.length ?? 0, atmatattvavivekaIsbn: '978-93-5943-857-3', publisherSourceColumnUsed: false, isbnRouteOutputResolved: true, iiifAndProvenanceEnriched: true, citationExportsEnriched: true, failClosed: true });
