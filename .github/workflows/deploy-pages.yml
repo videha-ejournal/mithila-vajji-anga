@@ -136,7 +136,7 @@ jobs:
             local body=""
             for attempt in {1..12}; do
               body="$(fetch "$target")"
-              if printf '%s' "$body" | grep -Fq "$marker"; then
+              if grep -Fq "$marker" <<<"$body"; then
                 printf '%s' "$body"
                 return 0
               fi
@@ -148,13 +148,13 @@ jobs:
 
           ROOT="$(wait_for_marker "$BASE/" '<html lang="mai"')"
           EN="$(wait_for_marker "$BASE/en/" 'hreflang="x-default"')"
-          printf '%s' "$ROOT" | grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji'
-          printf '%s' "$EN" | grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji'
-          printf '%s' "$ROOT" | grep -Fq 'hreflang="en"'
-          printf '%s' "$EN" | grep -Fq 'hreflang="mai"'
-          printf '%s' "$ROOT" | grep -Fq '178 permanent History chapters'
-          printf '%s' "$EN" | grep -Fq '178 permanent History chapters'
-          if printf '%s' "$ROOT$EN" | grep -Fq 'Chapters 1–86'; then
+          grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji' <<<"$ROOT"
+          grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji' <<<"$EN"
+          grep -Fq 'hreflang="en"' <<<"$ROOT"
+          grep -Fq 'hreflang="mai"' <<<"$EN"
+          grep -Fq '178 permanent History chapters' <<<"$ROOT"
+          grep -Fq '178 permanent History chapters' <<<"$EN"
+          if grep -Fq 'Chapters 1–86' <<<"$ROOT$EN"; then
             echo 'Stale History completion text is still live' >&2
             exit 1
           fi
@@ -164,12 +164,12 @@ jobs:
           done
 
           SITEMAP="$(fetch "$BASE/sitemap.xml")"
-          printf '%s' "$SITEMAP" | grep -Fq 'xmlns:xhtml="http://www.w3.org/1999/xhtml"'
-          printf '%s' "$SITEMAP" | grep -Fq '<lastmod>2026-09-14</lastmod>'
-          printf '%s' "$SITEMAP" | grep -Fq 'hreflang="mai"'
-          printf '%s' "$SITEMAP" | grep -Fq 'hreflang="en"'
+          grep -Fq 'xmlns:xhtml="http://www.w3.org/1999/xhtml"' <<<"$SITEMAP"
+          grep -Fq '<lastmod>2026-09-14</lastmod>' <<<"$SITEMAP"
+          grep -Fq 'hreflang="mai"' <<<"$SITEMAP"
+          grep -Fq 'hreflang="en"' <<<"$SITEMAP"
 
-          CSS_HREF="$(printf '%s' "$ROOT" | grep -oE 'href="[^"]+\.css"' | head -n 1 | cut -d '"' -f 2)"
+          CSS_HREF="$(grep -oEm1 'href="[^"]+\.css"' <<<"$ROOT" | cut -d '"' -f 2)"
           test -n "$CSS_HREF"
           case "$CSS_HREF" in
             http*) CSS_URL="$CSS_HREF" ;;
