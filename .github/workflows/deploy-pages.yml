@@ -43,7 +43,6 @@ jobs:
         run: npm run build
       - name: Verify scholarly export, archive identity, history pages, bilingual collections, source library and performance contract
         run: |
-          set -x
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
           test -f dist/client/about/index.html
