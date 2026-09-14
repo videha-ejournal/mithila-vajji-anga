@@ -3,6 +3,11 @@ import ArchiveEnglish from './archive-english';
 import HomeMaithiliLocalizer from './home-maithili-localizer';
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
+const languageAlternates: Record<string, string> = {
+  mai: siteUrl,
+  en: `${siteUrl}en/`,
+  'x-default': siteUrl,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -12,11 +17,7 @@ export const metadata: Metadata = {
     'भारत आ नेपालक मिथिला, वज्जि आ अंगक इतिहास, वंशावली, साहित्य, दर्शन, स्थान, ग्रन्थ आ कालक्रम लेल स्रोत-नियन्त्रित डिजिटल शोध-संग्रह।',
   alternates: {
     canonical: siteUrl,
-    languages: {
-      mai: siteUrl,
-      en: `${siteUrl}en/`,
-      'x-default': siteUrl,
-    },
+    languages: languageAlternates,
   },
   openGraph: {
     url: siteUrl,
