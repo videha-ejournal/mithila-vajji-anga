@@ -1,3 +1,5 @@
+/* oxlint-disable next/no-html-link-for-pages -- exported GitHub Pages routes use full document navigation. */
+
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
 
 const equivalences = [
