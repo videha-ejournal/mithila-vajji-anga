@@ -4,11 +4,11 @@ import path from 'node:path';
 const GENERATED = 'app/generated';
 const MAX_CHUNK_BYTES = 180_000;
 const sources = [
-  { name: 'learning-data', source: 'app/learning-data.json', module: 'learning-data-split.ts' },
-  { name: 'research-data', source: 'app/research-data.json', module: 'research-data-split.ts' },
-  { name: 'deep-data', source: 'app/deep-data.json', module: 'deep-data-split.ts' },
-  { name: 'ideas-volume2', source: 'app/ideas-volume2.json', module: 'ideas-volume2-split.ts' },
-  { name: 'collection-details', source: 'app/collection-details.json', module: 'collection-details-split.ts' },
+  { name: 'learning-data', source: 'app/learning-data.json', wrapper: 'learning-data-split.ts' },
+  { name: 'research-data', source: 'app/research-data.json', wrapper: 'research-data-split.ts' },
+  { name: 'deep-data', source: 'app/deep-data.json', wrapper: 'deep-data-split.ts' },
+  { name: 'ideas-volume2', source: 'app/ideas-volume2.json', wrapper: 'ideas-volume2-split.ts' },
+  { name: 'collection-details', source: 'app/collection-details.json', wrapper: 'collection-details-split.ts' },
 ];
 
 mkdirSync(GENERATED, { recursive: true });
@@ -91,14 +91,14 @@ for (const config of sources) {
     exportExpression = emitParts('root', sourceValue);
   }
 
-  const module = `${imports.join('\n')}\n\nconst data: any = ${exportExpression};\nexport default data;\n`;
-  writeFileSync(path.join(GENERATED, config.module), module, 'utf8');
+  const generatedModule = `${imports.join('\n')}\n\nconst data: any = ${exportExpression};\nexport default data;\n`;
+  writeFileSync(path.join(GENERATED, config.wrapper), generatedModule, 'utf8');
 
   const sourceReport = {
     name: config.name,
     source: config.source,
     sourceBytes: statSync(config.source).size,
-    module: `app/generated/${config.module}`,
+    module: `app/generated/${config.wrapper}`,
     chunkCount: chunkMeta.length,
     chunks: chunkMeta,
   };
