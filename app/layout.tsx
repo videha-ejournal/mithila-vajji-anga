@@ -14,6 +14,12 @@ const archiveDescription =
   'A permanent, citable, machine-readable, versioned and independently discoverable digital humanities research environment for the connected histories, genealogy, literature, philosophy, places, texts and chronology of Mithila, Vajji and Anga across India and Nepal.';
 const previewImage = 'https://videha-ejournal.github.io/mithila-vajji-anga/assets/research-studio-panorama.png';
 const faviconUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/favicon.svg';
+const releaseDate = '2026-09-14';
+const languageAlternates: Record<string, string> = {
+  mai: siteUrl,
+  en: `${siteUrl}en/`,
+  'x-default': siteUrl,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -43,7 +49,7 @@ export const metadata: Metadata = {
     'India',
     'Nepal',
   ],
-  alternates: { canonical: siteUrl },
+  alternates: { canonical: siteUrl, languages: languageAlternates },
   openGraph: {
     type: 'website',
     url: siteUrl,
@@ -74,12 +80,12 @@ export const metadata: Metadata = {
     'citation_journal_title': 'Videha Maithili eJournal',
     'citation_issn': '2229-547X',
     'citation_publication_date': '2026',
-    'citation_online_date': '2026-09-13',
+    'citation_online_date': releaseDate,
     'DC.title': archiveTitle,
     'DC.creator': 'Gajendra Thakur',
     'DC.publisher': 'Videha Maithili eJournal',
     'DC.identifier': 'ISSN 2229-547X',
-    'DC.language': 'en',
+    'DC.language': 'mai',
     'DC.type': 'Digital Research Archive; InteractiveResource; Dataset',
   },
 };
@@ -94,10 +100,10 @@ const structuredData = {
       name: archiveName,
       alternateName: archiveSubtitle,
       description: archiveDescription,
-      inLanguage: ['en', 'mai'],
+      inLanguage: ['mai', 'en'],
       author: { '@id': `${siteUrl}#gajendra-thakur` },
       publisher: { '@id': `${siteUrl}#videha` },
-      dateModified: '2026-09-13',
+      dateModified: releaseDate,
       about: [
         { '@type': 'Place', name: 'Mithila' },
         { '@type': 'Place', name: 'Vajji' },
@@ -114,7 +120,7 @@ const structuredData = {
       publisher: { '@id': `${siteUrl}#videha` },
       dataset: { '@id': `${siteUrl}#dataset` },
       isAccessibleForFree: true,
-      dateModified: '2026-09-13',
+      dateModified: releaseDate,
     },
     {
       '@type': 'Dataset',
@@ -123,7 +129,7 @@ const structuredData = {
       url: `${siteUrl}data/`,
       creator: { '@id': `${siteUrl}#gajendra-thakur` },
       publisher: { '@id': `${siteUrl}#videha` },
-      dateModified: '2026-09-13',
+      dateModified: releaseDate,
       version: '2026.09',
       license: 'https://creativecommons.org/licenses/by/4.0/',
       isAccessibleForFree: true,
@@ -149,7 +155,7 @@ const structuredData = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="mai" suppressHydrationWarning>
       <body>
         <script
           type="application/ld+json"
