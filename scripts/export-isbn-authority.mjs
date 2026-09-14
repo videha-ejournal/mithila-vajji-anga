@@ -16,10 +16,10 @@ fs.writeFileSync(jsonOut, JSON.stringify(registry), 'utf8');
 
 const columns = [
   'isbn', 'bookTitle', 'aliases', 'authorEditor', 'language', 'edition', 'year',
-  'publicationDate', 'productForm', 'country', 'status', 'publisher', 'administrator',
+  'publicationDate', 'productForm', 'country', 'status', 'administrator',
   'applicationNo', 'applicationSubmitted', 'verificationNotes', 'earmarked', 'available',
   'used', 'totalEarmarked', 'booksSubmitted', 'booksPending', 'booksSurrendered',
-  'applicationSerialNo', 'bookSerialNo',
+  'applicationSerialNo', 'bookSerialNo', 'sourceRow',
 ];
 
 const escapeCsv = (value) => {
@@ -33,4 +33,4 @@ const csv = [
 ].join('\n') + '\n';
 
 fs.writeFileSync(csvOut, csv, 'utf8');
-console.log(`Exported authoritative ISBN registry: ${registry.records.length} records.`);
+console.log(`Exported authoritative ISBN registry: ${registry.records.length} records; publisher column excluded.`);
