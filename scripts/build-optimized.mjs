@@ -192,6 +192,9 @@ if (historicalGeographyVerification.status !== 0) process.exit(historicalGeograp
 const sourceLibrary = runNodeScript('scripts/source-library.mjs');
 if (sourceLibrary.status !== 0) process.exit(sourceLibrary.status ?? 1);
 
+const historicalGeographySourceEvidence = runNodeScript('scripts/historical-geography-source-evidence.mjs');
+if (historicalGeographySourceEvidence.status !== 0) process.exit(historicalGeographySourceEvidence.status ?? 1);
+
 const translationSourcePairs = runNodeScript('scripts/verify-translation-source-pairs.mjs');
 if (translationSourcePairs.status !== 0) process.exit(translationSourcePairs.status ?? 1);
 

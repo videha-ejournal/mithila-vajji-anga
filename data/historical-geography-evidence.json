@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-09-14",
+  "policy": "A source-work may be a historical-geography evidence candidate without being usable as geometry evidence. Candidate status verifies only source-work identity. Historical geometry remains unusable until an exact page/scope citation is independently verified.",
+  "requiredForUsableHistoricalGeometry": [
+    "geometryEvidenceStatus=verified",
+    "pageLocator",
+    "sourceCitation",
+    "sourceUrl",
+    "geometryScope"
+  ],
+  "candidates": [
+    {
+      "id": "history-volume-i",
+      "recordType": "history",
+      "recordIdPrefix": "political-",
+      "sourcePdfPath": "HISTORY_MITHILA_ANGA_VAJJI.pdf",
+      "candidateRole": "historical-geography-source-candidate",
+      "sourceWorkIdentityStatus": "verified",
+      "geometryEvidenceStatus": "unverified",
+      "pageLocator": null,
+      "sourceCitation": null,
+      "sourceUrl": null,
+      "geometryScope": null,
+      "usableForHistoricalGeometry": false,
+      "note": "The exact History source-work identity is verified separately. No embedded map, page locator, boundary scope, or historical geometry is asserted by this candidate record."
+    },
+    {
+      "id": "history-volume-ii",
+      "recordType": "history",
+      "recordIdPrefix": "social-",
+      "sourcePdfPath": "History_Mithila_Vajji_Anga_Volume_II_merge.pdf",
+      "candidateRole": "historical-geography-source-candidate",
+      "sourceWorkIdentityStatus": "verified",
+      "geometryEvidenceStatus": "unverified",
+      "pageLocator": null,
+      "sourceCitation": null,
+      "sourceUrl": null,
+      "geometryScope": null,
+      "usableForHistoricalGeometry": false,
+      "note": "The exact History source-work identity is verified separately. No embedded map, page locator, boundary scope, or historical geometry is asserted by this candidate record."
+    }
+  ]
+}

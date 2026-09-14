@@ -23,6 +23,14 @@ Non-point geometry additionally requires `historicalBoundaryAsserted: true`. The
 
 Where the evidence supports only an approximate, disputed, reconstructed, or multi-hypothesis geography, that qualification must be represented explicitly rather than converted into a single certain boundary.
 
+## Source-work candidates are not geometry evidence
+
+The source-controlled registry `data/historical-geography-evidence.json` may identify books or PDFs as **historical-geography source candidates** when their source-work identity is already verified. Candidate status does not assert that the PDF contains a usable map, does not identify a page, and does not license a boundary reconstruction.
+
+A candidate becomes usable for historical geometry only after all of the following are independently verified and recorded: `geometryEvidenceStatus=verified`, an exact `pageLocator`, a human-readable `sourceCitation`, a stable `sourceUrl`, and a defined `geometryScope`. Until then, `usableForHistoricalGeometry` must remain `false` and those page-level geometry-evidence fields remain null.
+
+Production resolves each candidate against the commit-pinned Videha source library and publishes the result at `/data/historical-geography-evidence.json`, preserving the source commit, Git blob identity and SHA-256 where available.
+
 ## Machine-readable outputs
 
 Each scholarly data release publishes:
@@ -30,7 +38,9 @@ Each scholarly data release publishes:
 - `places.geojson`, whose feature properties distinguish `modern-orientation`, `none`, and verified historical roles; and
 - `historical-geography.json`, a manifest recording coordinate role, historical-geometry status, evidence requirements, and summary counts.
 
-The release checksum file is regenerated after this geography metadata is finalized.
+The archive also publishes `/data/historical-geography-evidence.json` for source-work candidates and their page-level geometry-evidence status.
+
+The release checksum file is regenerated after geography metadata is finalized.
 
 ## Scholarly scope
 
