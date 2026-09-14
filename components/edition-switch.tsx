@@ -1,5 +1,7 @@
 'use client';
 
+/* oxlint-disable next/no-html-link-for-pages -- GitHub Pages bilingual route switching requires full-document navigation. */
+
 import { usePathname } from 'next/navigation';
 
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
