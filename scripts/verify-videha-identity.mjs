@@ -83,9 +83,20 @@ for (const file of atmaFiles) {
 
 const isbnExport = path.join(OUT, 'data', 'videha-isbn-authority.json');
 if (existsSync(isbnExport)) {
-  const text = readFileSync(isbnExport, 'utf8');
-  if (text.includes('Name of Publishing Agency/Publisher') || /"publisher"\s*:/.test(text)) {
-    fail('ISBN authority export reintroduced the excluded publisher source column');
+  const authority = JSON.parse(readFileSync(isbnExport, 'utf8'));
+  if (!Array.isArray(authority.excludedSourceColumns) ||
+      !authority.excludedSourceColumns.includes('Name of Publishing Agency/Publisher')) {
+    fail('ISBN authority export no longer records publisher source-column exclusion');
+  }
+  if (!Array.isArray(authority.records) || authority.records.length !== 293) {
+    fail('ISBN authority export must contain exactly 293 records');
+  }
+  for (const record of authority.records) {
+    if (Object.hasOwn(record, 'publisher') ||
+        Object.hasOwn(record, 'publishingAgency') ||
+        Object.hasOwn(record, 'Name of Publishing Agency/Publisher')) {
+      fail(`ISBN authority record ${record.isbn ?? 'unknown'} contains an excluded publisher-source field`);
+    }
   }
 }
 
@@ -98,5 +109,6 @@ console.log({
   historyChapterIsbnPropagation: false,
   atmatattvavivekaParentIsbn: atmaFiles.length ? '978-93-5943-857-3' : 'no-detail-pages-exported',
   publisherSourceColumnUsed: false,
+  publisherSourceColumnExclusionAudited: true,
   failClosed: true,
 });
