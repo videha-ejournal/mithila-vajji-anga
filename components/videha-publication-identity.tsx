@@ -1,3 +1,5 @@
+import CitationCopyButton from './citation-copy-button';
+
 const primaryUrl = 'https://www.videha.co.in/';
 const mirrorUrl = 'https://videha-ejournal.github.io/videha/';
 const githubUrl = 'https://github.com/videha-ejournal';
@@ -20,6 +22,7 @@ export default function VidehaPublicationIdentity() {
       <span aria-hidden="true"> · </span>
       <span>Digital Research Archives on GitHub:</span>{' '}
       <a href={githubUrl}>https://github.com/videha-ejournal</a>
+      <CitationCopyButton />
     </aside>
   );
 }
