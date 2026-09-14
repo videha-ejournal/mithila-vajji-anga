@@ -11,6 +11,9 @@
   "count": 293,
   "uniqueIsbnCount": 293,
   "isbn13ChecksumInvalidCount": 0,
+  "excludedSourceColumns": [
+    "Name of Publishing Agency/Publisher"
+  ],
   "sameWorkAliases": [
     {
       "canonicalIsbn13": "978-93-341-0402-8",
@@ -52,7 +55,6 @@
     "productForm",
     "country",
     "status",
-    "publisher",
     "administrator"
   ],
   "chunks": [
