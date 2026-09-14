@@ -27,10 +27,10 @@
     "generate:archive": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs --require-complete && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs && node scripts/build-bilingual-detail-inventory.mjs"
   },
   "dependencies": {
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "react-server-dom-webpack": "19.2.6",
-    "vinext": "1.0.0-beta.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-server-dom-webpack": "19.2.8",
+    "vinext": "1.0.0-beta.9",
     "@base-ui/react": "1.7.0",
     "@shadcn/react": "0.3.0",
     "class-variance-authority": "0.7.1",
@@ -62,7 +62,7 @@
     "oxlint-tsgolint": "7.0.2001",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
-    "vite": "8.0.13",
+    "vite": "8.3.0",
     "wrangler": "4.92.0"
   },
   "type": "module"
