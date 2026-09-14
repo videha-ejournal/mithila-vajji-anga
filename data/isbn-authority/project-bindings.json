@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "updated": "2026-09-14",
-  "policy": "Explicit, fail-closed bindings from source PDF objects to the authoritative VIDEHA 293-ISBN register. These bindings do not create page locators and do not imply that constituent chapters have separate ISBNs. The authoritative register overrides older conflicting ISBN metadata.",
+  "policy": "Explicit, fail-closed bindings from source PDF objects to the authoritative VIDEHA 293-ISBN register. These bindings do not create page locators and do not imply that constituent chapters have separate ISBNs. The authoritative register overrides older or conflicting ISBN metadata. Explicit editor corrections override ambiguous source-register title wording when they identify the bibliographic work unambiguously.",
   "sourceBindings": [
     {"sourcePdfPath":"DECODING_PANJI_1.pdf","isbn13":"978-93-5915-894-5","scope":"edition","relation":"edition-publication"},
     {"sourcePdfPath":"DECODING_PANJI_2.pdf","isbn13":"978-93-6012-526-4","scope":"edition","relation":"edition-publication"},
@@ -13,6 +13,7 @@
     {"sourcePdfPath":"History_Mithila_Vajji_Anga_Volume_II_merge.pdf","isbn13":"978-93-344-9415-0","scope":"multi-volume-work","relation":"volume-part-of-authoritative-publication"},
     {"sourcePdfPath":"VIDEHA_Parallel_History.pdf","isbn13":"978-93-5812-486-6","scope":"series","relation":"series-publication"},
     {"sourcePdfPath":"Samanantar_Darshan_Volume_II_merge.pdf","isbn13":"978-93-344-9610-9","scope":"multi-volume-work","relation":"volume-part-of-authoritative-publication"},
+    {"sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_Atmatattvaviveka.pdf","isbn13":"978-93-5943-857-3","scope":"edition","relation":"editor-verified-edition-publication"},
     {"sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_Tattvacintamani.pdf","isbn13":"978-93-6123-729-4","scope":"edition","relation":"edition-publication"},
     {"sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_Bhamati.pdf","isbn13":"978-93-5943-682-1","scope":"edition","relation":"edition-publication"},
     {"sourcePdfPath":"GAJENDRA_THAKUR_SAMAGRA_NYAYAKUSUMANJALI.pdf","isbn13":"978-93-344-6450-4","scope":"edition","relation":"edition-publication"},
