@@ -2,10 +2,10 @@
 
 import type { Metadata } from 'next';
 import { archiveBasePath } from '../archive-data';
-import styles from '../archive/archive.module.css';
 
 const languageAlternates: Record<string, string> = {
   mai: 'https://videha-ejournal.github.io/mithila-vajji-anga/',
+  en: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
 };
 
 export const metadata: Metadata = {
@@ -37,38 +37,70 @@ const collections = [
 
 export default function EnglishArchivePage() {
   return (
-    <main className={styles.page} lang="en">
-      <div className={styles.shell}>
-        <div className={styles.topline}>
-          <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
-            <a href={`${archiveBasePath}/`}>Maithili primary edition</a>
-          </nav>
-          <nav className={styles.language} aria-label="Language">
-            <a href={`${archiveBasePath}/`} hrefLang="mai">मैथिली</a>
-          </nav>
-        </div>
-        <header className={styles.hero}>
-          <p className={styles.eyebrow}>Videha Digital Research Archive</p>
-          <h1>Mithila–Vajji–Anga · English Edition</h1>
-          <p className={styles.deck}>
-            The English edition sits under /en/ while Maithili remains the primary edition at the normal site paths. History, philosophy, literature and Panji are treated as source corpora for the connected but historically distinct worlds of Mithila, Vajji and Anga in India and Nepal.
+    <>
+      <a className="skip-link" href="#english-collections">Skip to English research collections</a>
+      <header className="topbar">
+        <a className="identity" href={`${archiveBasePath}/en/`} aria-label="Mithila–Vajji–Anga English home">
+          <span className="mark" aria-hidden="true">𑒧</span>
+          <span>
+            <strong>Mithila–Vajji–Anga</strong>
+            <small>Videha Digital Research Archive</small>
+          </span>
+        </a>
+        <nav aria-label="English primary navigation">
+          <a href={`${archiveBasePath}/en/philosophy/`}>Philosophy</a>
+          <a href={`${archiveBasePath}/en/literature/`}>Literature</a>
+          <a href={`${archiveBasePath}/en/panji/`}>Panji</a>
+          <a href={`${archiveBasePath}/history/`}>History</a>
+          <a href={`${archiveBasePath}/source-library/`}>Source PDFs</a>
+        </nav>
+        <a className="videha-home" href="https://www.videha.co.in/" target="_blank" rel="noreferrer">Videha ↗</a>
+      </header>
+
+      <main className="edition-page" lang="en">
+        <section className="edition-hero">
+          <div>
+            <p className="edition-kicker">SOURCE-CONTROLLED REGIONAL ATLAS · ENGLISH EDITION</p>
+            <h1>Explore Mithila, Vajji and Anga</h1>
+            <p className="edition-deck">
+              The English edition uses the same Videha research environment and visual system as the primary archive. History, philosophy, literature and Panji are treated as source corpora for the connected but historically distinct worlds of Mithila, Vajji and Anga in India and Nepal.
+            </p>
+          </div>
+          <aside className="edition-method">
+            <strong>One archive · two editions</strong>
+            <p>
+              Use the persistent मैथिली | English tabs above to move between the two editions. Permanent source records, provenance safeguards and the 178 History chapter pages remain shared across the archive.
+            </p>
+            <a href={`${archiveBasePath}/`} hrefLang="mai" lang="mai">मैथिली संस्करण खोलू →</a>
+          </aside>
+        </section>
+
+        <section className="edition-collections" id="english-collections" aria-label="English research collections">
+          <div className="edition-collections-heading">
+            <div>
+              <p>THE VIDEHA RESEARCH STUDIO</p>
+              <h2>Three English research doors</h2>
+            </div>
+          </div>
+          <div className="edition-collection-grid">
+            {collections.map((collection) => (
+              <article className="edition-collection-card" key={collection.href}>
+                <h2>{collection.title}</h2>
+                <p>{collection.text}</p>
+                <a href={collection.href}>Open collection →</a>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="edition-history">
+          <h2>History remains one connected regional archive</h2>
+          <p>
+            The two-volume History corpus and all 178 completed chapter pages remain intact and continue to preserve the Mithila–Vajji–Anga focus across India and Nepal.
           </p>
-        </header>
-        <section className={styles.grid} aria-label="English research collections">
-          {collections.map((collection) => (
-            <article className={styles.card} key={collection.href}>
-              <h2>{collection.title}</h2>
-              <p>{collection.text}</p>
-              <p><a className={styles.textLink} href={collection.href}>Open collection →</a></p>
-            </article>
-          ))}
+          <p><a href={`${archiveBasePath}/history/`}>Browse all 178 History chapters →</a></p>
         </section>
-        <section className={styles.source}>
-          <h2>History remains intact</h2>
-          <p>The existing two-volume History corpus and all 178 completed chapter pages remain unchanged by this bilingual archive expansion.</p>
-          <p><a className={styles.textLink} href={`${archiveBasePath}/history/`}>Browse History →</a></p>
-        </section>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

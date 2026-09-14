@@ -1,10 +1,13 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
+
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
 
-type EditionSwitchProps = {
-  active: 'mai' | 'en';
-};
+export default function EditionSwitch() {
+  const pathname = usePathname();
+  const active: 'mai' | 'en' = pathname?.includes('/en/') ? 'en' : 'mai';
 
-export default function EditionSwitch({ active }: EditionSwitchProps) {
   return (
     <nav className="edition-switch" aria-label="Archive edition">
       <a

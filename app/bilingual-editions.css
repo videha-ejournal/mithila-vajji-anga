@@ -1,20 +1,43 @@
+.global-edition-bar {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  padding: .28rem clamp(.75rem, 3vw, 2rem);
+  color: #fff;
+  background: #0b1526;
+  border-bottom: 1px solid #ffffff20;
+  box-shadow: 0 2px 8px #0002;
+}
+.global-edition-bar > span {
+  color: #c9d2df;
+  font-size: .7rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 .edition-switch {
   display: inline-flex;
   align-items: center;
   gap: .25rem;
-  padding: .2rem;
+  padding: .18rem;
   border: 1px solid #ffffff38;
   border-radius: 999px;
   background: #ffffff10;
 }
 .edition-switch a {
-  min-height: 36px;
+  min-height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: .38rem .72rem;
+  padding: .32rem .72rem;
   border-radius: 999px;
-  color: inherit;
+  color: #fff;
   text-decoration: none;
   font-size: .78rem;
   font-weight: 850;
@@ -30,6 +53,8 @@
 .edition-switch a:not(.active):focus-visible {
   background: #ffffff18;
 }
+.topbar { top: 44px; }
+.journey-nav { top: 116px; }
 
 .edition-page {
   min-height: 100vh;
@@ -140,9 +165,7 @@
   color: var(--navy);
   font: 700 1.35rem Georgia, serif;
 }
-.edition-collection-card p {
-  color: #566159;
-}
+.edition-collection-card p { color: #566159; }
 .edition-collection-card a {
   margin-top: auto;
   align-self: flex-start;
@@ -173,10 +196,13 @@
 @media (max-width: 1040px) {
   .edition-hero { grid-template-columns: 1fr; }
   .edition-collection-grid { grid-template-columns: 1fr; }
-  .topbar > .edition-switch { order: 4; width: 100%; justify-content: center; margin-top: .35rem; }
 }
 @media (max-width: 760px) {
-  .edition-switch { width: 100%; justify-content: center; }
+  .global-edition-bar { align-items: stretch; flex-direction: column; gap: .2rem; padding-top: .35rem; padding-bottom: .35rem; }
+  .global-edition-bar > span { text-align: center; }
+  .edition-switch { width: min(360px, 100%); align-self: center; justify-content: center; }
   .edition-switch a { flex: 1 1 0; }
+  .topbar { top: 78px; }
+  .journey-nav { top: 150px; }
   .edition-hero h1 { max-width: none; }
 }
