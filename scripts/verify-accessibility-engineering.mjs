@@ -7,11 +7,12 @@ const ROOT_HTML = join(DIST, 'index.html');
 const EN_HTML = join(DIST, 'en/index.html');
 const CSS = join(ROOT, 'app/globals.css');
 const PAGE = join(ROOT, 'app/page.tsx');
+const ARCHIVE = join(ROOT, 'app/archive-english.tsx');
 const AUDIT = join(ROOT, 'ACCESSIBILITY-AUDIT.md');
 const OUTPUT = join(DIST, 'data/accessibility-engineering-report.json');
 
 const fail = (message) => { throw new Error(`Accessibility engineering verification failed: ${message}`); };
-for (const path of [ROOT_HTML, EN_HTML, CSS, PAGE, AUDIT]) {
+for (const path of [ROOT_HTML, EN_HTML, CSS, PAGE, ARCHIVE, AUDIT]) {
   if (!existsSync(path)) fail(`required file is missing: ${path}`);
 }
 
@@ -19,6 +20,7 @@ const rootHtml = readFileSync(ROOT_HTML, 'utf8');
 const enHtml = readFileSync(EN_HTML, 'utf8');
 const css = readFileSync(CSS, 'utf8');
 const page = readFileSync(PAGE, 'utf8');
+const archive = readFileSync(ARCHIVE, 'utf8');
 const audit = readFileSync(AUDIT, 'utf8');
 
 const checks = [
@@ -29,8 +31,8 @@ const checks = [
   },
   {
     id: 'skip-link',
-    description: 'A keyboard skip link is present and targets the principal research entry point.',
-    pass: page.includes('className="skip-link"') && page.includes('href="#doors"'),
+    description: 'A keyboard skip link is present on the shared research surface and targets the principal research entry point.',
+    pass: archive.includes('className="skip-link"') && archive.includes('href="#doors"'),
   },
   {
     id: 'visible-focus',
@@ -77,13 +79,18 @@ const checks = [
   },
   {
     id: 'dialog-state-semantics',
-    description: 'Interactive tool panels expose ARIA state semantics in source.',
-    pass: page.includes('aria-expanded') && page.includes('aria-pressed') && page.includes('aria-label'),
+    description: 'Interactive tool panels on the shared research surface expose ARIA state semantics in source.',
+    pass: archive.includes('aria-expanded') && archive.includes('aria-pressed') && archive.includes('aria-label'),
   },
   {
     id: 'translation-inventory',
-    description: 'The 41-language translation inventory remains present in source.',
-    pass: (page.match(/^\s*\['[^']+',\s*'[^']+'\],?\s*$/gm) ?? []).length >= 41,
+    description: 'The 41-language translation inventory remains present in the shared research surface source.',
+    pass: (archive.match(/^\s*\['[^']+',\s*'[^']+'\],?\s*$/gm) ?? []).length >= 41,
+  },
+  {
+    id: 'maithili-wrapper',
+    description: 'The root landing retains its Maithili wrapper/localizer while sharing the archive surface.',
+    pass: page.includes("import ArchiveEnglish from './archive-english';") && page.includes("import HomeMaithiliLocalizer from './home-maithili-localizer';"),
   },
 ];
 
