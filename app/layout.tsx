@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
 import ScholarlyToolbar from '../components/scholarly-toolbar';
 import EditionSwitch from '../components/edition-switch';
+import VidehaPublicationIdentity from '../components/videha-publication-identity';
 import './globals.css';
 import './bilingual-editions.css';
 import './research-expansion.css';
 import './learning-lab.css';
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
+const videhaUrl = 'https://www.videha.co.in/';
+const videhaMirrorUrl = 'https://videha-ejournal.github.io/videha/';
+const videhaGithubUrl = 'https://github.com/videha-ejournal';
 const archiveName = 'Videha Digital Research Archive';
 const archiveSubtitle = 'Digital Humanities Research Environment for Mithila, Vajji & Anga';
 const archiveTitle = `${archiveName} | ${archiveSubtitle}`;
@@ -29,11 +33,12 @@ export const metadata: Metadata = {
   },
   description: archiveDescription,
   applicationName: archiveName,
-  authors: [{ name: 'Gajendra Thakur', url: 'https://www.videha.co.in/' }],
+  authors: [{ name: 'Gajendra Thakur', url: videhaUrl }],
   creator: 'Gajendra Thakur',
-  publisher: 'Videha Maithili eJournal',
+  publisher: 'Videha — First Maithili Fortnightly eJournal',
   keywords: [
     'Videha Digital Research Archive',
+    'Videha ISSN 2229-547X',
     'digital humanities research environment',
     'digital archive',
     'research data',
@@ -77,14 +82,18 @@ export const metadata: Metadata = {
   other: {
     'citation_title': archiveTitle,
     'citation_author': 'Gajendra Thakur',
-    'citation_journal_title': 'Videha Maithili eJournal',
+    'citation_journal_title': 'Videha — First Maithili Fortnightly eJournal',
     'citation_issn': '2229-547X',
     'citation_publication_date': '2026',
     'citation_online_date': releaseDate,
+    'citation_website_url': videhaUrl,
+    'citation_mirror_url': videhaMirrorUrl,
+    'citation_archive_network_url': videhaGithubUrl,
     'DC.title': archiveTitle,
     'DC.creator': 'Gajendra Thakur',
-    'DC.publisher': 'Videha Maithili eJournal',
+    'DC.publisher': 'Videha — First Maithili Fortnightly eJournal',
     'DC.identifier': 'ISSN 2229-547X',
+    'DC.relation': `${videhaUrl} ; ${videhaMirrorUrl} ; ${videhaGithubUrl}`,
     'DC.language': 'mai',
     'DC.type': 'Digital Research Archive; InteractiveResource; Dataset',
   },
@@ -103,6 +112,7 @@ const structuredData = {
       inLanguage: ['mai', 'en'],
       author: { '@id': `${siteUrl}#gajendra-thakur` },
       publisher: { '@id': `${siteUrl}#videha` },
+      isPartOf: { '@id': `${siteUrl}#videha` },
       dateModified: releaseDate,
       about: [
         { '@type': 'Place', name: 'Mithila' },
@@ -141,13 +151,15 @@ const structuredData = {
       name: 'Gajendra Thakur',
       jobTitle: 'Editor',
       affiliation: { '@id': `${siteUrl}#videha` },
-      url: 'https://www.videha.co.in/',
+      url: videhaUrl,
     },
     {
       '@type': 'Organization',
       '@id': `${siteUrl}#videha`,
-      name: 'Videha Maithili eJournal',
-      url: 'https://www.videha.co.in/',
+      name: 'Videha — First Maithili Fortnightly eJournal',
+      alternateName: 'Videha Maithili eJournal',
+      url: videhaUrl,
+      sameAs: [videhaMirrorUrl, videhaGithubUrl],
       identifier: 'ISSN 2229-547X',
     },
   ],
@@ -165,6 +177,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <span>Videha Digital Research Archive</span>
           <EditionSwitch />
         </div>
+        <VidehaPublicationIdentity />
         <ScholarlyToolbar />
         {children}
       </body>
