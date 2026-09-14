@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "version": "2026.09",
+  "tag": "v2026.09",
+  "releaseDate": "2026-09-14",
+  "title": "Videha Digital Research Archive: Digital Humanities Research Environment for Mithila, Vajji & Anga",
+  "parentPublication": {
+    "title": "Videha — First Maithili Fortnightly eJournal",
+    "issn": "2229-547X",
+    "primaryUrl": "https://www.videha.co.in/",
+    "githubMirrorUrl": "https://videha-ejournal.github.io/videha/"
+  },
+  "researchArchive": {
+    "url": "https://videha-ejournal.github.io/mithila-vajji-anga/",
+    "repository": "https://github.com/videha-ejournal/mithila-vajji-anga",
+    "scope": "Mithila–Vajji–Anga in India and Nepal"
+  },
+  "preservation": {
+    "githubReleaseRequired": true,
+    "githubReleaseTag": "v2026.09",
+    "doiProvider": "Zenodo",
+    "doiStatus": "pending-external-account-linkage",
+    "doi": null,
+    "doiRule": "No DOI may be asserted until an external preservation service has actually minted it.",
+    "orcid": null,
+    "orcidStatus": "not-supplied"
+  },
+  "releaseArtifacts": [
+    "/data/releases/2026.09/records.json",
+    "/data/releases/2026.09/SHA256SUMS.txt",
+    "/data/videha-isbn-authority.json",
+    "/data/videha-publication-identity-report.json",
+    "/sitemap.xml"
+  ],
+  "scholarlyGates": {
+    "failClosedPublication": true,
+    "isbnAuthorityCount": 293,
+    "historyChapterCount": 178,
+    "parallelPhilosophyChapterCount": 172,
+    "manualAccessibilityCertification": "pending-human-device-testing",
+    "syntheticSourceTitlesAllowed": false
+  }
+}
