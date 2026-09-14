@@ -208,43 +208,31 @@ write('assets/scholarly.js', sharedJs);
 
 function shell({ title, description, canonical, body, jsonLd = null, extraHead = '' }) {
   const schema = jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd).replaceAll('<', '\\u003c')}</script>` : '';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}"><link rel="canonical" href="${canonical}"><meta property="og:type" content="article"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary"><meta name="citation_author" content="${AUTHOR}"><meta name="citation_journal_title" content="${PUBLISHER}"><meta name="citation_issn" content="${ISSN}"><meta name="citation_online_date" content="${UPDATED_ISO}"><link rel="manifest" href="${SITE_PATH}/manifest.webmanifest"><link rel="stylesheet" href="${SITE_PATH}/assets/scholarly.css">${extraHead}${schema}</head><body><header class="sitebar"><div><a href="${SITE_PATH}/"><strong>𑒧 Mithila–Vajji–Anga</strong></a><nav aria-label="Scholarly navigation"><a href="${SITE_PATH}/records/">Records</a><a href="${SITE_PATH}/compare/">Compare</a><a href="${SITE_PATH}/method/">Method</a><a href="${SITE_PATH}/data/">Data</a><a href="${SITE_PATH}/accessibility/">Accessibility</a></nav></div></header><main class="wrap">${body}</main><footer><div>© ${AUTHOR}, Editor, ${PUBLISHER} · ISSN ${ISSN}<p class="machine-note"><strong>Translation notice:</strong> machine-generated translations are convenience copies only. Cite the source-controlled Videha text.</p></div></footer><script src="${SITE_PATH}/assets/scholarly.js" defer></script></body></html>`;
-}
-
-function recordSchema(record) {
-  const base = { '@context': 'https://schema.org', name: record.title, url: record.url, dateModified: UPDATED_ISO, inLanguage: 'en', license: DATA_LICENSE };
-  if (record.type === 'person') return { ...base, '@type': 'Person', description: record.summary };
-  if (record.type === 'place') return { ...base, '@type': 'Place', description: record.summary };
-  if (record.type === 'text') return { ...base, '@type': 'Book', author: { '@type': 'Person', name: AUTHOR }, description: record.summary };
-  return { ...base, '@type': 'ScholarlyArticle', headline: record.title, author: { '@type': 'Person', name: AUTHOR }, publisher: { '@type': 'Organization', name: PUBLISHER }, description: record.summary };
-}
-
-function recordPage(record) {
-  const badges = evidenceBadges(record);
-  const debate = record.purvapaksha || record.uttarapaksha || record.synthesis
-    ? `<section class="card"><h2>Structured debate</h2>${record.purvapaksha ? `<h3>Pūrvapakṣa</h3><p>${escapeHtml(record.purvapaksha)}</p>` : ''}${record.uttarapaksha ? `<h3>Uttarapakṣa</h3><p>${escapeHtml(record.uttarapaksha)}</p>` : ''}${record.synthesis ? `<h3>Parallel conclusion</h3><p>${escapeHtml(record.synthesis)}</p>` : ''}</section>` : '';
-  const sections = record.sections.length ? `<section class="card"><h2>Section index</h2><ol class="sections">${record.sections.map((section) => `<li>${escapeHtml(section)}</li>`).join('')}</ol></section>` : '';
-  const hasSrotriya = /śrotriya|srotriya/i.test(`${record.title} ${record.summary} ${record.sections.join(' ')}`);
-  const safeguard = hasSrotriya ? '<section class="card warning"><h2>Chronological safeguard</h2><p>Śrotriya/Srotriya is not treated as a timeless medieval Maithil Brahmin sub-caste. This archive dates its distinct sub-caste emergence to the later period around 1800 CE unless source-controlled evidence requires a narrower formulation.</p></section>' : '';
-  const citation = citationText(record);
-  const body = `<p class="eyebrow">PERMANENT ${escapeHtml(record.type.toUpperCase())} RECORD · RELEASE ${RELEASE}</p><h1>${escapeHtml(record.title)}</h1>${record.subtitle ? `<p class="lead">${escapeHtml(record.subtitle)}</p>` : ''}<div class="badges">${badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join('')}</div><dl class="meta"><div><dt>Record ID</dt><dd>${record.id}</dd></div>${record.period ? `<div><dt>Period</dt><dd>${escapeHtml(record.period)}</dd></div>` : ''}${record.region ? `<div><dt>Region</dt><dd>${escapeHtml(record.region)}</dd></div>` : ''}<div><dt>Updated</dt><dd>${UPDATED_HUMAN}</dd></div></dl><section class="card"><h2>Research record</h2><p class="lead">${escapeHtml(record.summary || record.source || 'Source-controlled archive record.')}</p></section>${debate}${sections}${safeguard}<section class="card good"><h2>Scholarly apparatus</h2><p><strong>Evidence status:</strong> ${escapeHtml(record.evidence || record.status || 'Editorial record')}.</p>${record.source ? `<p><strong>Source / provenance:</strong> ${escapeHtml(record.source)}</p>` : ''}<p>Read historical and interpretive claims with the source register, chapter bibliography, uncertainty labels, and editorial method. Qualification is retained where interpretations compete.</p><div class="actions"><a href="${SITE_PATH}/method/" class="secondary">Read method</a><a href="${SITE_PATH}/compare/?type=${record.type}&a=${record.id}" class="secondary">Compare this record</a></div></section><section class="card"><h2>Cite this record</h2><p>${escapeHtml(citation)}</p><div class="actions"><button data-copy-citation="${escapeHtml(citation)}">Copy citation</button><a class="secondary" href="./citation.bib">BibTeX</a><a class="secondary" href="./citation.ris">RIS</a><a class="secondary" href="./citation.csl.json">CSL-JSON</a><button class="secondary" data-share-url>Copy shareable link</button></div></section>`;
-  return shell({ title: `${record.title} | Mithila–Vajji–Anga`, description: (record.summary || record.subtitle || 'Permanent Videha research record.').slice(0, 190), canonical: record.url, body, jsonLd: recordSchema(record) });
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}"><link rel="canonical" href="${canonical}"><link rel="stylesheet" href="${SITE_PATH}/assets/scholarly.css">${schema}${extraHead}</head><body><a href="#main" style="position:absolute;left:-9999px;top:auto" onfocus="this.style.left='1rem'" onblur="this.style.left='-9999px'">Skip to main content</a><header class="sitebar"><div><a href="${SITE_PATH}/"><strong>Videha Digital Research Archive</strong></a><nav aria-label="Research navigation"><a href="${SITE_PATH}/records/">Records</a><a href="${SITE_PATH}/compare/">Compare</a><a href="${SITE_PATH}/method/">Method</a><a href="${SITE_PATH}/data/">Data</a><a href="${SITE_PATH}/accessibility/">Accessibility</a><a href="${SITE_PATH}/rights/">Rights</a></nav></div></header><main id="main" class="wrap">${body}</main><footer><div><strong>Gajendra Thakur</strong> · Videha Maithili eJournal · ISSN ${ISSN} · Updated ${UPDATED_HUMAN}<br><a href="${SITE_PATH}/">Project home</a> · <a href="${SITE_PATH}/updates/">Changelog</a> · <a href="https://www.videha.co.in/">Videha</a></div></footer><script src="${SITE_PATH}/assets/scholarly.js" defer></script></body></html>`;
 }
 
 for (const record of records) {
-  const base = `records/${record.type}/${record.id}`;
-  write(`${base}/index.html`, recordPage(record));
-  write(`${base}/citation.bib`, bibtex(record));
-  write(`${base}/citation.ris`, ris(record));
-  write(`${base}/citation.csl.json`, `${JSON.stringify(csl(record), null, 2)}\n`);
+  const badges = evidenceBadges(record).map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join('');
+  const sections = record.sections.length ? `<section class="card"><h2>Indexed structure</h2><ol class="sections">${record.sections.map((section) => `<li>${escapeHtml(section)}</li>`).join('')}</ol></section>` : '';
+  const debate = (record.purvapaksha || record.uttarapaksha || record.synthesis) ? `<section class="card"><h2>Structured debate</h2>${record.purvapaksha ? `<h3>Pūrvapakṣa</h3><p>${escapeHtml(record.purvapaksha)}</p>` : ''}${record.uttarapaksha ? `<h3>Uttarapakṣa</h3><p>${escapeHtml(record.uttarapaksha)}</p>` : ''}${record.synthesis ? `<h3>Parallel conclusion</h3><p>${escapeHtml(record.synthesis)}</p>` : ''}</section>` : '';
+  const warning = /debated|disputed|uncertain|caution|qualified|traditional identification/i.test(`${record.summary} ${record.evidence} ${record.source}`) ? `<section class="card warning"><h2>Uncertainty note</h2><p>This record contains a debated, approximate, traditional, or editorially qualified claim. Use the source/evidence fields and the methodology page before treating it as a settled fact.</p></section>` : '';
+  const meta = [['Record type', record.type], ['Status', record.status], ['Period / date', record.period], ['Region', record.region], ['Volume', record.volume], ['Source', record.source], ['Evidence basis', record.evidence], ['Release', RELEASE], ['Date modified', UPDATED_HUMAN]].filter(([, value]) => value).map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
+  const citation = citationText(record);
+  const body = `<p class="eyebrow">PERMANENT ${escapeHtml(record.type.toUpperCase())} RECORD</p><h1>${escapeHtml(record.title)}</h1>${record.subtitle ? `<p class="lead">${escapeHtml(record.subtitle)}</p>` : ''}<div class="badges">${badges}</div><dl class="meta">${meta}</dl><section class="card"><h2>Detailed scholarly description</h2><p>${escapeHtml(record.summary || 'This normalized permanent record preserves the project’s supplied source title and editorial status. Consult the source and evidence fields before citation.')}</p></section>${warning}${debate}${sections}<section class="card"><h2>Cite this record</h2><p>${escapeHtml(citation)}</p><div class="actions"><button data-copy-citation="${escapeHtml(citation)}">Copy citation</button><button class="secondary" data-share-url>Copy shareable link</button><a class="secondary" href="${SITE_PATH}/citations/${record.type}/${record.id}.bib">BibTeX</a><a class="secondary" href="${SITE_PATH}/citations/${record.type}/${record.id}.ris">RIS</a><a class="secondary" href="${SITE_PATH}/citations/${record.type}/${record.id}.csl.json">CSL-JSON</a></div></section><p><a href="${SITE_PATH}/records/${record.type}/">← ${escapeHtml(record.type)} records</a></p>`;
+  const jsonLd = { '@context': 'https://schema.org', '@type': record.type === 'person' ? 'Person' : record.type === 'place' ? 'Place' : record.type === 'text' ? 'CreativeWork' : 'ScholarlyArticle', '@id': record.url, name: record.title, description: record.summary, url: record.url, author: record.type === 'person' ? undefined : { '@type': 'Person', name: AUTHOR }, publisher: record.type === 'person' ? undefined : { '@type': 'Organization', name: PUBLISHER, identifier: `ISSN ${ISSN}` }, dateModified: UPDATED_ISO, isAccessibleForFree: true, citation: citation };
+  write(`records/${record.type}/${record.id}/index.html`, shell({ title: `${record.title} | Mithila–Vajji–Anga`, description: record.summary.slice(0, 220) || record.title, canonical: record.url, body, jsonLd }));
+  write(`citations/${record.type}/${record.id}.bib`, bibtex(record));
+  write(`citations/${record.type}/${record.id}.ris`, ris(record));
+  write(`citations/${record.type}/${record.id}.csl.json`, `${JSON.stringify(csl(record), null, 2)}\n`);
 }
-write('records-index.json', `${JSON.stringify(records, null, 2)}\n`);
 
 for (const [type, label] of recordTypes) {
-  const group = records.filter((record) => record.type === type);
-  const body = `<p class="eyebrow">PERMANENT RECORD DIRECTORY</p><h1>${label}</h1><p class="lead">${group.length} source-controlled records with stable URLs, citation downloads, evidence labels, and comparison links.</p><div class="result-list">${group.map((record) => `<a href="${SITE_PATH}/records/${type}/${record.id}/"><span>${escapeHtml(record.subtitle || record.status)}</span><strong>${escapeHtml(record.title)}</strong></a>`).join('')}</div>`;
-  write(`records/${type}/index.html`, shell({ title: `${label} | Mithila–Vajji–Anga`, description: `${group.length} permanent ${label.toLowerCase()} records.`, canonical: `${SITE_URL}/records/${type}/`, body, jsonLd: { '@context': 'https://schema.org', '@type': 'CollectionPage', name: label, url: `${SITE_URL}/records/${type}/` } }));
+  const subset = records.filter((record) => record.type === type);
+  const body = `<p class="eyebrow">RESEARCH DIRECTORY</p><h1>${escapeHtml(label)}</h1><p class="lead">Permanent, source-status-aware records in the Mithila–Vajji–Anga research corpus.</p><div class="result-list">${subset.map((record) => `<a href="${SITE_PATH}/records/${record.type}/${record.id}/"><span>${escapeHtml(record.subtitle || record.status)}</span><strong>${escapeHtml(record.title)}</strong><small>${escapeHtml(record.summary.slice(0, 180))}</small></a>`).join('')}</div>`;
+  write(`records/${type}/index.html`, shell({ title: `${label} | Mithila–Vajji–Anga`, description: `${subset.length} permanent ${label.toLowerCase()} records.`, canonical: `${SITE_URL}/records/${type}/`, body }));
 }
+
+write('records-index.json', `${JSON.stringify(records, null, 2)}\n`);
 
 const searchScript = `
 (()=>{const input=document.querySelector('#record-search'),mode=document.querySelector('#search-mode'),type=document.querySelector('#search-type'),out=document.querySelector('#record-results'),count=document.querySelector('#record-count');const aliases={'विद्यापति':['vidyapati','vidyāpati'],'वैशाली':['vaishali','vaiśālī'],'मिथिला':['mithila'],'वज्जि':['vajji'],'अंग':['anga','aṅga'],'न्याय':['nyaya','nyāya'],'पञ्जी':['panji','pañjī'],'पंजी':['panji','pañjī'],'जनकपुर':['janakpur'],'दरभंगा':['darbhanga']};const norm=v=>String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();const esc=v=>String(v||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));let records=[];const p0=new URLSearchParams(location.search);input.value=p0.get('q')||'';mode.value=p0.get('mode')||'variants';type.value=p0.get('type')||'all';function render(){const q=input.value.trim();const needles=(mode.value==='variants'?[q,...(aliases[q]||[])]:[q]).map(norm).filter(Boolean);const filtered=records.filter(r=>type.value==='all'||r.type===type.value).filter(r=>{if(!q)return true;const title=norm(r.title),hay=norm([r.title,r.subtitle,r.summary,r.source,r.region,r.period,(r.sections||[]).join(' ')].join(' '));if(mode.value==='exact')return title===norm(q);return needles.some(n=>hay.includes(n));}).slice(0,100);count.textContent=filtered.length+(filtered.length===100?' shown':' matches');out.innerHTML=filtered.map(r=>'<a href="${SITE_PATH}/records/'+encodeURIComponent(r.type)+'/'+encodeURIComponent(r.id)+'/"><span>'+esc(r.type)+' · '+esc(r.subtitle||r.status)+'</span><strong>'+esc(r.title)+'</strong><small>'+esc((r.summary||'').slice(0,180))+'</small></a>').join('')||'<p>No matching records.</p>';const p=new URLSearchParams(location.search);q?p.set('q',q):p.delete('q');p.set('mode',mode.value);type.value!=='all'?p.set('type',type.value):p.delete('type');history.replaceState(null,'',location.pathname+(p.toString()?'?'+p.toString():''));}fetch('${SITE_PATH}/records-index.json').then(r=>r.json()).then(data=>{records=data;render();});[input,mode,type].forEach(el=>el.addEventListener(el===input?'input':'change',render));})();
@@ -306,27 +294,17 @@ const releaseFiles = {
   'records.ndjson': ndjson,
   'places.geojson': `${JSON.stringify(geojson, null, 2)}\n`,
 };
-const checksums = [];
+const sums = [];
 for (const [name, content] of Object.entries(releaseFiles)) {
   write(`${releaseDir}/${name}`, content);
-  checksums.push(`${createHash('sha256').update(content).digest('hex')}  ${name}`);
+  sums.push(`${createHash('sha256').update(content).digest('hex')}  ${name}`);
 }
-const releaseMeta = {
-  version: RELEASE,
-  title: 'Mithila–Vajji–Anga scholarly dataset',
-  modified: UPDATED_ISO,
-  author: AUTHOR,
-  publisher: PUBLISHER,
-  issn: ISSN,
-  license: DATA_LICENSE,
-  counts: Object.fromEntries(recordTypes.map(([type]) => [type, records.filter((record) => record.type === type).length])),
-};
-write(`${releaseDir}/release.json`, `${JSON.stringify(releaseMeta, null, 2)}\n`);
-write(`${releaseDir}/SHA256SUMS.txt`, `${checksums.join('\n')}\n`);
-write(`${releaseDir}/README.txt`, `Mithila–Vajji–Anga scholarly dataset ${RELEASE}\nUpdated ${UPDATED_HUMAN}\nAuthor/editor: ${AUTHOR}\nPublisher: ${PUBLISHER}\nISSN: ${ISSN}\n\nOriginal structured data: CC BY 4.0 unless a record states otherwise. Third-party/reproduced visual material retains its own rights. Machine-generated translations are not part of the source-controlled dataset.\n`);
+write(`${releaseDir}/SHA256SUMS.txt`, `${sums.join('\n')}\n`);
+write(`${releaseDir}/README.txt`, `Mithila–Vajji–Anga · Videha Historical Research\nRelease: ${RELEASE}\nGenerated: ${UPDATED_ISO}\nData licence: CC BY 4.0 for original structured portal data. Third-party/reproduced material excluded.\nFiles: records.json, records.csv, records.ndjson, places.geojson, SHA256SUMS.txt\n`);
+write('data/latest.json', `${JSON.stringify({ release: RELEASE, generatedAt: UPDATED_ISO, base: `${SITE_URL}/data/releases/${RELEASE}/`, license: DATA_LICENSE }, null, 2)}\n`);
 
-const dataBody = `<p class="eyebrow">RESEARCH DATA · RELEASE ${RELEASE}</p><h1>Download the archive as data</h1><p class="lead">Versioned exports make the site reproducible outside the interface. Each release has metadata, licence information, and SHA-256 checksums.</p><table class="download-table"><thead><tr><th>Format</th><th>Use</th><th>Download</th></tr></thead><tbody><tr><td>JSON</td><td>Complete normalized records</td><td><a href="${SITE_PATH}/${releaseDir}/records.json">records.json</a></td></tr><tr><td>CSV</td><td>Spreadsheet/statistical workflows</td><td><a href="${SITE_PATH}/${releaseDir}/records.csv">records.csv</a></td></tr><tr><td>NDJSON</td><td>Streaming/scripting</td><td><a href="${SITE_PATH}/${releaseDir}/records.ndjson">records.ndjson</a></td></tr><tr><td>GeoJSON</td><td>Sourced place points; null geometry where none is asserted</td><td><a href="${SITE_PATH}/${releaseDir}/places.geojson">places.geojson</a></td></tr><tr><td>Metadata</td><td>Version and counts</td><td><a href="${SITE_PATH}/${releaseDir}/release.json">release.json</a></td></tr><tr><td>Checksums</td><td>Integrity verification</td><td><a href="${SITE_PATH}/${releaseDir}/SHA256SUMS.txt">SHA256SUMS.txt</a></td></tr></tbody></table><section class="card"><h2>Data dictionary</h2><p><strong>type</strong> record family; <strong>id</strong> stable identifier; <strong>status/evidence/source</strong> provenance fields; <strong>period/region</strong> context; <strong>sections</strong> supplied structure; <strong>purvapaksha/uttarapaksha/synthesis</strong> debate fields; <strong>url</strong> permanent address.</p></section><section class="card"><h2>Rights</h2><p>Original structured data is CC BY 4.0. Book covers, reproduced manuscripts, quoted third-party material, map bases, and linked external editions are excluded unless separately marked.</p><div class="actions"><a href="${SITE_PATH}/rights/">Full rights matrix</a></div></section>`;
-write('data/index.html', shell({ title: 'Research data downloads | Mithila–Vajji–Anga', description: 'Versioned JSON, CSV, NDJSON, and GeoJSON releases.', canonical: `${SITE_URL}/data/`, body: dataBody, jsonLd: { '@context': 'https://schema.org', '@type': 'Dataset', name: 'Mithila–Vajji–Anga scholarly dataset', url: `${SITE_URL}/data/`, creator: { '@type': 'Person', name: AUTHOR }, publisher: { '@type': 'Organization', name: PUBLISHER }, dateModified: UPDATED_ISO, version: RELEASE, license: DATA_LICENSE } }));
+const dataBody = `<p class="eyebrow">OPEN RESEARCH DATA</p><h1>Versioned downloads</h1><p class="lead">Download normalized research records and source-aware geography in machine-readable formats. Original structured portal data is CC BY 4.0; reproduced and third-party content remains excluded.</p><section class="card good"><h2>Current release · ${RELEASE}</h2><table class="download-table"><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td><a href="${SITE_PATH}/${releaseDir}/records.json">records.json</a></td><td>Full normalized permanent-record dataset</td></tr><tr><td><a href="${SITE_PATH}/${releaseDir}/records.csv">records.csv</a></td><td>Spreadsheet / R / Python import</td></tr><tr><td><a href="${SITE_PATH}/${releaseDir}/records.ndjson">records.ndjson</a></td><td>Streaming and command-line workflows</td></tr><tr><td><a href="${SITE_PATH}/${releaseDir}/places.geojson">places.geojson</a></td><td>Source/status-bearing place features; null geometry where no coordinate is asserted</td></tr><tr><td><a href="${SITE_PATH}/${releaseDir}/SHA256SUMS.txt">SHA256SUMS.txt</a></td><td>Integrity verification</td></tr></tbody></table></section><section class="card warning"><h2>Interpretation warning</h2><p>GeoJSON points are orientation aids. Null geometry means the archive declines to invent a coordinate. Historical boundaries and identities must be reconstructed from dated evidence rather than modern polygons.</p></section><p><a href="${SITE_PATH}/rights/">Rights matrix</a> · <a href="${SITE_PATH}/method/">Editorial method</a></p>`;
+write('data/index.html', shell({ title: 'Research data downloads | Mithila–Vajji–Anga', description: 'Versioned research data releases in JSON, CSV, NDJSON and GeoJSON.', canonical: `${SITE_URL}/data/`, body: dataBody, jsonLd: { '@context': 'https://schema.org', '@type': 'Dataset', name: 'Mithila–Vajji–Anga normalized research records', description: 'Source-status-aware research records and sourced place features.', creator: { '@type': 'Person', name: AUTHOR }, publisher: { '@type': 'Organization', name: PUBLISHER }, version: RELEASE, dateModified: UPDATED_ISO, license: DATA_LICENSE, url: `${SITE_URL}/data/` } }));
 
 const offlineBody = `<p class="eyebrow">OFFLINE MODE</p><h1>The research portal is temporarily offline</h1><p class="lead">Previously visited pages may still be available from browser cache. Reconnect to update source records, citations, and release metadata.</p><div class="actions"><a href="${SITE_PATH}/">Try the archive home</a><a class="secondary" href="${SITE_PATH}/records/">Open cached records</a></div>`;
 write('offline/index.html', shell({ title: 'Offline | Mithila–Vajji–Anga', description: 'Offline fallback for the research portal.', canonical: `${SITE_URL}/offline/`, body: offlineBody }));
@@ -347,8 +325,28 @@ write('manifest.webmanifest', `${JSON.stringify(manifest, null, 2)}\n`);
 const core = [`${SITE_PATH}/`, `${SITE_PATH}/records/`, `${SITE_PATH}/method/`, `${SITE_PATH}/data/`, `${SITE_PATH}/accessibility/`, `${SITE_PATH}/offline/`, `${SITE_PATH}/assets/scholarly.css`, `${SITE_PATH}/assets/scholarly.js`, `${SITE_PATH}/records-index.json`];
 write('sw.js', `const CACHE='mva-${RELEASE}';const CORE=${JSON.stringify(core)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('mva-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{if(r.ok)caches.open(CACHE).then(c=>c.put(e.request,r.clone()));return r;}).catch(()=>caches.match('${SITE_PATH}/offline/'))));});\n`);
 
+const historyChapterUrls = [
+  ...safeArray(researchData.political),
+  ...safeArray(researchData.social),
+]
+  .filter((chapter) => chapter?.id)
+  .map((chapter) => `${SITE_URL}/chapters/${chapter.id}/`);
+
+const bilingualCollectionUrls = [
+  `${SITE_URL}/philosophy/`,
+  `${SITE_URL}/literature/`,
+  `${SITE_URL}/panji/`,
+  `${SITE_URL}/en/`,
+  `${SITE_URL}/en/philosophy/`,
+  `${SITE_URL}/en/literature/`,
+  `${SITE_URL}/en/panji/`,
+];
+
 const sitemapUrls = [
   `${SITE_URL}/`,
+  `${SITE_URL}/history/`,
+  ...historyChapterUrls,
+  ...bilingualCollectionUrls,
   `${SITE_URL}/sources/`,
   `${SITE_URL}/updates/`,
   `${SITE_URL}/records/`,
