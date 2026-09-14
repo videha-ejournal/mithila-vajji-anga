@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Home from '../page';
+import Home from '../archive-english';
 
 const languageAlternates: Record<string, string> = {
   mai: 'https://videha-ejournal.github.io/mithila-vajji-anga/',
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: {
     absolute: 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji & Anga',
   },
-  description: 'English mirror of the Videha source-controlled Mithila–Vajji–Anga research environment.',
+  description: 'English edition of the Videha source-controlled Mithila–Vajji–Anga research environment.',
   alternates: {
     canonical: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
     languages: languageAlternates,

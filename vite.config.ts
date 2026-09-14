@@ -6,7 +6,9 @@ const pagePerformanceTransform = () => ({
   name: 'mva-page-performance-transform',
   enforce: 'pre' as const,
   transform(code: string, id: string) {
-    if (!/[\\/]app[\\/]page\.tsx(?:\?|$)/.test(id)) return null;
+    const isEnglishHome = /[\\/]app[\\/]archive-english\.tsx(?:\?|$)/.test(id);
+    const isMaithiliHome = /[\\/]app[\\/]home-maithili\.tsx(?:\?|$)/.test(id);
+    if (!isEnglishHome && !isMaithiliHome) return null;
 
     const next = code
       .replace(
@@ -87,13 +89,38 @@ const pagePerformanceTransform = () => ({
     }
 
     if (
-      !next.includes('Videha Digital Research Archive') ||
-      !next.includes('Digital Humanities Research Environment for Mithila, Vajji &amp; Anga')
+      isEnglishHome &&
+      (!next.includes('Videha Digital Research Archive') ||
+        !next.includes('Digital Humanities Research Environment for Mithila, Vajji &amp; Anga'))
     ) {
-      throw new Error('Archive identity transform did not apply to the homepage.');
+      throw new Error('Archive identity transform did not apply to the English homepage source.');
+    }
+
+    if (
+      isMaithiliHome &&
+      (!next.includes('मिथिला, वज्जि आ अंगक अन्वेषण करू') ||
+        !next.includes('एक अभिलेखागारक चारि शोध-दुआरि'))
+    ) {
+      throw new Error('Maithili homepage integrity markers were lost during the performance transform.');
     }
 
     return { code: next, map: null };
+  },
+});
+
+const splitSpecialistImportTransform = () => ({
+  name: 'mva-split-specialist-data-imports',
+  enforce: 'pre' as const,
+  transform(code: string, id: string) {
+    if (!/[\\/]app[\\/].*\.(tsx?|jsx?)(?:\?|$)/.test(id)) return null;
+    const next = code
+      .replace("import learningData from './learning-data.json';", "import learningData from './generated/learning-data-split';")
+      .replace("import researchData from './research-data.json';", "import researchData from './generated/research-data-split';")
+      .replace("import deepData from './deep-data.json';", "import deepData from './generated/deep-data-split';")
+      .replace("import ideasVolumeTwoData from './ideas-volume2.json';", "import ideasVolumeTwoData from './generated/ideas-volume2-split';")
+      .replace("import collectionDetailsData from './collection-details.json';", "import collectionDetailsData from './generated/collection-details-split';")
+      .replace("import('./collection-details.json')", "import('./generated/collection-details-split')");
+    return next === code ? null : { code: next, map: null };
   },
 });
 
@@ -117,41 +144,35 @@ const optimizedImageTransform = () => ({
   },
 });
 
+const splitPrefixes = [
+  'learning-data',
+  'research-data',
+  'deep-data',
+  'ideas-volume2',
+  'collection-details',
+];
+const splitDataGroups = splitPrefixes.flatMap((prefix) =>
+  Array.from({ length: 48 }, (_, part) => ({
+    name: `${prefix}-part-${part}`,
+    test: new RegExp(`[\\/]app[\\/]generated[\\/]${prefix}-chunk-${part}\\.json(?:\\?|$)`),
+    priority: 100 - part,
+  })),
+);
+
 export default defineConfig({
   css: { postcss: { plugins: [tailwindcss()] } },
-  plugins: [pagePerformanceTransform(), optimizedImageTransform(), vinext()],
+  plugins: [
+    pagePerformanceTransform(),
+    splitSpecialistImportTransform(),
+    optimizedImageTransform(),
+    vinext(),
+  ],
   build: {
     cssCodeSplit: true,
     rolldownOptions: {
       output: {
         codeSplitting: {
-          groups: [
-            {
-              name: 'learning-data',
-              test: /[\\/]app[\\/]learning-data\.json(?:\?|$)/,
-              priority: 50,
-            },
-            {
-              name: 'collection-details',
-              test: /[\\/]app[\\/]collection-details\.json(?:\?|$)/,
-              priority: 45,
-            },
-            {
-              name: 'ideas-volume-two',
-              test: /[\\/]app[\\/]ideas-volume2\.json(?:\?|$)/,
-              priority: 40,
-            },
-            {
-              name: 'research-data',
-              test: /[\\/]app[\\/]research-data\.json(?:\?|$)/,
-              priority: 35,
-            },
-            {
-              name: 'deep-data',
-              test: /[\\/]app[\\/]deep-data\.json(?:\?|$)/,
-              priority: 30,
-            },
-          ],
+          groups: splitDataGroups,
         },
       },
     },

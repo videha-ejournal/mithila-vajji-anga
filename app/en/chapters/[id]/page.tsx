@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import HistoryChapterView, {
   historyChapterMetadata,
   historyStaticParams,
-} from '../../history-chapter-view';
+} from '../../../history-chapter-view';
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -14,10 +14,10 @@ export const dynamicParams = false;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  return historyChapterMetadata(id, 'mai');
+  return historyChapterMetadata(id, 'en');
 }
 
-export default async function ChapterPage({ params }: PageProps) {
+export default async function EnglishChapterPage({ params }: PageProps) {
   const { id } = await params;
-  return <HistoryChapterView id={id} language="mai" />;
+  return <HistoryChapterView id={id} language="en" />;
 }
