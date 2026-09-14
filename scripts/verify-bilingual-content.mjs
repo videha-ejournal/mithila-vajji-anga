@@ -28,7 +28,7 @@ function languagePair(maiRoute, enRoute) {
 
 assert(chapterIds.length === 178, `expected 178 history chapters, found ${chapterIds.length}`);
 const root = languagePair('/', '/en/');
-for (const marker of ['मिथिला, वज्जि आ अंगक अन्वेषण करू','एक अभिलेखागारक चारि शोध-दुआरि','पूरा विदेह अभिलेखागार खोजू']) assert(root.mai.includes(marker), `Maithili homepage missing marker: ${marker}`);
+for (const marker of ['मिथिला, वज्जि आ अंगक अन्वेषण करू','एक अभिलेखागारक चारि शोध-दुआरि','लोक, स्थान, पाठ, अध्याय वा विचार खोजू']) assert(root.mai.includes(marker), `Maithili homepage missing visible marker: ${marker}`);
 for (const marker of ['Explore Mithila, Vajji and Anga','Four doors into one archive','Find a person, place, text, chapter, or idea']) assert(root.en.includes(marker), `English homepage missing marker: ${marker}`);
 for (const phrase of ['>Explore Mithila, Vajji and Anga<','>Four doors into one archive<','>Find a person, place, text, chapter, or idea<']) assert(!root.mai.includes(phrase), `prominent English UI leaked into Maithili homepage: ${phrase}`);
 assert(root.mai.includes('मैथिली संस्करण'), 'Maithili homepage lacks source-language integrity notice');
