@@ -10,7 +10,7 @@ const libraryPath = path.join(root, 'app', 'library-data.json');
 const compressed = Buffer.from(fs.readFileSync(authoritySourcePath, 'utf8').trim(), 'base64');
 const raw = zlib.gunzipSync(compressed);
 const rawSha256 = crypto.createHash('sha256').update(raw).digest('hex');
-const expectedRawSha256 = 'a0df666c62305a01edca47f2ac150edc58f1fee99aa29aa53ba6b6c670faeb30';
+const expectedRawSha256 = 'f072f685bcd05200a071dea218baad30298f7b4717b9cee4be6178bfdbd25df8';
 if (rawSha256 !== expectedRawSha256) {
   throw new Error(`[ISBN authority] source digest mismatch: ${rawSha256}`);
 }
@@ -46,12 +46,21 @@ if (authority.recordCount !== 293) fail(`recordCount must be 293, got ${authorit
 if (!Array.isArray(authority.records) || authority.records.length !== 293) {
   fail('records must contain exactly 293 entries');
 }
+if (authority.sourceWorkbookSha256 !== '12aab41f16e974423e4ce8860e061f0b592bb9e156a9b8a1f884ac0d3cf4ed26') {
+  fail('editor-supplied workbook digest drifted');
+}
+if (!Array.isArray(authority.excludedSourceColumns) ||
+    !authority.excludedSourceColumns.includes('Name of Publishing Agency/Publisher')) {
+  fail('publisher source column must remain explicitly excluded');
+}
 
 const isbnSet = new Set();
 const adminCounts = new Map();
 for (const record of authority.records) {
   if (!record.isbn || !validIsbn13(record.isbn)) fail(`invalid ISBN-13: ${record.isbn}`);
   if (isbnSet.has(record.isbn)) fail(`duplicate ISBN: ${record.isbn}`);
+  if (Object.hasOwn(record, 'publisher')) fail(`publisher field must not be stored: ${record.isbn}`);
+  if (Object.hasOwn(record, 'publishingAgency')) fail(`publishing agency field must not be stored: ${record.isbn}`);
   isbnSet.add(record.isbn);
   adminCounts.set(record.administrator, (adminCounts.get(record.administrator) ?? 0) + 1);
 }
@@ -113,12 +122,11 @@ for (const [id, expected] of expectedLibraryIsbns) {
 if (isbnFromExtent(library.find((entry) => entry.id === 'atmatattvaviveka')?.extent)) {
   fail('Ātmatattvaviveka must remain unassigned until the incomplete portal title is edition-verified');
 }
-
 if (isbnSet.has('9798180232212')) {
   fail('superseded Panji ISBN unexpectedly present in authoritative registry');
 }
 
 console.log(
   `ISBN authority verified: ${authority.records.length} records, ${isbnSet.size} unique valid ISBN-13 values, ` +
-  `aliases enforced, library conflicts resolved, source SHA-256 ${rawSha256}.`,
+  `publisher column excluded, aliases enforced, library conflicts resolved, source SHA-256 ${rawSha256}.`,
 );
