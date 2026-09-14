@@ -17,10 +17,10 @@ export default function VidehaPublicationIdentity() {
       <span aria-hidden="true"> · </span>
       <span>ISSN 2229-547X</span>
       <span aria-hidden="true"> · </span>
-      <span>GitHub mirror:</span>{' '}
+      <span>and its GitHub mirror site:</span>{' '}
       <a href={mirrorUrl}>https://videha-ejournal.github.io/videha/</a>
       <span aria-hidden="true"> · </span>
-      <span>Digital Research Archives on GitHub:</span>{' '}
+      <span>&amp; its Digital Research Archives at GitHub:</span>{' '}
       <a href={githubUrl}>https://github.com/videha-ejournal</a>
       <CitationCopyButton />
       <style>{`
