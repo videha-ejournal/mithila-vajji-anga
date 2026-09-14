@@ -23,6 +23,28 @@ export default function VidehaPublicationIdentity() {
       <span>Digital Research Archives on GitHub:</span>{' '}
       <a href={githubUrl}>https://github.com/videha-ejournal</a>
       <CitationCopyButton />
+      <style>{`
+        .videha-publication-identity .videha-citation-copy {
+          min-height: 30px;
+          margin-left: .2rem;
+          padding: .28rem .55rem;
+          border: 1px solid #7b241c;
+          border-radius: 999px;
+          background: #fff;
+          color: #7b241c;
+          font: inherit;
+          font-weight: 850;
+          cursor: pointer;
+        }
+        .videha-publication-identity .videha-citation-copy:hover {
+          background: #7b241c;
+          color: #fff;
+        }
+        .videha-publication-identity .videha-citation-copy:focus-visible {
+          outline: 3px solid #e39b45;
+          outline-offset: 2px;
+        }
+      `}</style>
     </aside>
   );
 }
