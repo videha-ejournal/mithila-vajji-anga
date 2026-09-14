@@ -101,6 +101,7 @@ const expectedLibraryIsbns = new Map([
   ['panji-6', '978-93-5933-623-7'],
   ['parallel-philosophy', '978-93-344-9610-9'],
   ['parallel-history', '978-93-5812-486-6'],
+  ['atmatattvaviveka', '978-93-5943-857-3'],
   ['bhamati', '978-93-5943-682-1'],
   ['nyayakusumanjali', '978-93-344-6450-4'],
   ['tattvacintamani', '978-93-6123-729-4'],
@@ -119,9 +120,6 @@ for (const [id, expected] of expectedLibraryIsbns) {
   if (actual !== expected) fail(`library ISBN mismatch for ${id}: expected ${expected}, got ${actual}`);
 }
 
-if (isbnFromExtent(library.find((entry) => entry.id === 'atmatattvaviveka')?.extent)) {
-  fail('Ātmatattvaviveka must remain unassigned until the incomplete portal title is edition-verified');
-}
 if (isbnSet.has('9798180232212')) {
   fail('superseded Panji ISBN unexpectedly present in authoritative registry');
 }
