@@ -1,0 +1,39 @@
+name: Refresh dependency lock on security branch
+
+on:
+  push:
+    branches:
+      - dh-improvements-all-7-2026-09-14
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-lock:
+    if: ${{ !contains(github.event.head_commit.message, '[lock-refreshed]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: dh-improvements-all-7-2026-09-14
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Regenerate lockfile for explicit direct upgrades
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Apply only non-breaking npm audit lockfile fixes
+        run: npm audit fix --package-lock-only --ignore-scripts
+      - name: Commit refreshed lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- package-lock.json; then
+            echo 'package-lock.json already current'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json
+          git commit -m 'Refresh dependency lockfile [lock-refreshed]'
+          git push origin HEAD:dh-improvements-all-7-2026-09-14
