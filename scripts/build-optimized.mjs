@@ -183,6 +183,12 @@ runNodeScript('scripts/prepare-images.mjs', { args: ['--cleanup'] });
 const scholarly = runNodeScript('scripts/scholarly-export.mjs');
 if (scholarly.status !== 0) process.exit(scholarly.status ?? 1);
 
+const historicalGeography = runNodeScript('scripts/finalize-historical-geography.mjs');
+if (historicalGeography.status !== 0) process.exit(historicalGeography.status ?? 1);
+
+const historicalGeographyVerification = runNodeScript('scripts/verify-historical-geography.mjs');
+if (historicalGeographyVerification.status !== 0) process.exit(historicalGeographyVerification.status ?? 1);
+
 const sourceLibrary = runNodeScript('scripts/source-library.mjs');
 if (sourceLibrary.status !== 0) process.exit(sourceLibrary.status ?? 1);
 
