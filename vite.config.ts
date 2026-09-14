@@ -6,7 +6,9 @@ const pagePerformanceTransform = () => ({
   name: 'mva-page-performance-transform',
   enforce: 'pre' as const,
   transform(code: string, id: string) {
-    if (!/[\\/]app[\\/]page\.tsx(?:\?|$)/.test(id)) return null;
+    const isEnglishHome = /[\\/]app[\\/]archive-english\.tsx(?:\?|$)/.test(id);
+    const isMaithiliHome = /[\\/]app[\\/]home-maithili\.tsx(?:\?|$)/.test(id);
+    if (!isEnglishHome && !isMaithiliHome) return null;
 
     const next = code
       .replace(
@@ -87,10 +89,19 @@ const pagePerformanceTransform = () => ({
     }
 
     if (
-      !next.includes('Videha Digital Research Archive') ||
-      !next.includes('Digital Humanities Research Environment for Mithila, Vajji &amp; Anga')
+      isEnglishHome &&
+      (!next.includes('Videha Digital Research Archive') ||
+        !next.includes('Digital Humanities Research Environment for Mithila, Vajji &amp; Anga'))
     ) {
-      throw new Error('Archive identity transform did not apply to the homepage.');
+      throw new Error('Archive identity transform did not apply to the English homepage source.');
+    }
+
+    if (
+      isMaithiliHome &&
+      (!next.includes('मिथिला, वज्जि आ अंगक अन्वेषण करू') ||
+        !next.includes('एक अभिलेखागारक चारि शोध-दुआरि'))
+    ) {
+      throw new Error('Maithili homepage integrity markers were lost during the performance transform.');
     }
 
     return { code: next, map: null };
