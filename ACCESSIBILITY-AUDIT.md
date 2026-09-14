@@ -2,33 +2,37 @@
 
 Release audit date: **14 September 2026**  
 Target: **WCAG 2.2 AA-oriented conformance process**  
+Engineering verification: **RELEASE-BLOCKING CI GATE**  
 Manual certification status: PENDING
 
-This ledger separates automated release safeguards from testing that must be performed with real browsers, devices, keyboards, screen readers, zoom/reflow settings and touch input. Passing CI is not represented as full WCAG 2.2 AA certification.
+This ledger separates release-engineering safeguards from testing that must be performed with real browsers, devices, keyboards, screen readers, zoom/reflow settings and touch input. Passing CI is not represented as full WCAG 2.2 AA certification.
 
-## Automated release safeguards
+## Automated/release engineering safeguards
 
-Every production build must verify the following before deployment:
+Every production build now runs `scripts/verify-accessibility-engineering.mjs` after final release-integrity processing. Deployment fails unless the following safeguards pass on the final Maithili and English mirror output:
 
-- a visible Skip link and semantic navigation/accessibility labels remain present;
-- keyboard focus styling uses a visible `:focus-visible` treatment;
+- a keyboard Skip link remains present;
+- visible `:focus-visible` styling with a 3 px outline and offset remains present;
 - reduced-motion support remains present;
 - the 44 × 44 px large-target assistive mode remains present;
-- the 41-language translation selector remains complete;
-- Listen, Stop and Assistive Tech controls remain available on both mirrored entry pages;
-- the Maithili and English entry pages retain the same structural interface and stylesheet bundle;
-- title, favicon, reciprocal edition switch, canonical URLs and `hreflang` metadata remain consistent;
-- the root edition declares `mai` and the `/en/` edition declares `en` in the exported HTML;
-- all 178 History permanent pages remain present;
-- Literature, Panji and classical Philosophy detail publication remains fail-closed until the existing source/editorial gates pass.
+- semantic header/navigation/main structure remains present on both mirrors;
+- root output declares `lang="mai"` and `/en/` declares `lang="en"`;
+- Listen, Stop, Translate and Assistive Tech controls remain present on both mirrors;
+- responsive viewport metadata remains present;
+- every rendered entry-page image carries an `alt` attribute;
+- ARIA expanded/pressed/label semantics remain represented in the interactive source;
+- the full 41-language translation inventory remains present;
+- manual certification remains explicitly Pending until named assistive technologies are actually run.
 
-The build publishes the machine-readable result at `/data/release-integrity-report.json`.
+A successful build publishes the machine-readable result at `/data/accessibility-engineering-report.json`. The report explicitly states that engineering verification does not substitute for NVDA, JAWS, VoiceOver, TalkBack, physical-device or human perceptual testing.
 
-## Manual test matrix
+Existing release-integrity checks additionally protect reciprocal Maithili/English metadata, identical mirror structure/stylesheets, title/favicon consistency, the 178 History permanent pages and the fail-closed Literature, Panji and classical-Philosophy publication gates.
 
-The following must be tested and recorded before the archive is described as manually certified for WCAG 2.2 AA. Record browser/OS version, route tested, result, defect reference and retest result for each row.
+## Human/manual test matrix
 
-| Area | Required manual test | Status |
+The following must be actually tested and recorded before the archive is described as manually certified for WCAG 2.2 AA. Use `ACCESSIBILITY-TEST-PROTOCOL.md` and record browser/OS/device/AT version, route tested, result, defect reference and retest result for each row.
+
+| Area | Required human/manual test | Status |
 | --- | --- | --- |
 | Keyboard | Keyboard-only traversal of header, edition switch, 41-language translator, search, research tabs, dialogs/panels and footer/back-to-top controls; no keyboard trap | Pending |
 | Focus | Visible focus indicator remains perceivable in normal, dark and high-contrast modes | Pending |
@@ -51,4 +55,4 @@ A manual row becomes **Passed** only after the named assistive technology/device
 
 ## Release principle
 
-Accessibility changes are additive. Existing archive content, the 178 History pages, the source/provenance safeguards and the Mithila–Vajji–Anga scholarly focus must not be removed to satisfy this checklist.
+Accessibility changes are additive. Existing archive content, the 178 History pages, the source/provenance safeguards, the Maithili/English mirror architecture and the Mithila–Vajji–Anga scholarly focus must not be removed to satisfy this checklist.

@@ -1,0 +1,140 @@
+{
+  "type": "FeatureCollection",
+  "name": "Videha Mithila–Vajji–Anga qualified historical boundary layers",
+  "metadata": {
+    "schemaVersion": 1,
+    "updated": "2026-09-14",
+    "governingFocus": "Mithila–Vajji–Anga in India and Nepal",
+    "status": "source-controlled interpretive geometry",
+    "warning": "These polygons are schematic research envelopes derived from published descriptions/maps. They are not cadastral, legal, surveyed, or exact ancient frontiers. Boundary uncertainty is part of the data model.",
+    "licenseNote": "The Vajji and Anga derivatives retain CC BY-SA 3.0 attribution to Avantiputra7/Wikimedia Commons. The Mithila envelope is a new schematic interpretation of the published textual/map description cited in its feature metadata."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "boundary-mithila-karan-1984",
+      "properties": {
+        "name": "Mithila historical-cultural frame (Karan 1984)",
+        "region": "Mithila",
+        "periodLabel": "Historical-cultural frame; published vernacular-region study (1984)",
+        "temporalScope": "Not a single-period polity. Used only as a cultural-historical geographic frame.",
+        "coordinateRole": "verified-historical-geometry",
+        "historicalGeometryStatus": "verified",
+        "historicalBoundaryAsserted": true,
+        "boundaryNature": "interpretive-cultural-region-envelope",
+        "historicalGeometryEvidence": {
+          "sourceCitation": "Pradyumna P. Karan, ‘Landscape, Religion and Folk Art in Mithila: An Indian Cultural Region,’ Journal of Cultural Geography 5(1) (1984), pp. 85–101; esp. pp. 87–88 and Fig. 1, ‘Mithila Culture Region’.",
+          "sourceUrl": "https://www.themathesontrust.org/papers/art/Karan-Mithila-Landscape-Art.pdf",
+          "doi": "10.1080/08873638409478563",
+          "geometryScope": "Schematic envelope for the Mithila cultural region using the published north/Himalayan-foothill, south/Ganges, west/Gandak and east/Kosi framing together with Fig. 1; not a political frontier.",
+          "periodLabel": "Historical-cultural frame; published vernacular-region study (1984)",
+          "precision": "schematic-low-resolution",
+          "confidence": "interpretive",
+          "method": "Low-resolution manual geographic envelope from the source’s explicit river/foothill description and published map; simplified for web research orientation.",
+          "notExactFrontier": true,
+          "derivativeNotice": "New Videha research-envelope geometry; coordinates are intentionally simplified and must not be read as a surveyed or timeless boundary."
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [84.25, 25.55],
+          [84.85, 25.45],
+          [85.60, 25.50],
+          [86.30, 25.55],
+          [86.95, 25.75],
+          [87.00, 26.35],
+          [86.55, 26.85],
+          [85.75, 27.05],
+          [84.95, 26.95],
+          [84.45, 26.55],
+          [84.25, 25.55]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "boundary-vajji-c500-bce",
+      "properties": {
+        "name": "Vajji approximate polity envelope, c. 500 BCE",
+        "region": "Vajji",
+        "periodLabel": "c. 500 BCE",
+        "temporalScope": "Approximate mid-first-millennium BCE polity envelope",
+        "coordinateRole": "verified-historical-geometry",
+        "historicalGeometryStatus": "verified",
+        "historicalBoundaryAsserted": true,
+        "boundaryNature": "approximate-reconstructed-polity-envelope",
+        "historicalGeometryEvidence": {
+          "sourceCitation": "Avantiputra7, ‘Mahajanapadas (c. 500 BCE),’ Wikimedia Commons; map states that realm boundaries are approximate and cites H. C. Raychaudhuri, Irfan & Faiz Habib (1995), J. E. Schwartzberg (1992), Upinder Singh (2009), and related scholarship.",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mahajanapadas_(c._500_BCE).png",
+          "geometryScope": "Approximate Vajji polity envelope for c. 500 BCE, digitized schematically from a published historical map whose own documentation describes the boundaries as approximate.",
+          "periodLabel": "c. 500 BCE",
+          "precision": "schematic-low-resolution",
+          "confidence": "approximate-reconstruction",
+          "method": "Low-resolution manual polygon derivative for research visualization; simplified rather than treated as a surveyed historical frontier.",
+          "notExactFrontier": true,
+          "sourceLicense": "CC BY-SA 3.0",
+          "sourceAttribution": "Avantiputra7 / Wikimedia Commons",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "derivativeNotice": "Adapted/simplified by Videha from the cited CC BY-SA 3.0 historical map; changes were made and the geometry remains approximate."
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [84.55, 25.55],
+          [85.05, 25.45],
+          [85.70, 25.55],
+          [86.05, 25.95],
+          [85.95, 26.55],
+          [85.55, 26.95],
+          [84.90, 26.85],
+          [84.50, 26.30],
+          [84.55, 25.55]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "boundary-anga-c500-bce",
+      "properties": {
+        "name": "Anga approximate polity envelope, c. 500 BCE",
+        "region": "Anga",
+        "periodLabel": "c. 500 BCE",
+        "temporalScope": "Approximate mid-first-millennium BCE polity envelope",
+        "coordinateRole": "verified-historical-geometry",
+        "historicalGeometryStatus": "verified",
+        "historicalBoundaryAsserted": true,
+        "boundaryNature": "approximate-reconstructed-polity-envelope",
+        "historicalGeometryEvidence": {
+          "sourceCitation": "Avantiputra7, ‘Mahajanapadas (c. 500 BCE),’ Wikimedia Commons; map states that realm boundaries are approximate and cites H. C. Raychaudhuri, Irfan & Faiz Habib (1995), J. E. Schwartzberg (1992), Upinder Singh (2009), and related scholarship.",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mahajanapadas_(c._500_BCE).png",
+          "geometryScope": "Approximate Anga polity envelope for c. 500 BCE, digitized schematically from a published historical map whose own documentation describes the boundaries as approximate.",
+          "periodLabel": "c. 500 BCE",
+          "precision": "schematic-low-resolution",
+          "confidence": "approximate-reconstruction",
+          "method": "Low-resolution manual polygon derivative for research visualization; simplified rather than treated as a surveyed historical frontier.",
+          "notExactFrontier": true,
+          "sourceLicense": "CC BY-SA 3.0",
+          "sourceAttribution": "Avantiputra7 / Wikimedia Commons",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+          "derivativeNotice": "Adapted/simplified by Videha from the cited CC BY-SA 3.0 historical map; changes were made and the geometry remains approximate."
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [85.90, 25.45],
+          [86.15, 24.55],
+          [86.70, 24.10],
+          [87.35, 24.15],
+          [87.70, 24.55],
+          [87.75, 25.10],
+          [87.20, 25.55],
+          [86.45, 25.65],
+          [85.90, 25.45]
+        ]]
+      }
+    }
+  ]
+}

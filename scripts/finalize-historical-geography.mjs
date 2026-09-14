@@ -6,15 +6,51 @@ const ROOT = process.cwd();
 const OUT = join(ROOT, 'dist/client');
 const RELEASES_ROOT = join(OUT, 'data/releases');
 const DATA_INDEX = join(OUT, 'data/index.html');
+const SOURCE_BOUNDARIES = join(ROOT, 'data/historical-boundaries.geojson');
 
-const POLICY = 'Published place coordinates are modern orientation/reference aids unless a feature explicitly carries verified historical-geometry evidence. They do not imply timeless historical borders. Historical boundary geometry is not asserted without source-controlled evidence.';
+const POLICY = 'Published place coordinates are modern orientation/reference aids unless a feature explicitly carries verified historical-geometry evidence. They do not imply timeless historical borders. Qualified historical boundary layers are permitted only when source-controlled evidence and uncertainty metadata pass the release gate.';
 const REQUIRED_EVIDENCE_FIELDS = ['sourceCitation', 'sourceUrl'];
+const REQUIRED_BOUNDARY_EVIDENCE_FIELDS = [
+  ...REQUIRED_EVIDENCE_FIELDS,
+  'geometryScope',
+  'periodLabel',
+  'precision',
+  'method',
+];
 
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const sha256 = (content) => createHash('sha256').update(content).digest('hex');
+const clone = (value) => JSON.parse(JSON.stringify(value));
 
 if (!existsSync(RELEASES_ROOT)) {
   throw new Error('Historical-geography finalization requires the scholarly data release directory.');
+}
+if (!existsSync(SOURCE_BOUNDARIES)) {
+  throw new Error('Source-controlled historical boundary layer is missing.');
+}
+
+const sourceBoundaries = readJson(SOURCE_BOUNDARIES);
+if (sourceBoundaries.type !== 'FeatureCollection' || !Array.isArray(sourceBoundaries.features)) {
+  throw new Error('data/historical-boundaries.geojson must be a GeoJSON FeatureCollection.');
+}
+for (const feature of sourceBoundaries.features) {
+  const id = String(feature.id ?? '');
+  const geometryType = feature.geometry?.type ?? null;
+  const properties = feature.properties ?? {};
+  const evidence = properties.historicalGeometryEvidence;
+  if (!id) throw new Error('A source-controlled historical boundary feature is missing its id.');
+  if (!geometryType || geometryType === 'Point') {
+    throw new Error(`Historical boundary source ${id} must use non-point geometry.`);
+  }
+  if (properties.historicalGeometryStatus !== 'verified' || properties.historicalBoundaryAsserted !== true) {
+    throw new Error(`Historical boundary source ${id} is not explicitly verified and boundary-asserted.`);
+  }
+  if (!evidence || REQUIRED_BOUNDARY_EVIDENCE_FIELDS.some((field) => !evidence[field])) {
+    throw new Error(`Historical boundary source ${id} lacks required evidence/uncertainty metadata.`);
+  }
+  if (evidence.notExactFrontier !== true) {
+    throw new Error(`Historical boundary source ${id} must explicitly state notExactFrontier=true.`);
+  }
 }
 
 const releaseDirectories = readdirSync(RELEASES_ROOT, { withFileTypes: true })
@@ -40,6 +76,16 @@ for (const release of releaseDirectories) {
   const geojson = readJson(geojsonPath);
   if (geojson.type !== 'FeatureCollection' || !Array.isArray(geojson.features)) {
     throw new Error(`Invalid places.geojson FeatureCollection in release ${release}.`);
+  }
+
+  const ids = new Set(geojson.features.map((feature) => String(feature.id ?? '')).filter(Boolean));
+  for (const boundary of sourceBoundaries.features) {
+    const id = String(boundary.id);
+    if (ids.has(id)) {
+      throw new Error(`Release ${release} already contains historical boundary id ${id}; source merge would be ambiguous.`);
+    }
+    geojson.features.push(clone(boundary));
+    ids.add(id);
   }
 
   let modernPointCount = 0;
@@ -85,20 +131,24 @@ for (const release of releaseDirectories) {
     const verified = feature.properties.historicalGeometryStatus === 'verified'
       && feature.properties.historicalBoundaryAsserted === true
       && evidence
-      && REQUIRED_EVIDENCE_FIELDS.every((field) => Boolean(evidence[field]));
+      && REQUIRED_BOUNDARY_EVIDENCE_FIELDS.every((field) => Boolean(evidence[field]))
+      && evidence.notExactFrontier === true;
     if (!verified) {
-      throw new Error(`Historical ${geometryType} geometry for ${feature.id ?? feature.properties.name ?? 'unknown'} is blocked: verified source-controlled evidence is required.`);
+      throw new Error(`Historical ${geometryType} geometry for ${feature.id ?? feature.properties.name ?? 'unknown'} is blocked: verified source-controlled evidence plus explicit uncertainty metadata is required.`);
     }
     feature.properties.coordinateRole = feature.properties.coordinateRole || 'verified-historical-geometry';
+    feature.properties.geometryStatus = 'source-controlled approximate historical boundary/research envelope; not an exact frontier';
     verifiedHistoricalGeometryCount += 1;
     boundaryFeatureCount += 1;
   }
 
   geojson.metadata = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     release,
     coordinateRoleDefault: 'modern-orientation',
     historicalGeometryPolicy: POLICY,
+    sourceBoundaryLayer: 'data/historical-boundaries.geojson',
+    sourceBoundaryFeatureCount: sourceBoundaries.features.length,
     modernOrientationPointCount: modernPointCount,
     unassertedGeometryCount,
     verifiedHistoricalGeometryCount,
@@ -109,10 +159,12 @@ for (const release of releaseDirectories) {
   writeFileSync(geojsonPath, geojsonContent);
 
   const manifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     release,
     policy: POLICY,
     requiredEvidenceFields: REQUIRED_EVIDENCE_FIELDS,
+    requiredBoundaryEvidenceFields: REQUIRED_BOUNDARY_EVIDENCE_FIELDS,
+    boundaryQualificationRule: 'Non-point historical geometry must explicitly carry notExactFrontier=true. Approximate/reconstructed geometry may be published only as a qualified research aid.',
     counts: {
       features: geojson.features.length,
       modernOrientationPoints: modernPointCount,
@@ -127,6 +179,8 @@ for (const release of releaseDirectories) {
       coordinateRole: feature.properties?.coordinateRole ?? null,
       historicalGeometryStatus: feature.properties?.historicalGeometryStatus ?? null,
       historicalBoundaryAsserted: feature.properties?.historicalBoundaryAsserted === true,
+      boundaryNature: feature.properties?.boundaryNature ?? null,
+      periodLabel: feature.properties?.periodLabel ?? null,
       historicalGeometryEvidence: feature.properties?.historicalGeometryEvidence ?? null,
     })),
   };
@@ -159,17 +213,18 @@ if (!existsSync(DATA_INDEX)) {
 }
 let dataHtml = readFileSync(DATA_INDEX, 'utf8');
 const oldGeoDescription = 'Sourced place points; null geometry where none is asserted';
-const newGeoDescription = 'Modern orientation/reference points unless verified historical-geometry evidence is explicit; null geometry where none is asserted';
-if (!dataHtml.includes(oldGeoDescription) && !dataHtml.includes(newGeoDescription)) {
+const previousGeoDescription = 'Modern orientation/reference points unless verified historical-geometry evidence is explicit; null geometry where none is asserted';
+const newGeoDescription = 'Modern orientation/reference points plus qualified source-controlled historical boundary research envelopes; null geometry where none is asserted';
+if (![oldGeoDescription, previousGeoDescription, newGeoDescription].some((text) => dataHtml.includes(text))) {
   throw new Error('Could not locate the GeoJSON description on the research data page.');
 }
-dataHtml = dataHtml.replace(oldGeoDescription, newGeoDescription);
+dataHtml = dataHtml.replace(oldGeoDescription, newGeoDescription).replace(previousGeoDescription, newGeoDescription);
 const geoRowEnd = '</a></td></tr><tr><td>Metadata</td>';
-const manifestRow = `</a></td></tr><tr><td>Historical geography manifest</td><td>Coordinate roles, historical-geometry status, evidence requirements and boundary counts</td><td><a href="/mithila-vajji-anga/data/releases/${publishedRelease}/historical-geography.json">historical-geography.json</a></td></tr><tr><td>Metadata</td>`;
+const manifestRow = `</a></td></tr><tr><td>Historical geography manifest</td><td>Coordinate roles, qualified historical-boundary status, evidence requirements, uncertainty metadata and boundary counts</td><td><a href="/mithila-vajji-anga/data/releases/${publishedRelease}/historical-geography.json">historical-geography.json</a></td></tr><tr><td>Metadata</td>`;
 if (!dataHtml.includes('historical-geography.json')) {
   if (!dataHtml.includes(geoRowEnd)) throw new Error('Could not locate the data-table insertion point for historical geography.');
   dataHtml = dataHtml.replace(geoRowEnd, manifestRow);
 }
 writeFileSync(DATA_INDEX, dataHtml);
 
-console.log(`Historical geography finalized: ${totalModernPoints} modern orientation points; ${totalUnasserted} null/unasserted geometries; ${totalVerifiedHistorical} verified historical geometries; ${totalHistoricalBoundaries} historical boundary features.`);
+console.log(`Historical geography finalized: ${totalModernPoints} modern orientation points; ${totalUnasserted} null/unasserted geometries; ${totalVerifiedHistorical} verified historical geometries; ${totalHistoricalBoundaries} qualified historical boundary features.`);
