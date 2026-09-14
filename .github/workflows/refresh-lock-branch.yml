@@ -23,6 +23,7 @@ jobs:
       - name: Regenerate lockfile for explicit direct upgrades
         run: npm install --package-lock-only --ignore-scripts
       - name: Apply only non-breaking npm audit lockfile fixes
+        continue-on-error: true
         run: npm audit fix --package-lock-only --ignore-scripts
       - name: Commit refreshed lockfile
         shell: bash
