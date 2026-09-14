@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "status": "pending-human-execution",
+  "target": "WCAG 2.2 AA-oriented manual certification",
+  "scope": [
+    "Maithili root edition",
+    "English /en/ edition",
+    "representative History chapter",
+    "sources and data pages",
+    "published Philosophy/Literature/Panji detail route",
+    "global search, translation, Listen, assistive technology panel and specialist research rooms"
+  ],
+  "rule": "Automated checks, emulation and code inspection cannot change this ledger to passed. Every required environment needs a dated human result, tester, versions, exact routes, defects and retest evidence.",
+  "requiredEnvironments": [
+    {
+      "id": "keyboard-only",
+      "platform": "Desktop",
+      "browser": "current supported browser",
+      "assistiveTechnology": "none",
+      "requiredChecks": ["logical tab order", "skip link", "visible focus", "no keyboard traps", "dialogs and panels", "200% and 400% zoom", "320 CSS px reflow"]
+    },
+    {
+      "id": "nvda-firefox",
+      "platform": "Windows",
+      "browser": "current Firefox",
+      "assistiveTechnology": "current NVDA",
+      "requiredChecks": ["landmarks", "headings", "names and states", "live search updates", "Maithili language announcement", "English language announcement", "reading order"]
+    },
+    {
+      "id": "nvda-chromium",
+      "platform": "Windows",
+      "browser": "current Chrome or Edge",
+      "assistiveTechnology": "current NVDA",
+      "requiredChecks": ["forms", "buttons", "translation panel", "Listen control", "research tabs", "source links"]
+    },
+    {
+      "id": "jaws-chromium",
+      "platform": "Windows",
+      "browser": "current Edge or Chrome",
+      "assistiveTechnology": "current JAWS",
+      "requiredChecks": ["quick navigation", "forms mode", "dynamic panels", "search", "edition language", "research controls"]
+    },
+    {
+      "id": "voiceover-macos",
+      "platform": "macOS",
+      "browser": "current Safari",
+      "assistiveTechnology": "current VoiceOver",
+      "requiredChecks": ["rotor", "landmarks", "headings", "forms", "dialogs", "edition language", "zoom and reflow"]
+    },
+    {
+      "id": "voiceover-ios",
+      "platform": "iOS device",
+      "browser": "Safari",
+      "assistiveTechnology": "VoiceOver",
+      "requiredChecks": ["touch exploration", "swipe order", "control states", "large targets", "dialogs", "reading order"]
+    },
+    {
+      "id": "talkback-android",
+      "platform": "Android device",
+      "browser": "current Chrome",
+      "assistiveTechnology": "current TalkBack",
+      "requiredChecks": ["swipe order", "touch exploration", "control names and states", "translator", "search", "large-target mode"]
+    }
+  ],
+  "results": [],
+  "blockingDefects": [],
+  "certifiedAt": null,
+  "certifiedBy": null
+}

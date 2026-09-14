@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
-import Home from '../page';
+import ArchiveEnglish from '../archive-english';
+
+const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
+const englishUrl = `${siteUrl}en/`;
 
 const languageAlternates: Record<string, string> = {
-  mai: 'https://videha-ejournal.github.io/mithila-vajji-anga/',
-  en: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
-  'x-default': 'https://videha-ejournal.github.io/mithila-vajji-anga/',
+  mai: siteUrl,
+  en: englishUrl,
+  'x-default': siteUrl,
 };
 
 export const metadata: Metadata = {
@@ -13,15 +16,40 @@ export const metadata: Metadata = {
   },
   description: 'English mirror of the Videha source-controlled Mithila–Vajji–Anga research environment.',
   alternates: {
-    canonical: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
+    canonical: englishUrl,
     languages: languageAlternates,
   },
   openGraph: {
-    url: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
+    url: englishUrl,
+    locale: 'en_IN',
   },
   other: {
     'DC.language': 'en',
   },
 };
 
-export default Home;
+export default function EnglishHome() {
+  return (
+    <>
+      <section
+        className="edition-home-introduction"
+        id="edition-home-introduction"
+        lang="en"
+        aria-labelledby="edition-home-title"
+      >
+        <p className="eyebrow">SOURCE-CONTROLLED MITHILA–VAJJI–ANGA RESEARCH ARCHIVE</p>
+        <h1 id="edition-home-title">Research gateway to Mithila, Vajji and Anga</h1>
+        <p>
+          This is the English entrance to the Videha research archive for the connected histories,
+          genealogy, Panji, literature, philosophy, texts, places and chronology of Mithila, Vajji
+          and Anga across India and Nepal.
+        </p>
+        <p>
+          The interface is English. Source titles, quotations and other philologically significant
+          forms remain in their original language where preserving them is necessary for scholarly use.
+        </p>
+      </section>
+      <ArchiveEnglish />
+    </>
+  );
+}

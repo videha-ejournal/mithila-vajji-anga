@@ -6,18 +6,10 @@ const pagePerformanceTransform = () => ({
   name: 'mva-page-performance-transform',
   enforce: 'pre' as const,
   transform(code: string, id: string) {
-    if (!/[\\/]app[\\/]page\.tsx(?:\?|$)/.test(id)) return null;
+    if (!/[\\/]app[\\/]archive-english\.tsx(?:\?|$)/.test(id)) return null;
 
     const next = code
-      .replace(
-        "import learningData from './learning-data.json';",
-        "import specialistSearchData from './generated/specialist-search-lite.json';",
-      )
       .replace("import collectionDetailsData from './collection-details.json';\n", '')
-      .replace(
-        "import ResearchExpansion from './research-expansion';\nimport LearningLab from './learning-lab';",
-        "import DeferredResearchRooms from './deferred-research-rooms';",
-      )
       .replace(
         "const collectionDetails = collectionDetailsData as Record<\n  string,\n  CollectionDetail\n>;\n",
         '',
@@ -29,71 +21,31 @@ const pagePerformanceTransform = () => ({
       .replace(
         "  const globalSearchRef = useRef<HTMLInputElement>(null);",
         `  const globalSearchRef = useRef<HTMLInputElement>(null);\n  useEffect(() => {\n    if (activeTab !== 'library' || Object.keys(collectionDetails).length) return;\n    let active = true;\n    import('./collection-details.json').then(({ default: data }) => {\n      if (active) setCollectionDetails(data as Record<string, CollectionDetail>);\n    });\n    return () => { active = false; };\n  }, [activeTab, collectionDetails]);`,
-      )
-      .replace(
-        /  \.\.\.learningData\.places\.map[\s\S]*?route: 'knowledge-graph' as const \}\)\),\n/,
-        '  ...(specialistSearchData.records as GlobalSearchRecord[]),\n',
-      )
-      .replaceAll(
-        'learningData.places.length',
-        'specialistSearchData.counts.places',
-      )
-      .replace(
-        /\n\s*<ResearchExpansion \/>\s*\n\s*<LearningLab \/>\s*\n/,
-        '\n        <DeferredResearchRooms />\n',
-      )
-      .replace(
-        '<small>Videha historical research</small>',
-        '<small>Videha Digital Research Archive</small>',
-      )
-      .replace(
-        `<p className="eyebrow">SOURCE-CONTROLLED REGIONAL ATLAS</p>\n            <h1>Explore Mithila, Vajji and Anga</h1>\n            <p>\n              A guided entrance to the Videha archive: genealogy, regional\n              history, philosophical debate, texts, and translation across\n              India and Nepal. Choose a research question first; the archive\n              will then lead you to the relevant evidence, chapter, or tool.\n            </p>`,
-        `<p className="eyebrow">VIDEHA DIGITAL RESEARCH ARCHIVE</p>\n            <h1>Videha Digital Research Archive</h1>\n            <p><strong>Digital Humanities Research Environment for Mithila, Vajji &amp; Anga</strong></p>\n            <p>\n              A permanent, citable, machine-readable and versioned research environment for genealogy, regional\n              history, philosophical debate, texts, translation, people, places and chronology across\n              India and Nepal. Begin with a research question; the archive leads to the relevant evidence,\n              permanent record, citation or specialist tool.\n            </p>`,
-      )
-      .replace(
-        '<p>THE VIDEHA RESEARCH STUDIO</p>',
-        '<p>DIGITAL HUMANITIES RESEARCH ENVIRONMENT</p>',
-      )
-      .replace(
-        '<h2 id="studio-title">Four doors into one archive</h2>',
-        '<h2 id="studio-title">Four doors into the Videha Digital Research Archive</h2>',
-      )
-      .replace(
-        '<p>THE VIDEHA RESEARCH ECOSYSTEM</p>',
-        '<p>VIDEHA DIGITAL RESEARCH ARCHIVE</p>',
-      )
-      .replace(
-        '<h2>History joined to genealogy, literature, and philosophy</h2>',
-        '<h2>A citable digital humanities environment for Mithila, Vajji &amp; Anga</h2>',
-      )
-      .replace(
-        '<a href="./updates/index.html">Status &amp; updates</a>\n          <a href="#about">About</a>',
-        '<a href="./updates/index.html">Status &amp; updates</a>\n          <a href="./about/index.html">About / Archive</a>\n          <a href="./source-library/index.html">Source PDFs</a>',
-      )
-      .replaceAll(
-        '<small>A Videha research project</small>',
-        '<small>Videha Digital Research Archive</small>',
       );
 
     if (
+      next.includes("from './learning-data.json'") ||
       next.includes('learningData.') ||
       next.includes('collectionDetailsData') ||
       next.includes('<ResearchExpansion />') ||
       next.includes('<LearningLab />')
     ) {
       throw new Error(
-        'Performance transform did not fully detach deferred research payloads from the initial page.',
+        'Performance transform did not fully detach deferred research payloads from archive-english.',
       );
     }
 
     if (
-      !next.includes('Videha Digital Research Archive') ||
-      !next.includes('Digital Humanities Research Environment for Mithila, Vajji &amp; Anga')
+      !next.includes("from './generated/specialist-search-lite.json'") ||
+      !next.includes('<DeferredResearchRooms />') ||
+      !next.includes("import('./collection-details.json')")
     ) {
-      throw new Error('Archive identity transform did not apply to the homepage.');
+      throw new Error(
+        'Performance optimization markers are missing from archive-english.',
+      );
     }
 
-    return { code: next, map: null };
+    return next === code ? null : { code: next, map: null };
   },
 });
 

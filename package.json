@@ -7,27 +7,30 @@
   },
   "scripts": {
     "dev": "node scripts/export-isbn-authority.mjs && vinext dev",
-    "build": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --write-inventory && node scripts/build-optimized.mjs && node scripts/preserve-route-sitemap.mjs && node scripts/finalize-service-worker.mjs && node scripts/finalize-release-integrity.mjs && node scripts/verify-release-integrity.mjs && node scripts/verify-accessibility-engineering.mjs",
+    "build": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && node scripts/build-bilingual-detail-inventory.mjs && node scripts/prepare-runtime-data.mjs && node scripts/optimize-home-runtime.mjs && node scripts/build-optimized.mjs && node scripts/finalize-bilingual-semantics.mjs && node scripts/verify-bilingual-semantics.mjs && node scripts/preserve-route-sitemap.mjs && node scripts/finalize-service-worker.mjs && node scripts/finalize-release-integrity.mjs && node scripts/verify-release-integrity.mjs && node scripts/verify-accessibility-engineering.mjs && node scripts/verify-human-accessibility-qa.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
     "verify:release": "node scripts/verify-release-integrity.mjs",
-    "verify:accessibility": "node scripts/verify-accessibility-engineering.mjs",
+    "verify:accessibility": "node scripts/verify-accessibility-engineering.mjs && node scripts/verify-human-accessibility-qa.mjs",
+    "verify:bilingual": "node scripts/verify-bilingual-semantics.mjs",
+    "verify:human-qa": "node scripts/verify-human-accessibility-qa.mjs",
     "verify:isbn": "node scripts/validate-isbn-authority.mjs",
     "export:isbn": "node scripts/export-isbn-authority.mjs",
+    "audit:security:production": "node scripts/audit-production-security.mjs",
     "audit:philosophy": "node scripts/audit-parallel-philosophy-source.mjs",
     "audit:philosophy:strict": "node scripts/audit-parallel-philosophy-source.mjs --strict",
     "audit:classical-philosophy": "node scripts/validate-classical-philosophy-inventory.mjs",
     "audit:classical-philosophy:complete": "node scripts/validate-classical-philosophy-inventory.mjs --require-complete",
     "audit:panji": "node scripts/audit-panji-source.mjs",
     "audit:panji:strict": "node scripts/audit-panji-source.mjs --strict",
-    "generate:archive": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs --require-complete && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs"
+    "generate:archive": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs --require-complete && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs && node scripts/build-bilingual-detail-inventory.mjs"
   },
   "dependencies": {
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "react-server-dom-webpack": "19.2.6",
-    "vinext": "1.0.0-beta.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-server-dom-webpack": "19.2.8",
+    "vinext": "1.0.0-beta.9",
     "@base-ui/react": "1.7.0",
     "@shadcn/react": "0.3.0",
     "class-variance-authority": "0.7.1",
@@ -53,14 +56,17 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
-    "@vitejs/plugin-rsc": "0.5.26",
+    "@vitejs/plugin-rsc": "0.5.34",
     "oxfmt": "0.61.0",
     "oxlint": "1.76.0",
     "oxlint-tsgolint": "7.0.2001",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
-    "vite": "8.0.13",
+    "vite": "8.3.0",
     "wrangler": "4.92.0"
+  },
+  "overrides": {
+    "undici": "7.29.0"
   },
   "type": "module"
 }

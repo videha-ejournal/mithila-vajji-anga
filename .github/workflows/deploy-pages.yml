@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -20,17 +21,34 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - id: production-security
+        name: Audit production dependencies
+        continue-on-error: true
+        run: npm run audit:security:production
+      - name: Preserve production security evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: mva-production-security-audit
+          path: security-reports/production-audit.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Enforce production security gate
+        if: steps.production-security.outcome == 'failure'
+        run: |
+          echo 'Blocking high/critical production dependency vulnerability detected. Review the preserved audit report.' >&2
+          exit 1
       - name: Install production image optimizer
         run: npm install --no-save --package-lock=false sharp@0.35.4
       - name: Lint source
@@ -41,8 +59,9 @@ jobs:
           REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
           GITHUB_API_TOKEN: ${{ github.token }}
         run: npm run build
-      - name: Verify scholarly export, archive identity, history pages, bilingual collections, source library and performance contract
+      - name: Verify scholarly export, bilingual semantics, source inventory and performance contract
         run: |
+          set -euo pipefail
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
           test -f dist/client/about/index.html
@@ -69,12 +88,20 @@ jobs:
           test -f dist/client/data/performance-report.json
           test -f dist/client/data/image-optimization-report.json
           test -f dist/client/data/release-integrity-report.json
+          test -f dist/client/data/bilingual-detail-inventory.json
+          test -f dist/client/data/accessibility-human-qa.json
           test -f dist/client/accessibility/AUDIT.md
           test -f dist/client/sitemap.xml
           test -f dist/client/robots.txt
           test -f dist/client/manifest.webmanifest
-          grep -q "Videha Digital Research Archive" dist/client/index.html
-          grep -q "Digital Humanities Research Environment for Mithila, Vajji" dist/client/index.html
+          grep -q 'lang="mai"' dist/client/index.html
+          grep -q 'data-edition="mai"' dist/client/index.html
+          grep -q 'मिथिला, वज्जि आ अंगक शोध-द्वार' dist/client/index.html
+          grep -q 'lang="en"' dist/client/en/index.html
+          grep -q 'data-edition="en"' dist/client/en/index.html
+          grep -q 'Research gateway to Mithila, Vajji and Anga' dist/client/en/index.html
+          grep -q 'hreflang="en"' dist/client/index.html
+          grep -q 'hreflang="mai"' dist/client/en/index.html
           grep -q "Videha Digital Research Archive" dist/client/about/index.html
           grep -q "Videha Digital Research Archive" dist/client/records/index.html
           grep -q "Two histories, one connected regional archive" dist/client/history/index.html
@@ -95,13 +122,17 @@ jobs:
           grep -q "en/philosophy/" dist/client/sitemap.xml
           grep -q "en/literature/" dist/client/sitemap.xml
           grep -q "en/panji/" dist/client/sitemap.xml
+          node scripts/verify-bilingual-semantics.mjs
+          node scripts/verify-human-accessibility-qa.mjs
           node scripts/verify-release-integrity.mjs
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
+          node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/bilingual-detail-inventory.json','utf8')); if(r.summary.philosophy!==172||r.summary.literature!==100||r.summary.panji<1||r.summary.syntheticTitles!==0) process.exit(1); console.log(r.summary)"
+          node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/accessibility-human-qa.json','utf8')); if(r.machineChecksSubstituteForHumanTesting!==false||!['pending-human-execution','in-progress','passed'].includes(r.status)) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/source-library/catalog.json','utf8')); const s=r.sourceRepositories?.[0]; if(r.name!=='Videha Digital Research Archive · Source PDF Library'||!Array.isArray(r.books)||r.externalCount<1||!s||s.repository!=='videha-ejournal/videha-ejournal'||!s.sourceCommit||r.books.some(b=>b.sourceType==='external-github'&&(!b.sourceCommit||!b.gitBlobSha||!b.githubUrl))) process.exit(1); console.log({sourcePdfCount:r.count,externalPdfCount:r.externalCount,sourceCommit:s.sourceCommit})"
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: dist/client
 
@@ -110,16 +141,16 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
   live-smoke:
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: deploy
     steps:
       - name: Verify live GitHub Pages release
@@ -147,11 +178,14 @@ jobs:
           }
 
           ROOT="$(wait_for_marker "$BASE/" '<html lang="mai"')"
-          EN="$(wait_for_marker "$BASE/en/" 'hreflang="x-default"')"
-          grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji' <<<"$ROOT"
-          grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji' <<<"$EN"
+          EN="$(wait_for_marker "$BASE/en/" '<html lang="en"')"
+          grep -Fq 'data-edition="mai"' <<<"$ROOT"
+          grep -Fq 'data-edition="en"' <<<"$EN"
+          grep -Fq 'मिथिला, वज्जि आ अंगक शोध-द्वार' <<<"$ROOT"
+          grep -Fq 'Research gateway to Mithila, Vajji and Anga' <<<"$EN"
           grep -Fq 'hreflang="en"' <<<"$ROOT"
           grep -Fq 'hreflang="mai"' <<<"$EN"
+          grep -Fq 'hreflang="x-default"' <<<"$ROOT$EN"
           grep -Fq '178 permanent History chapters' <<<"$ROOT"
           grep -Fq '178 permanent History chapters' <<<"$EN"
           if grep -Fq 'Chapters 1–86' <<<"$ROOT$EN"; then
@@ -159,7 +193,7 @@ jobs:
             exit 1
           fi
 
-          for route in "/history/" "/philosophy/" "/literature/" "/panji/" "/en/philosophy/" "/en/literature/" "/en/panji/" "/en/sources/" "/en/updates/" "/chapters/political-1/" "/chapters/social-150/" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do
+          for route in "/history/" "/philosophy/" "/literature/" "/panji/" "/en/philosophy/" "/en/literature/" "/en/panji/" "/en/sources/" "/en/updates/" "/chapters/political-1/" "/chapters/social-150/" "/data/bilingual-detail-inventory.json" "/data/accessibility-human-qa.json" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do
             fetch "$BASE$route" >/dev/null
           done
 

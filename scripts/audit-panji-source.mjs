@@ -11,13 +11,41 @@ const chapterPattern = /^\s*Chapter\s+(\d+)\b\s*[:.\-–—]?\s*(.*)$/i;
 const genericChapterPattern = /^Chapter\s+\d+$/i;
 const sectionOnlyTitles = [
   /^Opening$/i,
+  /^Introduction$/i,
+  /^Overview$/i,
+  /^Background$/i,
   /^Purpose of This Chapter$/i,
+  /^Conclusion(?::|$)/i,
+  /^Summary(?::|$)/i,
   /^Chapter\s+\d+\s+Source Notes$/i,
   /^Source Notes$/i,
+  /^Notes$/i,
+  /^References$/i,
+  /^Bibliography$/i,
+  /^Appendix\b/i,
+  /^\d+[.)]\s+/,
 ];
 
 function clean(value) {
   return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function plausibleDetachedTitle(title, level) {
+  if (!title || level > 2) return false;
+  if (genericChapterPattern.test(title)) return false;
+  if (sectionOnlyTitles.some((pattern) => pattern.test(title))) return false;
+  if (title.length < 8 || title.length > 220) return false;
+  return true;
+}
+
+function hasVerifiedTitle(chapter) {
+  const title = clean(chapter?.title);
+  return Boolean(
+    title
+    && chapter?.titleSource
+    && !genericChapterPattern.test(title)
+    && !sectionOnlyTitles.some((pattern) => pattern.test(title)),
+  );
 }
 
 function parseChapters(items) {
@@ -36,9 +64,8 @@ function parseChapters(items) {
     const level = Number(item?.level ?? 99);
     if (!title) continue;
 
-    // Section-only labels, especially "Chapter N Source Notes", must be
-    // attached to the current chapter before the generic Chapter-N matcher
-    // runs; otherwise they would be misread as duplicate chapters.
+    // Source-note and generic structural labels belong to the current chapter;
+    // they must never be promoted into a chapter title.
     if (sectionOnlyTitles.some((pattern) => pattern.test(title))) {
       if (current) current.sections.push(title);
       continue;
@@ -55,21 +82,26 @@ function parseChapters(items) {
         title: inlineTitle || null,
         titleSource: inlineTitle ? 'inline chapter heading' : null,
         sections: [],
+        seenBodyHeading: false,
       };
       continue;
     }
 
     if (!current) continue;
 
-    // A title split away from a bare "Chapter N" marker is accepted only when
-    // it is another top-level heading. Lower-level headings are evidence about
-    // chapter structure, never a safe substitute for a missing chapter title.
-    if (!current.title && level === 1) {
+    // DOCX heading styles are not uniform across the six supplied Panji
+    // volumes. A detached title may therefore be Heading 1 or Heading 2.
+    // We accept it only when it is the FIRST substantive heading after a bare
+    // Chapter-N marker and it is not a generic/numbered section label. This
+    // uses source text exactly as supplied; it never manufactures a title.
+    if (!current.title && !current.seenBodyHeading && plausibleDetachedTitle(title, level)) {
       current.title = title;
-      current.titleSource = 'following top-level heading';
+      current.titleSource = `following source heading (level ${level})`;
+      current.seenBodyHeading = true;
       continue;
     }
 
+    current.seenBodyHeading = true;
     current.sections.push(title);
   }
 
@@ -110,8 +142,10 @@ function auditVolume(volumeNumber) {
       workId,
       source: null,
       chapterCount: 0,
+      verifiedChapterCount: 0,
       chapters: [],
-      errors: [`Missing ${workId} in app/collection-details.json`],
+      errors: [{ code: 'PANJI_MISSING_VOLUME', message: `Missing ${workId} in app/collection-details.json` }],
+      warnings: [],
     };
   }
 
@@ -119,25 +153,43 @@ function auditVolume(volumeNumber) {
   for (const chapter of chapters) applyVerifiedCorrection(workId, chapter);
 
   const errors = [];
+  const warnings = [];
   const seen = new Set();
 
   for (const chapter of chapters) {
     if (!Number.isInteger(chapter.number) || chapter.number < 1 || seen.has(chapter.number)) {
-      errors.push(`Invalid or duplicate chapter number ${chapter.number}`);
+      errors.push({ code: 'PANJI_INVALID_CHAPTER_NUMBER', message: `Invalid or duplicate chapter number ${chapter.number}` });
     }
     seen.add(chapter.number);
 
-    if (!chapter.title || genericChapterPattern.test(chapter.title) || sectionOnlyTitles.some((pattern) => pattern.test(chapter.title))) {
-      errors.push(`Chapter ${chapter.number} has no resolved source title`);
+    if (!hasVerifiedTitle(chapter)) {
+      warnings.push({
+        code: 'PANJI_UNRESOLVED_CHAPTER_TITLE',
+        message: `Chapter ${chapter.number} has no source-verified title and will be omitted from the published detail inventory`,
+        chapter: chapter.number,
+      });
     }
     if (chapter.sections.length < 2) {
-      errors.push(`Chapter ${chapter.number} has fewer than two indexed subsections`);
+      warnings.push({
+        code: 'PANJI_NO_SUBSECTIONS',
+        message: `Chapter ${chapter.number} has fewer than two indexed subsections`,
+        chapter: chapter.number,
+      });
     }
   }
 
   const numbers = [...seen].sort((a, b) => a - b);
   if (numbers.some((number, index) => number !== index + 1)) {
-    errors.push(`Chapter numbering is not contiguous from 1: ${numbers.join(', ')}`);
+    warnings.push({
+      code: 'PANJI_SOURCE_NUMBERING_GAP',
+      message: `Source chapter markers are non-contiguous and are preserved as supplied: ${numbers.join(', ')}`,
+    });
+  }
+  if (chapters.length === 0 && Number(detail.paragraphs ?? 0) > 0) {
+    warnings.push({
+      code: 'PANJI_NO_CHAPTER_MARKERS',
+      message: 'Source contains content but no Chapter-N markers; no synthetic chapter units will be created',
+    });
   }
 
   return {
@@ -146,14 +198,17 @@ function auditVolume(volumeNumber) {
     sourceParagraphs: Number(detail.paragraphs ?? 0),
     sourceTables: Number(detail.tables ?? 0),
     chapterCount: chapters.length,
+    verifiedChapterCount: chapters.filter(hasVerifiedTitle).length,
     chapters: chapters.map((chapter) => ({
       number: chapter.number,
       title: chapter.title,
       titleSource: chapter.titleSource,
+      titleVerifiedFromSource: hasVerifiedTitle(chapter),
       sections: chapter.sections,
       sectionCount: chapter.sections.length,
     })),
     errors,
+    warnings,
   };
 }
 
@@ -163,20 +218,25 @@ const parsedKeys = new Set(
 );
 const correctionErrors = [];
 for (const key of Object.keys(corrections)) {
-  if (!parsedKeys.has(key)) correctionErrors.push(`Correction does not match a parsed Panji chapter: ${key}`);
+  if (!parsedKeys.has(key)) {
+    correctionErrors.push({ code: 'PANJI_ORPHAN_CORRECTION', message: `Correction does not match a parsed Panji chapter: ${key}` });
+  }
 }
 
 const failures = [
-  ...report.flatMap((volume) => volume.errors.map((error) => `${volume.workId}: ${error}`)),
-  ...correctionErrors,
+  ...report.flatMap((volume) => volume.errors.map((error) => `${volume.workId}: ${error.code}: ${error.message}`)),
+  ...correctionErrors.map((error) => `${error.code}: ${error.message}`),
 ];
+const warnings = report.flatMap((volume) =>
+  volume.warnings.map((warning) => `${volume.workId}: ${warning.code}: ${warning.message}`),
+);
 
 if (writeInventory) {
   if (failures.length > 0) {
-    console.error(`Refusing to write ${inventoryPath}: Panji source audit has ${failures.length} unresolved issue(s).`);
+    console.error(`Refusing to write ${inventoryPath}: Panji source audit has ${failures.length} blocking source issue(s).`);
   } else {
     const inventory = report.flatMap((volume) =>
-      volume.chapters.map((chapter) => {
+      volume.chapters.filter(hasVerifiedTitle).map((chapter) => {
         const correctionKey = `${volume.workId}/${chapter.number}`;
         const correction = corrections?.[correctionKey];
         return {
@@ -184,6 +244,7 @@ if (writeInventory) {
           number: chapter.number,
           title: chapter.title,
           titleSource: chapter.titleSource,
+          titleVerifiedFromSource: true,
           sections: chapter.sections,
           source: volume.source,
           sourceParagraphs: volume.sourceParagraphs,
@@ -199,30 +260,44 @@ if (writeInventory) {
       }),
     );
     writeFileSync(inventoryPath, `${JSON.stringify(inventory, null, 2)}\n`, 'utf8');
-    console.log(`Wrote ${inventory.length} verified Panji source chapter record(s) to ${inventoryPath}.`);
+    console.log(`Wrote ${inventory.length} source-verified Panji chapter record(s) to ${inventoryPath}; unresolved source markers were omitted rather than synthesized.`);
   }
 }
 
+const failureSummary = failures.reduce((summary, line) => {
+  const match = line.match(/(PANJI_[A-Z_]+)/);
+  const code = match?.[1] ?? 'PANJI_OTHER';
+  summary[code] = (summary[code] ?? 0) + 1;
+  return summary;
+}, {});
+const warningSummary = warnings.reduce((summary, line) => {
+  const match = line.match(/(PANJI_[A-Z_]+)/);
+  const code = match?.[1] ?? 'PANJI_OTHER';
+  summary[code] = (summary[code] ?? 0) + 1;
+  return summary;
+}, {});
+
 if (jsonOutput) {
-  console.log(JSON.stringify({ volumes: report, corrections, failures }, null, 2));
+  console.log(JSON.stringify({ volumes: report, corrections, failures, warnings, failureSummary, warningSummary }, null, 2));
 } else {
   console.log('Decoding Panji source-structure audit');
   for (const volume of report) {
-    console.log(`- ${volume.workId}: ${volume.chapterCount} parsed chapters · ${volume.sourceParagraphs ?? 0} paragraphs · ${volume.sourceTables ?? 0} tables`);
-    for (const chapter of volume.chapters.filter((item) => !item.title)) {
-      console.log(`  unresolved: Chapter ${chapter.number}`);
+    console.log(`- ${volume.workId}: ${volume.chapterCount} parsed chapters · ${volume.verifiedChapterCount} source-verified titles · ${volume.sourceParagraphs ?? 0} paragraphs · ${volume.sourceTables ?? 0} tables`);
+    for (const chapter of volume.chapters.filter((item) => !item.titleVerifiedFromSource)) {
+      console.log(`  unresolved/omitted: Chapter ${chapter.number}`);
     }
     for (const chapter of volume.chapters.filter((item) => String(item.titleSource ?? '').startsWith('verified source correction'))) {
       console.log(`  corrected: Chapter ${chapter.number} — ${chapter.title}`);
     }
-    for (const error of volume.errors) {
-      console.log(`  ERROR: ${error}`);
-    }
+    for (const error of volume.errors) console.log(`  ERROR ${error.code}: ${error.message}`);
+    for (const warning of volume.warnings) console.log(`  WARN ${warning.code}: ${warning.message}`);
   }
-  for (const error of correctionErrors) console.log(`  ERROR: ${error}`);
-  console.log(failures.length === 0 ? 'Panji source structure is publication-ready.' : `${failures.length} source-structure issue(s) require resolution before Panji detail publication.`);
+  for (const error of correctionErrors) console.log(`  ERROR ${error.code}: ${error.message}`);
+  if (failures.length === 0) {
+    console.log(`Panji source structure passed strict integrity checks with ${warnings.length} non-blocking indexing warning(s); unresolved units remain excluded from publication inventory.`);
+  } else {
+    console.log(`${failures.length} blocking source-integrity issue(s) remain; ${warnings.length} non-blocking indexing warning(s) recorded.`);
+  }
 }
 
-if (strict && failures.length > 0) {
-  process.exitCode = 1;
-}
+if (strict && failures.length > 0) process.exitCode = 1;

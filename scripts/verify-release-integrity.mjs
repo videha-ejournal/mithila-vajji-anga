@@ -3,7 +3,8 @@ import path from 'node:path';
 
 const OUT = path.resolve('dist/client');
 const BASE = 'https://videha-ejournal.github.io/mithila-vajji-anga';
-const TITLE = 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji & Anga';
+const ROOT_TITLE = 'विदेह डिजिटल शोध-संग्रह | मिथिला, वज्जि आ अंग';
+const ENGLISH_TITLE = 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji & Anga';
 const RELEASE_DATE = '2026-09-14';
 const languages = ['as','bn','brx','doi','en','gu','hi','kn','ks','gom','mai','ml','mni-Mtei','mr','ne','or','pa','sa','sat','sd','ta','te','ur','zh-CN','yue','fa','iw','bo','si','es','fr','de','pt','it','ru','ar','ja','ko','id','th','tr'];
 const pairs = [
@@ -53,8 +54,8 @@ function optionValues(html) {
 
 const root = await readOut('index.html');
 const english = await readOut('en/index.html');
-assert(titleOf(root) === TITLE, 'Root title mismatch');
-assert(titleOf(english) === TITLE, 'English title mismatch');
+assert(titleOf(root) === ROOT_TITLE, `Root title mismatch: ${titleOf(root)}`);
+assert(titleOf(english) === ENGLISH_TITLE, `English title mismatch: ${titleOf(english)}`);
 assert(htmlLang(root) === 'mai', `Root lang must be mai, found ${htmlLang(root)}`);
 assert(htmlLang(english) === 'en', `English lang must be en, found ${htmlLang(english)}`);
 assert(canonical(root) === `${BASE}/`, 'Root canonical mismatch');
@@ -72,6 +73,8 @@ for (const html of [root, english]) {
   const favicon = linkTags(html, 'icon').map((tag) => attr(tag, 'href'));
   assert(favicon.includes(`${BASE}/favicon.svg`), 'Absolute archive favicon missing');
 }
+assert(root.includes('मिथिला, वज्जि आ अंगक शोध-द्वार'), 'Maithili landing identity missing');
+assert(english.includes('Research gateway to Mithila, Vajji and Anga'), 'English landing identity missing');
 assert(JSON.stringify(stylesheetHrefs(root)) === JSON.stringify(stylesheetHrefs(english)), 'Root and English stylesheet bundles diverged');
 for (const [maiRoute, enRoute] of pairs) {
   const maiHtml = await readOut(htmlForRoute(maiRoute));
@@ -90,8 +93,13 @@ for (const tag of ['section','article','button','a']) {
   assert(countTag(root, tag) === countTag(english, tag), `Mirror parity failed for <${tag}> count`);
 }
 
+const rootSource = await readSource('app/page.tsx');
 const enSource = await readSource('app/en/page.tsx');
-assert(enSource.includes("import Home from '../page';") && enSource.includes('export default Home;'), '/en/ must render the shared Home component');
+assert(rootSource.includes("import ArchiveEnglish from './archive-english';"), 'Root landing must render the shared ArchiveEnglish research surface');
+assert(rootSource.includes("import HomeMaithiliLocalizer from './home-maithili-localizer';"), 'Root landing must retain the Maithili interface localizer');
+assert(rootSource.includes('export default function MaithiliHome()'), 'Root landing wrapper is missing');
+assert(enSource.includes("import ArchiveEnglish from '../archive-english';"), 'English landing must render the shared ArchiveEnglish research surface');
+assert(enSource.includes('export default function EnglishHome()'), 'English landing wrapper is missing');
 const layoutSource = await readSource('app/layout.tsx');
 assert(layoutSource.includes('<html lang="mai"'), 'Root layout source must declare mai');
 assert(layoutSource.includes("'DC.language': 'mai'"), 'Root Dublin Core language must be mai');
@@ -161,11 +169,19 @@ if (Array.isArray(units) && units.length === 0) {
 }
 
 const report = JSON.parse(await readOut('data/release-integrity-report.json'));
-assert(report.releaseDate === RELEASE_DATE && report.historyChapters === 178 && report.scholarlyPublicationPolicy === 'fail-closed', 'Release integrity report mismatch');
+assert(
+  report.releaseDate === RELEASE_DATE
+    && report.rootTitle === ROOT_TITLE
+    && report.englishTitle === ENGLISH_TITLE
+    && report.historyChapters === 178
+    && report.scholarlyPublicationPolicy === 'fail-closed',
+  'Release integrity report mismatch',
+);
 console.log({
   releaseDate: RELEASE_DATE,
   historyPages: 178,
   translationLanguages: languages.length,
+  bilingualArchitecture: report.bilingualArchitecture,
   mirrorCounts: Object.fromEntries(['section','article','button','a'].map((tag) => [tag, countTag(root, tag)])),
   stylesheetBundles: stylesheetHrefs(root),
   manualAccessibilityCertification: report.manualAccessibilityCertification,
