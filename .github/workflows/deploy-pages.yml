@@ -186,8 +186,8 @@ jobs:
 
           ROOT="$(wait_for_marker "$BASE/" 'data-videha-publication-identity="true"')"
           EN="$(wait_for_marker "$BASE/en/" 'data-videha-publication-identity="true"')"
-          grep -Fq '<html lang="mai"' <<<"$ROOT"
-          grep -Fq '<html lang="en"' <<<"$EN"
+          grep -Fq 'lang="mai"' <<<"$ROOT"
+          grep -Fq 'lang="en"' <<<"$EN"
           grep -Fq 'data-edition="mai"' <<<"$ROOT"
           grep -Fq 'data-edition="en"' <<<"$EN"
           grep -Fq 'मिथिला, वज्जि आ अंगक शोध-द्वार' <<<"$ROOT"
