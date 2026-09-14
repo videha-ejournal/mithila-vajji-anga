@@ -97,6 +97,22 @@ const pagePerformanceTransform = () => ({
   },
 });
 
+const splitSpecialistImportTransform = () => ({
+  name: 'mva-split-specialist-data-imports',
+  enforce: 'pre' as const,
+  transform(code: string, id: string) {
+    if (!/[\\/]app[\\/].*\.(tsx?|jsx?)(?:\?|$)/.test(id)) return null;
+    const next = code
+      .replace("import learningData from './learning-data.json';", "import learningData from './generated/learning-data-split';")
+      .replace("import researchData from './research-data.json';", "import researchData from './generated/research-data-split';")
+      .replace("import deepData from './deep-data.json';", "import deepData from './generated/deep-data-split';")
+      .replace("import ideasVolumeTwoData from './ideas-volume2.json';", "import ideasVolumeTwoData from './generated/ideas-volume2-split';")
+      .replace("import collectionDetailsData from './collection-details.json';", "import collectionDetailsData from './generated/collection-details-split';")
+      .replace("import('./collection-details.json')", "import('./generated/collection-details-split')");
+    return next === code ? null : { code: next, map: null };
+  },
+});
+
 const optimizedImageTransform = () => ({
   name: 'mva-next-generation-image-paths',
   enforce: 'pre' as const,
@@ -117,41 +133,35 @@ const optimizedImageTransform = () => ({
   },
 });
 
+const splitPrefixes = [
+  'learning-data',
+  'research-data',
+  'deep-data',
+  'ideas-volume2',
+  'collection-details',
+];
+const splitDataGroups = splitPrefixes.flatMap((prefix) =>
+  Array.from({ length: 48 }, (_, part) => ({
+    name: `${prefix}-part-${part}`,
+    test: new RegExp(`[\\/]app[\\/]generated[\\/]${prefix}-chunk-${part}\\.json(?:\\?|$)`),
+    priority: 100 - part,
+  })),
+);
+
 export default defineConfig({
   css: { postcss: { plugins: [tailwindcss()] } },
-  plugins: [pagePerformanceTransform(), optimizedImageTransform(), vinext()],
+  plugins: [
+    pagePerformanceTransform(),
+    splitSpecialistImportTransform(),
+    optimizedImageTransform(),
+    vinext(),
+  ],
   build: {
     cssCodeSplit: true,
     rolldownOptions: {
       output: {
         codeSplitting: {
-          groups: [
-            {
-              name: 'learning-data',
-              test: /[\\/]app[\\/]learning-data\.json(?:\?|$)/,
-              priority: 50,
-            },
-            {
-              name: 'collection-details',
-              test: /[\\/]app[\\/]collection-details\.json(?:\?|$)/,
-              priority: 45,
-            },
-            {
-              name: 'ideas-volume-two',
-              test: /[\\/]app[\\/]ideas-volume2\.json(?:\?|$)/,
-              priority: 40,
-            },
-            {
-              name: 'research-data',
-              test: /[\\/]app[\\/]research-data\.json(?:\?|$)/,
-              priority: 35,
-            },
-            {
-              name: 'deep-data',
-              test: /[\\/]app[\\/]deep-data\.json(?:\?|$)/,
-              priority: 30,
-            },
-          ],
+          groups: splitDataGroups,
         },
       },
     },
