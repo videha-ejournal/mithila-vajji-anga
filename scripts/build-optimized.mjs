@@ -192,6 +192,9 @@ if (translationSourcePairs.status !== 0) process.exit(translationSourcePairs.sta
 const recordSourceProvenance = runNodeScript('scripts/record-source-provenance.mjs');
 if (recordSourceProvenance.status !== 0) process.exit(recordSourceProvenance.status ?? 1);
 
+const publishedEditionLinks = runNodeScript('scripts/expose-current-published-editions.mjs');
+if (publishedEditionLinks.status !== 0) process.exit(publishedEditionLinks.status ?? 1);
+
 const performance = runNodeScript('scripts/performance-report.mjs');
 if (performance.status !== 0) process.exit(performance.status ?? 1);
 
