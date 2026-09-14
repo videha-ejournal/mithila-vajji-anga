@@ -29,7 +29,28 @@
   color: #dce3ec;
 }
 
+.videha-copy-citation {
+  min-height: 44px;
+  border: 1px solid #ffffff80;
+  border-radius: 7px;
+  background: #fff;
+  color: var(--navy);
+  padding: 0.55rem 0.8rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.videha-copy-citation:focus-visible {
+  outline: 3px solid #e0a83c;
+  outline-offset: 3px;
+}
+
 body.contrast-dark .videha-citation-footer,
 body.contrast-light .videha-citation-footer {
   border-top-color: currentColor;
+}
+
+@media print {
+  .videha-copy-citation { display: none; }
 }
