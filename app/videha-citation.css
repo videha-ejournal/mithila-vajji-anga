@@ -1,0 +1,35 @@
+.videha-citation-footer {
+  margin-top: 2rem;
+  padding: 1.15rem clamp(1rem, 3vw, 2.5rem) 1.35rem;
+  border-top: 1px solid var(--line);
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.videha-citation-footer p {
+  max-width: 1000px;
+  margin: 0.35rem auto;
+}
+
+.videha-citation-footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.videha-citation-footer .videha-citation-kicker {
+  color: #d8c59e;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.videha-citation-footer .videha-citation-text {
+  color: #dce3ec;
+}
+
+body.contrast-dark .videha-citation-footer,
+body.contrast-light .videha-citation-footer {
+  border-top-color: currentColor;
+}
