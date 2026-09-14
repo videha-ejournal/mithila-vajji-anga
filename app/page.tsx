@@ -1,7 +1,14 @@
+/* oxlint-disable next/no-html-link-for-pages -- GitHub Pages bilingual edition switch uses full-document navigation. */
+
 import type { Metadata } from 'next';
 import MaithiliHome from './home-maithili';
 
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
+const languageAlternates: Record<string, string> = {
+  mai: site,
+  en: `${site}en/`,
+  'x-default': site,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -11,11 +18,7 @@ export const metadata: Metadata = {
     'भारत आ नेपालक मिथिला, वज्जि आ अंगक इतिहास, पञ्जी-वंशावली, साहित्य, दर्शन, स्थान, पाठ, कालक्रम आ स्रोतक स्थायी, उद्धरणयोग्य आ संस्करण-नियन्त्रित डिजिटल शोध अभिलेखागार।',
   alternates: {
     canonical: site,
-    languages: {
-      mai: site,
-      en: `${site}en/`,
-      'x-default': site,
-    },
+    languages: languageAlternates,
   },
   openGraph: {
     url: site,
