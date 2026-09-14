@@ -1,5 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import path from 'node:path';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 
 const OUT = 'dist/client';
 const fail = (message) => { throw new Error(`Digital-humanities extension verification failed: ${message}`); };
@@ -51,8 +50,8 @@ if (recordCsl.length !== records.length) fail('bulk CSL record count mismatch');
 if (geometryCsl.length !== boundaries.features.length) fail('historical-geography citation count mismatch');
 
 for (const feature of boundaries.features) {
-  const e = feature.properties?.historicalGeometryEvidence;
-  if (!e?.sourceCitation || !e?.sourceUrl || e.notExactFrontier !== true) fail(`boundary ${feature.id} lost evidence/uncertainty qualification`);
+  const evidence = feature.properties?.historicalGeometryEvidence;
+  if (!evidence?.sourceCitation || !evidence?.sourceUrl || evidence.notExactFrontier !== true) fail(`boundary ${feature.id} lost evidence/uncertainty qualification`);
 }
 
 for (const htmlFile of [`${OUT}/index.html`, `${OUT}/en/index.html`]) {
