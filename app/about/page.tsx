@@ -1,13 +1,18 @@
 import AboutView from '../about-view';
 
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
+const languageAlternates: Record<string, string> = {
+  mai: `${site}/about/`,
+  en: `${site}/en/about/`,
+  'x-default': `${site}/about/`,
+};
 
 export const metadata = {
   title: 'विदेह डिजिटल शोध अभिलेखागारक परिचय',
   description: 'मिथिला–वज्जि–अंगक स्रोत-नियन्त्रित डिजिटल मानविकी शोध परिवेशक परिचय, पद्धति आ प्रकाशन-नीति।',
   alternates: {
     canonical: `${site}/about/`,
-    languages: { mai: `${site}/about/`, en: `${site}/en/about/`, 'x-default': `${site}/about/` },
+    languages: languageAlternates,
   },
   other: { 'DC.language': 'mai' },
 };
