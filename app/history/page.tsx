@@ -27,6 +27,10 @@ type VolumeDefinition = {
 };
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
+const videhaUrl = 'https://www.videha.co.in/';
+const videhaMirrorUrl = 'https://videha-ejournal.github.io/videha/';
+const videhaGithubUrl = 'https://github.com/videha-ejournal';
+const historyIsbn = '978-93-344-9415-0';
 const political = researchData.political as Chapter[];
 const social = researchData.social as Chapter[];
 
@@ -73,6 +77,17 @@ export const metadata: Metadata = {
     description:
       'A permanent, chapter-by-chapter research gateway to the General & Political and Socio-Cultural & Economic histories of Mithila, Vajji and Anga.',
   },
+  other: {
+    citation_title: 'History of Mithila, Vajji & Anga: From Prehistory to the Contemporary Period',
+    citation_author: 'Gajendra Thakur',
+    citation_journal_title: 'Videha — First Maithili Fortnightly eJournal',
+    citation_issn: '2229-547X',
+    citation_isbn: historyIsbn,
+    citation_publication_date: '2026',
+    citation_website_url: videhaUrl,
+    citation_mirror_url: videhaMirrorUrl,
+    citation_archive_network_url: videhaGithubUrl,
+  },
 };
 
 function groupByPart(chapters: Chapter[]) {
@@ -118,8 +133,17 @@ export default function HistoryIndexPage() {
     creator: { '@type': 'Person', name: 'Gajendra Thakur' },
     publisher: {
       '@type': 'Organization',
-      name: 'Videha Maithili eJournal',
+      name: 'Videha — First Maithili Fortnightly eJournal',
+      url: videhaUrl,
+      sameAs: [videhaMirrorUrl, videhaGithubUrl],
       identifier: 'ISSN 2229-547X',
+    },
+    mainEntity: {
+      '@type': 'Book',
+      name: 'History of Mithila, Vajji & Anga: From Prehistory to the Contemporary Period',
+      isbn: historyIsbn,
+      author: { '@type': 'Person', name: 'Gajendra Thakur' },
+      publisher: { '@type': 'Organization', name: 'Videha — First Maithili Fortnightly eJournal' },
     },
     hasPart: volumes.map((volume) => ({
       '@type': 'Book',
@@ -158,6 +182,7 @@ export default function HistoryIndexPage() {
             <p>
               {completeChapters} completed chapters are represented across {totalChapters} permanent chapter records. The chapter pages are generated from the same source-controlled research catalogue used by the main archive, so the index does not substitute generic summaries for the supplied scholarship.
             </p>
+            <p><strong>Work ISBN:</strong> {historyIsbn}</p>
           </aside>
         </header>
 

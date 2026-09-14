@@ -59,7 +59,7 @@ jobs:
           REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
           GITHUB_API_TOKEN: ${{ github.token }}
         run: npm run build
-      - name: Verify scholarly export, bilingual semantics, source inventory and performance contract
+      - name: Verify scholarly export, bilingual semantics, Videha identity, source inventory and performance contract
         run: |
           set -euo pipefail
           test -f dist/client/records/index.html
@@ -88,6 +88,7 @@ jobs:
           test -f dist/client/data/performance-report.json
           test -f dist/client/data/image-optimization-report.json
           test -f dist/client/data/release-integrity-report.json
+          test -f dist/client/data/videha-publication-identity-report.json
           test -f dist/client/data/bilingual-detail-inventory.json
           test -f dist/client/data/accessibility-human-qa.json
           test -f dist/client/accessibility/AUDIT.md
@@ -102,6 +103,11 @@ jobs:
           grep -q 'Research gateway to Mithila, Vajji and Anga' dist/client/en/index.html
           grep -q 'hreflang="en"' dist/client/index.html
           grep -q 'hreflang="mai"' dist/client/en/index.html
+          grep -q 'data-videha-publication-identity="true"' dist/client/index.html
+          grep -q 'https://www.videha.co.in/' dist/client/index.html
+          grep -q 'https://videha-ejournal.github.io/videha/' dist/client/index.html
+          grep -q 'ISSN 2229-547X' dist/client/index.html
+          grep -q 'name="citation_isbn" content="978-93-344-9415-0"' dist/client/history/index.html
           grep -q "Videha Digital Research Archive" dist/client/about/index.html
           grep -q "Videha Digital Research Archive" dist/client/records/index.html
           grep -q "Two histories, one connected regional archive" dist/client/history/index.html
@@ -125,6 +131,7 @@ jobs:
           node scripts/verify-bilingual-semantics.mjs
           node scripts/verify-human-accessibility-qa.mjs
           node scripts/verify-release-integrity.mjs
+          node scripts/verify-videha-identity.mjs
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/performance-report.json','utf8')); if(Object.values(r.checks).some(v => !v)) process.exit(1); console.log(r)"
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/bilingual-detail-inventory.json','utf8')); if(r.summary.philosophy!==172||r.summary.literature!==100||r.summary.panji<1||r.summary.syntheticTitles!==0) process.exit(1); console.log(r.summary)"
@@ -177,8 +184,10 @@ jobs:
             return 1
           }
 
-          ROOT="$(wait_for_marker "$BASE/" '<html lang="mai"')"
-          EN="$(wait_for_marker "$BASE/en/" '<html lang="en"')"
+          ROOT="$(wait_for_marker "$BASE/" 'data-videha-publication-identity="true"')"
+          EN="$(wait_for_marker "$BASE/en/" 'data-videha-publication-identity="true"')"
+          grep -Fq '<html lang="mai"' <<<"$ROOT"
+          grep -Fq '<html lang="en"' <<<"$EN"
           grep -Fq 'data-edition="mai"' <<<"$ROOT"
           grep -Fq 'data-edition="en"' <<<"$EN"
           grep -Fq 'मिथिला, वज्जि आ अंगक शोध-द्वार' <<<"$ROOT"
@@ -186,6 +195,10 @@ jobs:
           grep -Fq 'hreflang="en"' <<<"$ROOT"
           grep -Fq 'hreflang="mai"' <<<"$EN"
           grep -Fq 'hreflang="x-default"' <<<"$ROOT$EN"
+          grep -Fq 'https://www.videha.co.in/' <<<"$ROOT$EN"
+          grep -Fq 'https://videha-ejournal.github.io/videha/' <<<"$ROOT$EN"
+          grep -Fq 'https://github.com/videha-ejournal' <<<"$ROOT$EN"
+          grep -Fq 'ISSN 2229-547X' <<<"$ROOT$EN"
           grep -Fq '178 permanent History chapters' <<<"$ROOT"
           grep -Fq '178 permanent History chapters' <<<"$EN"
           if grep -Fq 'Chapters 1–86' <<<"$ROOT$EN"; then
@@ -193,7 +206,11 @@ jobs:
             exit 1
           fi
 
-          for route in "/history/" "/philosophy/" "/literature/" "/panji/" "/en/philosophy/" "/en/literature/" "/en/panji/" "/en/sources/" "/en/updates/" "/chapters/political-1/" "/chapters/social-150/" "/data/bilingual-detail-inventory.json" "/data/accessibility-human-qa.json" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do
+          HISTORY="$(wait_for_marker "$BASE/history/" '978-93-344-9415-0')"
+          grep -Fq 'data-videha-publication-identity="true"' <<<"$HISTORY"
+          grep -Fq 'name="citation_isbn" content="978-93-344-9415-0"' <<<"$HISTORY"
+
+          for route in "/history/" "/philosophy/" "/literature/" "/panji/" "/en/philosophy/" "/en/literature/" "/en/panji/" "/en/sources/" "/en/updates/" "/chapters/political-1/" "/chapters/social-150/" "/data/bilingual-detail-inventory.json" "/data/accessibility-human-qa.json" "/data/videha-publication-identity-report.json" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do
             fetch "$BASE$route" >/dev/null
           done
 
