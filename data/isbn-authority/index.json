@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "version": "2026-09-14",
+  "title": "VIDEHA authoritative allotted ISBN register",
+  "authorityRule": "The attached ISBN_Allotted_293.xlsx is authoritative and overrides older or conflicting ISBN metadata.",
+  "source": {
+    "filename": "ISBN_Allotted_293.xlsx",
+    "portal": "https://isbn.gov.in/Applicant/ApplyISBNForAuthor",
+    "retrievedDate": "2026-09-14"
+  },
+  "count": 293,
+  "uniqueIsbnCount": 293,
+  "isbn13ChecksumInvalidCount": 0,
+  "sameWorkAliases": [
+    {
+      "canonicalIsbn13": "978-93-341-0402-8",
+      "canonicalTitle": "विदेह सदेह २८ अनूदित गद्य आ पद्य अंक १ to ३५०",
+      "sameWorkAliases": [
+        "Gadya Padya Bharti 1",
+        "GADYA PADYA BHARTI 1",
+        "गद्य पद्य भारती 1",
+        "गद्य पद्य भारती खण्ड 1",
+        "Videha Sadeha 28",
+        "VIDEHA SADEHA 28",
+        "विदेह सदेह २८"
+      ],
+      "rule": "Same bibliographic work; do not create a second ISBN-bearing work record."
+    },
+    {
+      "canonicalIsbn13": "978-93-5890-150-4",
+      "canonicalTitle": "गद्य पद्य भारती अनुवाद खण्ड 2 विदेह सदेह 37",
+      "sameWorkAliases": [
+        "Gadya Padya Bharti 2",
+        "GADYA PADYA BHARTI 2",
+        "गद्य पद्य भारती 2",
+        "गद्य पद्य भारती अनुवाद खण्ड 2",
+        "Videha Sadeha 37",
+        "VIDEHA SADEHA 37",
+        "विदेह सदेह ३७"
+      ],
+      "rule": "Same bibliographic work; do not create a second ISBN-bearing work record."
+    }
+  ],
+  "columns": [
+    "isbn13",
+    "title",
+    "authorEditor",
+    "language",
+    "edition",
+    "publicationYear",
+    "publicationDate",
+    "productForm",
+    "country",
+    "status",
+    "publisher",
+    "administrator"
+  ],
+  "chunks": [
+    "part-01.json",
+    "part-02.json",
+    "part-03.json",
+    "part-04.json",
+    "part-05.json",
+    "part-06.json"
+  ]
+}
