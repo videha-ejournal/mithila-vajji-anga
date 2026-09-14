@@ -13,6 +13,7 @@ const archiveTitle = `${archiveName} | ${archiveSubtitle}`;
 const archiveDescription =
   'A permanent, citable, machine-readable, versioned and independently discoverable digital humanities research environment for the connected histories, genealogy, literature, philosophy, places, texts and chronology of Mithila, Vajji and Anga across India and Nepal.';
 const previewImage = 'https://videha-ejournal.github.io/mithila-vajji-anga/assets/research-studio-panorama.png';
+const faviconUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/favicon.svg';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -63,7 +64,10 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   manifest: 'https://videha-ejournal.github.io/mithila-vajji-anga/manifest.webmanifest',
-  icons: { icon: './favicon.svg' },
+  icons: {
+    icon: [{ url: faviconUrl, type: 'image/svg+xml' }],
+    shortcut: faviconUrl,
+  },
   other: {
     'citation_title': archiveTitle,
     'citation_author': 'Gajendra Thakur',
