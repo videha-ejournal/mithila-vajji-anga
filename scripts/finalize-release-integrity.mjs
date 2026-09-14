@@ -4,7 +4,8 @@ import path from 'node:path';
 const OUT = path.resolve('dist/client');
 const BASE = 'https://videha-ejournal.github.io/mithila-vajji-anga';
 const RELEASE_DATE = '2026-09-14';
-const TITLE = 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji & Anga';
+const ROOT_TITLE = 'विदेह डिजिटल शोध-संग्रह | मिथिला, वज्जि आ अंग';
+const ENGLISH_TITLE = 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji & Anga';
 
 const pairs = [
   ['/', '/en/'],
@@ -130,8 +131,10 @@ const reportDir = path.join(OUT, 'data');
 await mkdir(reportDir, { recursive: true });
 const report = {
   releaseDate: RELEASE_DATE,
-  title: TITLE,
-  bilingualArchitecture: 'one shared Home component with route-specific metadata',
+  title: ENGLISH_TITLE,
+  rootTitle: ROOT_TITLE,
+  englishTitle: ENGLISH_TITLE,
+  bilingualArchitecture: 'shared ArchiveEnglish research surface with route-specific Maithili and English landing wrappers',
   rootLanguage: 'mai',
   englishLanguage: 'en',
   pairedSitemapRoutes: pairs.length * 2,
