@@ -58,7 +58,7 @@ export default function AboutArchive() {
         </ul>
         <p>
           Release <strong>2026.09</strong> publishes <strong>780 permanent research records</strong> and a formal
-          versioned data release. The archive is published by Videha Maithili eJournal, ISSN 2229-547X, and edited by
+          versioned data release. The archive is maintained by Videha Maithili eJournal, ISSN 2229-547X, and edited by
           Gajendra Thakur.
         </p>
       </section>
@@ -81,7 +81,8 @@ export default function AboutArchive() {
         <p>
           ISBN reconciliation is controlled separately by the <a href={`${site}/isbn/`}>Videha ISBN Authority Registry</a>.
           The current authority contains 293 unique allotted ISBNs from the editor-supplied ISBN.gov.in export and overrides
-          older staging or provisional ISBN lists for the edition represented by each portal record.
+          older staging or provisional ISBN lists for the edition represented by each portal record. The source spreadsheet’s
+          publishing-agency/publisher column is excluded from archive ISBN metadata.
         </p>
         <p>
           The source repository rebuilds its lightweight PDF catalogue after PDF changes, while this archive performs a

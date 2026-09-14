@@ -35,12 +35,6 @@ export default function IsbnRegistryPage() {
     url: `${site}/isbn/`,
     identifier: 'VIDEHA-ISBN-AUTHORITY-293-2026-09-14',
     dateModified: '2026-09-14',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Videha Maithili eJournal',
-      identifier: 'ISSN 2229-547X',
-      url: 'https://www.videha.co.in/',
-    },
     distribution: [
       { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: jsonUrl },
       { '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: csvUrl },
@@ -70,7 +64,8 @@ export default function IsbnRegistryPage() {
         <p>
           <a href={jsonUrl}>Download complete JSON registry</a>{' · '}
           <a href={csvUrl}>Download complete CSV registry</a>{' · '}
-          <a href={`${site}/source-library/`}>Source PDF Library</a>
+          <a href={`${site}/source-library/`}>Source PDF Library</a>{' · '}
+          <a href={`${site}/citations/`}>Citation exports</a>
         </p>
       </header>
 
@@ -85,7 +80,17 @@ export default function IsbnRegistryPage() {
         </p>
         <p>
           By editorial instruction, the source spreadsheet column <strong>Name of Publishing Agency/Publisher</strong>
-          is excluded completely: it is not stored, exported, validated or used for reconciliation.
+          is excluded completely: it is not stored, exported, validated, displayed as bibliographic data,
+          or used for reconciliation.
+        </p>
+      </section>
+
+      <section>
+        <h2>Verified archive bindings</h2>
+        <p>
+          Core source-work bindings are release-gated. In particular, <span lang="mai">आत्मतत्त्वविवेक</span>
+          is explicitly bound to <code>978-93-5943-857-3</code>. Ambiguous source-object identities remain
+          unbound instead of receiving a guessed ISBN.
         </p>
       </section>
 
