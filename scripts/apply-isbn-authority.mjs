@@ -27,7 +27,7 @@ const escapeHtml = (value = '') => String(value)
   .replaceAll("'", '&#39;');
 const escapeBib = (value = '') => String(value).replaceAll('{', '').replaceAll('}', '');
 const csv = (value = '') => `"${String(value ?? '').replaceAll('"', '""')}"`;
-const devanagariDigits = new Map([...'०१२३४५६७८९'].map((digit, index) => [digit, String(index)]));
+const devanagariDigits = new Map(Array.from('०१२३४५६७८९').map((digit, index) => [digit, String(index)]));
 const normalizeTitle = (value = '') => String(value)
   .normalize('NFKC')
   .toLowerCase()
@@ -40,7 +40,7 @@ const isbnDigits = (value) => String(value ?? '').replace(/\D/g, '');
 const validIsbn13 = (value) => {
   const digits = isbnDigits(value);
   if (digits.length !== 13) return false;
-  const total = [...digits.slice(0, 12)].reduce(
+  const total = Array.from(digits.slice(0, 12)).reduce(
     (sum, digit, index) => sum + Number(digit) * (index % 2 === 0 ? 1 : 3),
     0,
   );
@@ -128,10 +128,10 @@ function resolutionFor(item, authority) {
   const possible = new Set();
   for (const title of [item.title, item.alternateTitle, item.seriesTitle]) {
     const matches = authority.titleCandidates.get(normalizeTitle(title));
-    if (matches?.size === 1) possible.add([...matches][0]);
+    if (matches?.size === 1) possible.add(matches.values().next().value);
   }
   if (possible.size !== 1) return null;
-  const isbn13 = [...possible][0];
+  const isbn13 = possible.values().next().value;
   return {
     ...authority.byIsbn.get(isbn13),
     scope: 'work',
