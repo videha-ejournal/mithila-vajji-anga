@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 const links = [
   ['Permanent records', `${site}/records/`],
   ['Versioned research data', `${site}/data/`],
+  ['Videha ISBN authority', `${site}/isbn/`],
   ['Source PDF library', `${site}/source-library/`],
   ['Dedicated PDF repository', sourceRepository],
   ['Editorial method', `${site}/method/`],
@@ -50,13 +51,14 @@ export default function AboutArchive() {
           <li>BibTeX, RIS and CSL-JSON citation downloads for permanent records.</li>
           <li>Schema.org JSON-LD, citation metadata, canonical URLs, sitemap discovery and machine-readable indexes.</li>
           <li>Versioned JSON, CSV, NDJSON and GeoJSON research releases with SHA-256 checksums.</li>
+          <li>A fail-closed 293-record Videha ISBN authority registry derived from the editor-supplied ISBN.gov.in export.</li>
           <li>Evidence-status labels, editorial method, rights matrix, accessibility statement and source-controlled QA.</li>
           <li>Shareable research-state URLs, comparison tools, multilingual search support and offline/PWA infrastructure.</li>
           <li>Commit-pinned source-book objects from the dedicated Videha PDF repository, with Git object identifiers and machine-readable provenance.</li>
         </ul>
         <p>
           Release <strong>2026.09</strong> publishes <strong>780 permanent research records</strong> and a formal
-          versioned data release. The archive is published by Videha Maithili eJournal, ISSN 2229-547X, and edited by
+          versioned data release. The archive is maintained by Videha Maithili eJournal, ISSN 2229-547X, and edited by
           Gajendra Thakur.
         </p>
       </section>
@@ -75,6 +77,12 @@ export default function AboutArchive() {
           <a href={`${site}/source-library/`}>Source PDF Library</a> records the exact source-repository commit and Git
           blob ID for each indexed PDF and links to a commit-pinned copy. This means a later replacement on the source
           repository’s <code>main</code> branch does not silently alter the version cited by a particular archive build.
+        </p>
+        <p>
+          ISBN reconciliation is controlled separately by the <a href={`${site}/isbn/`}>Videha ISBN Authority Registry</a>.
+          The current authority contains 293 unique allotted ISBNs from the editor-supplied ISBN.gov.in export and overrides
+          older staging or provisional ISBN lists for the edition represented by each portal record. The source spreadsheet’s
+          publishing-agency/publisher column is excluded from archive ISBN metadata.
         </p>
         <p>
           The source repository rebuilds its lightweight PDF catalogue after PDF changes, while this archive performs a
