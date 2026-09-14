@@ -2,16 +2,16 @@
   "name": "sites-project",
   "version": "0.1.0",
   "private": true,
-  "engines": {
-    "node": ">=22.13.0"
-  },
+  "engines": { "node": ">=22.13.0" },
   "scripts": {
-    "dev": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && vinext dev",
-    "build": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --write-inventory && node scripts/build-optimized.mjs && node scripts/apply-isbn-authority.mjs && node scripts/preserve-route-sitemap.mjs && node scripts/finalize-service-worker.mjs && node scripts/finalize-release-integrity.mjs && node scripts/verify-release-integrity.mjs && node scripts/verify-accessibility-engineering.mjs && node scripts/verify-digital-humanities-extensions.mjs && node scripts/verify-isbn-authority.mjs",
+    "prepare:bilingual": "node scripts/generate-maithili-home.mjs",
+    "dev": "node scripts/generate-maithili-home.mjs && node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && vinext dev",
+    "build": "node scripts/generate-maithili-home.mjs && node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --write-inventory && node scripts/build-optimized.mjs && node scripts/apply-isbn-authority.mjs && node scripts/preserve-route-sitemap.mjs && node scripts/finalize-release-integrity.mjs && node scripts/finalize-bilingual-routes.mjs && node scripts/finalize-service-worker.mjs && node scripts/verify-release-integrity.mjs && node scripts/verify-bilingual-content.mjs && node scripts/verify-accessibility-engineering.mjs && node scripts/verify-digital-humanities-extensions.mjs && node scripts/verify-isbn-authority.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
-    "lint": "oxlint",
+    "lint": "node scripts/generate-maithili-home.mjs && oxlint",
     "format": "oxfmt",
-    "verify:release": "node scripts/verify-release-integrity.mjs",
+    "verify:release": "node scripts/verify-release-integrity.mjs && node scripts/verify-bilingual-content.mjs",
+    "verify:bilingual": "node scripts/verify-bilingual-content.mjs",
     "verify:accessibility": "node scripts/verify-accessibility-engineering.mjs",
     "verify:dh": "node scripts/verify-digital-humanities-extensions.mjs",
     "verify:isbn": "node scripts/validate-isbn-authority.mjs",
@@ -25,7 +25,7 @@
     "audit:classical-philosophy:complete": "node scripts/validate-classical-philosophy-inventory.mjs --require-complete",
     "audit:panji": "node scripts/audit-panji-source.mjs",
     "audit:panji:strict": "node scripts/audit-panji-source.mjs --strict",
-    "generate:archive": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs --require-complete && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs"
+    "generate:archive": "node scripts/generate-maithili-home.mjs && node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs --require-complete && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs"
   },
   "dependencies": {
     "react": "19.3.0",
