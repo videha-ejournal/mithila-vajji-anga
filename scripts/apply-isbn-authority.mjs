@@ -289,7 +289,7 @@ if (existsSync(extensionReportPath)) {
     atmatattvavivekaIsbn: '978-93-5943-857-3',
   };
   report.checksums = {
-    ...(report.checksums ?? {}),
+    ...report.checksums,
     provenanceGraph: sha256(readFileSync(provenancePath)),
     citationCsl: sha256(readFileSync(cslPath)),
     isbnAuthority: sha256(readFileSync(path.join(OUT, 'data/videha-isbn-authority.json'))),
