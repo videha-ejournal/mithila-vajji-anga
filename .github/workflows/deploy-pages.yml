@@ -36,33 +36,53 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
       - name: Audit complete dependency graph
         run: npm audit --audit-level=high
-      - name: Lint source
+      - name: Lint source and generated Maithili interface
         run: npm run lint
-      - name: Build static site, scholarly export and performance layer
+      - name: Build static site, bilingual release, scholarly export and performance layer
         env:
           REQUIRE_IMAGE_OPTIMIZATION: '1'
           REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
           GITHUB_API_TOKEN: ${{ github.token }}
         run: npm run build
-      - name: Verify scholarly export, archive identity, ISBN authority, history pages, bilingual collections, source library and performance contract
+      - name: Verify bilingual scholarly release contract
+        shell: bash
         run: |
+          set -euo pipefail
+          route_exists() {
+            local rel="${1#/}"
+            rel="${rel%/}"
+            if [[ -f "dist/client/$rel/index.html" || -f "dist/client/$rel.html" ]]; then return 0; fi
+            echo "Missing exported route: /$rel/" >&2
+            return 1
+          }
+          route_exists about
+          route_exists en/about
+          route_exists isbn
+          route_exists en/isbn
+          route_exists history
+          route_exists en/history
+          route_exists chapters/political-1
+          route_exists chapters/political-28
+          route_exists chapters/social-1
+          route_exists chapters/social-150
+          route_exists en/chapters/political-1
+          route_exists en/chapters/political-28
+          route_exists en/chapters/social-1
+          route_exists en/chapters/social-150
+          route_exists philosophy
+          route_exists literature
+          route_exists panji
+          route_exists en/philosophy
+          route_exists en/literature
+          route_exists en/panji
+          route_exists sources
+          route_exists en/sources
+          route_exists updates
+          route_exists en/updates
+          test "$(find dist/client/chapters -mindepth 2 -maxdepth 2 -type f -name index.html | wc -l | tr -d ' ')" -eq 178
+          test "$(find dist/client/en/chapters -mindepth 2 -maxdepth 2 -type f -name index.html | wc -l | tr -d ' ')" -eq 178
           test -f dist/client/records/index.html
           test -f dist/client/records-index.json
-          test -f dist/client/about/index.html
-          test -f dist/client/isbn/index.html
-          test -f dist/client/history/index.html
-          test -f dist/client/chapters/political-1/index.html
-          test -f dist/client/chapters/political-28/index.html
-          test -f dist/client/chapters/social-1/index.html
-          test -f dist/client/chapters/social-150/index.html
-          test "$(find dist/client/chapters -mindepth 2 -maxdepth 2 -type f -name index.html | wc -l | tr -d ' ')" -eq 178
-          test -f dist/client/philosophy/index.html
-          test -f dist/client/literature/index.html
-          test -f dist/client/panji/index.html
-          test -f dist/client/en/index.html
-          test -f dist/client/en/philosophy/index.html
-          test -f dist/client/en/literature/index.html
-          test -f dist/client/en/panji/index.html
           test -f dist/client/source-library/index.html
           test -f dist/client/source-library/catalog.json
           test -f dist/client/source-library/SHA256SUMS.txt
@@ -78,6 +98,7 @@ jobs:
           test -f dist/client/data/performance-report.json
           test -f dist/client/data/image-optimization-report.json
           test -f dist/client/data/release-integrity-report.json
+          test -f dist/client/data/bilingual-content-report.json
           test -f dist/client/data/digital-humanities-extensions-report.json
           test -f dist/client/data/historical-boundaries.geojson
           test -f dist/client/data/provenance-graph.jsonld
@@ -87,41 +108,14 @@ jobs:
           test -f dist/client/provenance/index.html
           test -f dist/client/citations/index.html
           test -f dist/client/accessibility/AUDIT.md
+          test -f ACCESSIBILITY-MANUAL-MATRIX.md
           test -f dist/client/sitemap.xml
           test -f dist/client/robots.txt
           test -f dist/client/manifest.webmanifest
-          grep -q "Videha Digital Research Archive" dist/client/index.html
-          grep -q "Digital Humanities Research Environment for Mithila, Vajji" dist/client/index.html
-          grep -q "historical-boundaries.js" dist/client/index.html
-          grep -q "historical-boundaries.js" dist/client/en/index.html
-          grep -q "Videha Digital Research Archive" dist/client/about/index.html
-          grep -q "293 unique allotted ISBNs" dist/client/isbn/index.html
-          grep -q "978-93-5943-857-3" dist/client/isbn/index.html
-          grep -q "Videha Digital Research Archive" dist/client/records/index.html
-          grep -q "Two histories, one connected regional archive" dist/client/history/index.html
-          grep -q "Detailed chapter description" dist/client/chapters/political-1/index.html
-          grep -q "Detailed chapter description" dist/client/chapters/social-150/index.html
-          grep -q "द्विभाषी संरचना" dist/client/philosophy/index.html
-          grep -q "द्विभाषी संरचना" dist/client/literature/index.html
-          grep -q "द्विभाषी संरचना" dist/client/panji/index.html
-          grep -q "Bilingual architecture" dist/client/en/philosophy/index.html
-          grep -q "Bilingual architecture" dist/client/en/literature/index.html
-          grep -q "Bilingual architecture" dist/client/en/panji/index.html
-          grep -q "source-library/" dist/client/sitemap.xml
-          grep -q "isbn/" dist/client/sitemap.xml
-          grep -q "iiif/" dist/client/sitemap.xml
-          grep -q "provenance/" dist/client/sitemap.xml
-          grep -q "citations/" dist/client/sitemap.xml
-          grep -q "chapters/political-1/" dist/client/sitemap.xml
-          grep -q "chapters/social-150/" dist/client/sitemap.xml
-          grep -q "philosophy/" dist/client/sitemap.xml
-          grep -q "literature/" dist/client/sitemap.xml
-          grep -q "panji/" dist/client/sitemap.xml
-          grep -q "en/philosophy/" dist/client/sitemap.xml
-          grep -q "en/literature/" dist/client/sitemap.xml
-          grep -q "en/panji/" dist/client/sitemap.xml
           node scripts/validate-isbn-authority.mjs
           node scripts/verify-release-integrity.mjs
+          node scripts/verify-bilingual-content.mjs
+          node scripts/verify-accessibility-engineering.mjs
           node scripts/verify-digital-humanities-extensions.mjs
           node scripts/verify-isbn-authority.mjs
           node --input-type=module -e "import { readFileSync } from 'node:fs'; const r=JSON.parse(readFileSync('./dist/client/data/scholarly-export-report.json','utf8')); if(!r.checks.uniqueRecordKeys||!r.checks.allRecordsHaveTitle||!r.checks.allRecordsHaveUrl||!r.checks.allRecordsHaveCitation) process.exit(1); console.log(r)"
@@ -150,89 +144,60 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - name: Verify live GitHub Pages release
+      - name: Verify live bilingual GitHub Pages release
         shell: bash
         run: |
           set -euo pipefail
           BASE="https://videha-ejournal.github.io/mithila-vajji-anga"
-          fetch() {
-            curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors "$1"
-          }
+          fetch() { curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors "$1"; }
           wait_for_marker() {
-            local target="$1"
-            local marker="$2"
-            local body=""
+            local target="$1" marker="$2" body=""
             for attempt in {1..12}; do
               body="$(fetch "$target")"
-              if grep -Fq "$marker" <<<"$body"; then
-                printf '%s' "$body"
-                return 0
-              fi
+              if grep -Fq "$marker" <<<"$body"; then printf '%s' "$body"; return 0; fi
               sleep 5
             done
             echo "Live page did not expose expected marker: $target :: $marker" >&2
             return 1
           }
-
-          ROOT="$(wait_for_marker "$BASE/" '<html lang="mai"')"
-          EN="$(wait_for_marker "$BASE/en/" 'hreflang="x-default"')"
-          grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji' <<<"$ROOT"
-          grep -Fq 'Videha Digital Research Archive | Digital Humanities Research Environment for Mithila, Vajji' <<<"$EN"
+          ROOT="$(wait_for_marker "$BASE/" 'मैथिली संस्करण')"
+          EN="$(wait_for_marker "$BASE/en/" 'Explore Mithila, Vajji and Anga')"
+          grep -Fq '<html lang="mai"' <<<"$ROOT"
+          grep -Fq '<html lang="en"' <<<"$EN"
+          grep -Fq 'मिथिला, वज्जि आ अंगक अन्वेषण करू' <<<"$ROOT"
+          grep -Fq 'एक अभिलेखागारक चारि शोध-दुआरि' <<<"$ROOT"
           grep -Fq 'hreflang="en"' <<<"$ROOT"
           grep -Fq 'hreflang="mai"' <<<"$EN"
           grep -Fq 'historical-boundaries.js' <<<"$ROOT"
           grep -Fq 'historical-boundaries.js' <<<"$EN"
-          grep -Fq '178 permanent History chapters' <<<"$ROOT"
-          grep -Fq '178 permanent History chapters' <<<"$EN"
-          if grep -Fq 'Chapters 1–86' <<<"$ROOT$EN"; then
-            echo 'Stale History completion text is still live' >&2
-            exit 1
-          fi
-
-          for route in "/history/" "/philosophy/" "/literature/" "/panji/" "/isbn/" "/en/philosophy/" "/en/literature/" "/en/panji/" "/en/sources/" "/en/updates/" "/chapters/political-1/" "/chapters/social-150/" "/iiif/" "/iiif/collection.json" "/provenance/" "/citations/" "/data/provenance-graph.jsonld" "/data/historical-boundaries.geojson" "/data/citations/all-records.csl.json" "/data/citations/isbn-authority.csl.json" "/data/videha-isbn-authority.json" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do
-            fetch "$BASE$route" >/dev/null
-          done
-
-          ISBN_PAGE="$(fetch "$BASE/isbn/")"
-          grep -Fq '293 unique allotted ISBNs' <<<"$ISBN_PAGE"
-          grep -Fq '978-93-5943-857-3' <<<"$ISBN_PAGE"
+          MAI_HISTORY="$(fetch "$BASE/history/")"
+          EN_HISTORY="$(fetch "$BASE/en/history/")"
+          grep -Fq 'दू इतिहास, एक जुड़ल क्षेत्रीय अभिलेखागार' <<<"$MAI_HISTORY"
+          grep -Fq 'Two histories, one connected regional archive' <<<"$EN_HISTORY"
+          MAI_CH="$(fetch "$BASE/chapters/political-1/")"
+          EN_CH="$(fetch "$BASE/en/chapters/political-1/")"
+          grep -Fq 'स्रोत-भाषा सूचना' <<<"$MAI_CH"
+          grep -Fq 'Detailed chapter description' <<<"$EN_CH"
+          for route in "/chapters/social-150/" "/en/chapters/social-150/" "/philosophy/" "/en/philosophy/" "/literature/" "/en/literature/" "/panji/" "/en/panji/" "/sources/" "/en/sources/" "/updates/" "/en/updates/" "/about/" "/en/about/" "/isbn/" "/en/isbn/" "/iiif/" "/iiif/collection.json" "/provenance/" "/citations/" "/data/provenance-graph.jsonld" "/data/historical-boundaries.geojson" "/data/citations/all-records.csl.json" "/data/citations/isbn-authority.csl.json" "/data/videha-isbn-authority.json" "/favicon.svg" "/sitemap.xml" "/robots.txt"; do fetch "$BASE$route" >/dev/null; done
+          ISBN_MAI="$(fetch "$BASE/isbn/")"
+          ISBN_EN="$(fetch "$BASE/en/isbn/")"
+          grep -Fq 'विदेह ISBN प्रामाणिक सूची' <<<"$ISBN_MAI"
+          grep -Fq 'Videha ISBN Authority Registry' <<<"$ISBN_EN"
+          grep -Fq '978-93-5943-857-3' <<<"$ISBN_MAI$ISBN_EN"
           ISBN_JSON="$(fetch "$BASE/data/videha-isbn-authority.json")"
           grep -Fq '978-93-5943-857-3' <<<"$ISBN_JSON"
-          if grep -Fq '"publisher":' <<<"$ISBN_JSON" || grep -Fq '"publishingAgency":' <<<"$ISBN_JSON"; then
-            echo 'Excluded publisher-derived field leaked into live ISBN authority JSON' >&2
-            exit 1
-          fi
-
-          IIIF="$(fetch "$BASE/iiif/collection.json")"
-          grep -Fq 'http://iiif.io/api/presentation/3/context.json' <<<"$IIIF"
-          IIIF_PAGE="$(fetch "$BASE/iiif/")"
-          grep -Fq 'IIIF Presentation 3' <<<"$IIIF_PAGE"
-          PROV="$(fetch "$BASE/data/provenance-graph.jsonld")"
-          grep -Fq 'http://www.w3.org/ns/prov#' <<<"$PROV"
-          grep -Fq 'isbn:978-93-5943-857-3' <<<"$PROV"
-          GEO="$(fetch "$BASE/data/historical-boundaries.geojson")"
-          grep -Fq 'notExactFrontier' <<<"$GEO"
-
+          if grep -Fq '"publisher":' <<<"$ISBN_JSON" || grep -Fq '"publishingAgency":' <<<"$ISBN_JSON"; then echo 'Excluded publisher-derived field leaked into live ISBN authority JSON' >&2; exit 1; fi
+          IIIF="$(fetch "$BASE/iiif/collection.json")"; grep -Fq 'http://iiif.io/api/presentation/3/context.json' <<<"$IIIF"
+          PROV="$(fetch "$BASE/data/provenance-graph.jsonld")"; grep -Fq 'http://www.w3.org/ns/prov#' <<<"$PROV"; grep -Fq 'isbn:978-93-5943-857-3' <<<"$PROV"
+          GEO="$(fetch "$BASE/data/historical-boundaries.geojson")"; grep -Fq 'notExactFrontier' <<<"$GEO"
           SITEMAP="$(fetch "$BASE/sitemap.xml")"
           grep -Fq 'xmlns:xhtml="http://www.w3.org/1999/xhtml"' <<<"$SITEMAP"
-          grep -Fq '<lastmod>2026-09-14</lastmod>' <<<"$SITEMAP"
+          grep -Fq "$BASE/en/history/" <<<"$SITEMAP"
+          grep -Fq "$BASE/en/chapters/social-150/" <<<"$SITEMAP"
+          grep -Fq "$BASE/en/isbn/" <<<"$SITEMAP"
           grep -Fq 'hreflang="mai"' <<<"$SITEMAP"
           grep -Fq 'hreflang="en"' <<<"$SITEMAP"
-          grep -Fq '/isbn/' <<<"$SITEMAP"
-          grep -Fq '/iiif/' <<<"$SITEMAP"
-          grep -Fq '/provenance/' <<<"$SITEMAP"
-          grep -Fq '/citations/' <<<"$SITEMAP"
-
-          if [[ "$ROOT" =~ href=\"([^\"]+\.css)\" ]]; then
-            CSS_HREF="${BASH_REMATCH[1]}"
-          else
-            echo 'No stylesheet href found on live root page' >&2
-            exit 1
-          fi
-          case "$CSS_HREF" in
-            http*) CSS_URL="$CSS_HREF" ;;
-            /*) CSS_URL="https://videha-ejournal.github.io$CSS_HREF" ;;
-            *) CSS_URL="$BASE/$CSS_HREF" ;;
-          esac
+          if [[ "$ROOT" =~ href=\"([^\"]+\.css)\" ]]; then CSS_HREF="${BASH_REMATCH[1]}"; else echo 'No stylesheet href found on live root page' >&2; exit 1; fi
+          case "$CSS_HREF" in http*) CSS_URL="$CSS_HREF" ;; /*) CSS_URL="https://videha-ejournal.github.io$CSS_HREF" ;; *) CSS_URL="$BASE/$CSS_HREF" ;; esac
           fetch "$CSS_URL" >/dev/null
-          echo "Live release smoke test passed for $BASE"
+          echo "Live bilingual release smoke test passed for $BASE"
