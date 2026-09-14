@@ -5,7 +5,7 @@ import { useState } from 'react';
 const videhaUrl = 'https://www.videha.co.in/';
 const mirrorUrl = 'https://videha-ejournal.github.io/videha/';
 const githubUrl = 'https://github.com/videha-ejournal';
-const identity = `Videha — ${videhaUrl} · ISSN 2229-547X · GitHub mirror: ${mirrorUrl} · Digital Research Archives on GitHub: ${githubUrl}`;
+const identity = `Videha [${videhaUrl} · ISSN 2229-547X · and its GitHub mirror site ${mirrorUrl}] & its Digital Research Archives at GitHub: ${githubUrl}`;
 
 function meta(name: string) {
   return document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)?.content.trim() ?? '';
