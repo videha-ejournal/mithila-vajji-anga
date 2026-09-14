@@ -30,14 +30,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Install dependencies
+      - name: Install audited dependencies
         run: npm ci
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
-      - name: Audit all dependencies for critical vulnerabilities
-        run: npm audit --audit-level=critical
-      - name: Install production image optimizer
-        run: npm install --no-save --package-lock=false sharp@0.35.4
+      - name: Audit complete dependency graph
+        run: npm audit --audit-level=high
       - name: Lint source
         run: npm run lint
       - name: Build static site, scholarly export and performance layer
@@ -186,7 +184,8 @@ jobs:
 
           IIIF="$(fetch "$BASE/iiif/collection.json")"
           grep -Fq 'http://iiif.io/api/presentation/3/context.json' <<<"$IIIF"
-          grep -Fq 'Presentation 3' "<(fetch "$BASE/iiif/")" || true
+          IIIF_PAGE="$(fetch "$BASE/iiif/")"
+          grep -Fq 'IIIF Presentation 3' <<<"$IIIF_PAGE"
           PROV="$(fetch "$BASE/data/provenance-graph.jsonld")"
           grep -Fq 'http://www.w3.org/ns/prov#' <<<"$PROV"
           GEO="$(fetch "$BASE/data/historical-boundaries.geojson")"
