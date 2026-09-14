@@ -175,7 +175,7 @@ function localizeText(value: string): string {
   return result;
 }
 
-function localizeElement(root: ParentNode) {
+function localizeElement(root: Element) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const textNodes: Text[] = [];
   let current = walker.nextNode();
@@ -188,9 +188,7 @@ function localizeElement(root: ParentNode) {
     if (next !== node.data) node.data = next;
   }
 
-  const elements = root instanceof Element
-    ? [root, ...root.querySelectorAll('*')]
-    : [...root.querySelectorAll('*')];
+  const elements = [root, ...root.querySelectorAll('*')];
   for (const element of elements) {
     if (!isScoped(element)) continue;
     for (const attribute of ['aria-label', 'title', 'placeholder']) {
