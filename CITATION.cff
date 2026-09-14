@@ -5,7 +5,7 @@ type: dataset
 authors:
   - family-names: "Thakur"
     given-names: "Gajendra"
-    affiliation: "Videha Maithili eJournal"
+    affiliation: "Videha — First Maithili Fortnightly eJournal"
 version: "2026.09"
 date-released: "2026-09-14"
 url: "https://videha-ejournal.github.io/mithila-vajji-anga/"
@@ -15,11 +15,26 @@ abstract: >-
   The Videha Digital Research Archive is a source-controlled digital humanities
   research environment for the connected histories, genealogy, literature,
   philosophy, places, texts and chronology of Mithila, Vajji and Anga across
-  India and Nepal. Its publication layer provides permanent record URLs,
-  citation exports, structured metadata, versioned datasets and checksum-based
-  verification. Repository-authored software code is separately licensed under
-  MIT; see RIGHTS.md for the full rights matrix.
+  India and Nepal. It is a research venture of Videha — First Maithili
+  Fortnightly eJournal, ISSN 2229-547X, https://www.videha.co.in/, with GitHub
+  mirror https://videha-ejournal.github.io/videha/. Its publication layer
+  provides permanent record URLs, citation exports, structured metadata,
+  versioned datasets and checksum-based verification. Repository-authored
+  software code is separately licensed under MIT; see RIGHTS.md for the full
+  rights matrix.
 identifiers:
   - type: other
     value: "ISSN 2229-547X"
-    description: "Videha Maithili eJournal ISSN"
+    description: "Videha — First Maithili Fortnightly eJournal ISSN"
+  - type: url
+    value: "https://www.videha.co.in/"
+    description: "Primary Videha publication site"
+  - type: url
+    value: "https://videha-ejournal.github.io/videha/"
+    description: "Videha GitHub mirror"
+  - type: url
+    value: "https://videha-ejournal.github.io/mithila-vajji-anga/"
+    description: "Videha Digital Research Archive"
+  - type: url
+    value: "https://github.com/videha-ejournal/mithila-vajji-anga"
+    description: "Source-controlled research archive repository"

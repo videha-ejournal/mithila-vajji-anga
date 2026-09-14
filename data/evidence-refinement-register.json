@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "generatedFromPolicyDate": "2026-09-14",
+  "scope": "Mithila–Vajji–Anga in India and Nepal",
+  "publicationPolicy": "fail-closed",
+  "classes": {
+    "historicalGeography": {
+      "status": "candidate-evidence-remains-unpromoted",
+      "requiredForPromotion": [
+        "exact page locator",
+        "stable source URL or source record",
+        "human-readable source citation",
+        "defined geometry scope",
+        "verified evidence status",
+        "explicit precision and uncertainty qualification"
+      ],
+      "automaticPromotionAllowed": false
+    },
+    "panji": {
+      "status": "publish-source-verified-units-only",
+      "syntheticTitlesAllowed": false,
+      "numberingNormalizationAllowed": false
+    },
+    "bilingualDetail": {
+      "status": "reviewed-text-required-for-permanent-detail-publication",
+      "machineTranslationAcceptedAsReviewedMaithili": false
+    },
+    "accessibility": {
+      "status": "pending-human-device-testing",
+      "machineChecksSubstituteForHumanTesting": false
+    },
+    "isbn": {
+      "authorityRecordCount": 293,
+      "authorityRule": "work-or-edition scope only",
+      "publisherSourceColumnUsed": false
+    }
+  },
+  "promotionRule": "No candidate, unresolved, pending, or inferred item may be promoted without source-controlled evidence that makes the change auditable."
+}

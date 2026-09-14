@@ -1,0 +1,87 @@
+name: Publish versioned scholarly release
+
+on:
+  workflow_run:
+    workflows: ["Deploy Mithila–Vajji–Anga to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: videha-scholarly-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Resolve release identity
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "JSON.parse(require('fs').readFileSync('data/release-manifest.json','utf8')).version")"
+          TAG="$(node -p "JSON.parse(require('fs').readFileSync('data/release-manifest.json','utf8')).tag")"
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            TARGET_SHA="${{ github.event.workflow_run.head_sha }}"
+          else
+            TARGET_SHA="$(git rev-parse HEAD)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "target_sha=$TARGET_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Collect checksum-bearing public release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.release.outputs.version }}"
+          BASE="https://videha-ejournal.github.io/mithila-vajji-anga"
+          mkdir -p release-assets
+          fetch() {
+            curl --fail --silent --show-error --location --retry 8 --retry-delay 3 --retry-all-errors "$1" -o "$2"
+          }
+          fetch "$BASE/data/releases/$VERSION/records.json" "release-assets/records.json"
+          fetch "$BASE/data/releases/$VERSION/SHA256SUMS.txt" "release-assets/DATASET-SHA256SUMS.txt"
+          fetch "$BASE/data/videha-isbn-authority.json" "release-assets/videha-isbn-authority.json"
+          fetch "$BASE/data/videha-publication-identity-report.json" "release-assets/videha-publication-identity-report.json"
+          fetch "$BASE/data/preservation/preservation-manifest.json" "release-assets/preservation-manifest.json"
+          cp CITATION.cff release-assets/CITATION.cff
+          cp .zenodo.json release-assets/zenodo.json
+          cp data/release-manifest.json release-assets/release-manifest.json
+          cp data/evidence-refinement-register.json release-assets/evidence-refinement-register.json
+          (
+            cd release-assets
+            sha256sum CITATION.cff DATASET-SHA256SUMS.txt evidence-refinement-register.json preservation-manifest.json records.json release-manifest.json videha-isbn-authority.json videha-publication-identity-report.json zenodo.json > RELEASE-SHA256SUMS.txt
+          )
+
+      - name: Create or refresh GitHub scholarly release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/* --clobber
+            gh release edit "$TAG" --notes-file RELEASE-NOTES-2026.09.md
+            echo "Refreshed existing scholarly release $TAG"
+          else
+            gh release create "$TAG" release-assets/* \
+              --target "$TARGET_SHA" \
+              --title "Videha Digital Research Archive $TAG" \
+              --notes-file RELEASE-NOTES-2026.09.md
+            echo "Created scholarly release $TAG"
+          fi

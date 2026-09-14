@@ -1,0 +1,28 @@
+{
+  "title": "Videha Digital Research Archive: Digital Humanities Research Environment for Mithila, Vajji & Anga",
+  "upload_type": "dataset",
+  "description": "A source-controlled bilingual digital humanities research environment for the connected histories, genealogy, literature, philosophy, places, texts and chronology of Mithila, Vajji and Anga across India and Nepal. Parent publication: Videha — First Maithili Fortnightly eJournal, ISSN 2229-547X, https://www.videha.co.in/. GitHub mirror: https://videha-ejournal.github.io/videha/.",
+  "creators": [
+    {
+      "name": "Thakur, Gajendra",
+      "affiliation": "Videha — First Maithili Fortnightly eJournal"
+    }
+  ],
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "version": "2026.09",
+  "keywords": [
+    "Mithila",
+    "Vajji",
+    "Anga",
+    "Maithili",
+    "digital humanities",
+    "history",
+    "philosophy",
+    "literature",
+    "Panji",
+    "India",
+    "Nepal"
+  ],
+  "notes": "Parent publication: Videha — First Maithili Fortnightly eJournal · ISSN 2229-547X · https://www.videha.co.in/ · GitHub mirror https://videha-ejournal.github.io/videha/ · research archive https://videha-ejournal.github.io/mithila-vajji-anga/. DOI metadata is intentionally omitted until Zenodo or another preservation service actually mints a DOI."
+}
