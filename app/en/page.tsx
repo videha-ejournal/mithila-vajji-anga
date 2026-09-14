@@ -4,6 +4,7 @@ import Home from '../page';
 const languageAlternates: Record<string, string> = {
   mai: 'https://videha-ejournal.github.io/mithila-vajji-anga/',
   en: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
+  'x-default': 'https://videha-ejournal.github.io/mithila-vajji-anga/',
 };
 
 export const metadata: Metadata = {
@@ -14,6 +15,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
     languages: languageAlternates,
+  },
+  openGraph: {
+    url: 'https://videha-ejournal.github.io/mithila-vajji-anga/en/',
+  },
+  other: {
+    'DC.language': 'en',
   },
 };
 
