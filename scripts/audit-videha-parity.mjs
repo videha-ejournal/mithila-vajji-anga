@@ -23,23 +23,38 @@ function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function fetchPage(url) {
-  const response = await fetch(url, {
-    redirect: 'follow',
-    headers: {
-      'user-agent': 'Videha-Parity-Audit/1.0 (+https://www.videha.co.in/)'
+  let lastError = null;
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        redirect: 'follow',
+        headers: {
+          'user-agent': 'Videha-Parity-Audit/1.0 (+https://www.videha.co.in/)'
+        },
+        signal: AbortSignal.timeout(30000)
+      });
+      const text = await response.text();
+      if (response.ok || attempt === 4) {
+        return {
+          requestedUrl: url,
+          finalUrl: response.url,
+          status: response.status,
+          ok: response.ok,
+          contentType: response.headers.get('content-type'),
+          bytes: Buffer.byteLength(text),
+          text
+        };
+      }
+      lastError = new Error(`${url} returned HTTP ${response.status}`);
+    } catch (error) {
+      lastError = error;
     }
-  });
-  const text = await response.text();
-  return {
-    requestedUrl: url,
-    finalUrl: response.url,
-    status: response.status,
-    ok: response.ok,
-    contentType: response.headers.get('content-type'),
-    bytes: Buffer.byteLength(text),
-    text
-  };
+    await sleep(attempt * 1500);
+  }
+  throw lastError ?? new Error(`Unable to fetch ${url}`);
 }
 
 const results = [];
