@@ -1,10 +1,16 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
 
-type EditionSwitchProps = {
-  active: 'mai' | 'en';
-};
+export default function EditionSwitch() {
+  const [active, setActive] = useState<'mai' | 'en'>('mai');
 
-export default function EditionSwitch({ active }: EditionSwitchProps) {
+  useEffect(() => {
+    setActive(window.location.pathname.includes('/mithila-vajji-anga/en/') ? 'en' : 'mai');
+  }, []);
+
   return (
     <nav className="edition-switch" aria-label="Archive edition">
       <a
