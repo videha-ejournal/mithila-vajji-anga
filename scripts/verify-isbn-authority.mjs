@@ -10,7 +10,7 @@ const isbnDigits = (value) => String(value ?? '').replace(/\D/g, '');
 const validIsbn13 = (value) => {
   const digits = isbnDigits(value);
   if (digits.length !== 13) return false;
-  const total = [...digits.slice(0, 12)].reduce(
+  const total = Array.from(digits.slice(0, 12)).reduce(
     (sum, digit, index) => sum + Number(digit) * (index % 2 === 0 ? 1 : 3),
     0,
   );
@@ -54,6 +54,7 @@ const byIsbn = new Map(records.map((record) => [record.isbn13, record]));
 for (const required of [
   '978-93-344-9415-0',
   '978-93-5812-486-6',
+  '978-93-5943-857-3',
   '978-93-6123-729-4',
   '978-93-341-0402-8',
   '978-93-5890-150-4',
@@ -68,6 +69,10 @@ const bindings = readJson(bindingsPath);
 for (const binding of bindings.sourceBindings ?? []) {
   assert(byIsbn.has(binding.isbn13), `ISBN project binding references an unknown ISBN: ${binding.isbn13}`);
 }
+const atmatattvavivekaBinding = (bindings.sourceBindings ?? []).find(
+  (binding) => binding.sourcePdfPath === 'GAJENDRA_THAKUR_SAMAGRA_Atmatattvaviveka.pdf',
+);
+assert(atmatattvavivekaBinding?.isbn13 === '978-93-5943-857-3', 'Atmatattvaviveka must be explicitly bound to ISBN 978-93-5943-857-3.');
 
 if (existsSync(OUT)) {
   const publicIndexPath = path.join(OUT, 'data/isbn-authority/index.json');
@@ -97,7 +102,7 @@ if (existsSync(OUT)) {
     assert(byIsbn.has(item.isbn13), `Source-library item uses ISBN outside authoritative register: ${item.filename} -> ${item.isbn13}`);
     assert(item.isbnAuthorityVersion === index.version, `Source-library ISBN authority version mismatch: ${item.filename}`);
   }
-  assert(linkedCount >= 15, `Expected at least 15 fail-closed source-PDF ISBN bindings; found ${linkedCount}.`);
+  assert(linkedCount >= 16, `Expected at least 16 fail-closed source-PDF ISBN bindings; found ${linkedCount}.`);
   for (const binding of bindings.sourceBindings ?? []) {
     const item = catalogByFilename.get(binding.sourcePdfPath);
     assert(item, `Explicit ISBN-bound source PDF missing from source catalogue: ${binding.sourcePdfPath}`);
@@ -136,7 +141,7 @@ if (existsSync(OUT)) {
 
   const sitemapPath = path.join(OUT, 'sitemap.xml');
   if (existsSync(sitemapPath)) {
-    assert(readFileSync(sitemapPath, 'utf8').includes(`${'https://videha-ejournal.github.io/mithila-vajji-anga'}/isbn/`), 'Sitemap omits the ISBN register route.');
+    assert(readFileSync(sitemapPath, 'utf8').includes('https://videha-ejournal.github.io/mithila-vajji-anga/isbn/'), 'Sitemap omits the ISBN register route.');
   }
 }
 
