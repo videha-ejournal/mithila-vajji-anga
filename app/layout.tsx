@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import ScholarlyToolbar from '../components/scholarly-toolbar';
+import EditionSwitch from '../components/edition-switch';
 import './globals.css';
+import './bilingual-editions.css';
 import './research-expansion.css';
 import './learning-lab.css';
 
@@ -149,6 +151,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll('<', '\\u003c') }}
         />
+        <div className="global-edition-bar">
+          <span>Videha Digital Research Archive</span>
+          <EditionSwitch />
+        </div>
         <ScholarlyToolbar />
         {children}
       </body>
