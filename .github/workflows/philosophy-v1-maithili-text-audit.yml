@@ -1,0 +1,90 @@
+name: Audit Philosophy Volume I Maithili text extraction
+
+on:
+  push:
+    paths:
+      - '.github/workflows/philosophy-v1-maithili-text-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out research archive
+        uses: actions/checkout@v4
+
+      - name: Install PDF and Devanagari text tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils mupdf-tools tesseract-ocr tesseract-ocr-hin tesseract-ocr-script-deva
+          python3 -m pip install --quiet pymupdf
+
+      - name: Download authoritative Parallel Philosophy Volume I
+        run: |
+          mkdir -p .source-books reports/philosophy-v1-maithili-audit/ocr
+          curl -L --fail --retry 3 \
+            'https://raw.githubusercontent.com/videha-ejournal/videha-ejournal/main/GAJENDRA_THAKUR_PARALLEL_PHILOSOPHY.pdf' \
+            -o .source-books/philosophy-v1.pdf
+
+      - name: Record font and language diagnostics
+        run: |
+          pdffonts .source-books/philosophy-v1.pdf > reports/philosophy-v1-maithili-audit/pdffonts.txt
+          tesseract --list-langs > reports/philosophy-v1-maithili-audit/tesseract-languages.txt
+
+      - name: Compare non-OCR extraction engines on Chapter 1 opening
+        run: |
+          pdftotext -f 11 -l 13 -layout .source-books/philosophy-v1.pdf reports/philosophy-v1-maithili-audit/poppler-layout.txt
+          pdftotext -f 11 -l 13 -raw .source-books/philosophy-v1.pdf reports/philosophy-v1-maithili-audit/poppler-raw.txt
+          mutool draw -F txt -o reports/philosophy-v1-maithili-audit/mupdf.txt .source-books/philosophy-v1.pdf 11-13
+          python3 - <<'PY'
+          import fitz
+          doc = fitz.open('.source-books/philosophy-v1.pdf')
+          chunks=[]
+          for pno in range(10,13):
+              page=doc[pno]
+              chunks.append(f'===== PDF PAGE {pno+1} =====\n'+page.get_text('text', sort=True))
+          open('reports/philosophy-v1-maithili-audit/pymupdf.txt','w',encoding='utf-8').write('\n'.join(chunks))
+          PY
+
+      - name: OCR Chapter 1 opening as last-resort comparison
+        run: |
+          pdftoppm -f 11 -l 13 -r 300 -png .source-books/philosophy-v1.pdf reports/philosophy-v1-maithili-audit/ocr/page >/dev/null 2>&1
+          for img in reports/philosophy-v1-maithili-audit/ocr/page-*.png; do
+            stem="${img%.png}"
+            if tesseract --list-langs 2>/dev/null | grep -qx 'Devanagari'; then
+              tesseract "$img" "$stem-deva" -l Devanagari+eng --psm 6 >/dev/null 2>&1
+            fi
+            tesseract "$img" "$stem-hin" -l hin+eng --psm 6 >/dev/null 2>&1
+          done
+          cat reports/philosophy-v1-maithili-audit/ocr/*-deva.txt 2>/dev/null > reports/philosophy-v1-maithili-audit/ocr-deva.txt || true
+          cat reports/philosophy-v1-maithili-audit/ocr/*-hin.txt > reports/philosophy-v1-maithili-audit/ocr-hin.txt
+          rm -f reports/philosophy-v1-maithili-audit/ocr/*.png
+
+      - name: Summarize extraction signals
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('reports/philosophy-v1-maithili-audit')
+          files=['poppler-layout.txt','poppler-raw.txt','mupdf.txt','pymupdf.txt','ocr-deva.txt','ocr-hin.txt']
+          out=[]
+          for name in files:
+              p=root/name
+              if not p.exists():
+                  continue
+              t=p.read_text('utf-8',errors='replace')
+              out.append(f'===== {name} =====')
+              out.extend([ln for ln in t.splitlines() if ln.strip()][:120])
+              out.append('')
+          (root/'comparison.txt').write_text('\n'.join(out),'utf-8')
+          PY
+
+      - name: Upload text-layer audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: philosophy-v1-maithili-text-audit
+          path: reports/philosophy-v1-maithili-audit/
+          if-no-files-found: error
+          retention-days: 7
