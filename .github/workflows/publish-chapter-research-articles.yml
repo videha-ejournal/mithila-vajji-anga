@@ -1,0 +1,89 @@
+name: Publish 522 chapter research articles
+
+on:
+  push:
+    paths:
+      - '.github/research-article-control/publish-522.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-522-research-articles
+  cancel-in-progress: false
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Check out MVA research archive
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install source-text and Devanagari OCR tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-script-deva
+
+      - name: Download pinned authoritative source books
+        env:
+          SOURCE_REF: 74d5a99035d3de470dab5253f23aa3517ba5a710
+        run: |
+          set -euo pipefail
+          mkdir -p .source-books app/generated reports
+          base="https://raw.githubusercontent.com/videha-ejournal/videha-ejournal/${SOURCE_REF}"
+          curl -L --fail --retry 3 "$base/HISTORY_MITHILA_ANGA_VAJJI.pdf" -o .source-books/HISTORY_MITHILA_ANGA_VAJJI.pdf
+          curl -L --fail --retry 3 "$base/History_Mithila_Vajji_Anga_Volume_II_merge.pdf" -o .source-books/History_Mithila_Vajji_Anga_Volume_II_merge.pdf
+          curl -L --fail --retry 3 "$base/GAJENDRA_THAKUR_PARALLEL_PHILOSOPHY.pdf" -o .source-books/GAJENDRA_THAKUR_PARALLEL_PHILOSOPHY.pdf
+          curl -L --fail --retry 3 "$base/Samanantar_Darshan_Volume_II_merge.pdf" -o .source-books/Samanantar_Darshan_Volume_II_merge.pdf
+          {
+            echo "Videha source repository revision: ${SOURCE_REF}"
+            sha256sum .source-books/*.pdf
+          } > app/generated/research-article-source-sha256.txt
+
+      - name: Generate full-text research article corpus
+        run: python3 scripts/build-research-article-corpus.py
+
+      - name: Verify exact scholarly corpus contract
+        run: node scripts/verify-research-article-corpus.mjs
+
+      - name: Record generation summary
+        run: |
+          {
+            echo 'Research article corpus generated from four author source books.'
+            echo 'Expected article HTML pages: 522'
+            echo "Inventory records: $(node -e "console.log(require('./app/generated/research-article-inventory.json').length)")"
+            echo "Article index files including master index: $(find public/research-articles -name index.html | wc -l)"
+            echo "Generated HTML bytes: $(find public/research-articles -name '*.html' -printf '%s\n' | awk '{s+=$1} END {print s+0}')"
+            echo 'Philosophy bilingual source language verified from books: Maithili + English.'
+            echo 'Philosophy Volume I Maithili transcription method: Devanagari-script OCR of source page images because embedded legacy text mapping is corrupt.'
+          } > reports/research-article-generation.txt
+          cat reports/research-article-generation.txt
+
+      - name: Commit generated scholarly article corpus
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/research-articles app/generated/research-article-inventory.json app/generated/research-article-source-sha256.txt
+          if git diff --cached --quiet; then
+            echo 'Generated corpus already matches repository state.'
+            exit 0
+          fi
+          git commit -m 'Publish 522 full-text chapter research articles'
+          git push origin HEAD:main
+
+      - name: Upload generation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-article-generation-evidence
+          path: |
+            reports/research-article-generation.txt
+            app/generated/research-article-inventory.json
+            app/generated/research-article-source-sha256.txt
+          if-no-files-found: warn
+          retention-days: 30
