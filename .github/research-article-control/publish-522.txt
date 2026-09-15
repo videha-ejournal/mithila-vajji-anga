@@ -1,0 +1,11 @@
+Publish the full 522-page scholarly article corpus from the four pinned author source books.
+
+Corpus contract:
+- History of Mithila–Vajji–Anga: 28 + 150 = 178 full-text article HTML pages.
+- Parallel Philosophy: 72 + 100 = 172 chapters in Maithili and 172 corresponding English article HTML pages = 344.
+- Total article HTML pages: 522.
+- Article author: Gajendra Thakur.
+- Parent publication: Videha — First Maithili Fortnightly eJournal, ISSN 2229-547X.
+- MVA DOI 10.5281/zenodo.22754977 is archive-level only, not an article DOI.
+- Source repository revision: 74d5a99035d3de470dab5253f23aa3517ba5a710.
+- Source-book rights remain authoritative.
