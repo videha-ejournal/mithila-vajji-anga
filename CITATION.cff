@@ -8,6 +8,7 @@ authors:
     affiliation: "Videha — First Maithili Fortnightly eJournal"
 version: "2026.09"
 date-released: "2026-09-14"
+doi: "10.5281/zenodo.22754977"
 url: "https://videha-ejournal.github.io/mithila-vajji-anga/"
 repository-code: "https://github.com/videha-ejournal/mithila-vajji-anga"
 license: "CC-BY-4.0"
@@ -23,6 +24,9 @@ abstract: >-
   software code is separately licensed under MIT; see RIGHTS.md for the full
   rights matrix.
 identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22754977"
+    description: "Zenodo DOI for GitHub release archive-2026-09-14"
   - type: other
     value: "ISSN 2229-547X"
     description: "Videha — First Maithili Fortnightly eJournal ISSN"
