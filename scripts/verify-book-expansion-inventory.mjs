@@ -14,7 +14,9 @@ const ALLOWED_STATUS = new Set([
   'structure-audited',
   'needs-structure-audit',
   'book-only-support',
+  'duplicate-source-copy',
 ]);
+const NON_ARTICLE_RESOURCE_RE = /(?:^|[_-])(?:QUIZ|UPSC)(?:[_-]|\.|$)|THESAURUS|AI[_-]?VIDEO|TEACHING/i;
 
 function load(file) {
   if (!existsSync(file)) throw new Error(`Missing ${file}`);
@@ -28,6 +30,7 @@ const sourceItems = (catalog.items ?? []).filter((item) => item.sourceType === '
 const items = inventory.items ?? [];
 const sourceRepository = (catalog.sourceRepositories ?? [])[0] ?? null;
 
+if (inventory.schemaVersion < 2) errors.push(`Expansion inventory schema must be v2 or newer; found ${inventory.schemaVersion ?? 'none'}`);
 if (items.length !== sourceItems.length) {
   errors.push(`Inventory/source count mismatch: ${items.length} vs ${sourceItems.length}`);
 }
@@ -42,6 +45,7 @@ if (inventory.sourceCatalogCount !== sourceRepository?.sourceCatalogCount) {
 }
 
 const sourceByFilename = new Map(sourceItems.map((item) => [item.filename, item]));
+const itemByFilename = new Map(items.map((item) => [item.filename, item]));
 const seen = new Set();
 for (const item of items) {
   if (!item.filename || seen.has(item.filename)) errors.push(`Missing or duplicate filename: ${item.filename}`);
@@ -69,8 +73,23 @@ for (const item of items) {
   if (item.status === 'structure-audited' && !(Number(item.confirmedUnitCount) > 0)) {
     errors.push(`Structurally audited source has no confirmed units: ${item.filename}`);
   }
-  if (item.status === 'needs-structure-audit' && item.confirmedUnitCount != null) {
-    errors.push(`Unaudited source must not claim confirmed units: ${item.filename}`);
+  if (['needs-structure-audit', 'book-only-support', 'duplicate-source-copy'].includes(item.status)
+      && item.confirmedUnitCount != null) {
+    errors.push(`${item.status} source must not claim confirmed units: ${item.filename}`);
+  }
+  if (item.status === 'duplicate-source-copy' && !item.duplicateOf) {
+    errors.push(`Duplicate source copy has no duplicateOf target: ${item.filename}`);
+  }
+  if (item.status !== 'duplicate-source-copy' && item.duplicateOf) {
+    errors.push(`Non-duplicate source unexpectedly has duplicateOf: ${item.filename}`);
+  }
+  if (NON_ARTICLE_RESOURCE_RE.test(item.filename)
+      && !['book-only-support', 'duplicate-source-copy'].includes(item.status)) {
+    errors.push(`Learning/reference resource is unsafe for automatic article segmentation: ${item.filename} → ${item.status}`);
+  }
+  if (source.workFamilyRole === 'teaching-resource'
+      && !['book-only-support', 'duplicate-source-copy'].includes(item.status)) {
+    errors.push(`Teaching resource is unsafe for automatic article segmentation: ${item.filename} → ${item.status}`);
   }
 }
 
@@ -102,6 +121,50 @@ for (const item of panji) {
   }
 }
 
+// Independently recompute exact duplicate groups from source SHA-256 values.
+// Every byte-identical group must have exactly one canonical content source;
+// every other filename must be a suppressed duplicate-source-copy.
+const bySha = new Map();
+for (const source of sourceItems) {
+  if (!source.sourceSha256) continue;
+  const group = bySha.get(source.sourceSha256) ?? [];
+  group.push(source.filename);
+  bySha.set(source.sourceSha256, group);
+}
+let expectedDuplicateGroups = 0;
+let expectedDuplicateCopies = 0;
+for (const [sha256, filenames] of bySha) {
+  if (filenames.length < 2) continue;
+  expectedDuplicateGroups += 1;
+  expectedDuplicateCopies += filenames.length - 1;
+  const groupItems = filenames.map((filename) => itemByFilename.get(filename)).filter(Boolean);
+  const canonicalItems = groupItems.filter((item) => item.status !== 'duplicate-source-copy');
+  const duplicateItems = groupItems.filter((item) => item.status === 'duplicate-source-copy');
+  if (canonicalItems.length !== 1) {
+    errors.push(`SHA-256 duplicate group must have exactly one canonical source (${sha256}); found ${canonicalItems.length}: ${filenames.join(', ')}`);
+    continue;
+  }
+  const canonical = canonicalItems[0];
+  if (duplicateItems.length !== filenames.length - 1) {
+    errors.push(`SHA-256 duplicate group has wrong suppressed-copy count (${sha256}): expected ${filenames.length - 1}, found ${duplicateItems.length}`);
+  }
+  for (const duplicate of duplicateItems) {
+    if (duplicate.duplicateOf !== canonical.filename) {
+      errors.push(`Duplicate target mismatch: ${duplicate.filename} should point to ${canonical.filename}, found ${duplicate.duplicateOf}`);
+    }
+    if (duplicate.sourceSha256 !== canonical.sourceSha256) {
+      errors.push(`Duplicate SHA-256 mismatch: ${duplicate.filename} vs ${canonical.filename}`);
+    }
+  }
+}
+if (inventory.duplicateGroupCount !== expectedDuplicateGroups) {
+  errors.push(`duplicateGroupCount mismatch: expected ${expectedDuplicateGroups}, found ${inventory.duplicateGroupCount}`);
+}
+const actualDuplicateCopies = items.filter((item) => item.status === 'duplicate-source-copy').length;
+if (actualDuplicateCopies !== expectedDuplicateCopies) {
+  errors.push(`Suppressed duplicate-copy count mismatch: expected ${expectedDuplicateCopies}, found ${actualDuplicateCopies}`);
+}
+
 if (errors.length) {
   console.error(`Book expansion inventory verification failed with ${errors.length} issue(s):`);
   for (const error of errors) console.error(`- ${error}`);
@@ -109,4 +172,4 @@ if (errors.length) {
 }
 
 const status = inventory.countsByStatus ?? {};
-console.log(`Book expansion inventory verified: ${items.length} source PDFs; ${articleCount} certified core articles; ${status['structure-audited'] ?? 0} structurally audited book(s); ${status['needs-structure-audit'] ?? 0} awaiting structural audit; ${status['book-only-support'] ?? 0} support-only.`);
+console.log(`Book expansion inventory verified: ${items.length} source PDFs; ${articleCount} certified core articles; ${status['structure-audited'] ?? 0} structurally audited book(s); ${status['needs-structure-audit'] ?? 0} awaiting structural audit; ${status['book-only-support'] ?? 0} support-only; ${status['duplicate-source-copy'] ?? 0} duplicate copy/copies suppressed across ${expectedDuplicateGroups} byte-identical group(s).`);
