@@ -31,16 +31,18 @@ function run(command, args, options = {}) {
   }
 }
 
-function has(command, args = ['--version']) {
-  return spawnSync(command, args, { stdio: 'ignore' }).status === 0;
+function commandExists(command) {
+  return spawnSync('bash', ['-lc', `command -v ${command}`], { stdio: 'ignore' }).status === 0;
+}
+
+function tesseractHasDevanagari() {
+  if (!commandExists('tesseract')) return false;
+  const result = spawnSync('tesseract', ['--list-langs'], { encoding: 'utf8' });
+  return result.status === 0 && /(^|\n)Devanagari(\n|$)/.test(result.stdout ?? '');
 }
 
 function ensureExtractionTools() {
-  const tesseractReady = has('tesseract') && (() => {
-    const result = spawnSync('tesseract', ['--list-langs'], { encoding: 'utf8' });
-    return result.status === 0 && /(^|\n)Devanagari(\n|$)/.test(result.stdout ?? '');
-  })();
-  if (has('pdftotext') && has('pdftoppm') && tesseractReady) return;
+  if (commandExists('pdftotext') && commandExists('pdftoppm') && tesseractHasDevanagari()) return;
 
   if (process.env.GITHUB_ACTIONS !== 'true') {
     throw new Error('Research article generation needs pdftotext, pdftoppm, Tesseract and the Devanagari language data.');
@@ -49,9 +51,10 @@ function ensureExtractionTools() {
   console.log('Installing source-extraction dependencies on the GitHub Actions runner…');
   run('sudo', ['apt-get', 'update', '-qq']);
   run('sudo', ['apt-get', 'install', '-y', '-qq', 'poppler-utils', 'tesseract-ocr', 'tesseract-ocr-script-deva']);
-  if (!has('pdftotext') || !has('pdftoppm')) throw new Error('Poppler tools are still unavailable after installation.');
-  const langs = spawnSync('tesseract', ['--list-langs'], { encoding: 'utf8' });
-  if (langs.status !== 0 || !/(^|\n)Devanagari(\n|$)/.test(langs.stdout ?? '')) {
+  if (!commandExists('pdftotext') || !commandExists('pdftoppm')) {
+    throw new Error('Poppler tools are still unavailable after installation.');
+  }
+  if (!tesseractHasDevanagari()) {
     throw new Error('Tesseract Devanagari language data is unavailable after installation.');
   }
 }
