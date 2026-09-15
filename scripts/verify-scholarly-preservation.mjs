@@ -13,13 +13,15 @@ const zenodo = await readJson('.zenodo.json');
 const evidence = await readJson('data/evidence-refinement-register.json');
 const citation = await readText('CITATION.cff');
 const policy = await readText('SCHOLARLY-PRESERVATION.md');
+const verifiedDoi = '10.5281/zenodo.22754977';
 
 if (release.version !== '2026.09' || release.tag !== 'v2026.09') fail('release version/tag mismatch');
 if (release.parentPublication?.issn !== '2229-547X') fail('parent ISSN missing or incorrect');
 if (release.parentPublication?.primaryUrl !== 'https://www.videha.co.in/') fail('primary Videha URL mismatch');
 if (release.parentPublication?.githubMirrorUrl !== 'https://videha-ejournal.github.io/videha/') fail('GitHub mirror URL mismatch');
 if (release.researchArchive?.repository !== 'https://github.com/videha-ejournal/mithila-vajji-anga') fail('research repository mismatch');
-if (release.preservation?.doiStatus === 'pending-external-account-linkage' && release.preservation?.doi !== null) fail('pending DOI status must not contain an asserted DOI');
+if (release.preservation?.doiStatus !== 'minted') fail('verified Zenodo DOI must be marked minted');
+if (release.preservation?.doi !== verifiedDoi) fail('release manifest DOI mismatch');
 if (release.preservation?.orcidStatus === 'not-supplied' && release.preservation?.orcid !== null) fail('unsupplied ORCID must remain null');
 if (release.scholarlyGates?.isbnAuthorityCount !== 293) fail('ISBN authority count must remain 293');
 if (release.scholarlyGates?.historyChapterCount !== 178) fail('History chapter count must remain 178');
@@ -29,10 +31,11 @@ if (release.scholarlyGates?.syntheticSourceTitlesAllowed !== false) fail('synthe
 if (zenodo.version !== release.version) fail('Zenodo metadata version mismatch');
 if (zenodo.upload_type !== 'dataset') fail('Zenodo upload_type must be dataset');
 if (!String(zenodo.description ?? '').includes('ISSN 2229-547X')) fail('Zenodo description missing ISSN');
-if ('doi' in zenodo) fail('Zenodo metadata must not assert a DOI before minting');
+if ('doi' in zenodo) fail('Zenodo deposition configuration must not hard-code the DOI minted by Zenodo');
 
 for (const marker of [
   'version: "2026.09"',
+  `doi: "${verifiedDoi}"`,
   'ISSN 2229-547X',
   'https://www.videha.co.in/',
   'https://videha-ejournal.github.io/videha/',
@@ -41,7 +44,8 @@ for (const marker of [
   if (!citation.includes(marker)) fail(`CITATION.cff missing ${marker}`);
 }
 
-if (!policy.includes('No DOI is asserted')) fail('preservation policy must explicitly forbid premature DOI assertion');
+if (!policy.includes(verifiedDoi)) fail('preservation policy must state the verified Zenodo DOI');
+if (!policy.includes('item-level authorship')) fail('preservation policy must preserve item-level attribution precedence');
 if (evidence.publicationPolicy !== 'fail-closed') fail('evidence register must be fail-closed');
 if (evidence.classes?.historicalGeography?.automaticPromotionAllowed !== false) fail('historical geography auto-promotion must remain forbidden');
 if (evidence.classes?.panji?.syntheticTitlesAllowed !== false) fail('synthetic Panji titles must remain forbidden');
@@ -53,6 +57,7 @@ const distManifest = path.join(root, 'dist', 'client', 'data', 'preservation', '
 if (existsSync(distManifest)) {
   const manifest = JSON.parse(await readFile(distManifest, 'utf8'));
   if (manifest.releaseVersion !== release.version || manifest.failClosed !== true) fail('public preservation manifest mismatch');
+  if (manifest.preservation?.doi !== verifiedDoi || manifest.preservation?.doiStatus !== 'minted') fail('public preservation DOI state mismatch');
   for (const file of manifest.files ?? []) {
     const local = path.join(root, 'dist', 'client', file.path.replace(/^\//, ''));
     if (!existsSync(local)) fail(`public preservation file missing: ${file.path}`);
@@ -68,7 +73,7 @@ console.log({
   tag: release.tag,
   issn: release.parentPublication.issn,
   doiStatus: release.preservation.doiStatus,
-  doiAsserted: Boolean(release.preservation.doi),
+  doi: release.preservation.doi,
   orcidAsserted: Boolean(release.preservation.orcid),
   failClosed: true
 });
