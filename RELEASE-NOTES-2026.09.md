@@ -20,11 +20,14 @@ This release preserves the bilingual Mithila–Vajji–Anga research environment
 - Historical-geography candidates remain candidates until page-level geometry evidence is independently verified.
 - Machine translation is not accepted as reviewed Maithili scholarship.
 - Automated accessibility checks do not substitute for human NVDA/JAWS/VoiceOver/TalkBack testing.
+- Repository-level creator, DOI and licence metadata describe the archival/dataset layer; item-level authorship, translation, editing, edition and rights notices remain authoritative.
 
 ## DOI status
 
-The repository is DOI-ready through `.zenodo.json`, but **no DOI is asserted in this release until Zenodo or another preservation service actually mints one**. After a DOI is minted it must be inserted into `CITATION.cff`, `data/release-manifest.json`, public citation outputs, and this release record.
+Zenodo preservation is active. The verified DOI for this archive/version chain is **10.5281/zenodo.22754977**. The DOI is recorded in `CITATION.cff` and `data/release-manifest.json`, and the release automation publishes that verified preservation state with the checksum-bearing release assets.
+
+`.zenodo.json` remains the Zenodo deposition configuration and does not hard-code the DOI minted by Zenodo itself. No guessed, placeholder or fabricated DOI is permitted.
 
 ## Integrity
 
-The GitHub Release automation attaches the public release dataset/checksum files only after the production Pages workflow has completed successfully. Release assets include an additional release-level SHA-256 manifest.
+The GitHub Release automation attaches the public release dataset/checksum files only after the production Pages workflow has completed successfully. Release assets include an additional release-level SHA-256 manifest. Re-running the workflow for `v2026.09` refreshes the existing scholarly release rather than inventing another version.
