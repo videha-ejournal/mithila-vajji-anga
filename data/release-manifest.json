@@ -19,9 +19,9 @@
     "githubReleaseRequired": true,
     "githubReleaseTag": "v2026.09",
     "doiProvider": "Zenodo",
-    "doiStatus": "pending-external-account-linkage",
-    "doi": null,
-    "doiRule": "No DOI may be asserted until an external preservation service has actually minted it.",
+    "doiStatus": "minted",
+    "doi": "10.5281/zenodo.22754977",
+    "doiRule": "Only the verified Zenodo DOI for this archive/version chain may be asserted; repository-level preservation metadata does not override item-level authorship or rights.",
     "orcid": null,
     "orcidStatus": "not-supplied"
   },
