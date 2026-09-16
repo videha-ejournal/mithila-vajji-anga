@@ -1,0 +1,44 @@
+name: Diagnose second Decoding Panji strict-build failure
+
+on:
+  push:
+    branches: [chatgpt/decoding-panji-i-vi]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+      - name: Run strict Panji generation and verification with captured log
+        env:
+          GITHUB_API_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set +e
+          node scripts/prepare-panji-article-corpus.mjs 2>&1 | tee panji-second-diagnostic.log
+          prep=${PIPESTATUS[0]}
+          if [ "$prep" -eq 0 ]; then
+            node scripts/verify-panji-article-corpus.mjs 2>&1 | tee -a panji-second-diagnostic.log
+            verify=${PIPESTATUS[0]}
+          else
+            verify=0
+          fi
+          echo "PREP_EXIT=$prep" | tee -a panji-second-diagnostic.log
+          echo "VERIFY_EXIT=$verify" | tee -a panji-second-diagnostic.log
+          exit $(( prep != 0 ? prep : verify ))
+      - name: Preserve diagnostic log
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: panji-second-diagnostic
+          path: panji-second-diagnostic.log
+          retention-days: 2
