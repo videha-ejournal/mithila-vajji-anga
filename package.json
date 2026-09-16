@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "node scripts/export-isbn-authority.mjs && vinext dev",
-    "build": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && node scripts/build-bilingual-detail-inventory.mjs && node scripts/prepare-runtime-data.mjs && node scripts/optimize-home-runtime.mjs && node scripts/prepare-research-article-corpus.mjs && node scripts/verify-research-article-corpus.mjs && node scripts/build-optimized.mjs && node scripts/finalize-bilingual-semantics.mjs && node scripts/verify-bilingual-semantics.mjs && node scripts/preserve-route-sitemap.mjs && node scripts/preserve-research-article-sitemap.mjs && node scripts/verify-research-article-corpus.mjs --dist && node scripts/finalize-service-worker.mjs && node scripts/finalize-release-integrity.mjs && node scripts/finalize-videha-identity.mjs && node scripts/finalize-scholarly-preservation.mjs && node scripts/verify-release-integrity.mjs && node scripts/verify-accessibility-engineering.mjs && node scripts/verify-human-accessibility-qa.mjs && node scripts/verify-videha-identity.mjs && node scripts/verify-scholarly-preservation.mjs",
+    "build": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && node scripts/build-bilingual-detail-inventory.mjs && node scripts/prepare-runtime-data.mjs && node scripts/optimize-home-runtime.mjs && node scripts/prepare-research-article-corpus.mjs && node scripts/verify-research-article-corpus.mjs && node scripts/prepare-panji-article-corpus.mjs && node scripts/verify-panji-article-corpus.mjs && node scripts/build-optimized.mjs && node scripts/finalize-bilingual-semantics.mjs && node scripts/verify-bilingual-semantics.mjs && node scripts/inject-panji-home-directory.mjs && node scripts/preserve-route-sitemap.mjs && node scripts/preserve-research-article-sitemap.mjs && node scripts/verify-research-article-corpus.mjs --dist && node scripts/verify-panji-article-corpus.mjs --dist && node scripts/finalize-service-worker.mjs && node scripts/finalize-release-integrity.mjs && node scripts/finalize-videha-identity.mjs && node scripts/finalize-scholarly-preservation.mjs && node scripts/verify-release-integrity.mjs && node scripts/verify-accessibility-engineering.mjs && node scripts/verify-human-accessibility-qa.mjs && node scripts/verify-videha-identity.mjs && node scripts/verify-scholarly-preservation.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
@@ -18,7 +18,7 @@
     "verify:isbn": "node scripts/validate-isbn-authority.mjs",
     "verify:videha-identity": "node scripts/verify-videha-identity.mjs",
     "verify:preservation": "node scripts/verify-scholarly-preservation.mjs",
-    "verify:research-articles": "node scripts/verify-research-article-corpus.mjs",
+    "verify:research-articles": "node scripts/verify-research-article-corpus.mjs && node scripts/verify-panji-article-corpus.mjs",
     "audit:parity": "node scripts/audit-videha-parity.mjs --write reports/videha-parity-latest.json",
     "export:isbn": "node scripts/export-isbn-authority.mjs",
     "audit:security:production": "node scripts/audit-production-security.mjs",
@@ -28,7 +28,8 @@
     "audit:classical-philosophy:complete": "node scripts/validate-classical-philosophy-inventory.mjs --require-complete",
     "audit:panji": "node scripts/audit-panji-source.mjs",
     "audit:panji:strict": "node scripts/audit-panji-source.mjs --strict",
-    "generate:research-articles": "node scripts/prepare-research-article-corpus.mjs && node scripts/verify-research-article-corpus.mjs",
+    "generate:research-articles": "node scripts/prepare-research-article-corpus.mjs && node scripts/verify-research-article-corpus.mjs && node scripts/prepare-panji-article-corpus.mjs && node scripts/verify-panji-article-corpus.mjs",
+    "generate:panji-research-articles": "node scripts/prepare-panji-article-corpus.mjs && node scripts/verify-panji-article-corpus.mjs",
     "generate:archive": "node scripts/validate-isbn-authority.mjs && node scripts/export-isbn-authority.mjs && node scripts/validate-classical-philosophy-inventory.mjs --require-complete && node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory && node scripts/audit-panji-source.mjs --strict --write-inventory && python scripts/generate-bilingual-archive.py && node scripts/apply-panji-source-corrections.mjs && node scripts/apply-reviewed-maithili.mjs && node scripts/verify-bilingual-archive.mjs && node scripts/build-bilingual-detail-inventory.mjs"
   },
   "dependencies": {
