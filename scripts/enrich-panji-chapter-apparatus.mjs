@@ -8,6 +8,7 @@ const ROOT = 'public';
 const ROMAN = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI' };
 const APPARATUS_RE = /<section class="panji-source-apparatus"[\s\S]*?<\/section>\s*/g;
 const CONTAMINATED_TITLE_RE = /\b(?:This chapter continues|The Panji system is built around memory anchors|Source span decoded in this chapter)\b/i;
+const SOURCE_NOTES_RE = /^Chapter\s+\d+\s+Source Notes$/i;
 const STOPWORDS = new Set(`about above after again against all also among an and any are as at be because been before being below between both but by can chapter could did do does doing down during each few for from further had has have having he her here hers herself him himself his how i if in into is it its itself just may more most my myself no nor not now of off on once only or other our ours ourselves out over own same she should so some such than that the their theirs them themselves then there these they this those through to too under until up very was we were what when where which while who whom why will with would you your yours yourself yourselves source panji volume mithila`.split(/\s+/));
 
 function clean(value) { return String(value ?? '').replace(/\s+/g, ' ').trim(); }
@@ -39,9 +40,18 @@ function buildSourceStructure(details, volume) {
         chapters.set(chapter, current);
         continue;
       }
-      if (current && !current.sourceTitle && !/^Chapter\s+\d+\s+Source Notes$/i.test(title)) {
-        current.sourceTitle = title;
+      if (current && SOURCE_NOTES_RE.test(title)) {
+        current.headings.push(title);
+        continue;
       }
+      if (current && !current.sourceTitle) {
+        current.sourceTitle = title;
+        continue;
+      }
+      // An independent level-one unit after the chapter title closes this
+      // chapter's outline. This prevents appendices/back matter from leaking
+      // into the final formal chapter's scholarly apparatus.
+      current = null;
       continue;
     }
     if (level === 2 && current) current.headings.push(title);
