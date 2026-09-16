@@ -1,4 +1,4 @@
-name: Diagnose Decoding Panji strict build
+name: Diagnose Decoding Panji Chapter 35
 
 on:
   push:
@@ -9,9 +9,6 @@ on:
 permissions:
   contents: write
 
-env:
-  CI: '1'
-
 jobs:
   diagnose:
     runs-on: ubuntu-24.04
@@ -19,41 +16,36 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: chatgpt/decoding-panji-i-vi
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Install production image optimizer
-        run: npm install --no-save --package-lock=false sharp@0.35.4
-      - name: Run build and preserve exact failure
-        id: build
-        continue-on-error: true
+      - name: Install Poppler
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+      - name: Download pinned Volume II and inspect Chapter 35 headings
+        shell: bash
         env:
-          REQUIRE_IMAGE_OPTIMIZATION: '1'
-          REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
-          GITHUB_API_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SOURCE_SHA=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' https://api.github.com/repos/videha-ejournal/videha-ejournal/branches/main | python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["sha"])')
+          mkdir -p .source-books .diagnostics
+          curl -fL --retry 3 -o .source-books/DECODING_PANJI_2.pdf "https://raw.githubusercontent.com/videha-ejournal/videha-ejournal/${SOURCE_SHA}/DECODING_PANJI_2.pdf"
+          pdftotext -layout .source-books/DECODING_PANJI_2.pdf /tmp/v2.txt
+          python3 - <<'PY' > .diagnostics/v2-ch35-context.txt
+          from pathlib import Path
+          text=Path('/tmp/v2.txt').read_text(errors='replace')
+          lines=text.splitlines()
+          print('All Volume II Chapter 35 textual occurrences with context')
+          print('========================================================')
+          hits=[i for i,l in enumerate(lines) if 'Chapter 35' in l]
+          print('hit_count=',len(hits))
+          for n,i in enumerate(hits,1):
+              print(f'\n--- HIT {n}, line {i+1} ---')
+              for j in range(max(0,i-12), min(len(lines),i+25)):
+                  print(f'{j+1:06d}: {lines[j]}')
+          PY
+      - name: Commit diagnostic context
         shell: bash
         run: |
-          set -o pipefail
-          npm run build 2>&1 | tee /tmp/panji-build.log
-      - name: Commit diagnostic result
-        if: always()
-        shell: bash
-        run: |
-          mkdir -p .diagnostics
-          {
-            echo "head=${GITHUB_SHA}"
-            echo "outcome=${{ steps.build.outcome }}"
-            echo "--- LAST 500 LINES ---"
-            tail -n 500 /tmp/panji-build.log || true
-          } > .diagnostics/panji-build-failure.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .diagnostics/panji-build-failure.txt
-          git commit -m 'ci: capture Decoding Panji build diagnostic' || exit 0
+          git add .diagnostics/v2-ch35-context.txt
+          git commit -m 'ci: capture Volume II Chapter 35 source context' || exit 0
           git push origin HEAD:chatgpt/decoding-panji-i-vi
-      - name: Preserve failing status
-        if: steps.build.outcome == 'failure'
-        run: exit 1
