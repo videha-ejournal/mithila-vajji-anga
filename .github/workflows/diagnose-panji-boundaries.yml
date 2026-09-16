@@ -1,0 +1,104 @@
+name: Diagnose Decoding Panji short chapter boundaries
+
+on:
+  push:
+    branches: [chatgpt/decoding-panji-i-vi]
+    paths-ignore:
+      - '.diagnostics/**'
+
+permissions:
+  contents: write
+
+env:
+  CI: '1'
+
+jobs:
+  boundary-analysis:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: chatgpt/decoding-panji-i-vi
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+      - name: Generate corpus and materialize source PDFs
+        timeout-minutes: 7
+        env:
+          GITHUB_API_TOKEN: ${{ github.token }}
+        run: node scripts/prepare-panji-article-corpus.mjs
+      - name: Analyze exact source boundaries for 19 short chapters
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          mkdir -p .diagnostics
+          python3 - <<'PY'
+          from pathlib import Path
+          import importlib.util, re
+
+          spec = importlib.util.spec_from_file_location('panji', 'scripts/run-panji-article-corpus.py')
+          panji = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(panji)
+
+          targets = {
+              2: {33,34,35},
+              4: {20,83,84,85,86,87},
+              5: {10},
+              6: {22,23,24,25,26,27,28,29,30},
+          }
+          out=[]
+          for volume, chapters in targets.items():
+              pdf = panji.SOURCE_DIR / panji.SOURCES[volume]
+              pages = panji.run_pdftotext(pdf)
+              rows = panji.flatten(pages)
+              starts = panji.select_body_starts(rows, panji.EXPECTED[volume])
+              out.append(f'===== VOLUME {volume} =====')
+              for chapter in sorted(chapters):
+                  idx = chapter - 1
+                  start = starts[idx]
+                  next_start = starts[idx+1] if idx+1 < len(starts) else None
+                  hard_end = next_start if next_start is not None else len(rows)
+                  final = next_start is None
+                  end = panji.semantic_end(rows, start, next_start, final=final)
+                  title = panji.extract_title(rows, start, chapter)
+                  body = panji.body_text(rows, start, end)
+                  words = re.findall(r"\b[\w’'-]+\b", body, flags=re.UNICODE)
+                  chars = len(re.sub(r'\s+', ' ', body).strip())
+                  trigger='NONE'
+                  if end < hard_end:
+                      t = panji.clean(rows[end]['text'])
+                      kinds=[]
+                      if panji.PART_RE.match(rows[end]['text']): kinds.append('PART_RE')
+                      if panji.APPENDIX_RE.match(rows[end]['text']): kinds.append('APPENDIX_RE')
+                      if final and panji.FINAL_BACK_RE.match(rows[end]['text']): kinds.append('FINAL_BACK_RE')
+                      trigger=f'{"+".join(kinds) or "UNKNOWN"}: {t!r}'
+                  out.append(f'V{volume} CH{chapter:03d} title={title!r}')
+                  out.append(f'  start_idx={start} start_page={rows[start]["page"]} next_idx={next_start} next_page={rows[next_start]["page"] if next_start is not None else None}')
+                  out.append(f'  semantic_end_idx={end} semantic_end_page={rows[max(start,end-1)]["page"]} hard_end_idx={hard_end} truncated_before_next={end < hard_end}')
+                  out.append(f'  words={len(words)} chars={chars} trigger={trigger}')
+                  out.append('  START_CONTEXT:')
+                  for r in rows[start:min(start+14, len(rows))]: out.append(f'    p{r["page"]}:{r["line"]}: {r["text"]}')
+                  out.append('  END_CONTEXT:')
+                  for j in range(max(start,end-8), min(hard_end,end+12)):
+                      r=rows[j]; mark='>>' if j==end else '  '
+                      out.append(f'    {mark} p{r["page"]}:{r["line"]}: {r["text"]}')
+                  if next_start is not None:
+                      out.append('  NEXT_CHAPTER_CONTEXT:')
+                      for r in rows[next_start:min(next_start+8,len(rows))]: out.append(f'    p{r["page"]}:{r["line"]}: {r["text"]}')
+                  out.append('')
+          Path('.diagnostics/panji-short-boundary-analysis.txt').write_text('\n'.join(out)+'\n','utf-8')
+          print('\n'.join(out))
+          PY
+      - name: Persist boundary analysis
+        if: always()
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .diagnostics/panji-short-boundary-analysis.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'diagnostics: persist Panji short chapter boundary analysis'
+            git push origin HEAD:chatgpt/decoding-panji-i-vi
+          fi
