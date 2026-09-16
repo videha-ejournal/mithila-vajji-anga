@@ -1,0 +1,744 @@
+===== VOLUME 2 =====
+V2 CH033 title='Volume II and the Khand 1 Index Protocol'
+  start_idx=17513 start_page=476 next_idx=17590 next_page=478
+  semantic_end_idx=17590 semantic_end_page=478 hard_end_idx=17590 truncated_before_next=False
+  words=936 chars=3243 trigger=NONE
+  START_CONTEXT:
+    p476:15:     Chapter 33. Volume II and the Khand 1 Index
+    p476:16:                      Protocol
+    p476:17: The uploaded index states the governing publication sequence:
+    p476:18: “GENOME MAPPING VOLUME I [KHAND 1,2,3] - Decoding the
+    p476:19: Panji of Mithila Volume II, III & IV decodes these three Khand of
+    p476:20: Volume I respectively.” Therefore this revised manuscript is
+    p476:21: Volume II and concerns Khand 1 only. Any sentence that sounds
+    p476:22: like it covers all three Khands must be read as method, not as
+    p476:23: scope.
+    p476:24: The index also warns that printed page numbers remain stable
+    p476:25: while line numbers may shift slightly; therefore this book uses
+    p476:26: page-level and index-block references for coverage, and line-level
+    p476:27: references only as guides.
+    p476:28: 
+  END_CONTEXT:
+       p478:10: 
+       p478:11: Decoding implication: the headings मेघापत्य, दामोदरापत्य, महेशापत्य, and
+       p478:12: माने -गादू are symbolic chapter titles built around the brothers
+       p478:13: connected with Mahesh Thakur, but the content under them
+       p478:14: ranges across the 167 मूल and must not be narrowed to only those
+       p478:15: named descendants.
+       p478:16: 
+       p478:17: 
+  NEXT_CHAPTER_CONTEXT:
+    p478:18:     Chapter 34. Khand 1 Master Structure and
+    p478:19:                 Chapter Link Map
+    p478:20: The following master map links the Khand 1 index blocks to the
+    p478:21: chapters and appendices already present in this volume. This is
+    p478:22: the book’s audit bridge: it shows where the index is decoded and
+    p478:23: where the tools for verification are located.
+    p478:24:    पत्र-पञ्जी, pages 1-14 -> Chapter 35 and Appendix D/J. मूलग्रामक
+    p478:25:     विभाजन कोन पुरुखासँ ; decode with village/genealogy tables.
+
+V2 CH034 title='Khand 1 Master Structure and Chapter Link Map'
+  start_idx=17590 start_page=478 next_idx=17631 next_page=479
+  semantic_end_idx=17631 semantic_end_page=479 hard_end_idx=17631 truncated_before_next=False
+  words=307 chars=1625 trigger=NONE
+  START_CONTEXT:
+    p478:18:     Chapter 34. Khand 1 Master Structure and
+    p478:19:                 Chapter Link Map
+    p478:20: The following master map links the Khand 1 index blocks to the
+    p478:21: chapters and appendices already present in this volume. This is
+    p478:22: the book’s audit bridge: it shows where the index is decoded and
+    p478:23: where the tools for verification are located.
+    p478:24:    पत्र-पञ्जी, pages 1-14 -> Chapter 35 and Appendix D/J. मूलग्रामक
+    p478:25:     विभाजन कोन पुरुखासँ ; decode with village/genealogy tables.
+    p478:26:    गोत्र-पञ्जी, pages 14-15 -> Chapter 35; Appendix C/D/J. गोत्र, मूल,
+    p478:27:     मूलग्राम; decode as origin/branch framework.
+    p478:28:    मेघापत्य, pages 17-337 -> Chapter 38; Chapters 23-27. Index
+    p478:29:     gramaarambh rows decoded through dense-passage, village-
+    p478:30:     cluster, and family-tree methods.
+    p478:31:    दामोदरापत्य, pages 338-454 -> Chapter 38; Chapters 23-27.
+  END_CONTEXT:
+       p479:12:     intellectual lineage and title/occupation index.
+       p479:13:    गोत्र-प्रवर युक्त मैथिल -> Chapter 37; Appendix C. Decode marriage
+       p479:14:     rule, उतढ़, त्रिप्रवर/पंचप्रवर, and मूल classification.
+       p479:15:    बीजी पुरुषक नाम ओ पत्रांक -> Chapter 37; Appendix F/J. Decode बीजी
+       p479:16:     as earliest known person of a मूल; link to place and register
+       p479:17:     number.
+       p479:18: 
+       p479:19: 
+  NEXT_CHAPTER_CONTEXT:
+    p479:20:         Chapter 35. गोत्र, मूल, मूलग्राम: Index-Wise
+    p479:21:                                     Decoding
+    p479:22: The first block of the Khand 1 index is the gate to the entire
+    p479:23: volume. It identifies गोत्र, मूल, and मूलग्राम relations. This is not a
+    p479:24: casual village list. It is the skeleton of origin, branch, and village
+    p479:25: attachment for Khand 1.
+    p479:26: 
+    p479:27: A. गोत्र-मूल-मूलग्राम decision block
+
+V2 CH035 title='गोत्र, मूल, मूलग्राम: Index-Wise Decoding'
+  start_idx=17631 start_page=479 next_idx=17702 next_page=481
+  semantic_end_idx=17702 semantic_end_page=481 hard_end_idx=17702 truncated_before_next=False
+  words=527 chars=2137 trigger=NONE
+  START_CONTEXT:
+    p479:20:         Chapter 35. गोत्र, मूल, मूलग्राम: Index-Wise
+    p479:21:                                     Decoding
+    p479:22: The first block of the Khand 1 index is the gate to the entire
+    p479:23: volume. It identifies गोत्र, मूल, and मूलग्राम relations. This is not a
+    p479:24: casual village list. It is the skeleton of origin, branch, and village
+    p479:25: attachment for Khand 1.
+    p479:26: 
+    p479:27: A. गोत्र-मूल-मूलग्राम decision block
+    p479:28: 
+    p479:29:    शाण्डिल्‍य    (i)         सरिसब खांगुड़, सकु री, जोंकी
+    p479:30:    (ii) पर्वपल्‍ली वढि़याम            (पवौली)
+    p479:31:    (iii) खण्‍डबला भौर; (iv)           सोदरपुर सरिसव, मानी, दिगउन्‍ध, तेतरिहार,
+    p479:32:          कन्‍होली कटका, हाटी,
+    p479:33: 
+  END_CONTEXT:
+       p481:8: Decoding rule: this restatement is the practical village-cluster
+       p481:9: checklist. The revised book treats each cluster as covered by
+       p481:10: Chapters 6, 16, 17, 18, 24, 29, Appendix D, and Appendix J. Any
+       p481:11: Khand 1 passage mentioning one of these clusters must be cross-
+       p481:12: checked against this block before assigning origin, residence, or
+       p481:13: branch-seat function.
+       p481:14: 
+       p481:15: 
+  NEXT_CHAPTER_CONTEXT:
+    p481:16: Chapter 36. लौकित, चौगोला, श्रेणी, and पत्रांक Records
+    p481:17: The index then moves from गोत्र-मूल to लौकित and चौगोला श्रेणी. These
+    p481:18: records must be linked to the person index, title index, village
+    p481:19: index, and number table. They also show how rank/order names
+    p481:20: may be based on persons or on villages.
+    p481:21: 
+    p481:22: A. लौकित and चौगोला summary
+    p481:23: 
+
+===== VOLUME 4 =====
+V4 CH020 title='Sakuri, Sarisab-Sakuri, and the Badhiyam-'
+  start_idx=7959 start_page=237 next_idx=8257 next_page=246
+  semantic_end_idx=7979 semantic_end_page=237 hard_end_idx=8257 truncated_before_next=True
+  words=149 chars=1025 trigger=APPENDIX_RE: 'appendix to the Khangur material. It has its own internal'
+  START_CONTEXT:
+    p237:0: Chapter 20
+    p237:1: Sakuri, Sarisab-Sakuri, and the Badhiyam-
+    p237:2: Parvapalli Branches
+    p237:3:    This chapter continues from the Khangur-Khojpur and
+    p237:4: Sakuri-Rashadh transition covered in the previous chapter. It
+    p237:5: is deliberately limited to entries (55) through (68). The chapter
+    p237:6: begins with the continuation of the Sakuri material, passes
+    p237:7: through the two sparse Sarisab-Sakuri headings, and then
+    p237:8: enters the Badhiyam or Parvapalli sequence: Badhiyam to
+    p237:9: Dhagjari, Badhiyam to Parvapalli, Badhiyam to Kailakh,
+    p237:10: Badhiyam to Ranti, Badhiyam to Mangrauni, Badhiyam to
+    p237:11: Saurath, and the Manour continuation.
+    p237:12:    The Genome Mapping index makes this chapter especially
+    p237:13: important. It places Sarisab under the Shandilya frame with
+  END_CONTEXT:
+       p237:12:    The Genome Mapping index makes this chapter especially
+       p237:13: important. It places Sarisab under the Shandilya frame with
+       p237:14: Khangur, Sakuri, and Jonki, and separately places Parvapalli
+       p237:15: with Badhiyam. The chapter therefore stands at a shift from
+       p237:16: the Sarisab-Sakuri system into the Parvapalli-Badhiyam
+       p237:17: system. That shift is not merely geographical; it is a movement
+       p237:18: from one indexed moolgram control to another.
+       p237:19:    For this reason, the chapter must not be read as an
+    >> p237:20: appendix to the Khangur material. It has its own internal
+       p237:21: logic. The Sakuri section carries forward the Sarisab-linked
+       p237:22: memory, while the Badhiyam entries establish a long and
+       p237:23: dense Parvapalli-related route containing Dhagjari, Ranti,
+       p237:24: Mangrauni, Saurath, and several modernized personal
+       p237:25: branches.
+       p237:26: 
+       p237:27: 20.1 Entry (55): The Sakuri Continuation
+       p237:28:   Entry (55) continues the Sakuri line that began with the
+       p237:29: Sakuri-Rashadh/Rudradhar material. The entry opens from
+       p237:30: Premnath and then moves through Budhwal, Mandar,
+       p237:31: Beherarhi, Belounch, Babhaniyam, Pandua, Ekhara, Pali, and
+  NEXT_CHAPTER_CONTEXT:
+    p246:0: Chapter 21. Badhiyam after Saurath:
+    p246:1: Navani, Chanpura, Shashipur, Tedhra,
+    p246:2: Jagati, Rajey, and Sakuri-Gangoli
+    p246:3:   Chapter 20 ended with the Badhiyam-Parvapalli line
+    p246:4: moving through Saurath and Manour. Chapter 21 begins
+    p246:5: immediately after that point and covers entries (69) through
+    p246:6: (89). The chapter is deliberately confined to this block. It does
+    p246:7: not import the later entries, and it does not repeat the
+
+V4 CH083 title='Major Village Nodes and Route'
+  start_idx=26285 start_page=751 next_idx=26344 next_page=753
+  semantic_end_idx=26344 semantic_end_page=752 hard_end_idx=26344 truncated_before_next=False
+  words=383 chars=2618 trigger=NONE
+  START_CONTEXT:
+    p751:0: Chapter 83. Major Village Nodes and Route
+    p751:1: Networks
+    p751:2: 
+    p751:3: 1. Village nodes as archival anchors
+    p751:4:    The Nagram Panji is organized through villages as much as through
+    p751:5: persons. A village-name is not merely a geographical label; it is a
+    p751:6: genealogical coordinate. It can mark origin, settlement, marriage
+    p751:7: affiliation, branch identity, ritual association, or the place through
+    p751:8: which a person became known in the record.
+    p751:9:    The central village nodes are not equal in function. Some serve as
+    p751:10: beginnings of clusters, some as repeated destinations, some as marriage-
+    p751:11: connection markers, and some as memory bridges between old and
+    p751:12: recent layers. The reader must therefore ask what the village is doing in
+    p751:13: each entry, not merely where it is located.
+  END_CONTEXT:
+       p752:12: geography of the source-entry chapters. They are not loose appendages.
+       p752:13: They show how the Nagram material reaches its final spread before the
+       p752:14: closing rikta entries.
+       p752:15: 
+       p752:16: 
+       p752:17: 
+       p752:18: 
+       p752:19:                                  751
+  NEXT_CHAPTER_CONTEXT:
+    p753:0: Chapter 84. Marriage Networks and Inter-
+    p753:1: Village Affiliation
+    p753:2: 
+    p753:3: 1. Marriage as structure
+    p753:4:    The Panji records marriage and inter-village affiliation in compressed
+    p753:5: formulae. A simple route expression may preserve a family’s relation to
+    p753:6: another house, village, or branch. This is why village names cannot be
+    p753:7: read only as physical movement. In many entries they encode social
+
+V4 CH084 title='Marriage Networks and Inter-'
+  start_idx=26344 start_page=753 next_idx=26394 next_page=755
+  semantic_end_idx=26394 semantic_end_page=754 hard_end_idx=26394 truncated_before_next=False
+  words=318 chars=2043 trigger=NONE
+  START_CONTEXT:
+    p753:0: Chapter 84. Marriage Networks and Inter-
+    p753:1: Village Affiliation
+    p753:2: 
+    p753:3: 1. Marriage as structure
+    p753:4:    The Panji records marriage and inter-village affiliation in compressed
+    p753:5: formulae. A simple route expression may preserve a family’s relation to
+    p753:6: another house, village, or branch. This is why village names cannot be
+    p753:7: read only as physical movement. In many entries they encode social
+    p753:8: linkage.
+    p753:9:    The marriage network is often visible through repeated patterns: a
+    p753:10: principal name is followed by sons, then by a village route, then by
+    p753:11: another line. A daughter-line may be brief, but it can be as important as
+    p753:12: a long male descent, because it preserves the connection between
+    p753:13: houses.
+  END_CONTEXT:
+       p754:2: mechanism of social memory. It joins houses, preserves eligibility,
+       p754:3: records status, and transmits village names across generations. The
+       p754:4: Nagram Panji therefore turns marriage into a historical map.
+       p754:5: 
+       p754:6: 
+       p754:7: 
+       p754:8: 
+       p754:9:                                 753
+  NEXT_CHAPTER_CONTEXT:
+    p755:0: Chapter 85. Scholars, Priests, Officials,
+    p755:1: Lawyers, Engineers, Doctors, and Modern
+    p755:2: Professions
+    p755:3: 
+    p755:4: 1. Titles as evidence
+    p755:5:   The Nagram Panji preserves a wide range of titles and social
+    p755:6: markers. Thakur, Chaudhary, Pandit, Jyotishi, Mahamahopadhyaya,
+    p755:7: Vaidik, Vaidya, Vakil, Doctor, Engineer, and other labels appear not as
+
+V4 CH085 title='Scholars, Priests, Officials,'
+  start_idx=26394 start_page=755 next_idx=26444 next_page=757
+  semantic_end_idx=26444 semantic_end_page=756 hard_end_idx=26444 truncated_before_next=False
+  words=316 chars=2102 trigger=NONE
+  START_CONTEXT:
+    p755:0: Chapter 85. Scholars, Priests, Officials,
+    p755:1: Lawyers, Engineers, Doctors, and Modern
+    p755:2: Professions
+    p755:3: 
+    p755:4: 1. Titles as evidence
+    p755:5:   The Nagram Panji preserves a wide range of titles and social
+    p755:6: markers. Thakur, Chaudhary, Pandit, Jyotishi, Mahamahopadhyaya,
+    p755:7: Vaidik, Vaidya, Vakil, Doctor, Engineer, and other labels appear not as
+    p755:8: ornaments but as identifying evidence. They help distinguish one
+    p755:9: person or branch from another.
+    p755:10:    A title may be inherited, earned, occupational, scholarly, priestly, or
+    p755:11: local. The reader must not reduce every title to the same category. In
+    p755:12: some entries the title establishes prestige; in others it helps identify a
+    p755:13: modern descendant; in still others it shows how traditional genealogy
+  END_CONTEXT:
+       p756:3: grammatical marker around the word: whether it follows a sonship
+       p756:4: marker, stands before a name, appears as a profession, or functions as a
+       p756:5: known-as form.
+       p756:6: 
+       p756:7: 
+       p756:8: 
+       p756:9: 
+       p756:10:                                   755
+  NEXT_CHAPTER_CONTEXT:
+    p757:0: Chapter 86. Migration, Memory, and Mithila
+    p757:1: Beyond Mithila
+    p757:2: 
+    p757:3: 1. The wider geography
+    p757:4:    The Nagram Panji repeatedly reaches beyond the immediate core of
+    p757:5: Mithila. Purnea, Champaran, Betia, Uttar Pradesh, Rajasthan,
+    p757:6: Jamshedpur, and other wider locations appear in the record. These
+    p757:7: references show that Mithila’s genealogical memory travelled with
+
+V4 CH086 title='Migration, Memory, and Mithila'
+  start_idx=26444 start_page=757 next_idx=26490 next_page=759
+  semantic_end_idx=26490 semantic_end_page=758 hard_end_idx=26490 truncated_before_next=False
+  words=281 chars=1814 trigger=NONE
+  START_CONTEXT:
+    p757:0: Chapter 86. Migration, Memory, and Mithila
+    p757:1: Beyond Mithila
+    p757:2: 
+    p757:3: 1. The wider geography
+    p757:4:    The Nagram Panji repeatedly reaches beyond the immediate core of
+    p757:5: Mithila. Purnea, Champaran, Betia, Uttar Pradesh, Rajasthan,
+    p757:6: Jamshedpur, and other wider locations appear in the record. These
+    p757:7: references show that Mithila’s genealogical memory travelled with
+    p757:8: families, marriages, learning, service, and settlement.
+    p757:9:    The wider geography should not be treated as an exception. It is part
+    p757:10: of the source’s historical value. The Panji records not only where
+    p757:11: families began but how their memory continued across space.
+    p757:12: 
+    p757:13: 2. Movement without rupture
+  END_CONTEXT:
+       p757:38:                                     756
+       p758:0: marital; some are occupational; some are later settlement points. The
+       p758:1: historical task is to read the function, not just the location.
+       p758:2: 
+       p758:3: 
+       p758:4: 
+       p758:5: 
+       p758:6:                                 757
+  NEXT_CHAPTER_CONTEXT:
+    p759:0: Chapter 87. Problems of Reading: Scribal
+    p759:1: Variants, OCR-Like Distortions, and Editorial
+    p759:2: Decisions
+    p759:3: 
+    p759:4: 1. Why difficulty matters
+    p759:5:    The Nagram Panji is difficult because it is a compact record, not
+    p759:6: because it is careless. It compresses names, villages, titles, branches, and
+    p759:7: cross-references into narrow lines. It also preserves older spellings,
+
+V4 CH087 title='Problems of Reading: Scribal'
+  start_idx=26490 start_page=759 next_idx=None next_page=None
+  semantic_end_idx=26538 semantic_end_page=760 hard_end_idx=26710 truncated_before_next=True
+  words=299 chars=1994 trigger=APPENDIX_RE: 'Appendix A. Full Glossary of Panji Terms and'
+  START_CONTEXT:
+    p759:0: Chapter 87. Problems of Reading: Scribal
+    p759:1: Variants, OCR-Like Distortions, and Editorial
+    p759:2: Decisions
+    p759:3: 
+    p759:4: 1. Why difficulty matters
+    p759:5:    The Nagram Panji is difficult because it is a compact record, not
+    p759:6: because it is careless. It compresses names, villages, titles, branches, and
+    p759:7: cross-references into narrow lines. It also preserves older spellings,
+    p759:8: scribal variants, damaged readings, dotted omissions, and occasional
+    p759:9: modern transcription distortions.
+    p759:10:   The editor’s task is not to make the source look artificially smooth.
+    p759:11: The task is to make its difficulty intelligible.
+    p759:12: 
+    p759:13: 2. Scribal and spelling variants
+  END_CONTEXT:
+       p760:2:   The final principle is transparency. The reader must be able to see
+       p760:3: where the source is clear, where the interpretation is strong, and where
+       p760:4: uncertainty remains.
+       p760:5: 
+       p760:6: 
+       p760:7: 
+       p760:8: 
+       p760:9:                                   759
+    >> p761:0: Appendix A. Full Glossary of Panji Terms and
+       p761:1: Abbreviations
+       p761:2: suta / suto / sutah: Son, descendant, or male line marker. The exact
+       p761:3: force depends on placement.
+       p761:4: suta in plural or daughter-line use: May indicate daughters or
+       p761:5: connected lines when the surrounding grammar supports that reading.
+       p761:6: apara / apra: Another branch, alternate route, or additional linked line.
+       p761:7: pr.: Known-as, prakash, or alternate identifying form in many contexts.
+       p761:8: th.: Usually Thakur or a title marker, depending on context.
+       p761:9: dau / ddau: Record formula attached to a genealogical link; preserved as
+       p761:10: documentary wording.
+       p761:11: gramaarambha: Beginning of a village-based entry cluster.
+
+===== VOLUME 5 =====
+V5 CH010 title='Baliyas Ogahi-Dwashay, Banaili, Kobara (Kohbara):'
+  start_idx=4294 start_page=113 next_idx=4327 next_page=113
+  semantic_end_idx=4327 semantic_end_page=113 hard_end_idx=4327 truncated_before_next=False
+  words=285 chars=1816 trigger=NONE
+  START_CONTEXT:
+    p113:0:   Chapter 10
+    p113:1:  Baliyas Ogahi-Dwashay, Banaili, Kobara (Kohbara):
+    p113:2: Dharanidhar, Padmanabh, Pathak Mohan, Harinath,
+    p113:3: Baliyas Ekma Barahkona, and the Pakhaliya Threshold
+    p113:4:   Source span decoded in this chapter
+    p113:5:   Decoded source span and focus:
+    p113:6: • Source movement - Decoded focus
+    p113:7: • बलियास ओगही - द्वाशय , बनैली , कोबरा (कोहबरा) - Formal chapter heading
+    p113:8:   after Badgam Darhiara Asura ; opens the Baliyas - Ogahi - Dwashay - Banaili -
+    p113:9:   Kobara field.
+    p113:10: • एकमा बलियास सॅ वीजी धरनीधर - Root opening through Dharanidhar and the
+    p113:11:   Padmanabh - Shrinidhi - Shrinath cluster.
+    p113:12: • पद्मनाभ → शुक्ल हरिवंश / हरिशर्मा - The next descent line through Shukla
+    p113:13:   Harivansh , Harisharma , Ratikar , Som , Diwakar , Lakshmikar , Sadhukar , and
+  END_CONTEXT:
+       p113:25:   Vibhutinath , and Triloknath.
+       p113:26: • ओगही वलियास दुवाशय अपर बनैली - Internal Ogahi - Valiyas - Dwashay -
+       p113:27:   Banaili continuation through Pathak Chakrapani , Harinath , Prannath , Vaishnav , and
+       p113:28:   Nandan.
+       p113:29: • बलियास एकमा बरहकोना - Second Baliyas block through Dharanidhar ,
+       p113:30:   Padmanabhādi , Srinath , Jay Sharma , Jatadhar , Ratanakar , Chandrakar , Suryakar ,
+       p113:31:   Jagannath , Maheshwar , Kartik , and further lines.
+       p113:32: • पकलिया महिषी धर्मपुर देशे / काझी , पूर्णिया - Next formal field ; reserved for
+  NEXT_CHAPTER_CONTEXT:
+    p113:33:   Chapter 11.
+    p113:34: 
+    p113:35: 
+    p113:36: 
+    p113:37:   Editorial principle
+    p113:38:   This chapter decodes the source passage from बलियास ओगही - द्वाशय
+    p113:39: , बनैली , कोबरा (कोहबरा) up to , but not including , पकलिया महिषी
+    p113:40: 
+
+===== VOLUME 6 =====
+V6 CH022 title='The “Sixth Generation”'
+  start_idx=8875 start_page=218 next_idx=8946 next_page=220
+  semantic_end_idx=8946 semantic_end_page=220 hard_end_idx=8946 truncated_before_next=False
+  words=406 chars=2612 trigger=NONE
+  START_CONTEXT:
+    p218:21: Chapter 22 — The “Sixth Generation”
+    p218:22: Question: When Does Dushan Fade?
+    p218:23: One of the most important interpretive clues in the Dushan
+    p218:24: record is the statement that a descendant could become “fully
+    p218:25: pure” by the sixth generation. This is not a marginal remark. It
+    p218:26: gives the ethical and social logic by which Dushan could fade
+    p218:27: over time.
+    p218:28: 
+    p218:29: Dushan as Memory, Not Eternal Condemnation
+    p218:30: If Dushan were meant to be an eternal sentence, the source
+    p218:31: would have no need to discuss generational distance. Yet the
+    p218:32: explanation of the first table example describes a line moving
+    p218:33: through a chain of daughter marriages and maternal links until
+    p218:34: the descendant Devadhar is described as fully purified in the
+  END_CONTEXT:
+       p220:1: 
+       p220:2: 
+       p220:3: the descendant Devadhar is described as fully purified in the
+       p220:4: sixth generation.
+       p220:5: 
+       p220:6: 
+       p220:7: 
+       p220:8: 
+  NEXT_CHAPTER_CONTEXT:
+    p220:9: Chapter 23 — Panji Vocabulary: Offices,
+    p220:10: Titles, Scholars, and Social Rank
+    p220:11: Panji is not only a genealogical archive. It is also a vocabulary
+    p220:12: archive. It preserves the words by which Mithila remembered
+    p220:13: offices, scholarly titles, social rank, learned authority, royal
+    p220:14: administration, and professional accomplishment.
+    p220:15: 
+    p220:16: Why Vocabulary Matters
+
+V6 CH023 title='Panji Vocabulary: Offices,'
+  start_idx=8946 start_page=220 next_idx=9069 next_page=222
+  semantic_end_idx=9069 semantic_end_page=222 hard_end_idx=9069 truncated_before_next=False
+  words=569 chars=3319 trigger=NONE
+  START_CONTEXT:
+    p220:9: Chapter 23 — Panji Vocabulary: Offices,
+    p220:10: Titles, Scholars, and Social Rank
+    p220:11: Panji is not only a genealogical archive. It is also a vocabulary
+    p220:12: archive. It preserves the words by which Mithila remembered
+    p220:13: offices, scholarly titles, social rank, learned authority, royal
+    p220:14: administration, and professional accomplishment.
+    p220:15: 
+    p220:16: Why Vocabulary Matters
+    p220:17: A Panji entry is compressed. One small title can carry several
+    p220:18: meanings: scholarly qualification, court service, ritual
+    p220:19: authority, administrative office, or social prestige. Without
+    p220:20: decoding such terms, a reader will misunderstand both the
+    p220:21: person and the social world that produced the entry.
+    p220:22: 
+  END_CONTEXT:
+       p222:15: Based on Chapter 23 plan and the source note listing scholarly
+       p222:16: abbreviations such as म.म., सदु उ., वैया., ज्यो., as well as state and
+       p222:17: social    terms     including      शान्ति-विग्रहिक,   पार्णागारिक,   भाण्डागारिक,
+       p222:18: स्थानान्तरिक, राजवल्लभ, धर्माध्यक्षक, and धर्माधिकरणिक.
+       p222:19: 
+       p222:20: 
+       p222:21: 
+       p222:22: 
+  NEXT_CHAPTER_CONTEXT:
+    p222:23: Chapter 24 — Biji Purush and the
+    p222:24: Vamshavali Logic
+    p222:25: The Panji system is built around memory anchors. Among
+    p222:26: these, बीजी पुरुष is one of the most important. It identifies the
+    p222:27: earliest known founding ancestor of a lineage, while mool and
+    p222:28: moolgram organize the place-memory around that ancestor.
+    p222:29: 
+    p222:30: What Is Biji Purush?
+
+V6 CH024 title='Biji Purush and the'
+  start_idx=9069 start_page=222 next_idx=9132 next_page=224
+  semantic_end_idx=9132 semantic_end_page=224 hard_end_idx=9132 truncated_before_next=False
+  words=339 chars=2143 trigger=NONE
+  START_CONTEXT:
+    p222:23: Chapter 24 — Biji Purush and the
+    p222:24: Vamshavali Logic
+    p222:25: The Panji system is built around memory anchors. Among
+    p222:26: these, बीजी पुरुष is one of the most important. It identifies the
+    p222:27: earliest known founding ancestor of a lineage, while mool and
+    p222:28: moolgram organize the place-memory around that ancestor.
+    p222:29: 
+    p222:30: What Is Biji Purush?
+    p222:31: A बीजी पुरुष is the known seed-person of a lineage. He is not
+    p222:32: always the biological first man in an absolute sense; he is the
+    p222:33: earliest remembered and recordable ancestor from whom a
+    p222:34: branch can be organized. The term therefore belongs to
+    p222:35: archival memory, not mythology.
+    p222:36: 
+  END_CONTEXT:
+       p223:38: 
+       p223:39: 
+       p223:40:                      © Gajendra Thakur | 222
+       p224:0:                  Decoding the Panji of Mithila, Volume VI
+       p224:1: 
+       p224:2: 
+       p224:3: 
+       p224:4: 
+  NEXT_CHAPTER_CONTEXT:
+    p224:5: Chapter 25 — Up-Tip and Nagaram:
+    p224:6: Regional Branching and the Pachhwari
+    p224:7: Par System
+    p224:8: The Panji system was not a single flat register. It consisted of
+    p224:9: several related books and functional registers. Up-Tip and
+    p224:10: Nagaram show how regional branching and social division
+    p224:11: entered the archival system.
+    p224:12: 
+
+V6 CH025 title='Up-Tip and Nagaram:'
+  start_idx=9132 start_page=224 next_idx=9185 next_page=225
+  semantic_end_idx=9185 semantic_end_page=225 hard_end_idx=9185 truncated_before_next=False
+  words=289 chars=1837 trigger=NONE
+  START_CONTEXT:
+    p224:5: Chapter 25 — Up-Tip and Nagaram:
+    p224:6: Regional Branching and the Pachhwari
+    p224:7: Par System
+    p224:8: The Panji system was not a single flat register. It consisted of
+    p224:9: several related books and functional registers. Up-Tip and
+    p224:10: Nagaram show how regional branching and social division
+    p224:11: entered the archival system.
+    p224:12: 
+    p224:13: The Seven Kinds of Panji and the Branching
+    p224:14: Problem
+    p224:15: The source distinguishes multiple Panji forms: मूल, शाखा, गोत्र, पत्र,
+    p224:16: दूषण, उतेढ़, and अस्वाजन्यपत्र. This already shows that Panji was a
+    p224:17: network, not one book. Each form served a particular function:
+    p224:18: origin, branch, gotra, offspring, Dushan, sapinda clearance, or
+  END_CONTEXT:
+       p225:12: Based on Chapter 25 plan and the source statements that
+       p225:13: earlier mool Panji were common, later branch books were
+       p225:14: made, and that Up-Tip/Sotipura, Nagaram/Pachhwari Par, gotra
+       p225:15: Panji, and patra Panji were recorded in Mithilakshar.
+       p225:16: 
+       p225:17: 
+       p225:18: 
+       p225:19: 
+  NEXT_CHAPTER_CONTEXT:
+    p225:20: Chapter 26 — Panji, Hierarchy, and
+    p225:21: Social Damage
+    p225:22: Every archive has a cost. Panji preserved memory, regulated
+    p225:23: marriage, protected lines from confusion, and gave Mithila an
+    p225:24: extraordinary genealogical discipline. But the same system also
+    p225:25: helped produce hierarchy, internal stratification, and social
+    p225:26: damage.
+    p225:27: 
+
+V6 CH026 title='Panji, Hierarchy, and'
+  start_idx=9185 start_page=225 next_idx=9248 next_page=227
+  semantic_end_idx=9248 semantic_end_page=227 hard_end_idx=9248 truncated_before_next=False
+  words=335 chars=2206 trigger=NONE
+  START_CONTEXT:
+    p225:20: Chapter 26 — Panji, Hierarchy, and
+    p225:21: Social Damage
+    p225:22: Every archive has a cost. Panji preserved memory, regulated
+    p225:23: marriage, protected lines from confusion, and gave Mithila an
+    p225:24: extraordinary genealogical discipline. But the same system also
+    p225:25: helped produce hierarchy, internal stratification, and social
+    p225:26: damage.
+    p225:27: 
+    p225:28: From Order to Hierarchy
+    p225:29: A system created to organize descent can become a system of
+    p225:30: ranking. The source itself criticizes the later development of
+    p225:31: internal stratification among Brahmin and Kayastha
+    p225:32: communities. Once records become instruments of status, the
+    p225:33: record-keeper’s ethical role becomes fragile.
+  END_CONTEXT:
+       p226:35: 
+       p226:36: 
+       p226:37: 
+       p226:38:                       © Gajendra Thakur | 225
+       p227:0:                Decoding the Panji of Mithila, Volume VI
+       p227:1: 
+       p227:2: 
+       p227:3: 
+  NEXT_CHAPTER_CONTEXT:
+    p227:4: Chapter 27 — Plagiarism, Ownership,
+    p227:5: and the Struggle over Panji Knowledge
+    p227:6: Panji knowledge is communal inheritance, but preservation
+    p227:7: labor is not ownerless. The manuscript and scan traditions, the
+    p227:8: transcription work, the indexing, and the interpretive labor all
+    p227:9: required time, expense, and risk. Credit is therefore not vanity;
+    p227:10: it is part of scholarly ethics.
+    p227:11: 
+
+V6 CH027 title='Plagiarism, Ownership,'
+  start_idx=9248 start_page=227 next_idx=9301 next_page=228
+  semantic_end_idx=9301 semantic_end_page=228 hard_end_idx=9301 truncated_before_next=False
+  words=286 chars=1939 trigger=NONE
+  START_CONTEXT:
+    p227:4: Chapter 27 — Plagiarism, Ownership,
+    p227:5: and the Struggle over Panji Knowledge
+    p227:6: Panji knowledge is communal inheritance, but preservation
+    p227:7: labor is not ownerless. The manuscript and scan traditions, the
+    p227:8: transcription work, the indexing, and the interpretive labor all
+    p227:9: required time, expense, and risk. Credit is therefore not vanity;
+    p227:10: it is part of scholarly ethics.
+    p227:11: 
+    p227:12: The 2009 Genome Mapping Work
+    p227:13: The source explicitly connects this preservation effort with the
+    p227:14: work “Genome Mapping: Mithilak Panji Prabandh, 450 A.D. to
+    p227:15: 2009 A.D.” It also records allegations of later appropriation.
+    p227:16: This chapter does not need to become a personal polemic; it
+    p227:17: must instead explain why attribution matters in community
+  END_CONTEXT:
+       p228:8: Based on Chapter 27 plan and the source’s note regarding the
+       p228:9: 2009 Genome Mapping work, later appropriation allegations,
+       p228:10: and the broader question of Panji preservation labor and
+       p228:11: credit.
+       p228:12: 
+       p228:13: 
+       p228:14: 
+       p228:15: 
+  NEXT_CHAPTER_CONTEXT:
+    p228:16: Chapter 28 — Tirhuta, Devanagari,
+    p228:17: Scan Copies, and the Preservation
+    p228:18: Problem
+    p228:19: Dushan Panji cannot be decoded unless it is first preserved.
+    p228:20: Preservation here means more than keeping a book in a
+    p228:21: cupboard. It means conserving scripts, scans, transliterations,
+    p228:22: image archives, links, and the chain of evidence from palm leaf
+    p228:23: or Basaha paper to modern readers.
+
+V6 CH028 title='Tirhuta, Devanagari,'
+  start_idx=9301 start_page=228 next_idx=9353 next_page=229
+  semantic_end_idx=9353 semantic_end_page=229 hard_end_idx=9353 truncated_before_next=False
+  words=299 chars=2010 trigger=NONE
+  START_CONTEXT:
+    p228:16: Chapter 28 — Tirhuta, Devanagari,
+    p228:17: Scan Copies, and the Preservation
+    p228:18: Problem
+    p228:19: Dushan Panji cannot be decoded unless it is first preserved.
+    p228:20: Preservation here means more than keeping a book in a
+    p228:21: cupboard. It means conserving scripts, scans, transliterations,
+    p228:22: image archives, links, and the chain of evidence from palm leaf
+    p228:23: or Basaha paper to modern readers.
+    p228:24: 
+    p228:25: Mithilakshar / Tirhuta and Devanagari
+    p228:26: The source repeatedly emphasizes that the Panji material was
+    p228:27: written in Mithilakshar and transliterated into Devanagari.
+    p228:28: This matters because a transcription is not a neutral transfer.
+    p228:29: Every unclear sign, damaged letter, and abbreviation requires
+  END_CONTEXT:
+       p229:20: Source Note
+       p229:21: Based on Chapter 28 plan and the source notes on Mithilakshar-
+       p229:22: to-Devanagari transliteration, the 11,000 image archive/DVD,
+       p229:23: scan links, and related Panji source materials.
+       p229:24: 
+       p229:25: 
+       p229:26: 
+       p229:27: 
+  NEXT_CHAPTER_CONTEXT:
+    p229:28: Chapter 29 — How to Read Dushan
+    p229:29: Panji Today
+    p229:30: To read Dushan Panji today is to stand between two dangers.
+    p229:31: One danger is denial: pretending that caste, gender, inter-
+    p229:32: community marriage, widowhood, and hidden maternal lines
+    p229:33: were not recorded. The other danger is weaponization: using
+    p229:34: old entries to humiliate living descendants. Both are wrong.
+    p229:35: 
+
+V6 CH029 title='How to Read Dushan'
+  start_idx=9353 start_page=229 next_idx=9425 next_page=231
+  semantic_end_idx=9425 semantic_end_page=231 hard_end_idx=9425 truncated_before_next=False
+  words=364 chars=2405 trigger=NONE
+  START_CONTEXT:
+    p229:28: Chapter 29 — How to Read Dushan
+    p229:29: Panji Today
+    p229:30: To read Dushan Panji today is to stand between two dangers.
+    p229:31: One danger is denial: pretending that caste, gender, inter-
+    p229:32: community marriage, widowhood, and hidden maternal lines
+    p229:33: were not recorded. The other danger is weaponization: using
+    p229:34: old entries to humiliate living descendants. Both are wrong.
+    p229:35: 
+    p229:36: 
+    p229:37: 
+    p229:38: 
+    p229:39:                      © Gajendra Thakur | 228
+    p230:0:                Decoding the Panji of Mithila, Volume VI
+    p230:1: 
+  END_CONTEXT:
+       p231:11: Based on the Chapter 29 scope and the Dushan Panji source’s
+       p231:12: own cautionary pattern: difficult facts are preserved as
+       p231:13: historical guidance, while later descendants should not be
+       p231:14: harmed by old records.
+       p231:15: 
+       p231:16: 
+       p231:17: 
+       p231:18: 
+  NEXT_CHAPTER_CONTEXT:
+    p231:19: Chapter 30 — Conclusion: Dushan Panji
+    p231:20: as Mithila’s Difficult Truth
+    p231:21: Dushan Panji is Mithila’s difficult truth because it preserves
+    p231:22: what a proud society often prefers to simplify. It shows that
+    p231:23: Mithila was learned, disciplined, and record-conscious; it also
+    p231:24: shows that Mithila was never as closed, pure, or static as later
+    p231:25: ideology claimed.
+    p231:26: 
+
+V6 CH030 title='Conclusion: Dushan Panji'
+  start_idx=9425 start_page=231 next_idx=None next_page=None
+  semantic_end_idx=9492 semantic_end_page=233 hard_end_idx=10286 truncated_before_next=True
+  words=352 chars=2301 trigger=APPENDIX_RE: 'Appendix A — Glossary of Panji Terms'
+  START_CONTEXT:
+    p231:19: Chapter 30 — Conclusion: Dushan Panji
+    p231:20: as Mithila’s Difficult Truth
+    p231:21: Dushan Panji is Mithila’s difficult truth because it preserves
+    p231:22: what a proud society often prefers to simplify. It shows that
+    p231:23: Mithila was learned, disciplined, and record-conscious; it also
+    p231:24: shows that Mithila was never as closed, pure, or static as later
+    p231:25: ideology claimed.
+    p231:26: 
+    p231:27: What the Black Book Reveals
+    p231:28: It reveals that marriage rules mattered deeply. It reveals that
+    p231:29: gotra, pravara, mool, moolgram, Biji Purush, sapinda, swajana,
+    p231:30: aswajana, and Uthedh were part of a sophisticated information
+    p231:31: system. It reveals that women, though often hidden, carried the
+    p231:32: consequences of descent. It reveals that Dalit, artisan, Muslim,
+  END_CONTEXT:
+       p232:37: ethical notes for readers and researchers.
+       p232:38: 
+       p232:39: 
+       p232:40:                       © Gajendra Thakur | 231
+       p233:0:                   Decoding the Panji of Mithila, Volume VI
+       p233:1: 
+       p233:2: 
+       p233:3: 
+    >> p233:4: Appendix A — Glossary of Panji Terms
+       p233:5: Working index for this volume.
+       p233:6: Term                                  Explanation
+       p233:7: 
+       p233:8: Panji / Panjika                       A structured genealogical register used
+       p233:9:                                       to preserve lineage, marriage eligibility,
+       p233:10:                                       branch identity, and social memory.
+       p233:11: 
+       p233:12: Mool                                  The ancestral root-name associated with
+       p233:13:                                       the oldest remembered village or
+       p233:14:                                       identity-center of a line.
+       p233:15: 
+
