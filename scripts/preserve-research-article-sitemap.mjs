@@ -2,15 +2,21 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const sitemapPath = 'dist/client/sitemap.xml';
 const inventoryPath = 'app/generated/research-article-inventory.json';
+const panjiInventoryPath = 'app/generated/panji-article-inventory.json';
 const baseUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
-const lastModified = '2026-09-15';
+const lastModified = '2026-09-16';
 
 if (!existsSync(sitemapPath)) throw new Error('Cannot add research articles: sitemap.xml is missing.');
-if (!existsSync(inventoryPath)) throw new Error('Cannot add research articles: generated inventory is missing.');
+if (!existsSync(inventoryPath)) throw new Error('Cannot add research articles: generated core inventory is missing.');
+if (!existsSync(panjiInventoryPath)) throw new Error('Cannot add Decoding Panji articles: generated inventory is missing.');
 
 const records = JSON.parse(readFileSync(inventoryPath, 'utf8'));
+const panjiRecords = JSON.parse(readFileSync(panjiInventoryPath, 'utf8'));
 if (!Array.isArray(records) || records.length !== 522) {
-  throw new Error(`Expected 522 research article records, found ${Array.isArray(records) ? records.length : 'invalid inventory'}.`);
+  throw new Error(`Expected 522 core research article records, found ${Array.isArray(records) ? records.length : 'invalid inventory'}.`);
+}
+if (!Array.isArray(panjiRecords) || panjiRecords.length < 1) {
+  throw new Error('Decoding Panji research article inventory is empty or invalid.');
 }
 
 let sitemap = readFileSync(sitemapPath, 'utf8');
@@ -34,6 +40,10 @@ const indexUrl = `${baseUrl}research-articles/`;
 if (!sitemap.includes(`<loc>${indexUrl}</loc>`)) {
   addEntry(`  <url><loc>${indexUrl}</loc><lastmod>${lastModified}</lastmod><changefreq>monthly</changefreq></url>`);
 }
+const panjiIndexUrl = `${baseUrl}research-articles/decoding-panji/`;
+if (!sitemap.includes(`<loc>${panjiIndexUrl}</loc>`)) {
+  addEntry(`  <url><loc>${panjiIndexUrl}</loc><lastmod>${lastModified}</lastmod><changefreq>monthly</changefreq></url>`);
+}
 
 let added = 0;
 for (const record of records) {
@@ -48,11 +58,18 @@ for (const record of records) {
   addEntry(`  <url><loc>${escapeXml(url)}</loc><lastmod>${lastModified}</lastmod><changefreq>yearly</changefreq>${alternates}</url>`);
   added += 1;
 }
+for (const record of panjiRecords) {
+  const url = record.canonical;
+  if (!url?.startsWith(panjiIndexUrl) || sitemap.includes(`<loc>${url}</loc>`)) continue;
+  addEntry(`  <url><loc>${escapeXml(url)}</loc><lastmod>${lastModified}</lastmod><changefreq>yearly</changefreq></url>`);
+  added += 1;
+}
 
 writeFileSync(sitemapPath, sitemap);
 
 const researchUrls = (sitemap.match(/<loc>https:\/\/videha-ejournal\.github\.io\/mithila-vajji-anga\/research-articles\//g) ?? []).length;
-if (researchUrls !== 523) throw new Error(`Expected 523 research-article sitemap URLs including the index, found ${researchUrls}.`);
+const expectedResearchUrls = 524 + panjiRecords.length;
+if (researchUrls !== expectedResearchUrls) throw new Error(`Expected ${expectedResearchUrls} research-article sitemap URLs including both indexes, found ${researchUrls}.`);
 for (const required of [
   `${baseUrl}research-articles/history/volume-1/chapter-001/`,
   `${baseUrl}research-articles/history/volume-2/chapter-150/`,
@@ -60,8 +77,10 @@ for (const required of [
   `${baseUrl}research-articles/parallel-philosophy/volume-1/en/chapter-072/`,
   `${baseUrl}research-articles/parallel-philosophy/volume-2/mai/chapter-100/`,
   `${baseUrl}research-articles/parallel-philosophy/volume-2/en/chapter-100/`,
+  panjiIndexUrl,
+  ...panjiRecords.map((record) => record.canonical),
 ]) {
   if (!sitemap.includes(`<loc>${required}</loc>`)) throw new Error(`Required research article URL is missing from sitemap: ${required}`);
 }
 
-console.log(`Research article sitemap PASS: 522 articles + index; added ${added} article URL(s).`);
+console.log(`Research article sitemap PASS: 522 core + ${panjiRecords.length} Decoding Panji articles + two collection indexes; added ${added} URL(s).`);
