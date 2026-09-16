@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ArchiveGroup, ArchiveUnit } from './archive-data';
-import { archiveUnits, getLibraryWork, maithiliReading, routeFor } from './archive-data';
+import { archiveUnits, getLibraryWork, routeFor } from './archive-data';
 
 const siteOrigin = 'https://videha-ejournal.github.io';
 const videhaUrl = 'https://www.videha.co.in/';
@@ -41,12 +41,9 @@ export function metadataFor(unit: ArchiveUnit | undefined, language: 'mai' | 'en
   const paired = routeFor(unit, isMaithili ? 'en' : 'mai');
   const canonical = `${siteOrigin}${route}`;
   const description = unit.description.replace(/\s+/g, ' ').trim().slice(0, 300);
-  const hasMaithiliReading = Boolean(maithiliReading(unit).trim());
   const languageAlternates: Record<string, string> = isMaithili
     ? { en: `${siteOrigin}${paired}` }
-    : hasMaithiliReading
-      ? { mai: `${siteOrigin}${paired}` }
-      : {};
+    : { mai: `${siteOrigin}${paired}` };
   const parentWork = parentWorkContext(unit);
 
   return {
@@ -68,6 +65,7 @@ export function metadataFor(unit: ArchiveUnit | undefined, language: 'mai' | 'en
       citation_journal_title: 'Videha — First Maithili Fortnightly eJournal',
       citation_issn: '2229-547X',
       citation_publication_date: '2026',
+      citation_pdf_url: unit.sourcePdf,
       citation_website_url: videhaUrl,
       citation_mirror_url: videhaMirrorUrl,
       citation_archive_network_url: videhaGithubUrl,
