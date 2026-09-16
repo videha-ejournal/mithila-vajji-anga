@@ -1,0 +1,2 @@
+Strict build exit code: 1
+Commit tested: a7e22ee46c63e8375956133567cfcdd0903d4ba7
