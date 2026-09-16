@@ -1,4 +1,4 @@
-name: Diagnose Decoding Panji Chapter 35
+name: Diagnose Decoding Panji chapter titles
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
           ref: chatgpt/decoding-panji-i-vi
       - name: Install Poppler
         run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
-      - name: Inspect selected Chapter 35 start in Volumes II, IV and V
+      - name: Scan title extraction across all 247 selected chapter starts
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -26,40 +26,45 @@ jobs:
           set -euo pipefail
           SOURCE_SHA=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' https://api.github.com/repos/videha-ejournal/videha-ejournal/branches/main | python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["sha"])')
           mkdir -p .source-books .diagnostics
-          for V in 2 4 5; do
+          for V in 1 2 3 4 5 6; do
             curl -fL --retry 3 -o ".source-books/DECODING_PANJI_${V}.pdf" "https://raw.githubusercontent.com/videha-ejournal/videha-ejournal/${SOURCE_SHA}/DECODING_PANJI_${V}.pdf"
           done
-          python3 - <<'PY' > .diagnostics/ch35-parser-selection.txt
+          python3 - <<'PY' > .diagnostics/all-title-extraction-audit.txt
           import importlib.util
           from pathlib import Path
           spec=importlib.util.spec_from_file_location('panji','scripts/run-panji-article-corpus.py')
           mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
-          for volume in (2,4,5):
+          total=0; errors=[]; bare=[]; duplicates=[]
+          for volume in range(1,7):
               pdf=Path('.source-books')/f'DECODING_PANJI_{volume}.pdf'
-              pages=mod.run_pdftotext(pdf)
-              rows=mod.flatten(pages)
+              pages=mod.run_pdftotext(pdf); rows=mod.flatten(pages)
               starts=mod.select_body_starts(rows, mod.EXPECTED[volume])
-              start=starts[34]
-              row=rows[start]
-              match=mod.CHAPTER_RE.match(row['text'])
-              print(f'=== VOLUME {volume} CHAPTER 35 ===')
-              print('selected_index=',start,'page=',row['page'],'line=',row['line'])
-              print('selected_text=',repr(row['text']))
-              print('regex_groups=',match.groups() if match else None)
-              try:
-                  print('extract_title=',repr(mod.extract_title(rows,start,35)))
-              except Exception as exc:
-                  print('extract_title_ERROR=',repr(exc))
-              print('context:')
-              for j in range(max(0,start-8),min(len(rows),start+18)):
-                  print(f"{j:06d} p{rows[j]['page']:04d} l{rows[j]['line']:03d}: {rows[j]['text']}")
-              print()
+              occurrences,_=mod.chapter_occurrences(rows)
+              for chapter,start in enumerate(starts,1):
+                  total += 1
+                  m=mod.CHAPTER_RE.match(rows[start]['text'])
+                  if m and not mod.clean(m.group(2)):
+                      bare.append((volume,chapter,rows[start]['page'],repr(rows[start]['text']),len(occurrences.get(chapter,[]))))
+                  try:
+                      mod.extract_title(rows,start,chapter)
+                  except Exception as exc:
+                      errors.append((volume,chapter,rows[start]['page'],repr(rows[start]['text']),repr(exc)))
+                  body_candidates=[i for i in occurrences.get(chapter,[]) if rows[i]['page'] >= 2]
+                  if len(body_candidates)>1:
+                      duplicates.append((volume,chapter,[(rows[i]['page'],repr(rows[i]['text'])) for i in body_candidates[-4:]]))
+          print('total_selected=',total)
+          print('ERROR_COUNT=',len(errors))
+          for x in errors: print('ERROR',x)
+          print('BARE_SELECTED_COUNT=',len(bare))
+          for x in bare: print('BARE',x)
+          print('DUPLICATE_OCCURRENCE_SAMPLE_COUNT=',len(duplicates))
+          for x in duplicates: print('DUP',x)
           PY
-      - name: Commit diagnostic context
+      - name: Commit audit
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .diagnostics/ch35-parser-selection.txt
-          git commit -m 'ci: capture Chapter 35 parser selections' || exit 0
+          git add .diagnostics/all-title-extraction-audit.txt
+          git commit -m 'ci: audit all Panji title extraction starts' || exit 0
           git push origin HEAD:chatgpt/decoding-panji-i-vi
