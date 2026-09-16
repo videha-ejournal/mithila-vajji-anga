@@ -10,6 +10,9 @@ const expected = { 1: 20, 2: 38, 3: 32, 4: 87, 5: 40, 6: 30 };
 const expectedTotal = Object.values(expected).reduce((a, b) => a + b, 0);
 const MIN_WORDS = 500;
 const MIN_RELEVANT_CHARS = 3500;
+const FIGURE_DISCLAIMER = 'Synthetic illustrated reconstruction for editorial use. This is not a photograph or facsimile of a historical manuscript.';
+const GRAPH_REVIEW = 'Human review required.';
+const GRAPH_LIMIT = 'This prototype encodes relationships and tags; it does not decide marriage eligibility or kinship status.';
 
 function decodeHtml(value) {
   return String(value ?? '')
@@ -86,6 +89,23 @@ for (const record of records) {
     'Source-derived chapter text',
     'data-panji-substantive-apparatus="true"',
     'Source structure and verification apparatus',
+    'data-panji-publication-figures="4"',
+    'data-panji-figure="asset-art-1"',
+    'data-panji-figure="gallery-artwork-a"',
+    'data-panji-figure="gallery-artwork-b"',
+    'data-panji-figure="synthetic-reconstruction"',
+    'data-panji-footnotes="chapter-specific"',
+    'Mithila · Vajji · Anga',
+    'Panji Text Corpus',
+    'Metadata',
+    'Map',
+    'Search',
+    'Sources',
+    'Decoding Panji Vol. I–VI',
+    FIGURE_DISCLAIMER,
+    GRAPH_REVIEW,
+    GRAPH_LIMIT,
+    `Primary chapter witness.</strong> Gajendra Thakur, <em>${record.source_book}</em>, formal Chapter ${record.chapter}`,
     record.title,
   ]) if (!page.includes(required)) throw new Error(`Missing required chapter marker in ${filePath}: ${required}`);
   for (const forbidden of ['citation_journal_title', 'citation_issn', 'citation_pdf_url', 'citation_doi']) {
@@ -100,6 +120,8 @@ for (const record of records) {
   if (metrics.words < MIN_WORDS || metrics.chars < MIN_RELEVANT_CHARS) {
     throw new Error(`Substantive Panji chapter threshold failed: ${record.stable_id} words=${metrics.words}/${MIN_WORDS} chars=${metrics.chars}/${MIN_RELEVANT_CHARS}`);
   }
+  const figureCount = (page.match(/data-panji-figure="/g) ?? []).length;
+  if (figureCount !== 4) throw new Error(`Expected exactly four certified Panji figures in ${filePath}; found ${figureCount}.`);
   // Placeholder guards apply to generator-controlled markup, metadata, navigation and apparatus.
   // The preserved source body may legitimately discuss a “placeholder” as a scholarly term.
   const generatedMarkup = page.replace(/<pre>[\s\S]*?<\/pre>/, '<pre></pre>');
@@ -145,4 +167,9 @@ if (useDist) {
   for (const record of records) if (!sitemap.includes(`<loc>${record.canonical}</loc>`)) throw new Error(`Sitemap omits ${record.canonical}`);
 }
 
-console.log(`Decoding Panji chapter corpus PASS (${useDist ? 'dist' : 'public'})`, { total: records.length, countsByVolume, substantiveThreshold: { words: MIN_WORDS, relevantChars: MIN_RELEVANT_CHARS } });
+console.log(`Decoding Panji chapter corpus PASS (${useDist ? 'dist' : 'public'})`, {
+  total: records.length,
+  countsByVolume,
+  substantiveThreshold: { words: MIN_WORDS, relevantChars: MIN_RELEVANT_CHARS },
+  publicationRequirements: { figuresPerChapter: 4, chapterSpecificFootnotes: true, scope: 'Mithila · Vajji · Anga', safetyWording: true },
+});
