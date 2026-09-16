@@ -117,7 +117,7 @@ function patchGeneratedOutput(commit) {
     countsByVolume,
     countsByKind: { chapter: inventory.length },
     inventoryUrl: 'https://videha-ejournal.github.io/mithila-vajji-anga/research-articles/decoding-panji/inventory.json',
-    note: 'Chapter-only source-derived corpus: exactly one formal book chapter is published as one HTML page. Front matter, parts, appendices, annexures, closing notes, bibliography and other book apparatus are not promoted to independent HTML records.',
+    note: 'Chapter-only source-derived corpus: exactly one formal book chapter is published as one HTML page. Front matter, parts, appendices, annexures, closing notes, bibliography and other book apparatus are not promoted to independent HTML records. Source-heading outlines and source-text concordances are preserved as transparent scholarly apparatus inside the corresponding chapter page.',
   };
   writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log('Decoding Panji source-pinned chapter corpus:', { chapterCount: inventory.length, countsByVolume, sourceCommit: commit });
@@ -134,6 +134,7 @@ async function main() {
   for (const filename of SOURCE_FILES) await downloadFile(commit, filename);
   writeFileSync(refFile, `${JSON.stringify({ sourceRepository: SOURCE_REPO, sourceCommit: commit, sourceFiles: SOURCE_FILES }, null, 2)}\n`);
   run('python3', ['scripts/run-panji-article-corpus.py']);
+  run('node', ['scripts/enrich-panji-chapter-apparatus.mjs']);
   patchGeneratedOutput(commit);
 }
 await main();
