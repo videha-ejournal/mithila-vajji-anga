@@ -1,4 +1,4 @@
-name: Diagnose Decoding Panji chapter titles
+name: Repair and validate Decoding Panji chapter selection
 
 on:
   push:
@@ -9,62 +9,50 @@ on:
 permissions:
   contents: write
 
+env:
+  CI: '1'
+
 jobs:
-  diagnose:
+  repair-and-validate:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: chatgpt/decoding-panji-i-vi
-      - name: Install Poppler
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
-      - name: Scan title extraction across all 247 selected chapter starts
+      - name: Apply duplicate-marker title-aware selection fix
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          SOURCE_SHA=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' https://api.github.com/repos/videha-ejournal/videha-ejournal/branches/main | python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["sha"])')
-          mkdir -p .source-books .diagnostics
-          for V in 1 2 3 4 5 6; do
-            curl -fL --retry 3 -o ".source-books/DECODING_PANJI_${V}.pdf" "https://raw.githubusercontent.com/videha-ejournal/videha-ejournal/${SOURCE_SHA}/DECODING_PANJI_${V}.pdf"
-          done
-          python3 - <<'PY' > .diagnostics/all-title-extraction-audit.txt
-          import importlib.util
+          python3 - <<'PY'
           from pathlib import Path
-          spec=importlib.util.spec_from_file_location('panji','scripts/run-panji-article-corpus.py')
-          mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
-          total=0; errors=[]; bare=[]; duplicates=[]
-          for volume in range(1,7):
-              pdf=Path('.source-books')/f'DECODING_PANJI_{volume}.pdf'
-              pages=mod.run_pdftotext(pdf); rows=mod.flatten(pages)
-              starts=mod.select_body_starts(rows, mod.EXPECTED[volume])
-              occurrences,_=mod.chapter_occurrences(rows)
-              for chapter,start in enumerate(starts,1):
-                  total += 1
-                  m=mod.CHAPTER_RE.match(rows[start]['text'])
-                  if m and not mod.clean(m.group(2)):
-                      bare.append((volume,chapter,rows[start]['page'],repr(rows[start]['text']),len(occurrences.get(chapter,[]))))
-                  try:
-                      mod.extract_title(rows,start,chapter)
-                  except Exception as exc:
-                      errors.append((volume,chapter,rows[start]['page'],repr(rows[start]['text']),repr(exc)))
-                  body_candidates=[i for i in occurrences.get(chapter,[]) if rows[i]['page'] >= 2]
-                  if len(body_candidates)>1:
-                      duplicates.append((volume,chapter,[(rows[i]['page'],repr(rows[i]['text'])) for i in body_candidates[-4:]]))
-          print('total_selected=',total)
-          print('ERROR_COUNT=',len(errors))
-          for x in errors: print('ERROR',x)
-          print('BARE_SELECTED_COUNT=',len(bare))
-          for x in bare: print('BARE',x)
-          print('DUPLICATE_OCCURRENCE_SAMPLE_COUNT=',len(duplicates))
-          for x in duplicates: print('DUP',x)
+          path=Path('scripts/run-panji-article-corpus.py')
+          text=path.read_text()
+          old="""        chosen = candidates[0]\n        starts.append(chosen)\n        cursor = chosen\n"""
+          new="""        # Prefer the first formal candidate that can yield a real chapter title.\n        # This rejects orphan duplicate markers such as a bare 'Chapter 35.' at\n        # the foot of one page when the actual titled opening repeats next page.\n        chosen = None\n        for candidate in candidates:\n            try:\n                extract_title(rows, candidate, chapter)\n            except RuntimeError:\n                continue\n            chosen = candidate\n            break\n        if chosen is None:\n            chosen = candidates[0]\n        starts.append(chosen)\n        cursor = chosen\n"""
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected one selector block, found {text.count(old)}')
+          path.write_text(text.replace(old,new))
           PY
-      - name: Commit audit
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install production image optimizer
+        run: npm install --no-save --package-lock=false sharp@0.35.4
+      - name: Run complete strict production build against repair
+        env:
+          REQUIRE_IMAGE_OPTIMIZATION: '1'
+          REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
+          GITHUB_API_TOKEN: ${{ github.token }}
+        run: npm run build
+      - name: Commit validated repair and remove diagnostics
         shell: bash
         run: |
+          rm -rf .diagnostics
+          rm -f .github/workflows/diagnose-panji-build.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .diagnostics/all-title-extraction-audit.txt
-          git commit -m 'ci: audit all Panji title extraction starts' || exit 0
+          git add -A
+          git commit -m 'fix: select titled Panji chapter opening across duplicate markers'
           git push origin HEAD:chatgpt/decoding-panji-i-vi
