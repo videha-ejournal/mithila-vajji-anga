@@ -1,0 +1,59 @@
+name: Diagnose Decoding Panji strict build
+
+on:
+  push:
+    branches: [chatgpt/decoding-panji-i-vi]
+    paths-ignore:
+      - '.diagnostics/**'
+
+permissions:
+  contents: write
+
+env:
+  CI: '1'
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: chatgpt/decoding-panji-i-vi
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install production image optimizer
+        run: npm install --no-save --package-lock=false sharp@0.35.4
+      - name: Run build and preserve exact failure
+        id: build
+        continue-on-error: true
+        env:
+          REQUIRE_IMAGE_OPTIMIZATION: '1'
+          REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
+          GITHUB_API_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee /tmp/panji-build.log
+      - name: Commit diagnostic result
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p .diagnostics
+          {
+            echo "head=${GITHUB_SHA}"
+            echo "outcome=${{ steps.build.outcome }}"
+            echo "--- LAST 500 LINES ---"
+            tail -n 500 /tmp/panji-build.log || true
+          } > .diagnostics/panji-build-failure.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .diagnostics/panji-build-failure.txt
+          git commit -m 'ci: capture Decoding Panji build diagnostic' || exit 0
+          git push origin HEAD:chatgpt/decoding-panji-i-vi
+      - name: Preserve failing status
+        if: steps.build.outcome == 'failure'
+        run: exit 1
