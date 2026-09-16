@@ -41,10 +41,15 @@ function extractBody(record, kind) {
   const file = path.join(PUBLIC_ROOT, record.route, 'index.html');
   if (!existsSync(file)) throw new Error(`Duplicate control cannot read ${file}.`);
   const html = readFileSync(file, 'utf8');
-  const className = kind === 'panji' ? 'source-text' : 'article-text';
-  const match = html.match(new RegExp(`<div class="${className}">([\\s\\S]*?)<\\/div>`));
+  // Core research pages wrap article prose in .article-text. Decoding Panji
+  // deliberately preserves PDF-extracted chapter layout in a <pre> element.
+  const match = kind === 'panji'
+    ? html.match(/<pre>([\s\S]*?)<\/pre>/)
+    : html.match(/<div class="article-text">([\s\S]*?)<\/div>/);
   if (!match) throw new Error(`Duplicate control cannot isolate article text in ${path.relative(ROOT, file)}.`);
-  return normalizeBody(match[1]);
+  const body = normalizeBody(match[1]);
+  if (body.length < 400) throw new Error(`Duplicate control found an unexpectedly small body in ${path.relative(ROOT, file)}.`);
+  return body;
 }
 
 const digest = (text) => createHash('sha256').update(text).digest('hex');
