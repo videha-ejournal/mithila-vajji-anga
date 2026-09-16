@@ -1,0 +1,25 @@
+Decoding Panji substantive audit
+total=247
+counts={"1": 20, "2": 38, "3": 32, "4": 87, "5": 40, "6": 30}
+short_count=19
+threshold=words>=500 AND relevant_chars>=3500
+
+V2	CH033	words=936	chars=3243	reason=short	Volume II and the Khand 1 Index Protocol
+V2	CH034	words=307	chars=1625	reason=short	Khand 1 Master Structure and Chapter Link Map
+V2	CH035	words=527	chars=2137	reason=short	गोत्र, मूल, मूलग्राम: Index-Wise Decoding
+V4	CH020	words=149	chars=1025	reason=short	Sakuri, Sarisab-Sakuri, and the Badhiyam-
+V4	CH083	words=383	chars=2618	reason=short	Major Village Nodes and Route
+V4	CH084	words=318	chars=2043	reason=short	Marriage Networks and Inter-
+V4	CH085	words=316	chars=2102	reason=short	Scholars, Priests, Officials,
+V4	CH086	words=281	chars=1814	reason=short	Migration, Memory, and Mithila
+V4	CH087	words=299	chars=1994	reason=short	Problems of Reading: Scribal
+V5	CH010	words=285	chars=1816	reason=short	Baliyas Ogahi-Dwashay, Banaili, Kobara (Kohbara):
+V6	CH022	words=406	chars=2612	reason=short	The “Sixth Generation”
+V6	CH023	words=569	chars=3319	reason=short	Panji Vocabulary: Offices,
+V6	CH024	words=339	chars=2143	reason=short	Biji Purush and the
+V6	CH025	words=289	chars=1837	reason=short	Up-Tip and Nagaram:
+V6	CH026	words=335	chars=2206	reason=short	Panji, Hierarchy, and
+V6	CH027	words=286	chars=1939	reason=short	Plagiarism, Ownership,
+V6	CH028	words=299	chars=2010	reason=short	Tirhuta, Devanagari,
+V6	CH029	words=364	chars=2405	reason=short	How to Read Dushan
+V6	CH030	words=352	chars=2301	reason=short	Conclusion: Dushan Panji
