@@ -114,10 +114,10 @@ V2 CH035 title='गोत्र, मूल, मूलग्राम: Index-Wise
     p481:23: 
 
 ===== VOLUME 4 =====
-V4 CH020 title='Sakuri, Sarisab-Sakuri, and the Badhiyam-'
+V4 CH020 title='Sakuri, Sarisab-Sakuri, and the Badhiyam- Parvapalli Branches This chapter continues from the Khangur-Khojpur and'
   start_idx=7959 start_page=237 next_idx=8257 next_page=246
-  semantic_end_idx=7979 semantic_end_page=237 hard_end_idx=8257 truncated_before_next=True
-  words=149 chars=1025 trigger=APPENDIX_RE: 'appendix to the Khangur material. It has its own internal'
+  semantic_end_idx=8257 semantic_end_page=245 hard_end_idx=8257 truncated_before_next=False
+  words=1928 chars=13481 trigger=NONE
   START_CONTEXT:
     p237:0: Chapter 20
     p237:1: Sakuri, Sarisab-Sakuri, and the Badhiyam-
@@ -134,26 +134,14 @@ V4 CH020 title='Sakuri, Sarisab-Sakuri, and the Badhiyam-'
     p237:12:    The Genome Mapping index makes this chapter especially
     p237:13: important. It places Sarisab under the Shandilya frame with
   END_CONTEXT:
-       p237:12:    The Genome Mapping index makes this chapter especially
-       p237:13: important. It places Sarisab under the Shandilya frame with
-       p237:14: Khangur, Sakuri, and Jonki, and separately places Parvapalli
-       p237:15: with Badhiyam. The chapter therefore stands at a shift from
-       p237:16: the Sarisab-Sakuri system into the Parvapalli-Badhiyam
-       p237:17: system. That shift is not merely geographical; it is a movement
-       p237:18: from one indexed moolgram control to another.
-       p237:19:    For this reason, the chapter must not be read as an
-    >> p237:20: appendix to the Khangur material. It has its own internal
-       p237:21: logic. The Sakuri section carries forward the Sarisab-linked
-       p237:22: memory, while the Badhiyam entries establish a long and
-       p237:23: dense Parvapalli-related route containing Dhagjari, Ranti,
-       p237:24: Mangrauni, Saurath, and several modernized personal
-       p237:25: branches.
-       p237:26: 
-       p237:27: 20.1 Entry (55): The Sakuri Continuation
-       p237:28:   Entry (55) continues the Sakuri line that began with the
-       p237:29: Sakuri-Rashadh/Rudradhar material. The entry opens from
-       p237:30: Premnath and then moves through Budhwal, Mandar,
-       p237:31: Beherarhi, Belounch, Babhaniyam, Pandua, Ekhara, Pali, and
+       p245:2: next chapter begins with entry (69), the Navani section, and
+       p245:3: must not repeat the Badhiyam-Saurath-Manour material
+       p245:4: except where a later cross-reference requires it.
+       p245:5: 
+       p245:6: 
+       p245:7: 
+       p245:8: 
+       p245:9:                                   244
   NEXT_CHAPTER_CONTEXT:
     p246:0: Chapter 21. Badhiyam after Saurath:
     p246:1: Navani, Chanpura, Shashipur, Tedhra,
@@ -164,7 +152,7 @@ V4 CH020 title='Sakuri, Sarisab-Sakuri, and the Badhiyam-'
     p246:6: (89). The chapter is deliberately confined to this block. It does
     p246:7: not import the later entries, and it does not repeat the
 
-V4 CH083 title='Major Village Nodes and Route'
+V4 CH083 title='Major Village Nodes and Route Networks'
   start_idx=26285 start_page=751 next_idx=26344 next_page=753
   semantic_end_idx=26344 semantic_end_page=752 hard_end_idx=26344 truncated_before_next=False
   words=383 chars=2618 trigger=NONE
@@ -202,7 +190,7 @@ V4 CH083 title='Major Village Nodes and Route'
     p753:6: another house, village, or branch. This is why village names cannot be
     p753:7: read only as physical movement. In many entries they encode social
 
-V4 CH084 title='Marriage Networks and Inter-'
+V4 CH084 title='Marriage Networks and Inter- Village Affiliation'
   start_idx=26344 start_page=753 next_idx=26394 next_page=755
   semantic_end_idx=26394 semantic_end_page=754 hard_end_idx=26394 truncated_before_next=False
   words=318 chars=2043 trigger=NONE
@@ -240,7 +228,7 @@ V4 CH084 title='Marriage Networks and Inter-'
     p755:6: markers. Thakur, Chaudhary, Pandit, Jyotishi, Mahamahopadhyaya,
     p755:7: Vaidik, Vaidya, Vakil, Doctor, Engineer, and other labels appear not as
 
-V4 CH085 title='Scholars, Priests, Officials,'
+V4 CH085 title='Scholars, Priests, Officials, Lawyers, Engineers, Doctors, and Modern Professions'
   start_idx=26394 start_page=755 next_idx=26444 next_page=757
   semantic_end_idx=26444 semantic_end_page=756 hard_end_idx=26444 truncated_before_next=False
   words=316 chars=2102 trigger=NONE
@@ -278,7 +266,7 @@ V4 CH085 title='Scholars, Priests, Officials,'
     p757:6: Jamshedpur, and other wider locations appear in the record. These
     p757:7: references show that Mithila’s genealogical memory travelled with
 
-V4 CH086 title='Migration, Memory, and Mithila'
+V4 CH086 title='Migration, Memory, and Mithila Beyond Mithila'
   start_idx=26444 start_page=757 next_idx=26490 next_page=759
   semantic_end_idx=26490 semantic_end_page=758 hard_end_idx=26490 truncated_before_next=False
   words=281 chars=1814 trigger=NONE
@@ -316,7 +304,7 @@ V4 CH086 title='Migration, Memory, and Mithila'
     p759:6: because it is careless. It compresses names, villages, titles, branches, and
     p759:7: cross-references into narrow lines. It also preserves older spellings,
 
-V4 CH087 title='Problems of Reading: Scribal'
+V4 CH087 title='Problems of Reading: Scribal Variants, OCR-Like Distortions, and Editorial Decisions'
   start_idx=26490 start_page=759 next_idx=None next_page=None
   semantic_end_idx=26538 semantic_end_page=760 hard_end_idx=26710 truncated_before_next=True
   words=299 chars=1994 trigger=APPENDIX_RE: 'Appendix A. Full Glossary of Panji Terms and'
@@ -358,7 +346,7 @@ V4 CH087 title='Problems of Reading: Scribal'
        p761:11: gramaarambha: Beginning of a village-based entry cluster.
 
 ===== VOLUME 5 =====
-V5 CH010 title='Baliyas Ogahi-Dwashay, Banaili, Kobara (Kohbara):'
+V5 CH010 title='Baliyas Ogahi-Dwashay, Banaili, Kobara (Kohbara): Dharanidhar, Padmanabh, Pathak Mohan, Harinath, Baliyas Ekma Barahkona, and the Pakhaliya Threshold Source span decoded in this chapter'
   start_idx=4294 start_page=113 next_idx=4327 next_page=113
   semantic_end_idx=4327 semantic_end_page=113 hard_end_idx=4327 truncated_before_next=False
   words=285 chars=1816 trigger=NONE
@@ -435,7 +423,7 @@ V6 CH022 title='The “Sixth Generation”'
     p220:15: 
     p220:16: Why Vocabulary Matters
 
-V6 CH023 title='Panji Vocabulary: Offices,'
+V6 CH023 title='Panji Vocabulary: Offices, Titles, Scholars, and Social Rank'
   start_idx=8946 start_page=220 next_idx=9069 next_page=222
   semantic_end_idx=9069 semantic_end_page=222 hard_end_idx=9069 truncated_before_next=False
   words=569 chars=3319 trigger=NONE
@@ -473,7 +461,7 @@ V6 CH023 title='Panji Vocabulary: Offices,'
     p222:29: 
     p222:30: What Is Biji Purush?
 
-V6 CH024 title='Biji Purush and the'
+V6 CH024 title='Biji Purush and the Vamshavali Logic The Panji system is built around memory anchors. Among'
   start_idx=9069 start_page=222 next_idx=9132 next_page=224
   semantic_end_idx=9132 semantic_end_page=224 hard_end_idx=9132 truncated_before_next=False
   words=339 chars=2143 trigger=NONE
@@ -511,7 +499,7 @@ V6 CH024 title='Biji Purush and the'
     p224:11: entered the archival system.
     p224:12: 
 
-V6 CH025 title='Up-Tip and Nagaram:'
+V6 CH025 title='Up-Tip and Nagaram: Regional Branching and the Pachhwari Par System'
   start_idx=9132 start_page=224 next_idx=9185 next_page=225
   semantic_end_idx=9185 semantic_end_page=225 hard_end_idx=9185 truncated_before_next=False
   words=289 chars=1837 trigger=NONE
@@ -549,7 +537,7 @@ V6 CH025 title='Up-Tip and Nagaram:'
     p225:26: damage.
     p225:27: 
 
-V6 CH026 title='Panji, Hierarchy, and'
+V6 CH026 title='Panji, Hierarchy, and Social Damage'
   start_idx=9185 start_page=225 next_idx=9248 next_page=227
   semantic_end_idx=9248 semantic_end_page=227 hard_end_idx=9248 truncated_before_next=False
   words=335 chars=2206 trigger=NONE
@@ -587,7 +575,7 @@ V6 CH026 title='Panji, Hierarchy, and'
     p227:10: it is part of scholarly ethics.
     p227:11: 
 
-V6 CH027 title='Plagiarism, Ownership,'
+V6 CH027 title='Plagiarism, Ownership, and the Struggle over Panji Knowledge'
   start_idx=9248 start_page=227 next_idx=9301 next_page=228
   semantic_end_idx=9301 semantic_end_page=228 hard_end_idx=9301 truncated_before_next=False
   words=286 chars=1939 trigger=NONE
@@ -625,7 +613,7 @@ V6 CH027 title='Plagiarism, Ownership,'
     p228:22: image archives, links, and the chain of evidence from palm leaf
     p228:23: or Basaha paper to modern readers.
 
-V6 CH028 title='Tirhuta, Devanagari,'
+V6 CH028 title='Tirhuta, Devanagari, Scan Copies, and the Preservation Problem'
   start_idx=9301 start_page=228 next_idx=9353 next_page=229
   semantic_end_idx=9353 semantic_end_page=229 hard_end_idx=9353 truncated_before_next=False
   words=299 chars=2010 trigger=NONE
@@ -663,7 +651,7 @@ V6 CH028 title='Tirhuta, Devanagari,'
     p229:34: old entries to humiliate living descendants. Both are wrong.
     p229:35: 
 
-V6 CH029 title='How to Read Dushan'
+V6 CH029 title='How to Read Dushan Panji Today'
   start_idx=9353 start_page=229 next_idx=9425 next_page=231
   semantic_end_idx=9425 semantic_end_page=231 hard_end_idx=9425 truncated_before_next=False
   words=364 chars=2405 trigger=NONE
@@ -701,7 +689,7 @@ V6 CH029 title='How to Read Dushan'
     p231:25: ideology claimed.
     p231:26: 
 
-V6 CH030 title='Conclusion: Dushan Panji'
+V6 CH030 title='Conclusion: Dushan Panji as Mithila’s Difficult Truth'
   start_idx=9425 start_page=231 next_idx=None next_page=None
   semantic_end_idx=9492 semantic_end_page=233 hard_end_idx=10286 truncated_before_next=True
   words=352 chars=2301 trigger=APPENDIX_RE: 'Appendix A — Glossary of Panji Terms'
