@@ -29,7 +29,9 @@ ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI'}
 CHAPTER_RE = re.compile(r'^\s*Chapter\s+(\d+)\b(?:\s*[.:\-–—]\s*(.*))?\s*$', re.I)
 PAGE_FOOTER_RE = re.compile(r'^\s*(?:Page\s+)?\d+(?:\s+of\s+\d+)?\s*$', re.I)
 PART_RE = re.compile(r'^\s*Part\s+(?:[IVXLCDM]+|\d+)\b', re.I)
-APPENDIX_RE = re.compile(r'^\s*(?:Appendix|Annex(?:ure)?)\s+[A-Z0-9]+\b', re.I)
+# Only formal appendix/annex labels terminate a chapter.  Ordinary prose such
+# as “appendix to the Khangur material” must never be treated as a boundary.
+APPENDIX_RE = re.compile(r'^\s*(?:Appendix|Annex(?:ure)?)\s+(?:[A-Z]|\d+|[IVXLCDM]+)\b(?:\s*[.:\-–—]|\s*$)', re.I)
 FINAL_BACK_RE = re.compile(r'^\s*(?:Bibliography|Selected Bibliography|Index|About the Author)\b', re.I)
 
 
@@ -105,6 +107,48 @@ def hybrid_first_chapter_start(rows: list[dict], toc_pages: set[int]) -> int | N
     return tail_indices[0]
 
 
+def _looks_like_title_continuation(value: str) -> bool:
+    text = clean(value)
+    if not text or len(text) > 180:
+        return False
+    if PAGE_FOOTER_RE.match(text) or CHAPTER_RE.match(text) or PART_RE.match(text) or APPENDIX_RE.match(text):
+        return False
+    # Chapter titles in the source frequently wrap after a hyphen or onto a
+    # short second line.  Avoid swallowing numbered body subheadings/prose.
+    if re.match(r'^\d+(?:\.\d+)*[.)]?\s+', text):
+        return False
+    if text.endswith(('.', '?', '!', ';')):
+        return False
+    return True
+
+
+def _append_wrapped_title(rows: list[dict], start: int, title: str, first_offset: int) -> str:
+    result = clean(title)
+    for offset in range(first_offset, first_offset + 3):
+        if start + offset >= len(rows):
+            break
+        nxt = rows[start + offset]
+        if nxt['page'] != rows[start]['page'] or not nxt['text'].strip():
+            break
+        continuation = clean(nxt['text'])
+        if not _looks_like_title_continuation(continuation):
+            break
+        # A continuation is safe when the accumulated title visibly ends in a
+        # joiner, or when the following line is blank (the wrapped title block
+        # is ending).  This captures “Route / Networks” and multi-line bare
+        # headings without absorbing the first prose sentence.
+        following_blank = (
+            start + offset + 1 >= len(rows)
+            or rows[start + offset + 1]['page'] != rows[start]['page']
+            or not rows[start + offset + 1]['text'].strip()
+        )
+        if result.endswith(('-', '–', '—', ':')) or following_blank or len(continuation) <= 55:
+            result = f'{result} {continuation}'.strip()
+        else:
+            break
+    return clean(result)
+
+
 def select_body_starts(rows: list[dict], expected: int) -> list[int]:
     occurrences, toc_pages = chapter_occurrences(rows)
     if toc_pages:
@@ -168,24 +212,9 @@ def extract_title(rows: list[dict], start: int, chapter: int) -> str:
         raise RuntimeError(f'Chapter marker mismatch at Chapter {chapter}')
     title = clean(match.group(2)).lstrip('-–—.: ')
     if title:
-        # Capture a visibly indented continuation line for wrapped long titles.
-        base_indent = len(rows[start]['text']) - len(rows[start]['text'].lstrip())
-        for offset in (1, 2):
-            if start + offset >= len(rows):
-                break
-            nxt = rows[start + offset]
-            if nxt['page'] != rows[start]['page'] or not nxt['text'].strip():
-                break
-            if CHAPTER_RE.match(nxt['text']) or PART_RE.match(nxt['text']) or APPENDIX_RE.match(nxt['text']):
-                break
-            indent = len(nxt['text']) - len(nxt['text'].lstrip())
-            continuation = clean(nxt['text'])
-            if indent >= base_indent + 2 and len(continuation) <= 180:
-                title = f'{title} {continuation}'
-            else:
-                break
-        return clean(title)
+        return _append_wrapped_title(rows, start, title, 1)
 
+    first_offset = None
     for offset in range(1, 5):
         if start + offset >= len(rows):
             break
@@ -194,8 +223,12 @@ def extract_title(rows: list[dict], start: int, chapter: int) -> str:
             break
         candidate = clean(nxt['text'])
         if candidate and not PAGE_FOOTER_RE.match(candidate):
-            return candidate
-    raise RuntimeError(f'Chapter {chapter} has no extractable title')
+            title = candidate
+            first_offset = offset
+            break
+    if not title or first_offset is None:
+        raise RuntimeError(f'Chapter {chapter} has no extractable title')
+    return _append_wrapped_title(rows, start, title, first_offset + 1)
 
 
 def semantic_end(rows: list[dict], start: int, next_start: int | None, final: bool) -> int:
@@ -343,7 +376,7 @@ def main() -> None:
     if len(all_records) != sum(EXPECTED.values()):
         raise RuntimeError(f'Expected {sum(EXPECTED.values())} total chapters, got {len(all_records)}')
 
-    for pos, record in enumerate(all_records):
+    for record in all_records:
         same_volume = [r for r in all_records if r['volume'] == record['volume']]
         local_index = same_volume.index(record)
         previous = same_volume[local_index - 1] if local_index > 0 else None
