@@ -25,8 +25,11 @@ const files = walk(OUT);
 const htmlFiles = files.filter((file) => file.endsWith('.html'));
 if (htmlFiles.length < 1) fail('no exported HTML pages found');
 
+let bookDerivedPanjiPages = 0;
 for (const file of htmlFiles) {
   const rel = path.relative(OUT, file);
+  const normalizedRel = rel.replaceAll('\\', '/');
+  const bookDerivedPanji = normalizedRel.startsWith('research-articles/decoding-panji/');
   const html = readFileSync(file, 'utf8');
   for (const marker of [
     'data-videha-publication-identity="true"',
@@ -34,12 +37,26 @@ for (const file of htmlFiles) {
     MIRROR_URL,
     GITHUB_URL,
     `ISSN ${ISSN}`,
-    'name="citation_issn" content="2229-547X"',
     'name="citation_website_url" content="https://www.videha.co.in/"',
     'name="citation_mirror_url" content="https://videha-ejournal.github.io/videha/"',
     'name="citation_archive_network_url" content="https://github.com/videha-ejournal"',
   ]) {
     if (!html.includes(marker)) fail(`${rel} missing ${marker}`);
+  }
+
+  if (bookDerivedPanji) {
+    bookDerivedPanjiPages += 1;
+    for (const forbidden of [
+      'name="citation_journal_title"',
+      'name="citation_issn"',
+      'name="citation_pdf_url"',
+      'name="citation_doi"',
+    ]) {
+      if (html.includes(forbidden)) fail(`${rel} incorrectly attaches journal/article metadata ${forbidden} to a book-derived Panji record`);
+    }
+    if (/name=["']DC\.identifier["'][^>]*ISSN/i.test(html)) fail(`${rel} incorrectly attaches ISSN as the Dublin Core identifier`);
+  } else if (!html.includes('name="citation_issn" content="2229-547X"')) {
+    fail(`${rel} missing name="citation_issn" content="2229-547X"`);
   }
 }
 
@@ -105,6 +122,8 @@ console.log({
   citationFilesVerified: citationFiles.length,
   videhaIdentity: 'verified-on-every-exported-page',
   issn: ISSN,
+  bookDerivedPanjiPages,
+  bookDerivedPanjiJournalMetadata: false,
   historyWorkIsbn: '978-93-344-9415-0',
   historyChapterIsbnPropagation: false,
   atmatattvavivekaParentIsbn: atmaFiles.length ? '978-93-5943-857-3' : 'no-detail-pages-exported',
