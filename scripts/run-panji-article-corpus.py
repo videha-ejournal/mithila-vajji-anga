@@ -25,7 +25,8 @@ RAW_SOURCE = 'https://raw.githubusercontent.com/videha-ejournal/videha-ejournal/
 SOURCES = {n: f'DECODING_PANJI_{n}.pdf' for n in range(1, 7)}
 EXPECTED = {1: 20, 2: 38, 3: 32, 4: 87, 5: 40, 6: 30}
 ROMAN = {1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI'}
-CHAPTER_RE = re.compile(r'^\s*Chapter\s+(\d+)\b\s*(?:[.:\-–—]\s*)?(.*)$', re.I)
+# Match only a bare chapter heading or a punctuation-delimited title; reject prose such as ‘Chapter 16 will…’.
+CHAPTER_RE = re.compile(r'^\s*Chapter\s+(\d+)\b(?:\s*[.:\-–—]\s*(.*))?\s*$', re.I)
 PAGE_FOOTER_RE = re.compile(r'^\s*(?:Page\s+)?\d+(?:\s+of\s+\d+)?\s*$', re.I)
 PART_RE = re.compile(r'^\s*Part\s+(?:[IVXLCDM]+|\d+)\b', re.I)
 APPENDIX_RE = re.compile(r'^\s*(?:Appendix|Annex(?:ure)?)\s+[A-Z0-9]+\b', re.I)
