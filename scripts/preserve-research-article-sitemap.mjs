@@ -15,8 +15,8 @@ const panjiRecords = JSON.parse(readFileSync(panjiInventoryPath, 'utf8'));
 if (!Array.isArray(records) || records.length !== 522) {
   throw new Error(`Expected 522 core research article records, found ${Array.isArray(records) ? records.length : 'invalid inventory'}.`);
 }
-if (!Array.isArray(panjiRecords) || panjiRecords.length < 1) {
-  throw new Error('Decoding Panji research article inventory is empty or invalid.');
+if (!Array.isArray(panjiRecords) || panjiRecords.length !== 247) {
+  throw new Error(`Expected 247 Decoding Panji chapter records, found ${Array.isArray(panjiRecords) ? panjiRecords.length : 'invalid inventory'}.`);
 }
 
 let sitemap = readFileSync(sitemapPath, 'utf8');
@@ -40,7 +40,7 @@ const indexUrl = `${baseUrl}research-articles/`;
 if (!sitemap.includes(`<loc>${indexUrl}</loc>`)) {
   addEntry(`  <url><loc>${indexUrl}</loc><lastmod>${lastModified}</lastmod><changefreq>monthly</changefreq></url>`);
 }
-const panjiIndexUrl = `${baseUrl}research-articles/decoding-panji/`;
+const panjiIndexUrl = `${baseUrl}decoding-panji/`;
 if (!sitemap.includes(`<loc>${panjiIndexUrl}</loc>`)) {
   addEntry(`  <url><loc>${panjiIndexUrl}</loc><lastmod>${lastModified}</lastmod><changefreq>monthly</changefreq></url>`);
 }
@@ -60,16 +60,18 @@ for (const record of records) {
 }
 for (const record of panjiRecords) {
   const url = record.canonical;
-  if (!url?.startsWith(panjiIndexUrl) || sitemap.includes(`<loc>${url}</loc>`)) continue;
+  if (!url?.startsWith(panjiIndexUrl)) throw new Error(`Decoding Panji canonical is outside the canonical route family: ${url}`);
+  if (sitemap.includes(`<loc>${url}</loc>`)) continue;
   addEntry(`  <url><loc>${escapeXml(url)}</loc><lastmod>${lastModified}</lastmod><changefreq>yearly</changefreq></url>`);
   added += 1;
 }
 
 writeFileSync(sitemapPath, sitemap);
 
-const researchUrls = (sitemap.match(/<loc>https:\/\/videha-ejournal\.github\.io\/mithila-vajji-anga\/research-articles\//g) ?? []).length;
-const expectedResearchUrls = 524 + panjiRecords.length;
-if (researchUrls !== expectedResearchUrls) throw new Error(`Expected ${expectedResearchUrls} research-article sitemap URLs including both indexes, found ${researchUrls}.`);
+const coreResearchUrls = (sitemap.match(/<loc>https:\/\/videha-ejournal\.github\.io\/mithila-vajji-anga\/research-articles\//g) ?? []).length;
+const panjiUrls = (sitemap.match(/<loc>https:\/\/videha-ejournal\.github\.io\/mithila-vajji-anga\/decoding-panji\//g) ?? []).length;
+if (coreResearchUrls !== 523) throw new Error(`Expected 523 core research-article sitemap URLs (522 articles + collection index), found ${coreResearchUrls}.`);
+if (panjiUrls !== panjiRecords.length + 1) throw new Error(`Expected ${panjiRecords.length + 1} Decoding Panji sitemap URLs (247 chapters + collection index), found ${panjiUrls}.`);
 for (const required of [
   `${baseUrl}research-articles/history/volume-1/chapter-001/`,
   `${baseUrl}research-articles/history/volume-2/chapter-150/`,
@@ -83,4 +85,4 @@ for (const required of [
   if (!sitemap.includes(`<loc>${required}</loc>`)) throw new Error(`Required research article URL is missing from sitemap: ${required}`);
 }
 
-console.log(`Research article sitemap PASS: 522 core + ${panjiRecords.length} Decoding Panji articles + two collection indexes; added ${added} URL(s).`);
+console.log(`Research sitemap PASS: 522 core research articles + ${panjiRecords.length} canonical Decoding Panji chapters + two collection indexes; added ${added} URL(s).`);

@@ -44,7 +44,7 @@ function publicationBlock(record) {
 <a href="${BASE}history/">Map</a>
 <a href="${BASE}#global-search">Search</a>
 <a href="${BASE}sources/">Sources</a>
-<a href="${BASE}research-articles/decoding-panji/">Decoding Panji Vol. I–VI</a>
+<a href="${BASE}decoding-panji/">Decoding Panji Vol. I–VI</a>
 </nav>
 <div class="panji-figure-grid">
 <figure id="panji-asset-art-1" data-panji-figure="asset-art-1">
@@ -92,6 +92,7 @@ function publicationBlock(record) {
 
 const records = JSON.parse(readFileSync(INVENTORY, 'utf8'));
 if (!Array.isArray(records) || records.length !== 247) throw new Error(`Expected 247 Panji chapter records; found ${records?.length ?? 'invalid'}`);
+if (records.some((record) => !record.route?.startsWith('decoding-panji/vol-'))) throw new Error('Panji publication finalization requires migrated canonical routes.');
 
 for (const record of records) {
   const filePath = path.join(ROOT, record.route, 'index.html');
@@ -105,4 +106,4 @@ for (const record of records) {
   writeFileSync(filePath, page);
 }
 
-console.log('Decoding Panji publication apparatus restored:', { chapters: records.length, figuresPerChapter: 4, chapterSpecificSourceNotes: true, scope: 'Mithila · Vajji · Anga' });
+console.log('Decoding Panji publication apparatus restored:', { chapters: records.length, canonicalIndex: `${BASE}decoding-panji/`, figuresPerChapter: 4, chapterSpecificSourceNotes: true, scope: 'Mithila · Vajji · Anga' });

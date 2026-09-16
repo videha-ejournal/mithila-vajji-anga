@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const OUT = path.resolve('dist/client');
-const PANJI_ROOT = path.join(OUT, 'research-articles', 'decoding-panji');
+const PANJI_ROOT = path.join(OUT, 'decoding-panji');
 
 if (!existsSync(PANJI_ROOT)) throw new Error('Decoding Panji output is missing before book-metadata finalization.');
 
@@ -42,6 +42,7 @@ for (const file of files) {
 
 console.log({
   status: 'decoding-panji-book-metadata-finalized',
+  canonicalRoot: 'decoding-panji/',
   htmlFiles: cleaned,
   journalHighwireMetadataAttached: false,
   articlePdfMetadataAttached: false,

@@ -7,6 +7,14 @@ const VIDEHA_URL = 'https://www.videha.co.in/';
 const MIRROR_URL = 'https://videha-ejournal.github.io/videha/';
 const GITHUB_URL = 'https://github.com/videha-ejournal';
 const ISSN = '2229-547X';
+const PANJI_PARENT_ISBNS = new Set([
+  '978-93-5915-894-5',
+  '978-93-6012-526-4',
+  '978-93-6068-808-0',
+  '978-93-6123-509-2',
+  '978-93-5933-373-1',
+  '978-93-5933-623-7',
+]);
 
 const fail = (message) => { throw new Error(`[Videha identity] ${message}`); };
 
@@ -29,7 +37,7 @@ let bookDerivedPanjiPages = 0;
 for (const file of htmlFiles) {
   const rel = path.relative(OUT, file);
   const normalizedRel = rel.replaceAll('\\', '/');
-  const bookDerivedPanji = normalizedRel.startsWith('research-articles/decoding-panji/');
+  const bookDerivedPanji = normalizedRel.startsWith('decoding-panji/');
   const html = readFileSync(file, 'utf8');
   for (const marker of [
     'data-videha-publication-identity="true"',
@@ -55,10 +63,17 @@ for (const file of htmlFiles) {
       if (html.includes(forbidden)) fail(`${rel} incorrectly attaches journal/article metadata ${forbidden} to a book-derived Panji record`);
     }
     if (/name=["']DC\.identifier["'][^>]*ISSN/i.test(html)) fail(`${rel} incorrectly attaches ISSN as the Dublin Core identifier`);
+    if (/^decoding-panji\/vol-(?:i|ii|iii|iv|v|vi)\/[^/]+\/index\.html$/i.test(normalizedRel)) {
+      const parentIsbn = html.match(/name=["']citation_parent_isbn["'][^>]*content=["']([^"']+)["']/i)?.[1]
+        ?? html.match(/content=["']([^"']+)["'][^>]*name=["']citation_parent_isbn["']/i)?.[1]
+        ?? '';
+      if (!PANJI_PARENT_ISBNS.has(parentIsbn)) fail(`${rel} is missing its authoritative Decoding Panji parent-volume ISBN`);
+    }
   } else if (!html.includes('name="citation_issn" content="2229-547X"')) {
     fail(`${rel} missing name="citation_issn" content="2229-547X"`);
   }
 }
+if (bookDerivedPanjiPages !== 248) fail(`Expected 248 book-derived Panji HTML pages (247 chapters + collection index), found ${bookDerivedPanjiPages}`);
 
 const citationFiles = files.filter((file) => /citation\.(?:bib|ris|csl\.json)$/.test(file));
 if (citationFiles.length < 1) fail('no generated citation downloads found');
@@ -124,6 +139,7 @@ console.log({
   issn: ISSN,
   bookDerivedPanjiPages,
   bookDerivedPanjiJournalMetadata: false,
+  canonicalPanjiParentVolumeIsbn: true,
   historyWorkIsbn: '978-93-344-9415-0',
   historyChapterIsbnPropagation: false,
   atmatattvavivekaParentIsbn: atmaFiles.length ? '978-93-5943-857-3' : 'no-detail-pages-exported',

@@ -4,10 +4,18 @@ import { join } from 'node:path';
 const useDist = process.argv.includes('--dist');
 const inventoryPath = 'app/generated/panji-article-inventory.json';
 const root = useDist ? 'dist/client' : 'public';
-const corpusRoot = join(root, 'research-articles', 'decoding-panji');
+const corpusRoot = join(root, 'decoding-panji');
 const sitemapPath = join(root, 'sitemap.xml');
+const BASE = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
 const expected = { 1: 20, 2: 38, 3: 32, 4: 87, 5: 40, 6: 30 };
 const expectedTotal = Object.values(expected).reduce((a, b) => a + b, 0);
+const ROMAN = { 1: 'i', 2: 'ii', 3: 'iii', 4: 'iv', 5: 'v', 6: 'vi' };
+const OFFSETS = { 1: 0, 2: 20, 3: 58, 4: 90, 5: 177, 6: 217 };
+const KNOWN_SLUGS = new Map([
+  [82, 'ch-082-the-panjikar-anthropological-profile'],
+  [183, 'ch-183-festivals-and-fairs-from-principles-to-public-culture'],
+  [223, 'ch-223-compiling-panji-records-into-multi-generation-genealogies'],
+]);
 const MIN_WORDS = 500;
 const MIN_RELEVANT_CHARS = 3500;
 const FIGURE_DISCLAIMER = 'Synthetic illustrated reconstruction for editorial use. This is not a photograph or facsimile of a historical manuscript.';
@@ -52,8 +60,18 @@ for (const record of records) {
   if (record.language !== 'en') throw new Error(`Decoding Panji record is not English: ${record.stable_id}`);
   if (!Number.isInteger(record.volume) || !expected[record.volume]) throw new Error(`Invalid volume: ${record.stable_id}`);
   if (!Number.isInteger(record.chapter) || record.chapter < 1 || record.chapter > expected[record.volume]) throw new Error(`Invalid chapter number: ${record.stable_id}`);
-  const wantedRoute = `research-articles/decoding-panji/volume-${record.volume}/chapter-${String(record.chapter).padStart(2, '0')}`;
-  if (record.route !== wantedRoute) throw new Error(`Chapter route mismatch: ${record.stable_id} => ${record.route}; expected ${wantedRoute}`);
+  const globalChapter = OFFSETS[record.volume] + record.chapter;
+  const wantedPrefix = `decoding-panji/vol-${ROMAN[record.volume]}/`;
+  const routeSlug = record.route.startsWith(wantedPrefix) ? record.route.slice(wantedPrefix.length) : '';
+  const wantedChapterPrefix = `ch-${String(globalChapter).padStart(3, '0')}-`;
+  if (!routeSlug || !routeSlug.startsWith(wantedChapterPrefix)) {
+    throw new Error(`Chapter route mismatch: ${record.stable_id} => ${record.route}; expected ${wantedPrefix}${wantedChapterPrefix}<title-slug>`);
+  }
+  if (record.global_chapter !== globalChapter) throw new Error(`Global chapter mismatch: ${record.stable_id} => ${record.global_chapter}; expected ${globalChapter}`);
+  const knownSlug = KNOWN_SLUGS.get(globalChapter);
+  if (knownSlug && routeSlug !== knownSlug) throw new Error(`Known canonical slug correction failed: global Chapter ${globalChapter} => ${routeSlug}; expected ${knownSlug}`);
+  const wantedCanonical = `${BASE}${record.route}/`;
+  if (record.canonical !== wantedCanonical) throw new Error(`Canonical mismatch: ${record.stable_id} => ${record.canonical}; expected ${wantedCanonical}`);
   if (record.stable_id !== `panji-v${record.volume}-ch${String(record.chapter).padStart(2, '0')}`) throw new Error(`Stable ID is not chapter-derived: ${record.stable_id}`);
   if (!/^[0-9a-f]{40}$/i.test(record.source_commit)) throw new Error(`Invalid source commit: ${record.stable_id}`);
   if (record.source_repository !== 'videha-ejournal/videha-ejournal') throw new Error(`Unexpected source repository: ${record.stable_id}`);
@@ -122,8 +140,6 @@ for (const record of records) {
   }
   const figureCount = (page.match(/data-panji-figure="/g) ?? []).length;
   if (figureCount !== 4) throw new Error(`Expected exactly four certified Panji figures in ${filePath}; found ${figureCount}.`);
-  // Placeholder guards apply to generator-controlled markup, metadata, navigation and apparatus.
-  // The preserved source body may legitimately discuss a “placeholder” as a scholarly term.
   const generatedMarkup = page.replace(/<pre>[\s\S]*?<\/pre>/, '<pre></pre>');
   if (forbiddenPlaceholders.test(generatedMarkup)) throw new Error(`Placeholder text in generated chapter markup: ${filePath}`);
 }
@@ -143,6 +159,7 @@ for (const record of records) if (!indexHtml.includes(record.canonical)) throw n
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 if (manifest.articleCount !== records.length) throw new Error(`Manifest count ${manifest.articleCount} does not match chapter inventory ${records.length}.`);
 if (!/^[0-9a-f]{40}$/i.test(manifest.sourceCommit ?? '')) throw new Error('Manifest source commit is missing or invalid.');
+if (manifest.canonicalIndex !== `${BASE}decoding-panji/`) throw new Error(`Manifest canonical index mismatch: ${manifest.canonicalIndex}`);
 const publicInventory = JSON.parse(readFileSync(publicInventoryPath, 'utf8'));
 if (!Array.isArray(publicInventory) || publicInventory.length !== records.length) throw new Error('Public Decoding Panji inventory is incomplete.');
 
@@ -170,6 +187,7 @@ if (useDist) {
 console.log(`Decoding Panji chapter corpus PASS (${useDist ? 'dist' : 'public'})`, {
   total: records.length,
   countsByVolume,
+  canonicalRoot: `${BASE}decoding-panji/`,
   substantiveThreshold: { words: MIN_WORDS, relevantChars: MIN_RELEVANT_CHARS },
   publicationRequirements: { figuresPerChapter: 4, chapterSpecificFootnotes: true, scope: 'Mithila · Vajji · Anga', safetyWording: true },
 });

@@ -5,7 +5,7 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const CORE_INVENTORY = path.join(ROOT, 'app', 'generated', 'research-article-inventory.json');
 const PANJI_INVENTORY = path.join(ROOT, 'app', 'generated', 'panji-article-inventory.json');
-const REPORT = path.join(ROOT, 'public', 'research-articles', 'decoding-panji', 'duplicate-audit.json');
+const REPORT = path.join(ROOT, 'public', 'decoding-panji', 'duplicate-audit.json');
 const PUBLIC_ROOT = path.join(ROOT, 'public');
 
 for (const required of [CORE_INVENTORY, PANJI_INVENTORY]) {
@@ -16,6 +16,7 @@ const core = JSON.parse(readFileSync(CORE_INVENTORY, 'utf8'));
 const panji = JSON.parse(readFileSync(PANJI_INVENTORY, 'utf8'));
 if (!Array.isArray(core) || core.length !== 522) throw new Error(`Duplicate control expected the verified 522-record core corpus, found ${Array.isArray(core) ? core.length : 'invalid inventory'}.`);
 if (!Array.isArray(panji) || panji.length < 1) throw new Error('Duplicate control found no Decoding Panji records.');
+if (panji.some((record) => !record.route?.startsWith('decoding-panji/vol-'))) throw new Error('Duplicate control requires canonical Decoding Panji routes before comparison.');
 
 const normalizeTitle = (value) => String(value ?? '')
   .normalize('NFKD')
@@ -41,8 +42,6 @@ function extractBody(record, kind) {
   const file = path.join(PUBLIC_ROOT, record.route, 'index.html');
   if (!existsSync(file)) throw new Error(`Duplicate control cannot read ${file}.`);
   const html = readFileSync(file, 'utf8');
-  // Core research pages wrap article prose in .article-text. Decoding Panji
-  // deliberately preserves PDF-extracted chapter layout in a <pre> element.
   const match = kind === 'panji'
     ? html.match(/<pre>([\s\S]*?)<\/pre>/)
     : html.match(/<div class="article-text">([\s\S]*?)<\/div>/);

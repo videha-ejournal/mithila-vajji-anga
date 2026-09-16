@@ -9,6 +9,7 @@ const homepages = [
 const anchorPattern = /<div[^>]*id="decoding-panji-directory-anchor"[^>]*><\/div>/;
 const roman = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI' };
 const expected = { 1: 20, 2: 38, 3: 32, 4: 87, 5: 40, 6: 30 };
+const PANJI_PREFIX = 'https://videha-ejournal.github.io/mithila-vajji-anga/decoding-panji/';
 const dev = ['०','१','२','३','४','५','६','७','८','९'];
 const esc = (value) => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
 const toDev = (value) => String(value).split('').map((c) => /\d/.test(c) ? dev[Number(c)] : c).join('');
@@ -18,6 +19,7 @@ const panji = JSON.parse(readFileSync(panjiInventoryPath, 'utf8'));
 const core = JSON.parse(readFileSync(coreInventoryPath, 'utf8'));
 if (!Array.isArray(panji) || panji.length !== 247) throw new Error(`Expected 247 Decoding Panji chapter records; found ${panji?.length ?? 'invalid'}.`);
 if (!Array.isArray(core) || core.length !== 522) throw new Error('The verified 522-record core inventory is unavailable.');
+if (panji.some((record) => !record.canonical?.startsWith(PANJI_PREFIX))) throw new Error('Decoding Panji inventory contains a non-canonical route family.');
 
 for (const [volumeText, count] of Object.entries(expected)) {
   const volume = Number(volumeText);
@@ -60,10 +62,19 @@ for (const homepage of homepages) {
   for (const record of panji) if (!page.includes(`href="${record.canonical}"`)) throw new Error(`Decoding Panji chapter missing from ${homepage.path}: ${record.canonical}`);
   for (const record of core) if (!page.includes(`href="${record.canonical}"`)) throw new Error(`Verified 522-core link missing from ${homepage.path}: ${record.canonical}`);
 }
-const extractLinks = (page) => new Set([...page.matchAll(/href="(https:\/\/videha-ejournal\.github\.io\/mithila-vajji-anga\/research-articles\/decoding-panji\/volume-[^"]+)"/g)].map((m) => m[1]));
+const expectedLinks = new Set(panji.map((record) => record.canonical));
+const extractLinks = (page) => new Set(
+  [...page.matchAll(/href="([^"]+)"/g)]
+    .map((match) => match[1])
+    .filter((href) => href.startsWith(PANJI_PREFIX) && href !== PANJI_PREFIX),
+);
 const rootLinks = extractLinks(readFileSync(homepages[0].path, 'utf8'));
 const enLinks = extractLinks(readFileSync(homepages[1].path, 'utf8'));
-if (rootLinks.size !== panji.length || enLinks.size !== panji.length) throw new Error(`Bilingual Panji link-set mismatch: root=${rootLinks.size}, en=${enLinks.size}, inventory=${panji.length}`);
-for (const link of rootLinks) if (!enLinks.has(link)) throw new Error(`English homepage missing ${link}`);
-for (const link of enLinks) if (!rootLinks.has(link)) throw new Error(`Maithili homepage missing ${link}`);
-console.log(`Injected exact Decoding Panji chapter directory: ${panji.length} links on each homepage; all 522 core links preserved.`);
+if (rootLinks.size !== expectedLinks.size || enLinks.size !== expectedLinks.size) throw new Error(`Bilingual Panji link-set mismatch: root=${rootLinks.size}, en=${enLinks.size}, inventory=${expectedLinks.size}`);
+for (const link of expectedLinks) {
+  if (!rootLinks.has(link)) throw new Error(`Maithili homepage missing ${link}`);
+  if (!enLinks.has(link)) throw new Error(`English homepage missing ${link}`);
+}
+for (const link of rootLinks) if (!expectedLinks.has(link)) throw new Error(`Maithili homepage exposes an unexpected Panji chapter URL: ${link}`);
+for (const link of enLinks) if (!expectedLinks.has(link)) throw new Error(`English homepage exposes an unexpected Panji chapter URL: ${link}`);
+console.log(`Injected exact canonical Decoding Panji chapter directory: ${panji.length} links on each homepage; all 522 core links preserved.`);
