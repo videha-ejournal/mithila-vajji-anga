@@ -1,4 +1,4 @@
-name: Validate Decoding Panji strict production build
+name: Diagnose Decoding Panji strict production phases
 
 on:
   push:
@@ -7,14 +7,21 @@ on:
       - '.diagnostics/**'
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: diagnose-panji-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CI: '1'
+  REQUIRE_IMAGE_OPTIMIZATION: '1'
+  REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
 
 jobs:
-  strict-build:
+  segmented-build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -27,52 +34,86 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        timeout-minutes: 5
         run: npm ci
 
       - name: Install production image optimizer
+        timeout-minutes: 3
         run: npm install --no-save --package-lock=false sharp@0.35.4
 
-      - name: Run complete strict production build and capture diagnostics
-        id: strict_build
-        shell: bash
+      - name: Phase 1 — source and runtime preparation
+        timeout-minutes: 8
         env:
-          REQUIRE_IMAGE_OPTIMIZATION: '1'
-          REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
           GITHUB_API_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p .diagnostics
-          set +e
-          npm run build > .diagnostics/panji-strict-build.log 2>&1
-          status=$?
-          set -e
-          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
-          tail -n 300 .diagnostics/panji-strict-build.log
-          exit 0
-
-      - name: Persist strict-build failure log
-        if: steps.strict_build.outputs.exit_code != '0'
         shell: bash
         run: |
-          printf 'Strict build exit code: %s\nCommit tested: %s\n' '${{ steps.strict_build.outputs.exit_code }}' "$(git rev-parse HEAD)" > .diagnostics/panji-strict-build-status.txt
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .diagnostics/panji-strict-build.log .diagnostics/panji-strict-build-status.txt
-          if ! git diff --cached --quiet; then
-            git commit -m 'diagnostics: capture next Panji strict-build failure'
-            git push origin HEAD:chatgpt/decoding-panji-i-vi
-          fi
-          exit 1
+          set -euxo pipefail
+          node scripts/validate-isbn-authority.mjs
+          node scripts/export-isbn-authority.mjs
+          node scripts/validate-classical-philosophy-inventory.mjs
+          node scripts/audit-parallel-philosophy-source.mjs --strict --write-inventory
+          node scripts/audit-panji-source.mjs --strict --write-inventory
+          node scripts/build-bilingual-detail-inventory.mjs
+          node scripts/prepare-runtime-data.mjs
+          node scripts/optimize-home-runtime.mjs
 
-      - name: Clean diagnostics after green strict build
-        if: steps.strict_build.outputs.exit_code == '0'
+      - name: Phase 2 — core research article corpus
+        timeout-minutes: 8
+        env:
+          GITHUB_API_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          rm -rf .diagnostics
-          rm -f .github/workflows/diagnose-panji-build.yml
-          git add -A
-          if ! git diff --cached --quiet; then
-            git commit -m 'chore: remove temporary Panji diagnostics after green build'
-            git push origin HEAD:chatgpt/decoding-panji-i-vi
-          fi
+          set -euxo pipefail
+          node scripts/prepare-research-article-corpus.mjs
+          node scripts/verify-research-article-corpus.mjs
+
+      - name: Phase 3 — Decoding Panji corpus and duplicate control
+        timeout-minutes: 8
+        env:
+          GITHUB_API_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node scripts/prepare-panji-article-corpus.mjs
+          node scripts/verify-panji-article-corpus.mjs
+          node scripts/verify-panji-duplicate-control.mjs
+
+      - name: Phase 4 — optimized production compile
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node scripts/build-optimized.mjs
+
+      - name: Phase 5 — dist transforms and corpus verification
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node scripts/finalize-bilingual-semantics.mjs
+          node scripts/verify-bilingual-semantics.mjs
+          node scripts/inject-panji-home-directory.mjs
+          node scripts/preserve-route-sitemap.mjs
+          node scripts/preserve-research-article-sitemap.mjs
+          node scripts/verify-research-article-corpus.mjs --dist
+          node scripts/verify-panji-article-corpus.mjs --dist
+
+      - name: Phase 6 — release, accessibility, identity and preservation checks
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node scripts/finalize-service-worker.mjs
+          node scripts/finalize-release-integrity.mjs
+          node scripts/finalize-videha-identity.mjs
+          node scripts/finalize-panji-book-metadata.mjs
+          node scripts/finalize-scholarly-preservation.mjs
+          node scripts/verify-release-integrity.mjs
+          node scripts/verify-accessibility-engineering.mjs
+          node scripts/verify-human-accessibility-qa.mjs
+          node scripts/verify-videha-identity.mjs
+          node scripts/verify-panji-article-corpus.mjs --dist
+          node scripts/verify-scholarly-preservation.mjs
+
+      - name: Segmented strict build passed
+        run: echo 'All strict production phases passed.'
