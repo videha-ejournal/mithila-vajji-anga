@@ -7,7 +7,7 @@ on:
       - '.diagnostics/**'
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   CI: '1'
@@ -38,28 +38,63 @@ jobs:
           node scripts/prepare-panji-article-corpus.mjs
           node scripts/verify-panji-article-corpus.mjs
       - name: Audit exact counts and minimum body sizes
+        id: substantive_audit
         shell: bash
         run: |
+          mkdir -p .diagnostics
           python3 - <<'PY'
           import json, pathlib, re, html
           inv=json.loads(pathlib.Path('app/generated/panji-article-inventory.json').read_text())
-          assert len(inv)==247, len(inv)
+          if len(inv) != 247:
+              raise SystemExit(f'Expected 247 inventory rows, found {len(inv)}')
           counts={}
           short=[]
+          rows=[]
           for r in inv:
               counts[r['volume']]=counts.get(r['volume'],0)+1
               p=pathlib.Path('public')/r['route']/'index.html'
               s=p.read_text('utf-8')
               m=re.search(r'<pre>([\s\S]*?)</pre>',s)
-              assert m, p
+              if not m:
+                  short.append((r['volume'],r['chapter'],r['title'],0,0,'missing-pre'))
+                  continue
               body=html.unescape(m.group(1))
               words=re.findall(r"\b[\w’'-]+\b", body, flags=re.UNICODE)
               chars=len(re.sub(r'\s+',' ',body).strip())
               if len(words)<500 or chars<3500:
-                  short.append((r['volume'],r['chapter'],r['title'],len(words),chars))
-          print('counts=',counts)
-          print('short_count=',len(short))
-          for row in short[:50]: print('SHORT',row)
-          if short:
-              raise SystemExit(f'{len(short)} chapter(s) fail 500-word/3500-character substantive threshold')
+                  short.append((r['volume'],r['chapter'],r['title'],len(words),chars,'short'))
+          rows.append('Decoding Panji substantive audit')
+          rows.append(f'total={len(inv)}')
+          rows.append('counts='+json.dumps(counts,sort_keys=True))
+          rows.append(f'short_count={len(short)}')
+          rows.append('threshold=words>=500 AND relevant_chars>=3500')
+          rows.append('')
+          for volume,chapter,title,words,chars,reason in short:
+              rows.append(f'V{volume}\tCH{chapter:03d}\twords={words}\tchars={chars}\treason={reason}\t{title}')
+          pathlib.Path('.diagnostics/panji-short-chapters.txt').write_text('\n'.join(rows)+'\n','utf-8')
+          print('\n'.join(rows))
+          pathlib.Path('.diagnostics/panji-short-count.txt').write_text(str(len(short))+'\n','utf-8')
           PY
+
+      - name: Persist substantive audit diagnostic
+        if: always()
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .diagnostics/panji-short-chapters.txt .diagnostics/panji-short-count.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'diagnostics: persist Panji substantive audit failures'
+            git push origin HEAD:chatgpt/decoding-panji-i-vi
+          fi
+
+      - name: Enforce substantive threshold
+        shell: bash
+        run: |
+          count="$(tr -d '[:space:]' < .diagnostics/panji-short-count.txt)"
+          if [ "$count" != "0" ]; then
+            echo "$count chapter(s) fail the substantive threshold."
+            cat .diagnostics/panji-short-chapters.txt
+            exit 1
+          fi
+          echo 'All 247 chapters pass the substantive threshold.'
