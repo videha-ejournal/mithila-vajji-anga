@@ -1,0 +1,99 @@
+=== VOLUME 2 CHAPTER 35 ===
+selected_index= 17631 page= 479 line= 20
+selected_text= '        Chapter 35. गोत्र, मूल, मूलग्राम: Index-Wise'
+regex_groups= ('35', 'गोत्र, मूल, मूलग्राम: Index-Wise')
+extract_title= 'गोत्र, मूल, मूलग्राम: Index-Wise Decoding'
+context:
+017623 p0479 l012:     intellectual lineage and title/occupation index.
+017624 p0479 l013:    गोत्र-प्रवर युक्त मैथिल -> Chapter 37; Appendix C. Decode marriage
+017625 p0479 l014:     rule, उतढ़, त्रिप्रवर/पंचप्रवर, and मूल classification.
+017626 p0479 l015:    बीजी पुरुषक नाम ओ पत्रांक -> Chapter 37; Appendix F/J. Decode बीजी
+017627 p0479 l016:     as earliest known person of a मूल; link to place and register
+017628 p0479 l017:     number.
+017629 p0479 l018: 
+017630 p0479 l019: 
+017631 p0479 l020:         Chapter 35. गोत्र, मूल, मूलग्राम: Index-Wise
+017632 p0479 l021:                                     Decoding
+017633 p0479 l022: The first block of the Khand 1 index is the gate to the entire
+017634 p0479 l023: volume. It identifies गोत्र, मूल, and मूलग्राम relations. This is not a
+017635 p0479 l024: casual village list. It is the skeleton of origin, branch, and village
+017636 p0479 l025: attachment for Khand 1.
+017637 p0479 l026: 
+017638 p0479 l027: A. गोत्र-मूल-मूलग्राम decision block
+017639 p0479 l028: 
+017640 p0479 l029:    शाण्डिल्‍य    (i)         सरिसब खांगुड़, सकु री, जोंकी
+017641 p0479 l030:    (ii) पर्वपल्‍ली वढि़याम            (पवौली)
+017642 p0479 l031:    (iii) खण्‍डबला भौर; (iv)           सोदरपुर सरिसव, मानी, दिगउन्‍ध, तेतरिहार,
+017643 p0479 l032:          कन्‍होली कटका, हाटी,
+017644 p0479 l033: 
+017645 p0479 l034: 
+017646 p0479 l035: 
+017647 p0479 l036: 
+017648 p0479 l037:                                           478
+
+=== VOLUME 4 CHAPTER 35 ===
+selected_index= 12884 page= 371 line= 25
+selected_text= 'Chapter 35. Nagwad-Ghusaut Continued:'
+regex_groups= ('35', 'Nagwad-Ghusaut Continued:')
+extract_title= 'Nagwad-Ghusaut Continued:'
+context:
+012876 p0371 l017: Budhwal, Belaunch, Pawali, Karmah, Ekhara, Digho, Tisaut,
+012877 p0371 l018: Fanandah, and Purnea. Entry (296), beginning Nagwad to
+012878 p0371 l019: Bhatsimari-Dhamdaha, starts the next source movement and
+012879 p0371 l020: is reserved for Chapter 35.
+012880 p0371 l021: 
+012881 p0371 l022: 
+012882 p0371 l023: 
+012883 p0371 l024: 
+012884 p0371 l025: Chapter 35. Nagwad-Ghusaut Continued:
+012885 p0371 l026: Bhatsimari, Chapahi, Kaivalakh, Satlakha,
+012886 p0371 l027: and the Turn to Ananlpur-Karmaha
+012887 p0371 l028:    This chapter continues the Nagwad-Ghusaut register exactly
+012888 p0371 l029: from the point reserved at the end of Chapter 34. It covers entries
+012889 p0371 l030: (296) through (305) only. The first part remains within Nagwad,
+012890 p0371 l031: but the destinations now become Bhatsimari-Dhamdaha,
+012891 p0371 l032: Chapahi, Kaivalakh, Kakraud, and Satlakha. The second part
+012892 p0371 l033: prepares the transition out of Nagwad by ending immediately
+012893 p0371 l034: 
+012894 p0371 l035: 
+012895 p0371 l036:                                370
+012896 p0372 l000: before entry (306), where Nagwad turns to Pilkhwar. Throughout
+012897 p0372 l001: this chapter the method remains the same: each name is read as
+012898 p0372 l002: a point in descent, a place-route, a marriage network, a title-
+012899 p0372 l003: bearing branch, or a continuity marker.
+012900 p0372 l004: 
+012901 p0372 l005: 35.1 Entry (296): Nagwad to Bhatsimari-Dhamdaha
+
+=== VOLUME 5 CHAPTER 35 ===
+selected_index= 10003 page= 265 line= 29
+selected_text= 'Chapter 35.'
+regex_groups= ('35', '')
+extract_title_ERROR= RuntimeError('Chapter 35 has no extractable title')
+context:
+009995 p0265 l021:      Rajaram, Ramakant, Kalidas, Nanuka, Ramkrishna, Shyam, and Lalita’s
+009996 p0265 l022:      issue.
+009997 p0265 l023: 
+009998 p0265 l024:     5. Chapter close and next threshold
+009999 p0265 l025:    Chapter 34 is a short village-start chapter, but it is genealogically useful
+010000 p0265 l026: because it connects Badhiyam-Pawauli to the larger Nasira-Haveli and
+010001 p0265 l027: Khaual-Darhiara-Belauch-Karmaha network. It stops before the next formal
+010002 p0265 l028: heading, “अथ देवहार देवहार मूल मू ग्रामारम्भः,” which should begin
+010003 p0265 l029: Chapter 35.
+010004 p0265 l030: 
+010005 p0265 l031: 
+010006 p0265 l032: 
+010007 p0265 l033: 
+010008 p0265 l034:                  Decoding the Panji of Mithila - Volume V | 264
+010009 p0266 l000:                                Chapter 35
+010010 p0266 l001:    Devhar Devhar Mul-Mu Gramaramabh: Jaykar, Sagar, Matikar,
+010011 p0266 l002: Lakshmikar, Gunakar, Kameshwar, Rajoo, Haldhar, Narsingh,
+010012 p0266 l003: Brahmeshwar, Umapati, Narayan, Haradatt, Krishnadev, Nehal,
+010013 p0266 l004: Sitaram, Virnarayan, Ramdular, Khadganarayan, and the Shandilya-
+010014 p0266 l005: Brahmpura Threshold
+010015 p0266 l006: 
+010016 p0266 l007: 
+010017 p0266 l008:   1. The Devhar village-start and the first descent
+010018 p0266 l009:    The source opens this register with the formal heading “ अथ देवहार
+010019 p0266 l010: देवहार मूल मू ग्रामारम्भः.” It places the line in the Devhar field and begins
+010020 p0266 l011: from Vesual-Devhar with Viji Jaykar. The descent is compressed but clear:
+
