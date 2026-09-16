@@ -19,7 +19,7 @@ function slugify(value) {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[’']/g, '')
     .replace(/&/g, ' and ')
-    .replace(/[^\x00-\x7F]+/g, ' ')
+    .replace(/[^\p{ASCII}]+/gu, ' ')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
