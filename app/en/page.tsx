@@ -51,6 +51,7 @@ export default function EnglishHome() {
         </p>
       </section>
       <ResearchCorpusDirectory locale="en" />
+      <div id="decoding-panji-directory-anchor" aria-hidden="true" />
       <ArchiveEnglish />
     </>
   );
