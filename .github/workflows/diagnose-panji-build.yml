@@ -1,4 +1,4 @@
-name: Repair and validate Decoding Panji chapter selection
+name: Diagnose Decoding Panji chapter 2-09
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
   CI: '1'
 
 jobs:
-  repair-and-validate:
+  diagnose-chapter:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -21,76 +21,49 @@ jobs:
           ref: chatgpt/decoding-panji-i-vi
           fetch-depth: 0
 
-      - name: Persist duplicate-marker title-aware selection fix
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          path=Path('scripts/run-panji-article-corpus.py')
-          text=path.read_text()
-          old="""        chosen = candidates[0]\n        starts.append(chosen)\n        cursor = chosen\n"""
-          new="""        # Prefer the first formal candidate that can yield a real chapter title.\n        # This rejects orphan duplicate markers such as a bare 'Chapter 35.' at\n        # the foot of one page when the actual titled opening repeats next page.\n        chosen = None\n        for candidate in candidates:\n            try:\n                extract_title(rows, candidate, chapter)\n            except RuntimeError:\n                continue\n            chosen = candidate\n            break\n        if chosen is None:\n            chosen = candidates[0]\n        starts.append(chosen)\n        cursor = chosen\n"""
-          if old in text:
-              path.write_text(text.replace(old,new,1))
-          elif new not in text:
-              raise SystemExit('Panji selector is neither the expected old nor repaired form')
-          PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          if ! git diff --quiet -- scripts/run-panji-article-corpus.py; then
-            git add scripts/run-panji-article-corpus.py
-            git commit -m 'fix: select titled Panji chapter opening across duplicate markers'
-            git push origin HEAD:chatgpt/decoding-panji-i-vi
-          fi
-
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 22
-          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install production image optimizer
-        run: npm install --no-save --package-lock=false sharp@0.35.4
-
-      - name: Run complete strict production build and capture diagnostics
-        id: strict_build
-        shell: bash
+      - name: Generate only Decoding Panji corpus
         env:
-          REQUIRE_IMAGE_OPTIMIZATION: '1'
-          REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
           GITHUB_API_TOKEN: ${{ github.token }}
+        run: node scripts/prepare-panji-article-corpus.mjs
+
+      - name: Inspect Volume II Chapter 9 placeholder trigger
+        shell: bash
         run: |
           mkdir -p .diagnostics
-          set +e
-          npm run build > .diagnostics/panji-strict-build.log 2>&1
-          status=$?
-          set -e
-          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
-          tail -n 250 .diagnostics/panji-strict-build.log
-          exit 0
+          python3 - <<'PY'
+          from pathlib import Path
+          import html, re
+          p = Path('public/research-articles/decoding-panji/volume-2/chapter-09/index.html')
+          text = p.read_text('utf-8')
+          pattern = re.compile(r'\b(?:TODO|TBD|LOREM IPSUM|PLACEHOLDER)\b', re.I)
+          matches = list(pattern.finditer(text))
+          out = []
+          out.append(f'file={p}')
+          out.append(f'bytes={p.stat().st_size}')
+          out.append(f'has_closing_html={"</html>" in text}')
+          out.append(f'match_count={len(matches)}')
+          for i,m in enumerate(matches,1):
+              lo=max(0,m.start()-240); hi=min(len(text),m.end()+240)
+              context=html.unescape(text[lo:hi]).replace('\n',' ')
+              out.append(f'MATCH {i}: token={m.group(0)!r} offset={m.start()} context={context!r}')
+          Path('.diagnostics/chapter-v2-ch09-placeholder.txt').write_text('\n'.join(out)+'\n','utf-8')
+          print('\n'.join(out))
+          if not matches and '</html>' in text:
+              raise SystemExit('Expected current verifier trigger was not reproduced')
+          PY
 
-      - name: Persist strict-build failure log
-        if: steps.strict_build.outputs.exit_code != '0'
+      - name: Persist targeted diagnostic
+        if: always()
         shell: bash
         run: |
-          printf 'Strict build exit code: %s\nCommit tested: %s\n' '${{ steps.strict_build.outputs.exit_code }}' "$(git rev-parse HEAD)" > .diagnostics/panji-strict-build-status.txt
-          git add .diagnostics/panji-strict-build.log .diagnostics/panji-strict-build-status.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .diagnostics/chapter-v2-ch09-placeholder.txt
           if ! git diff --cached --quiet; then
-            git commit -m 'diagnostics: capture Panji strict-build failure'
-            git push origin HEAD:chatgpt/decoding-panji-i-vi
-          fi
-          exit 1
-
-      - name: Remove diagnostics workflow after green strict build
-        if: steps.strict_build.outputs.exit_code == '0'
-        shell: bash
-        run: |
-          rm -rf .diagnostics
-          rm -f .github/workflows/diagnose-panji-build.yml
-          git add -A
-          if ! git diff --cached --quiet; then
-            git commit -m 'chore: remove temporary Panji diagnostics'
+            git commit -m 'diagnostics: identify Panji v2 ch09 placeholder trigger'
             git push origin HEAD:chatgpt/decoding-panji-i-vi
           fi
