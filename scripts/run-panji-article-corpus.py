@@ -129,7 +129,19 @@ def select_body_starts(rows: list[dict], expected: int) -> list[int]:
         if not candidates:
             missing.append(chapter)
             continue
-        chosen = candidates[0]
+        # Prefer the first formal candidate that can yield a real chapter title.
+        # This rejects orphan duplicate markers such as a bare 'Chapter 35.' at
+        # the foot of one page when the actual titled opening repeats next page.
+        chosen = None
+        for candidate in candidates:
+            try:
+                extract_title(rows, candidate, chapter)
+            except RuntimeError:
+                continue
+            chosen = candidate
+            break
+        if chosen is None:
+            chosen = candidates[0]
         starts.append(chosen)
         cursor = chosen
     if missing or len(starts) != expected:
