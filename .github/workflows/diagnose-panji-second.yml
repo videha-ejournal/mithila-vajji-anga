@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 22
-      - name: Inspect Volume II Chapter 1 body typography
+      - name: Inspect Volume II page 5
         env:
           GITHUB_API_TOKEN: ${{ github.token }}
         shell: bash
@@ -26,17 +26,15 @@ jobs:
           set +e
           node scripts/prepare-panji-article-corpus.mjs > /dev/null 2>&1
           python3 - <<'PY'
+          import re
           from pathlib import Path
           p=Path('.source-books/DECODING_PANJI_2.chapter-layout.txt')
           pages=[x.splitlines() for x in p.read_text('utf-8', errors='replace').split('\f')]
-          for pg in range(6,18):
-              lines=pages[pg-1]
-              print(f'===== PAGE {pg} =====')
-              for i,line in enumerate(lines[:22]):
-                  print(f'{i:03d}: {line}')
-              for i,line in enumerate(lines):
-                  low=line.lower()
-                  if 'chapter 1' in low or 'panji as memory' in low or 'social map' in low:
-                      print(f'MATCH {i:03d}: {line}')
+          rx=re.compile(r'^\s*Chapter\s+(\d+)\b(?:\s*[.:\-–—]\s*(.*))?\s*$', re.I)
+          lines=pages[4]
+          print('===== PAGE 5 FULL =====')
+          for i,line in enumerate(lines):
+              flag=' <CHAPTER_MATCH>' if rx.match(line) else ''
+              print(f'{i:03d}: {line}{flag}')
           PY
           exit 1
