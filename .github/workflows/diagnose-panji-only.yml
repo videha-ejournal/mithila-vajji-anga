@@ -1,0 +1,65 @@
+name: Validate Decoding Panji corpus directly
+
+on:
+  push:
+    branches: [chatgpt/decoding-panji-i-vi]
+    paths-ignore:
+      - '.diagnostics/**'
+
+permissions:
+  contents: read
+
+env:
+  CI: '1'
+
+jobs:
+  panji-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: chatgpt/decoding-panji-i-vi
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        timeout-minutes: 4
+        run: npm ci
+      - name: Generate and verify all 247 Panji chapters
+        timeout-minutes: 7
+        env:
+          GITHUB_API_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node scripts/prepare-panji-article-corpus.mjs
+          node scripts/verify-panji-article-corpus.mjs
+      - name: Audit exact counts and minimum body sizes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, re, html
+          inv=json.loads(pathlib.Path('app/generated/panji-article-inventory.json').read_text())
+          assert len(inv)==247, len(inv)
+          counts={}
+          short=[]
+          for r in inv:
+              counts[r['volume']]=counts.get(r['volume'],0)+1
+              p=pathlib.Path('public')/r['route']/'index.html'
+              s=p.read_text('utf-8')
+              m=re.search(r'<pre>([\s\S]*?)</pre>',s)
+              assert m, p
+              body=html.unescape(m.group(1))
+              words=re.findall(r"\b[\w’'-]+\b", body, flags=re.UNICODE)
+              chars=len(re.sub(r'\s+',' ',body).strip())
+              if len(words)<500 or chars<3500:
+                  short.append((r['volume'],r['chapter'],r['title'],len(words),chars))
+          print('counts=',counts)
+          print('short_count=',len(short))
+          for row in short[:50]: print('SHORT',row)
+          if short:
+              raise SystemExit(f'{len(short)} chapter(s) fail 500-word/3500-character substantive threshold')
+          PY
