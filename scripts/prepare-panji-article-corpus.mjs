@@ -7,7 +7,7 @@ import path from 'node:path';
 const SOURCE_REPO = 'videha-ejournal/videha-ejournal';
 const SOURCE_BRANCH = 'main';
 const SOURCE_DIR = '.source-books';
-const OUT_ROOT = 'public/research-articles/decoding-panji';
+const OUT_ROOT = 'public/decoding-panji';
 const INVENTORY = 'app/generated/panji-article-inventory.json';
 const PUBLIC_INVENTORY = `${OUT_ROOT}/inventory.json`;
 const MANIFEST = `${OUT_ROOT}/manifest.json`;
@@ -80,6 +80,7 @@ function patchGeneratedOutput(commit) {
   const countsByVolume = {};
   for (const record of inventory) {
     if (record.kind !== 'chapter') throw new Error(`Non-chapter record generated: ${record.stable_id}`);
+    if (!record.route?.startsWith('decoding-panji/vol-')) throw new Error(`Canonical route migration did not run for ${record.stable_id}: ${record.route}`);
     if (typeof record.source_html === 'string') record.source_html = record.source_html.replace(mainGithub, pinnedGithub);
     if (typeof record.source_pdf === 'string') record.source_pdf = record.source_pdf.replace(mainRaw, pinnedRaw);
     record.source_repository = SOURCE_REPO;
@@ -102,7 +103,7 @@ function patchGeneratedOutput(commit) {
   }
 
   const manifest = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAt: new Date().toISOString(),
     author: 'Gajendra Thakur',
     archive: 'Videha Digital Research Archive: Mithila, Vajji & Anga',
@@ -116,11 +117,13 @@ function patchGeneratedOutput(commit) {
     chapterCount: inventory.length,
     countsByVolume,
     countsByKind: { chapter: inventory.length },
-    inventoryUrl: 'https://videha-ejournal.github.io/mithila-vajji-anga/research-articles/decoding-panji/inventory.json',
-    note: 'Chapter-only source-derived corpus: exactly one formal book chapter is published as one HTML page. Front matter, parts, appendices, annexures, closing notes, bibliography and other book apparatus are not promoted to independent HTML records. Source-heading outlines, source-text concordances, chapter-specific source notes, archive navigation and the four required research figures are generated before validation.',
+    inventoryUrl: 'https://videha-ejournal.github.io/mithila-vajji-anga/decoding-panji/inventory.json',
+    canonicalIndex: 'https://videha-ejournal.github.io/mithila-vajji-anga/decoding-panji/',
+    routePolicy: '/decoding-panji/vol-<roman>/ch-<global-number>-<title-slug>/',
+    note: 'Exactly one formal chapter is published as one canonical HTML page. Temporary extraction routes are removed before validation. Front matter, parts, appendices, annexures, closing notes, bibliography and other book apparatus are not promoted to independent chapter pages. Source-heading outlines, source-text concordances, chapter-specific source notes, archive navigation and the four required research figures are generated before validation.',
   };
   writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
-  console.log('Decoding Panji source-pinned chapter corpus:', { chapterCount: inventory.length, countsByVolume, sourceCommit: commit });
+  console.log('Decoding Panji source-pinned canonical corpus:', { chapterCount: inventory.length, countsByVolume, sourceCommit: commit });
 }
 
 async function main() {
@@ -135,6 +138,7 @@ async function main() {
   writeFileSync(refFile, `${JSON.stringify({ sourceRepository: SOURCE_REPO, sourceCommit: commit, sourceFiles: SOURCE_FILES }, null, 2)}\n`);
   run('python3', ['scripts/run-panji-article-corpus.py']);
   run('node', ['scripts/enrich-panji-chapter-apparatus.mjs']);
+  run('node', ['scripts/migrate-panji-canonical-routes.mjs']);
   patchGeneratedOutput(commit);
   run('node', ['scripts/finalize-panji-publication.mjs']);
 }
