@@ -161,7 +161,7 @@ async function main() {
   for (const filename of SOURCE_FILES) await downloadFile(commit, filename);
   writeFileSync(refFile, `${JSON.stringify({ sourceRepository: SOURCE_REPO, sourceCommit: commit, sourceFiles: SOURCE_FILES }, null, 2)}\n`);
 
-  run('python3', ['scripts/build-panji-article-corpus.py']);
+  run('python3', ['scripts/run-panji-article-corpus.py']);
   patchGeneratedOutput(commit);
 }
 
