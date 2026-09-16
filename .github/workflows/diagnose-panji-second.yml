@@ -1,4 +1,4 @@
-name: Diagnose second Decoding Panji strict-build failure
+name: Apply Decoding Panji hybrid-boundary repair
 
 on:
   push:
@@ -6,35 +6,129 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  diagnose:
+  repair:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - name: Set up Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: 22
-      - name: Inspect Volume II page 5
-        env:
-          GITHUB_API_TOKEN: ${{ github.token }}
+          ref: chatgpt/decoding-panji-i-vi
+      - name: Apply strict hybrid-page repair and remove diagnostic workflow
         shell: bash
         run: |
-          set +e
-          node scripts/prepare-panji-article-corpus.mjs > /dev/null 2>&1
           python3 - <<'PY'
-          import re
           from pathlib import Path
-          p=Path('.source-books/DECODING_PANJI_2.chapter-layout.txt')
-          pages=[x.splitlines() for x in p.read_text('utf-8', errors='replace').split('\f')]
-          rx=re.compile(r'^\s*Chapter\s+(\d+)\b(?:\s*[.:\-–—]\s*(.*))?\s*$', re.I)
-          lines=pages[4]
-          print('===== PAGE 5 FULL =====')
-          for i,line in enumerate(lines):
-              flag=' <CHAPTER_MATCH>' if rx.match(line) else ''
-              print(f'{i:03d}: {line}{flag}')
+
+          path = Path('scripts/run-panji-article-corpus.py')
+          text = path.read_text('utf-8')
+
+          start = text.index('def select_body_starts(rows: list[dict], expected: int) -> list[int]:')
+          end = text.index('\ndef extract_title(rows: list[dict], start: int, chapter: int) -> str:', start)
+          replacement = '''def hybrid_first_chapter_start(rows: list[dict], toc_pages: set[int]) -> int | None:
+    """Return a Chapter 1 body start when the final TOC page also begins the body.
+
+    Some source PDFs place the final contents entries at the top of a page and
+    immediately continue with Chapter 1 prose on that same page.  We keep the
+    strict chapter-heading parser, and accept this fallback only when there is
+    substantial prose after the last formal TOC chapter entry.
+    """
+    if not toc_pages:
+        return None
+    final_toc_page = max(toc_pages)
+    marker_indices = [
+        idx for idx, row in enumerate(rows)
+        if row['page'] == final_toc_page and CHAPTER_RE.match(row['text'])
+    ]
+    if not marker_indices:
+        return None
+    last_marker = marker_indices[-1]
+    tail_indices: list[int] = []
+    for idx in range(last_marker + 1, len(rows)):
+        row = rows[idx]
+        if row['page'] != final_toc_page:
+            break
+        value = clean(row['text'])
+        if not value or PAGE_FOOTER_RE.match(value):
+            continue
+        tail_indices.append(idx)
+    if len(tail_indices) < 4:
+        return None
+    tail_text = ' '.join(clean(rows[idx]['text']) for idx in tail_indices)
+    if len(tail_text) < 300:
+        return None
+    return tail_indices[0]
+
+
+def select_body_starts(rows: list[dict], expected: int) -> list[int]:
+    occurrences, toc_pages = chapter_occurrences(rows)
+    if toc_pages:
+        body_min_page = max(toc_pages) + 1
+    else:
+        body_min_page = 2
+
+    starts: list[int] = []
+    cursor = -1
+    missing: list[int] = []
+    for chapter in range(1, expected + 1):
+        candidates = [
+            idx for idx in occurrences.get(chapter, [])
+            if idx > cursor and rows[idx]['page'] >= body_min_page and rows[idx]['page'] not in toc_pages
+        ]
+        # A final contents page may be a hybrid page: TOC entries first, then
+        # the actual Chapter 1 prose.  Accept only that narrowly validated case.
+        if not candidates and chapter == 1:
+            hybrid = hybrid_first_chapter_start(rows, toc_pages)
+            if hybrid is not None and hybrid > cursor:
+                candidates = [hybrid]
+        if not candidates:
+            missing.append(chapter)
+            continue
+        chosen = candidates[0]
+        starts.append(chosen)
+        cursor = chosen
+    if missing or len(starts) != expected:
+        present = sorted(n for n in occurrences if 1 <= n <= expected)
+        raise RuntimeError(
+            f'Formal chapter extraction failed: expected Chapters 1-{expected}; '
+            f'missing body starts {missing}; detected chapter numbers {present}'
+        )
+    return starts
+
+'''
+          text = text[:start] + replacement + text[end + 1:]
+
+          old = '''def extract_title(rows: list[dict], start: int, chapter: int) -> str:
+    match = CHAPTER_RE.match(rows[start]['text'])
+    if not match or int(match.group(1)) != chapter:
+        raise RuntimeError(f'Chapter marker mismatch at Chapter {chapter}')
+    title = clean(match.group(2)).lstrip('-–—.: ')
+'''
+          new = '''def extract_title(rows: list[dict], start: int, chapter: int) -> str:
+    match = CHAPTER_RE.match(rows[start]['text'])
+    if not match or int(match.group(1)) != chapter:
+        # For a validated hybrid TOC/body page, Chapter 1 can begin as prose
+        # without repeating its heading.  Recover only its formal TOC title.
+        if chapter == 1:
+            for row in rows[:start]:
+                prior = CHAPTER_RE.match(row['text'])
+                if prior and int(prior.group(1)) == 1:
+                    prior_title = clean(prior.group(2)).lstrip('-–—.: ')
+                    if prior_title:
+                        return prior_title
+        raise RuntimeError(f'Chapter marker mismatch at Chapter {chapter}')
+    title = clean(match.group(2)).lstrip('-–—.: ')
+'''
+          if old not in text:
+              raise SystemExit('extract_title patch anchor not found')
+          text = text.replace(old, new, 1)
+          path.write_text(text, 'utf-8')
           PY
-          exit 1
+          git rm .github/workflows/diagnose-panji-second.yml
+          git config user.name "videha-ejournal"
+          git config user.email "ggajendra@gmail.com"
+          git add scripts/run-panji-article-corpus.py
+          git commit -m "fix: preserve Chapter 1 on hybrid contents/body pages"
+          git push origin HEAD:chatgpt/decoding-panji-i-vi
