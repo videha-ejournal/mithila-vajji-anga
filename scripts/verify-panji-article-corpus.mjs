@@ -68,7 +68,13 @@ for (const record of records) {
   for (const forbidden of ['citation_journal_title', 'citation_issn', 'citation_pdf_url', 'citation_doi']) {
     if (page.includes(forbidden)) throw new Error(`Book-derived chapter incorrectly emits ${forbidden}: ${filePath}`);
   }
-  if (forbiddenPlaceholders.test(page) || !page.includes('</html>')) throw new Error(`Malformed/placeholder HTML: ${filePath}`);
+  if (!page.includes('</html>')) throw new Error(`Malformed HTML: ${filePath}`);
+  const sourceBodyMatch = page.match(/<pre>([\s\S]*?)<\/pre>/);
+  if (!sourceBodyMatch || sourceBodyMatch[1].trim().length < 400) throw new Error(`Missing/substantial source-derived chapter body: ${filePath}`);
+  // Placeholder guards apply to generator-controlled markup, metadata and navigation.
+  // The preserved source body may legitimately discuss a “placeholder” as a scholarly term.
+  const generatedMarkup = page.replace(/<pre>[\s\S]*?<\/pre>/, '<pre></pre>');
+  if (forbiddenPlaceholders.test(generatedMarkup)) throw new Error(`Placeholder text in generated chapter markup: ${filePath}`);
 }
 
 for (const [volumeText, count] of Object.entries(expected)) {
