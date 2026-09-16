@@ -18,46 +18,25 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 22
-      - name: Inspect strict Volume II chapter boundaries
+      - name: Inspect Volume II Chapter 1 body typography
         env:
           GITHUB_API_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set +e
-          node scripts/prepare-panji-article-corpus.mjs > panji-full.log 2>&1
-          prep=$?
-          python3 - <<'PY' | tee panji-boundary-summary.txt
-          import re
-          from collections import defaultdict
+          node scripts/prepare-panji-article-corpus.mjs > /dev/null 2>&1
+          python3 - <<'PY'
           from pathlib import Path
           p=Path('.source-books/DECODING_PANJI_2.chapter-layout.txt')
-          raw=p.read_text('utf-8', errors='replace')
-          pages=[x.splitlines() for x in raw.split('\f')]
-          rx=re.compile(r'^\s*Chapter\s+(\d+)\b(?:\s*[.:\-–—]\s*(.*))?\s*$', re.I)
-          occ=defaultdict(list); per=defaultdict(int)
-          for pg, lines in enumerate(pages,1):
-              for ln,t in enumerate(lines):
-                  m=rx.match(t)
-                  if m:
-                      occ[int(m.group(1))].append((pg,ln,t))
-                      per[pg]+=1
-          toc=sorted(pg for pg,c in per.items() if c>=4)
-          print('TOC_PAGES', toc)
-          print('BODY_MIN_PAGE', max(toc)+1 if toc else 2)
-          for n in range(1,5):
-              print('CHAPTER',n,'OCCURRENCES')
-              for pg,ln,t in occ.get(n,[]):
-                  print(f'  page={pg} line={ln}: {t!r}')
-                  for q in range(max(0,ln-3), min(len(pages[pg-1]),ln+8)):
-                      print(f'    {q:03d}: {pages[pg-1][q]}')
+          pages=[x.splitlines() for x in p.read_text('utf-8', errors='replace').split('\f')]
+          for pg in range(6,18):
+              lines=pages[pg-1]
+              print(f'===== PAGE {pg} =====')
+              for i,line in enumerate(lines[:22]):
+                  print(f'{i:03d}: {line}')
+              for i,line in enumerate(lines):
+                  low=line.lower()
+                  if 'chapter 1' in low or 'panji as memory' in low or 'social map' in low:
+                      print(f'MATCH {i:03d}: {line}')
           PY
-          echo "PREP_EXIT=$prep" | tee -a panji-boundary-summary.txt
-          cat panji-full.log | tail -n 40
           exit 1
-      - name: Preserve boundary summary
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: panji-boundary-summary
-          path: panji-boundary-summary.txt
-          retention-days: 2
