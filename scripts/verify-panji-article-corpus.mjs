@@ -8,6 +8,23 @@ const corpusRoot = join(root, 'research-articles', 'decoding-panji');
 const sitemapPath = join(root, 'sitemap.xml');
 const expected = { 1: 20, 2: 38, 3: 32, 4: 87, 5: 40, 6: 30 };
 const expectedTotal = Object.values(expected).reduce((a, b) => a + b, 0);
+const MIN_WORDS = 500;
+const MIN_RELEVANT_CHARS = 3500;
+
+function decodeHtml(value) {
+  return String(value ?? '')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&gt;', '>').replaceAll('&lt;', '<').replaceAll('&amp;', '&');
+}
+function textContent(value) {
+  return decodeHtml(String(value ?? '').replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+}
+function substantiveMetrics(sourceBody, apparatus) {
+  const text = `${decodeHtml(sourceBody)} ${textContent(apparatus)}`.replace(/\s+/g, ' ').trim();
+  const words = text.match(/[\p{L}\p{N}][\p{L}\p{N}’'-]*/gu) ?? [];
+  return { words: words.length, chars: text.length };
+}
 
 if (!existsSync(inventoryPath)) throw new Error(`Missing ${inventoryPath}.`);
 if (!existsSync(corpusRoot)) throw new Error(`Missing ${corpusRoot}.`);
@@ -22,6 +39,7 @@ const stableIds = new Set();
 const canonicals = new Set();
 const routes = new Set();
 const forbiddenPlaceholders = /\b(?:TODO|TBD|LOREM IPSUM|PLACEHOLDER)\b/i;
+const contaminatedTitle = /\b(?:This chapter continues|The Panji system is built around memory anchors|Source span decoded in this chapter)\b/i;
 
 for (const record of records) {
   for (const field of ['stable_id', 'volume', 'chapter', 'title', 'language', 'route', 'canonical', 'source_file', 'source_book', 'source_volume', 'source_html', 'source_pdf', 'source_pages', 'source_locator', 'source_repository', 'source_commit', 'kind']) {
@@ -39,7 +57,9 @@ for (const record of records) {
   if (!record.source_html.includes(`/blob/${record.source_commit}/`)) throw new Error(`Source object is not commit-pinned: ${record.stable_id}`);
   if (!record.source_pdf.includes(`/${record.source_commit}/`)) throw new Error(`Source PDF is not commit-pinned: ${record.stable_id}`);
   if (record.article_pdf !== null) throw new Error(`Article-level PDF must remain null: ${record.stable_id}`);
+  if (!Array.isArray(record.source_outline) || !Array.isArray(record.source_concordance)) throw new Error(`Missing source-grounded apparatus inventory: ${record.stable_id}`);
   if (forbiddenPlaceholders.test(record.title) || forbiddenPlaceholders.test(record.source_locator)) throw new Error(`Placeholder text in record: ${record.stable_id}`);
+  if (contaminatedTitle.test(record.title)) throw new Error(`Prose contaminated chapter title: ${record.stable_id} => ${record.title}`);
   if (stableIds.has(record.stable_id) || canonicals.has(record.canonical) || routes.has(record.route)) throw new Error(`Duplicate Decoding Panji identity: ${record.stable_id}`);
   stableIds.add(record.stable_id); canonicals.add(record.canonical); routes.add(record.route);
   countsByVolume[record.volume] = (countsByVolume[record.volume] ?? 0) + 1;
@@ -64,6 +84,9 @@ for (const record of records) {
     `<link rel="canonical" href="${record.canonical}">`,
     record.source_pdf,
     'Source-derived chapter text',
+    'data-panji-substantive-apparatus="true"',
+    'Source structure and verification apparatus',
+    record.title,
   ]) if (!page.includes(required)) throw new Error(`Missing required chapter marker in ${filePath}: ${required}`);
   for (const forbidden of ['citation_journal_title', 'citation_issn', 'citation_pdf_url', 'citation_doi']) {
     if (page.includes(forbidden)) throw new Error(`Book-derived chapter incorrectly emits ${forbidden}: ${filePath}`);
@@ -71,7 +94,13 @@ for (const record of records) {
   if (!page.includes('</html>')) throw new Error(`Malformed HTML: ${filePath}`);
   const sourceBodyMatch = page.match(/<pre>([\s\S]*?)<\/pre>/);
   if (!sourceBodyMatch || sourceBodyMatch[1].trim().length < 400) throw new Error(`Missing/substantial source-derived chapter body: ${filePath}`);
-  // Placeholder guards apply to generator-controlled markup, metadata and navigation.
+  const apparatusMatch = page.match(/<section class="panji-source-apparatus"[\s\S]*?<\/section>/);
+  if (!apparatusMatch) throw new Error(`Missing source-grounded scholarly apparatus: ${filePath}`);
+  const metrics = substantiveMetrics(sourceBodyMatch[1], apparatusMatch[0]);
+  if (metrics.words < MIN_WORDS || metrics.chars < MIN_RELEVANT_CHARS) {
+    throw new Error(`Substantive Panji chapter threshold failed: ${record.stable_id} words=${metrics.words}/${MIN_WORDS} chars=${metrics.chars}/${MIN_RELEVANT_CHARS}`);
+  }
+  // Placeholder guards apply to generator-controlled markup, metadata, navigation and apparatus.
   // The preserved source body may legitimately discuss a “placeholder” as a scholarly term.
   const generatedMarkup = page.replace(/<pre>[\s\S]*?<\/pre>/, '<pre></pre>');
   if (forbiddenPlaceholders.test(generatedMarkup)) throw new Error(`Placeholder text in generated chapter markup: ${filePath}`);
@@ -116,4 +145,4 @@ if (useDist) {
   for (const record of records) if (!sitemap.includes(`<loc>${record.canonical}</loc>`)) throw new Error(`Sitemap omits ${record.canonical}`);
 }
 
-console.log(`Decoding Panji chapter corpus PASS (${useDist ? 'dist' : 'public'})`, { total: records.length, countsByVolume });
+console.log(`Decoding Panji chapter corpus PASS (${useDist ? 'dist' : 'public'})`, { total: records.length, countsByVolume, substantiveThreshold: { words: MIN_WORDS, relevantChars: MIN_RELEVANT_CHARS } });
