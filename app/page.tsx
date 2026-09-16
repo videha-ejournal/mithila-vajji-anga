@@ -55,6 +55,7 @@ export default function MaithiliHome() {
         </p>
       </section>
       <ResearchCorpusDirectory locale="mai" />
+      <div id="decoding-panji-directory-anchor" aria-hidden="true" />
       <ArchiveEnglish />
     </>
   );
