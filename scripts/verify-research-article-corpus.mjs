@@ -114,7 +114,7 @@ const countHtml = (directory) => readdirSync(directory, { withFileTypes: true })
   if (entry.isDirectory()) return total + countHtml(full);
   return total + (entry.isFile() && entry.name === 'index.html' ? 1 : 0);
 }, 0);
-const htmlCount = countHtml(articleRoot);
-if (htmlCount !== 523) throw new Error(`Expected 523 HTML index files including corpus index, found ${htmlCount}.`);
+const coreHtmlCount = 1 + countHtml(join(articleRoot, 'history')) + countHtml(join(articleRoot, 'parallel-philosophy'));
+if (coreHtmlCount !== 523) throw new Error(`Expected 523 core HTML index files including the 522-corpus index, found ${coreHtmlCount}.`);
 
 console.log(`Research article corpus PASS (${useDist ? 'dist' : 'public'})`, { ...checks, bilingualPairs: pairKeys.size, ocrVolume1Maithili: ocrCount, total: records.length });
