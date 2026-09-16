@@ -70,6 +70,41 @@ def chapter_occurrences(rows: list[dict]) -> tuple[dict[int, list[int]], set[int
     return by_chapter, toc_pages
 
 
+def hybrid_first_chapter_start(rows: list[dict], toc_pages: set[int]) -> int | None:
+    """Locate Chapter 1 when the final TOC page also begins the chapter body.
+
+    Some source PDFs put the last contents entries at the top of a page and
+    immediately continue with Chapter 1 prose on that same page. Keep the
+    strict heading parser and accept this fallback only when substantial prose
+    follows the final formal TOC chapter entry.
+    """
+    if not toc_pages:
+        return None
+    final_toc_page = max(toc_pages)
+    marker_indices = [
+        idx for idx, row in enumerate(rows)
+        if row['page'] == final_toc_page and CHAPTER_RE.match(row['text'])
+    ]
+    if not marker_indices:
+        return None
+    last_marker = marker_indices[-1]
+    tail_indices: list[int] = []
+    for idx in range(last_marker + 1, len(rows)):
+        row = rows[idx]
+        if row['page'] != final_toc_page:
+            break
+        value = clean(row['text'])
+        if not value or PAGE_FOOTER_RE.match(value):
+            continue
+        tail_indices.append(idx)
+    if len(tail_indices) < 4:
+        return None
+    tail_text = ' '.join(clean(rows[idx]['text']) for idx in tail_indices)
+    if len(tail_text) < 300:
+        return None
+    return tail_indices[0]
+
+
 def select_body_starts(rows: list[dict], expected: int) -> list[int]:
     occurrences, toc_pages = chapter_occurrences(rows)
     if toc_pages:
@@ -85,6 +120,12 @@ def select_body_starts(rows: list[dict], expected: int) -> list[int]:
             idx for idx in occurrences.get(chapter, [])
             if idx > cursor and rows[idx]['page'] >= body_min_page and rows[idx]['page'] not in toc_pages
         ]
+        # A final contents page may be a hybrid page: TOC entries first, then
+        # actual Chapter 1 prose. Accept only that narrowly validated case.
+        if not candidates and chapter == 1:
+            hybrid = hybrid_first_chapter_start(rows, toc_pages)
+            if hybrid is not None and hybrid > cursor:
+                candidates = [hybrid]
         if not candidates:
             missing.append(chapter)
             continue
@@ -103,6 +144,15 @@ def select_body_starts(rows: list[dict], expected: int) -> list[int]:
 def extract_title(rows: list[dict], start: int, chapter: int) -> str:
     match = CHAPTER_RE.match(rows[start]['text'])
     if not match or int(match.group(1)) != chapter:
+        # On a validated hybrid TOC/body page, Chapter 1 can begin as prose
+        # without repeating its heading. Recover only its formal TOC title.
+        if chapter == 1:
+            for row in rows[:start]:
+                prior = CHAPTER_RE.match(row['text'])
+                if prior and int(prior.group(1)) == 1:
+                    prior_title = clean(prior.group(2)).lstrip('-–—.: ')
+                    if prior_title:
+                        return prior_title
         raise RuntimeError(f'Chapter marker mismatch at Chapter {chapter}')
     title = clean(match.group(2)).lstrip('-–—.: ')
     if title:
