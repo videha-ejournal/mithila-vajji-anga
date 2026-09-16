@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import ArchiveEnglish from './archive-english';
 import HomeMaithiliLocalizer from './home-maithili-localizer';
+import ResearchCorpusDirectory from './research-corpus-directory';
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
 const languageAlternates: Record<string, string> = {
@@ -53,6 +54,7 @@ export default function MaithiliHome() {
           राखब विद्वत्-सन्दर्भ लेल आवश्यक अछि, ततय ओकर भाषिक रूप सुरक्षित राखल गेल अछि।
         </p>
       </section>
+      <ResearchCorpusDirectory locale="mai" />
       <ArchiveEnglish />
     </>
   );

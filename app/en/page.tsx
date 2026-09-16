@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import ArchiveEnglish from '../archive-english';
+import ResearchCorpusDirectory from '../research-corpus-directory';
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
 const englishUrl = `${siteUrl}en/`;
@@ -49,6 +50,7 @@ export default function EnglishHome() {
           forms remain in their original language where preserving them is necessary for scholarly use.
         </p>
       </section>
+      <ResearchCorpusDirectory locale="en" />
       <ArchiveEnglish />
     </>
   );
