@@ -24,14 +24,46 @@ function chapterMarker(title) {
   return clean(title).match(/^Chapter\s+(\d+)(?:\s*[.:\-–—]\s*(.+))?$/i);
 }
 
-function buildSourceStructure(details, volume) {
+function validateExtractedVolume(records, volume) {
+  const expected = EXPECTED_CHAPTERS[volume];
+  const volumeRecords = records.filter((record) => Number(record?.volume) === volume);
+  if (volumeRecords.length !== expected) {
+    throw new Error(`Extracted formal chapter inventory mismatch for Volume ${volume}: expected ${expected}, found ${volumeRecords.length}`);
+  }
+
+  const byChapter = new Map();
+  for (const record of volumeRecords) {
+    const chapter = Number(record?.chapter);
+    if (!Number.isInteger(chapter) || chapter < 1 || chapter > expected) {
+      throw new Error(`Unexpected extracted chapter number in Volume ${volume}: ${record?.chapter}`);
+    }
+    if (byChapter.has(chapter)) {
+      throw new Error(`Duplicate extracted formal chapter in Volume ${volume} Chapter ${chapter}`);
+    }
+    if (!clean(record?.title)) {
+      throw new Error(`Missing extracted formal chapter title in Volume ${volume} Chapter ${chapter}`);
+    }
+    byChapter.set(chapter, record);
+  }
+
+  const missing = [];
+  for (let chapter = 1; chapter <= expected; chapter += 1) {
+    if (!byChapter.has(chapter)) missing.push(chapter);
+  }
+  if (missing.length) {
+    throw new Error(`Incomplete extracted formal chapter inventory for Volume ${volume}: missing ${missing.join(', ')}`);
+  }
+  return byChapter;
+}
+
+function buildSourceStructure(details, volume, extractedByChapter) {
   const items = details[`panji-${volume}`]?.items;
   if (!Array.isArray(items)) throw new Error(`Missing source-heading inventory for panji-${volume}`);
 
   const expected = EXPECTED_CHAPTERS[volume];
   if (!expected) throw new Error(`Missing expected chapter count for panji-${volume}`);
 
-  const chapters = new Map();
+  const anchored = new Map();
   let current = null;
 
   for (const item of items) {
@@ -47,7 +79,10 @@ function buildSourceStructure(details, volume) {
       if (!Number.isInteger(chapter) || chapter < 1 || chapter > expected) {
         throw new Error(`Unexpected formal chapter marker in Volume ${volume}: ${title}`);
       }
-      if (chapters.has(chapter)) {
+      if (!extractedByChapter.has(chapter)) {
+        throw new Error(`Source-heading marker has no extracted formal chapter in Volume ${volume} Chapter ${chapter}`);
+      }
+      if (anchored.has(chapter)) {
         throw new Error(`Duplicate formal chapter marker in Volume ${volume} Chapter ${chapter}`);
       }
       current = {
@@ -55,8 +90,9 @@ function buildSourceStructure(details, volume) {
         anchorLevel: level,
         sourceTitle: clean(marker[2]),
         headings: [],
+        sourceHeadingAnchor: true,
       };
-      chapters.set(chapter, current);
+      anchored.set(chapter, current);
       continue;
     }
 
@@ -88,23 +124,36 @@ function buildSourceStructure(details, volume) {
     current = null;
   }
 
-  // Volume I is intentionally supported by the source-extracted chapter records
-  // when its source-heading inventory contains no formal Chapter N anchors at all.
-  // Any partially mapped volume remains a hard failure rather than silently
-  // falling back, which prevents malformed future batches from publishing.
-  if (chapters.size > 0) {
-    const missing = [];
-    for (let chapter = 1; chapter <= expected; chapter += 1) {
-      if (!chapters.has(chapter)) missing.push(chapter);
-    }
-    if (missing.length || chapters.size !== expected) {
-      throw new Error(
-        `Incomplete formal source structure for Volume ${volume}: expected ${expected}, found ${chapters.size}; missing ${missing.join(', ') || 'none'}`,
-      );
+  // The chapter extractor is the formal chapter authority: it has already
+  // established the exact chapter-only inventory from the source books. The
+  // DOCX-derived heading inventory is supplemental and is known to omit some
+  // legitimate Chapter N anchors (notably in Volume II). Overlay every explicit
+  // heading anchor strictly, while filling only genuinely absent heading entries
+  // from the independently validated extracted chapter record. This remains
+  // fail-closed for count, numbering, duplicate markers, and contradictory anchors.
+  const chapters = new Map();
+  for (let chapter = 1; chapter <= expected; chapter += 1) {
+    const record = extractedByChapter.get(chapter);
+    const sourceInfo = anchored.get(chapter);
+    if (sourceInfo) {
+      if (!sourceInfo.sourceTitle) sourceInfo.sourceTitle = clean(record.title);
+      chapters.set(chapter, sourceInfo);
+    } else {
+      chapters.set(chapter, {
+        chapter,
+        anchorLevel: null,
+        sourceTitle: clean(record.title),
+        headings: [],
+        sourceHeadingAnchor: false,
+      });
     }
   }
 
-  return chapters;
+  if (chapters.size !== expected) {
+    throw new Error(`Incomplete normalized source structure for Volume ${volume}: expected ${expected}, found ${chapters.size}`);
+  }
+
+  return { chapters, anchoredCount: anchored.size };
 }
 
 function extractSourceBody(page, filePath) {
@@ -141,6 +190,7 @@ function apparatusHtml(record, sourceInfo, sourceBody, previous, following) {
   const terms = concordance(sourceBody, 80);
   record.source_outline = headings;
   record.source_concordance = terms;
+  record.source_heading_anchor = Boolean(sourceInfo?.sourceHeadingAnchor);
   const headingList = headings.length
     ? `<ol>${headings.map((h) => `<li>${esc(h)}</li>`).join('')}</ol>`
     : '<p>No subordinate heading was separately encoded in the repository source-heading inventory for this chapter.</p>';
@@ -161,16 +211,22 @@ ${headingList}
 const details = JSON.parse(readFileSync(DETAILS, 'utf8'));
 const records = JSON.parse(readFileSync(INVENTORY, 'utf8'));
 if (!Array.isArray(records) || records.length !== 247) throw new Error(`Expected 247 Panji chapter records, found ${records?.length ?? 'invalid'}`);
-const structures = new Map(Array.from({ length: 6 }, (_, i) => [i + 1, buildSourceStructure(details, i + 1)]));
+
+const extractedVolumes = new Map(Array.from({ length: 6 }, (_, i) => {
+  const volume = i + 1;
+  return [volume, validateExtractedVolume(records, volume)];
+}));
+const structureBuilds = new Map(Array.from({ length: 6 }, (_, i) => {
+  const volume = i + 1;
+  return [volume, buildSourceStructure(details, volume, extractedVolumes.get(volume))];
+}));
+const structures = new Map([...structureBuilds].map(([volume, result]) => [volume, result.chapters]));
 
 for (const record of records) {
   const filePath = path.join(ROOT, record.route, 'index.html');
   let page = readFileSync(filePath, 'utf8').replace(APPARATUS_RE, '');
   const volumeStructure = structures.get(record.volume);
-  const sourceInfo = volumeStructure?.get(record.chapter)
-    ?? (volumeStructure?.size === 0
-      ? { chapter: record.chapter, sourceTitle: record.title, headings: [] }
-      : null);
+  const sourceInfo = volumeStructure?.get(record.chapter);
   if (!sourceInfo) throw new Error(`Missing source structure for Volume ${record.volume} Chapter ${record.chapter}`);
   page = repairTitle(page, record, sourceInfo);
   const sourceBody = extractSourceBody(page, filePath);
@@ -193,5 +249,5 @@ writeFileSync(PUBLIC_INVENTORY, serialized);
 console.log('Decoding Panji source apparatus enriched:', {
   chapters: records.length,
   volumes: 6,
-  volumesWithoutFormalHeadingAnchors: [...structures.entries()].filter(([, map]) => map.size === 0).map(([volume]) => volume),
+  sourceHeadingAnchorCounts: Object.fromEntries([...structureBuilds].map(([volume, result]) => [volume, result.anchoredCount])),
 });
