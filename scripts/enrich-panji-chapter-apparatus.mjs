@@ -6,6 +6,7 @@ const INVENTORY = 'app/generated/panji-article-inventory.json';
 const PUBLIC_INVENTORY = 'public/research-articles/decoding-panji/inventory.json';
 const ROOT = 'public';
 const ROMAN = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI' };
+const EXPECTED_CHAPTERS = { 1: 20, 2: 38, 3: 32, 4: 87, 5: 40, 6: 30 };
 const APPARATUS_RE = /<section class="panji-source-apparatus"[\s\S]*?<\/section>\s*/g;
 const CONTAMINATED_TITLE_RE = /\b(?:This chapter continues|The Panji system is built around memory anchors|Source span decoded in this chapter)\b/i;
 const SOURCE_NOTES_RE = /^Chapter\s+\d+\s+Source Notes$/i;
@@ -26,33 +27,83 @@ function chapterMarker(title) {
 function buildSourceStructure(details, volume) {
   const items = details[`panji-${volume}`]?.items;
   if (!Array.isArray(items)) throw new Error(`Missing source-heading inventory for panji-${volume}`);
+
+  const expected = EXPECTED_CHAPTERS[volume];
+  if (!expected) throw new Error(`Missing expected chapter count for panji-${volume}`);
+
   const chapters = new Map();
   let current = null;
+
   for (const item of items) {
     const level = Number(item?.level);
     const title = clean(item?.title);
-    if (!title) continue;
-    if (level === 1) {
-      const marker = chapterMarker(title);
-      if (marker) {
-        const chapter = Number(marker[1]);
-        current = { chapter, sourceTitle: clean(marker[2]), headings: [] };
-        chapters.set(chapter, current);
-        continue;
+    if (!title || !Number.isFinite(level)) continue;
+
+    // Formal chapter anchors are source-semantic markers, not fixed outline-depth markers.
+    // The six source books legitimately encode them at different heading levels.
+    const marker = chapterMarker(title);
+    if (marker) {
+      const chapter = Number(marker[1]);
+      if (!Number.isInteger(chapter) || chapter < 1 || chapter > expected) {
+        throw new Error(`Unexpected formal chapter marker in Volume ${volume}: ${title}`);
       }
-      if (current && SOURCE_NOTES_RE.test(title)) {
-        current.headings.push(title);
-        continue;
+      if (chapters.has(chapter)) {
+        throw new Error(`Duplicate formal chapter marker in Volume ${volume} Chapter ${chapter}`);
       }
-      if (current && !current.sourceTitle) {
-        current.sourceTitle = title;
-        continue;
-      }
-      current = null;
+      current = {
+        chapter,
+        anchorLevel: level,
+        sourceTitle: clean(marker[2]),
+        headings: [],
+      };
+      chapters.set(chapter, current);
       continue;
     }
-    if (level === 2 && current) current.headings.push(title);
+
+    if (!current) continue;
+
+    // Source-note headings are part of the current chapter even where the DOCX
+    // promotes them to the same outline depth as the formal Chapter N anchor.
+    if (SOURCE_NOTES_RE.test(title)) {
+      current.headings.push(title);
+      continue;
+    }
+
+    // If the Chapter N marker carries no inline title, the first following
+    // source heading is the chapter title. Its depth may equal or exceed the
+    // anchor depth, depending on the source volume's DOCX outline structure.
+    if (!current.sourceTitle) {
+      current.sourceTitle = title;
+      continue;
+    }
+
+    // Only headings genuinely subordinate to the chapter anchor belong in the
+    // chapter's internal outline. A same/higher-level independent heading closes
+    // the current chapter so appendices, annexures, or book matter cannot bleed in.
+    if (level > current.anchorLevel) {
+      current.headings.push(title);
+      continue;
+    }
+
+    current = null;
   }
+
+  // Volume I is intentionally supported by the source-extracted chapter records
+  // when its source-heading inventory contains no formal Chapter N anchors at all.
+  // Any partially mapped volume remains a hard failure rather than silently
+  // falling back, which prevents malformed future batches from publishing.
+  if (chapters.size > 0) {
+    const missing = [];
+    for (let chapter = 1; chapter <= expected; chapter += 1) {
+      if (!chapters.has(chapter)) missing.push(chapter);
+    }
+    if (missing.length || chapters.size !== expected) {
+      throw new Error(
+        `Incomplete formal source structure for Volume ${volume}: expected ${expected}, found ${chapters.size}; missing ${missing.join(', ') || 'none'}`,
+      );
+    }
+  }
+
   return chapters;
 }
 
