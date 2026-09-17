@@ -105,7 +105,10 @@ export default function PersistentAccessibilityDock({ locale }: { locale: Locale
   useEffect(() => {
     try {
       const saved = localStorage.getItem('mvaAssistivePrefs');
-      if (saved) setAssistivePrefs({ ...defaultAssistivePrefs, ...JSON.parse(saved) });
+      if (saved) {
+        const restored = { ...defaultAssistivePrefs, ...JSON.parse(saved) };
+        queueMicrotask(() => setAssistivePrefs(restored));
+      }
     } catch {}
   }, []);
 
@@ -210,7 +213,7 @@ export default function PersistentAccessibilityDock({ locale }: { locale: Locale
       </button>
 
       {translateOpen && (
-        <section className={styles.panel} id="persistent-translate-panel" role="dialog" aria-label={copy.translateHeading}>
+        <dialog open className={styles.panel} id="persistent-translate-panel" aria-label={copy.translateHeading}>
           <div className={styles.panelHeading}>
             <strong>{copy.translateHeading}</strong>
             <button type="button" onClick={() => setTranslateOpen(false)} aria-label="Close translator"><X /></button>
@@ -229,11 +232,11 @@ export default function PersistentAccessibilityDock({ locale }: { locale: Locale
           </div>
           <button type="button" className={styles.primary} onClick={() => openTranslation()}>{copy.go}</button>
           <small>Machine translation may contain errors; consult the source page for scholarly use.</small>
-        </section>
+        </dialog>
       )}
 
       {assistiveOpen && (
-        <section className={styles.panel} id="persistent-assistive-panel" role="dialog" aria-label={copy.assistiveHeading}>
+        <dialog open className={styles.panel} id="persistent-assistive-panel" aria-label={copy.assistiveHeading}>
           <div className={styles.panelHeading}>
             <strong>{copy.assistiveHeading}</strong>
             <button type="button" onClick={() => setAssistiveOpen(false)} aria-label="Close assistive technology settings"><X /></button>
@@ -260,7 +263,7 @@ export default function PersistentAccessibilityDock({ locale }: { locale: Locale
           <a href="https://www.videha.co.in/script-converter.html" target="_blank" rel="noreferrer">Devanagari ↔ Braille converter <ExternalLink /></a>
           <button type="button" className={styles.reset} onClick={() => setAssistivePrefs(defaultAssistivePrefs)}>Reset all settings</button>
           <small>Preferences are saved on this device and reuse the archive’s existing accessibility classes.</small>
-        </section>
+        </dialog>
       )}
     </aside>
   );
