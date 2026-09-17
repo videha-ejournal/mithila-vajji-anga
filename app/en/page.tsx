@@ -50,8 +50,8 @@ export default function EnglishHome() {
           forms remain in their original language where preserving them is necessary for scholarly use.
         </p>
       </section>
-      <ResearchCorpusDirectory locale="en" />
       <div id="decoding-panji-directory-anchor" aria-hidden="true" />
+      <ResearchCorpusDirectory locale="en" />
       <ArchiveEnglish />
     </>
   );
