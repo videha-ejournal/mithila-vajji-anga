@@ -28,6 +28,14 @@ const parentIsbnByWork = new Map([
   ['nyayakusumanjali', '978-93-344-6450-4'],
   ['tattvacintamani', '978-93-6123-729-4'],
 ]);
+const panjiRomanToWork = new Map([
+  ['i', 'panji-1'],
+  ['ii', 'panji-2'],
+  ['iii', 'panji-3'],
+  ['iv', 'panji-4'],
+  ['v', 'panji-5'],
+  ['vi', 'panji-6'],
+]);
 
 const identityHtml = `<aside class="videha-publication-identity" data-videha-publication-identity="true" aria-label="Videha publication identity"><strong>Videha</strong><span aria-hidden="true"> · </span><a href="${VIDEHA_URL}">${VIDEHA_URL}</a><span aria-hidden="true"> · </span><span>ISSN ${ISSN}</span><span aria-hidden="true"> · </span><span>GitHub mirror:</span> <a href="${MIRROR_URL}">${MIRROR_URL}</a><span aria-hidden="true"> · </span><span>Digital Research Archives on GitHub:</span> <a href="${GITHUB_URL}">${GITHUB_URL}</a></aside>`;
 const identityStyle = `<style data-videha-identity-style>.videha-publication-identity{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.25rem .45rem;padding:.48rem clamp(.8rem,3vw,2rem);border-top:1px solid #ddcfaa;border-bottom:1px solid #ddcfaa;background:#fff8e6;color:#29323c;font:700 .78rem/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center}.videha-publication-identity strong{color:#7b241c}.videha-publication-identity a{color:#174c7d;text-decoration-thickness:1.5px;text-underline-offset:2px;overflow-wrap:anywhere}.videha-publication-identity a:focus-visible{outline:3px solid #e39b45;outline-offset:2px}@media print{.videha-publication-identity{border:0;background:white;color:#222}}</style>`;
@@ -169,6 +177,12 @@ function isbnContext(relativePath) {
   }
   if (/^(?:en\/)?literature(?:\/index)?\.html$/.test(rel) || /^(?:en\/)?literature\/index\.html$/.test(rel)) {
     return { pageIsbn: '978-93-5812-486-6', parentIsbn: null, parentTitle: 'A Parallel History of Mithilā & Maithilī Literature' };
+  }
+  const canonicalPanji = rel.match(/^decoding-panji\/vol-(i|ii|iii|iv|v|vi)\/[^/]+\/index\.html$/i);
+  if (canonicalPanji) {
+    const workId = panjiRomanToWork.get(canonicalPanji[1].toLowerCase());
+    const parentIsbn = parentIsbnByWork.get(workId) ?? null;
+    return { pageIsbn: null, parentIsbn, parentTitle: workId };
   }
   const match = rel.match(/(?:^|\/)(?:philosophy|literature|panji)\/([^/]+)\//);
   if (!match) return { pageIsbn: null, parentIsbn: null, parentTitle: null };

@@ -1,0 +1,159 @@
+All Volume II Chapter 35 textual occurrences with context
+========================================================
+hit_count= 4
+
+--- HIT 1, line 100 ---
+000088: 
+000089: 
+000090:                                    3
+000091: 
+000092:                        Decoding the Panji of Mithila - Volume II
+000093: 
+000094: 
+000095: Part IX - Khand 1 Index-Wise Decoding and Coverage
+000096: Chapter 33. Volume II and the Khand 1 Index Protocol
+000097: Chapter 34. Khand 1 Master Structure: पत्र-पञ्जी, गोत्र-पञ्जी, मेघापत्य,
+000098: दामोदरापत्य, महेशापत्य, माने -गादू
+000099: 
+000100: Chapter 35. गोत्र, मूल, मूलग्राम: Index-Wise Decoding
+000101: 
+000102: Chapter 36. लौकित, चौगोला, श्रेणी, and पत्रांक Records
+000103: 
+000104: Chapter 37. विद्वान, गुरु-शिष्य, गोत्र-प्रवर, and बीजी पुरुष Records
+000105: 
+000106: Chapter 38. Khand 1 Gramaarambh Coverage Checklist
+000107:    This is the first obstacle in decoding the Panji of Mithila. The
+000108: text is not written like a story. It is not written like a modern
+000109: family history. It is not written like a government record
+000110: either. It is a genealogical archive, a social memory, a marriage
+000111: guide, a scholarly index, and a map of settlement all
+000112: compressed into brief formulas.
+000113:   A single line may contain a village, an ancestor, a
+000114: descendant, a lineage branch, a marriage link, a title, and a
+000115: numerical mark. A name is rarely only a name. A village is
+000116: rarely only a village. A word like “सन्तति” may show a line of
+000117: descent, but it may also mark the continuity of a house in a
+000118: particular place. A word like “अपत्य” points to offspring or
+000119: descent, but in the Panji it often works as a lineage-marker
+000120: attached to a known ancestor. A word like “सँ” may appear
+000121: simple, but it can carry the force of “from,” “through,”
+000122: “belonging to,” “connected with,” or “by marriage into,”
+000123: depending on the structure of the entry.
+000124:   Therefore the Panji must be read slowly. It must be decoded,
+
+--- HIT 2, line 18074 ---
+018062: माने -गादू are symbolic chapter titles built around the brothers
+018063: connected with Mahesh Thakur, but the content under them
+018064: ranges across the 167 मूल and must not be narrowed to only those
+018065: named descendants.
+018066: 
+018067: 
+018068:     Chapter 34. Khand 1 Master Structure and
+018069:                 Chapter Link Map
+018070: The following master map links the Khand 1 index blocks to the
+018071: chapters and appendices already present in this volume. This is
+018072: the book’s audit bridge: it shows where the index is decoded and
+018073: where the tools for verification are located.
+018074:    पत्र-पञ्जी, pages 1-14 -> Chapter 35 and Appendix D/J. मूलग्रामक
+018075:     विभाजन कोन पुरुखासँ ; decode with village/genealogy tables.
+018076:    गोत्र-पञ्जी, pages 14-15 -> Chapter 35; Appendix C/D/J. गोत्र, मूल,
+018077:     मूलग्राम; decode as origin/branch framework.
+018078:    मेघापत्य, pages 17-337 -> Chapter 38; Chapters 23-27. Index
+018079:     gramaarambh rows decoded through dense-passage, village-
+018080:     cluster, and family-tree methods.
+018081:    दामोदरापत्य, pages 338-454 -> Chapter 38; Chapters 23-27.
+018082:     Continuation of Khand 1; every index entry receives a
+018083:     coverage target.
+018084: 
+018085: 
+018086: 
+018087: 
+018088:                                             477
+018089: 
+018090:                         Decoding the Panji of Mithila - Volume II
+018091: 
+018092: 
+018093:    महेशापत्य, pages 455-610 -> Chapter 38; Chapters 23-27.
+018094:     Branch/graamaarambh decoding through source-preserving
+018095:     checklist.
+018096:    माने -गादू, pages 611-690 -> Chapter 38; Chapters 23-27. Final
+018097:     Khand 1 block; separate Maaney and Gadu lines when
+018098:     evidence requires.
+
+--- HIT 3, line 18076 ---
+018064: ranges across the 167 मूल and must not be narrowed to only those
+018065: named descendants.
+018066: 
+018067: 
+018068:     Chapter 34. Khand 1 Master Structure and
+018069:                 Chapter Link Map
+018070: The following master map links the Khand 1 index blocks to the
+018071: chapters and appendices already present in this volume. This is
+018072: the book’s audit bridge: it shows where the index is decoded and
+018073: where the tools for verification are located.
+018074:    पत्र-पञ्जी, pages 1-14 -> Chapter 35 and Appendix D/J. मूलग्रामक
+018075:     विभाजन कोन पुरुखासँ ; decode with village/genealogy tables.
+018076:    गोत्र-पञ्जी, pages 14-15 -> Chapter 35; Appendix C/D/J. गोत्र, मूल,
+018077:     मूलग्राम; decode as origin/branch framework.
+018078:    मेघापत्य, pages 17-337 -> Chapter 38; Chapters 23-27. Index
+018079:     gramaarambh rows decoded through dense-passage, village-
+018080:     cluster, and family-tree methods.
+018081:    दामोदरापत्य, pages 338-454 -> Chapter 38; Chapters 23-27.
+018082:     Continuation of Khand 1; every index entry receives a
+018083:     coverage target.
+018084: 
+018085: 
+018086: 
+018087: 
+018088:                                             477
+018089: 
+018090:                         Decoding the Panji of Mithila - Volume II
+018091: 
+018092: 
+018093:    महेशापत्य, pages 455-610 -> Chapter 38; Chapters 23-27.
+018094:     Branch/graamaarambh decoding through source-preserving
+018095:     checklist.
+018096:    माने -गादू, pages 611-690 -> Chapter 38; Chapters 23-27. Final
+018097:     Khand 1 block; separate Maaney and Gadu lines when
+018098:     evidence requires.
+018099:    लौकित, चौगोला, श्रेणी, पत्रांक -> Chapter 36; Appendices B/C/F/G.
+018100:     Decode rank, number, branch, and marriage/person links.
+
+--- HIT 4, line 18110 ---
+018098:     evidence requires.
+018099:    लौकित, चौगोला, श्रेणी, पत्रांक -> Chapter 36; Appendices B/C/F/G.
+018100:     Decode rank, number, branch, and marriage/person links.
+018101:    विद्वान गुरु-शिष्य नामावली -> Chapter 37; Appendix E. Decode as
+018102:     intellectual lineage and title/occupation index.
+018103:    गोत्र-प्रवर युक्त मैथिल -> Chapter 37; Appendix C. Decode marriage
+018104:     rule, उतढ़, त्रिप्रवर/पंचप्रवर, and मूल classification.
+018105:    बीजी पुरुषक नाम ओ पत्रांक -> Chapter 37; Appendix F/J. Decode बीजी
+018106:     as earliest known person of a मूल; link to place and register
+018107:     number.
+018108: 
+018109: 
+018110:         Chapter 35. गोत्र, मूल, मूलग्राम: Index-Wise
+018111:                                     Decoding
+018112: The first block of the Khand 1 index is the gate to the entire
+018113: volume. It identifies गोत्र, मूल, and मूलग्राम relations. This is not a
+018114: casual village list. It is the skeleton of origin, branch, and village
+018115: attachment for Khand 1.
+018116: 
+018117: A. गोत्र-मूल-मूलग्राम decision block
+018118: 
+018119:    शाण्डिल्‍य    (i)         सरिसब खांगुड़, सकु री, जोंकी
+018120:    (ii) पर्वपल्‍ली वढि़याम            (पवौली)
+018121:    (iii) खण्‍डबला भौर; (iv)           सोदरपुर सरिसव, मानी, दिगउन्‍ध, तेतरिहार,
+018122:          कन्‍होली कटका, हाटी,
+018123: 
+018124: 
+018125: 
+018126: 
+018127:                                           478
+018128: 
+018129:                            Decoding the Panji of Mithila - Volume II
+018130: 
+018131: 
+018132:    वत्‍स            (i)        पाली     महिषी; (ii)           हरिअम्‍ब बलिराजपुर;         (iii)
+018133:             घुसौत    नगवाड़; (iv)        करमहा रूचौलि, नरूआड़, बेहट, तरौनी,
+018134:             झंझारपुर, अनलपुर; (v)        बुधवाल गंगोरा, डुमरा, परियाम्‍ब

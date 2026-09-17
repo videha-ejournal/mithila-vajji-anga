@@ -1,0 +1,5 @@
+file=public/research-articles/decoding-panji/volume-2/chapter-09/index.html
+bytes=23116
+has_closing_html=True
+match_count=1
+MATCH 1: token='placeholder' offset=9584 context=' zero, such as (८७/०) or (५८//०), are especially important. Zero may represent absence, continuation, null value, register subdivision, or a legitimate numbered code. It should never be dropped.   In old registers, zero may be a meaningful placeholder. Removing it could change the reference. For example, (८७/०) is not the same as (८७), and (५८//०) is not the same as (५८). The form with zero tells us that the source wanted two fields, even if the second field is zero.   Data rule: create'

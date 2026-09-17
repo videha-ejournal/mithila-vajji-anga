@@ -1,0 +1,59 @@
+name: Decoding Panji corrective gate
+
+on:
+  push:
+    branches: [chatgpt/decoding-panji-i-vi]
+    paths-ignore:
+      - '.diagnostics/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: decoding-panji-corrective-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: '1'
+  REQUIRE_IMAGE_OPTIMIZATION: '1'
+  REQUIRE_EXTERNAL_SOURCE_LIBRARY: '1'
+
+jobs:
+  corrective-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: chatgpt/decoding-panji-i-vi
+          fetch-depth: 0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Single corrective production phase
+        timeout-minutes: 18
+        env:
+          GITHUB_API_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          npm ci
+          npm install --no-save --package-lock=false sharp@0.35.4
+          mkdir -p .diagnostics-ci
+          timeout --signal=TERM --kill-after=30s 15m npm run build 2>&1 | tee .diagnostics-ci/current-build.log
+          node scripts/verify-panji-article-corpus.mjs --dist
+          node scripts/verify-panji-duplicate-control.mjs
+          echo 'Decoding Panji corrective gate PASS: all known parser, placeholder, duplicate-control, substantive, production-build and dist checks passed.'
+
+      - name: Upload corrective build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: panji-corrective-build-log-${{ github.run_id }}
+          path: .diagnostics-ci/current-build.log
+          if-no-files-found: warn
+          retention-days: 1
