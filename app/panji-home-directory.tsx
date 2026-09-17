@@ -114,12 +114,8 @@ export default function PanjiHomeDirectory({ locale }: { locale: Locale }) {
       aria-labelledby="decoding-panji-directory-title"
     >
       <header className={styles.header}>
-        <figure className={styles.cover}>
-          <div
-            className={styles.coverImage}
-            role="img"
-            aria-label="Decoding the Panji publication artwork"
-          />
+        <figure className={styles.cover} aria-hidden="true">
+          <div className={styles.coverImage} />
         </figure>
 
         <div className={styles.copy}>
