@@ -1,0 +1,118 @@
+name: Verify Decoding Panji 247 live URLs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/verify-panji-live-247.yml
+
+permissions:
+  contents: read
+
+env:
+  BASE: https://videha-ejournal.github.io/mithila-vajji-anga
+
+jobs:
+  verify-live-247:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Verify 247 public chapter URLs and build CSV
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv, html, json, re, time, urllib.request
+          from collections import Counter
+
+          BASE = 'https://videha-ejournal.github.io/mithila-vajji-anga'
+          INVENTORY_URL = BASE + '/decoding-panji/inventory.json'
+          OUT = 'Decoding_Panji_247_Live_HTML_URLs.csv'
+          EXPECTED = {1:20, 2:38, 3:32, 4:87, 5:40, 6:30}
+          OFFSETS = {1:0, 2:20, 3:58, 4:90, 5:177, 6:217}
+          ROMAN = {1:'i', 2:'ii', 3:'iii', 4:'iv', 5:'v', 6:'vi'}
+          opener = urllib.request.build_opener()
+          opener.addheaders = [
+              ('User-Agent', 'Videha-Live-247-Verifier/1.0'),
+              ('Cache-Control', 'no-cache'),
+              ('Pragma', 'no-cache'),
+          ]
+
+          def get(url, attempts=4):
+              last = None
+              for attempt in range(attempts):
+                  try:
+                      with opener.open(url, timeout=30) as response:
+                          body = response.read().decode('utf-8', 'replace')
+                          return response.status, response.geturl(), body
+                  except Exception as exc:
+                      last = exc
+                      if attempt + 1 < attempts:
+                          time.sleep(2 * (attempt + 1))
+              raise RuntimeError(f'GET failed after {attempts} attempts: {url}: {last}')
+
+          status, final_inventory_url, inventory_body = get(INVENTORY_URL)
+          if status != 200 or final_inventory_url != INVENTORY_URL:
+              raise RuntimeError(f'Inventory request failed: status={status} final={final_inventory_url}')
+          records = json.loads(inventory_body)
+          if not isinstance(records, list) or len(records) != 247:
+              raise RuntimeError(f'Expected 247 live inventory rows; found {len(records) if isinstance(records,list) else "invalid"}')
+          counts = Counter(int(r['volume']) for r in records)
+          if dict(sorted(counts.items())) != EXPECTED:
+              raise RuntimeError(f'Volume counts mismatch: {dict(sorted(counts.items()))}')
+
+          verified = []
+          seen = set()
+          for i, record in enumerate(records, 1):
+              volume = int(record['volume'])
+              local_chapter = int(record['chapter'])
+              global_chapter = OFFSETS[volume] + local_chapter
+              if int(record.get('global_chapter', -1)) != global_chapter:
+                  raise RuntimeError(f'Global chapter mismatch in inventory row {i}')
+              canonical = str(record['canonical'])
+              expected_prefix = f'{BASE}/decoding-panji/vol-{ROMAN[volume]}/ch-{global_chapter:03d}-'
+              if not canonical.startswith(expected_prefix) or not canonical.endswith('/'):
+                  raise RuntimeError(f'Canonical shape mismatch: {canonical}')
+              if canonical in seen:
+                  raise RuntimeError(f'Duplicate canonical: {canonical}')
+              seen.add(canonical)
+
+              status, final_url, body = get(canonical)
+              if status != 200:
+                  raise RuntimeError(f'HTTP {status}: {canonical}')
+              if final_url != canonical:
+                  raise RuntimeError(f'Redirect/substitution: requested={canonical} final={final_url}')
+              if '/research-articles/decoding-panji/' in final_url:
+                  raise RuntimeError(f'Old-route substitution: {final_url}')
+
+              canonical_marker = f'<link rel="canonical" href="{canonical}">'
+              if canonical_marker not in body:
+                  raise RuntimeError(f'Missing self-canonical: {canonical}')
+              if f'data-panji-chapter="{local_chapter}"' not in body:
+                  raise RuntimeError(f'Chapter identity marker mismatch: {canonical}')
+              title = str(record['title'])
+              visible = html.unescape(re.sub(r'<[^>]+>', ' ', body))
+              visible = re.sub(r'\s+', ' ', visible)
+              if title not in visible:
+                  raise RuntimeError(f'Title identity mismatch: global={global_chapter} title={title!r} url={canonical}')
+              if 'Human review required.' not in visible:
+                  raise RuntimeError(f'Missing human-review wording: {canonical}')
+              if 'This prototype encodes relationships and tags; it does not decide marriage eligibility or kinship status.' not in visible:
+                  raise RuntimeError(f'Missing graph-limit wording: {canonical}')
+
+              verified.append([volume, global_chapter, title, canonical])
+              print(f'LIVE PASS {i:03d}/247 V{volume} global-ch-{global_chapter:03d} {canonical}', flush=True)
+
+          if len(verified) != 247 or len(seen) != 247:
+              raise RuntimeError(f'Final verification cardinality failure: rows={len(verified)} unique={len(seen)}')
+          with open(OUT, 'w', newline='', encoding='utf-8-sig') as f:
+              writer = csv.writer(f)
+              writer.writerow(['Volume','Chapter','Title','Live HTML URL'])
+              writer.writerows(verified)
+          print('LIVE VERIFICATION COMPLETE 247/247')
+          PY
+      - name: Upload verified CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: Decoding_Panji_247_Live_HTML_URLs
+          path: Decoding_Panji_247_Live_HTML_URLs.csv
+          if-no-files-found: error
