@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import Image from 'next/image';
 import styles from './panji-home-directory.module.css';
 
 type Locale = 'mai' | 'en';
@@ -115,7 +116,14 @@ export default function PanjiHomeDirectory({ locale }: { locale: Locale }) {
     >
       <header className={styles.header}>
         <figure className={styles.cover}>
-          <img src={panjiArtwork} alt="Decoding the Panji publication artwork" loading="eager" decoding="async" />
+          <Image
+            src={panjiArtwork}
+            alt="Decoding the Panji publication artwork"
+            width={330}
+            height={440}
+            priority
+            sizes="(max-width: 640px) 86px, (max-width: 980px) 120px, 165px"
+          />
         </figure>
         <div className={styles.copy}>
           <p className={styles.eyebrow}>{copy.eyebrow}</p>
