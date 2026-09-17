@@ -54,8 +54,8 @@ export default function MaithiliHome() {
           राखब विद्वत्-सन्दर्भ लेल आवश्यक अछि, ततय ओकर भाषिक रूप सुरक्षित राखल गेल अछि।
         </p>
       </section>
-      <ResearchCorpusDirectory locale="mai" />
       <div id="decoding-panji-directory-anchor" aria-hidden="true" />
+      <ResearchCorpusDirectory locale="mai" />
       <ArchiveEnglish />
     </>
   );
