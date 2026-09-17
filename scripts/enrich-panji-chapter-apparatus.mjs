@@ -48,9 +48,6 @@ function buildSourceStructure(details, volume) {
         current.sourceTitle = title;
         continue;
       }
-      // An independent level-one unit after the chapter title closes this
-      // chapter's outline. This prevents appendices/back matter from leaking
-      // into the final formal chapter's scholarly apparatus.
       current = null;
       continue;
     }
@@ -118,7 +115,11 @@ const structures = new Map(Array.from({ length: 6 }, (_, i) => [i + 1, buildSour
 for (const record of records) {
   const filePath = path.join(ROOT, record.route, 'index.html');
   let page = readFileSync(filePath, 'utf8').replace(APPARATUS_RE, '');
-  const sourceInfo = structures.get(record.volume)?.get(record.chapter);
+  const volumeStructure = structures.get(record.volume);
+  const sourceInfo = volumeStructure?.get(record.chapter)
+    ?? (volumeStructure?.size === 0
+      ? { chapter: record.chapter, sourceTitle: record.title, headings: [] }
+      : null);
   if (!sourceInfo) throw new Error(`Missing source structure for Volume ${record.volume} Chapter ${record.chapter}`);
   page = repairTitle(page, record, sourceInfo);
   const sourceBody = extractSourceBody(page, filePath);
@@ -138,4 +139,8 @@ for (const record of records) {
 const serialized = `${JSON.stringify(records, null, 2)}\n`;
 writeFileSync(INVENTORY, serialized);
 writeFileSync(PUBLIC_INVENTORY, serialized);
-console.log('Decoding Panji source apparatus enriched:', { chapters: records.length, volumes: 6 });
+console.log('Decoding Panji source apparatus enriched:', {
+  chapters: records.length,
+  volumes: 6,
+  volumesWithoutFormalHeadingAnchors: [...structures.entries()].filter(([, map]) => map.size === 0).map(([volume]) => volume),
+});
