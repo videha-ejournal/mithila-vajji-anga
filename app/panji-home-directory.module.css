@@ -32,12 +32,16 @@
   margin: 0;
 }
 
-.cover img {
+.coverImage {
   display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 8 / 11;
   border: 1px solid #cdbb96;
   border-radius: 14px;
+  background-image: url('https://videha-ejournal.github.io/mithila-vajji-anga/assets/book-covers/decoding-the-panji.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   box-shadow: 0 13px 30px rgb(42 39 30 / 18%);
 }
 
