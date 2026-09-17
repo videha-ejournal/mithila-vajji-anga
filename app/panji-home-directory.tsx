@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import Image from 'next/image';
+import panjiInventory from './generated/panji-article-inventory.json';
 import styles from './panji-home-directory.module.css';
 
 type Locale = 'mai' | 'en';
@@ -31,8 +30,7 @@ function toDevanagari(value: number | string) {
 }
 
 function loadPanjiRecords() {
-  const inventoryPath = join(process.cwd(), 'app', 'generated', 'panji-article-inventory.json');
-  const records = JSON.parse(readFileSync(inventoryPath, 'utf8')) as PanjiRecord[];
+  const records = panjiInventory as PanjiRecord[];
 
   if (!Array.isArray(records) || records.length !== 247) {
     throw new Error(`Expected 247 Decoding Panji records; found ${records?.length ?? 'invalid'}.`);
