@@ -1,4 +1,4 @@
-import panjiInventoryJson from './generated/panji-article-inventory.json';
+import { existsSync, readFileSync } from 'node:fs';
 import styles from './panji-home-directory.module.css';
 
 type Locale = 'mai' | 'en';
@@ -15,12 +15,20 @@ type PanjiRecord = {
   kind: string;
 };
 
-const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
-const publicationArt = `${siteUrl}assets/book-covers/decoding-the-panji.webp`;
+const inventoryCandidates = [
+  'app/generated/panji-article-inventory.json',
+  'public/decoding-panji/inventory.json',
+];
 const roman: Record<number, string> = { 1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI' };
 const expected: Record<number, number> = { 1: 20, 2: 38, 3: 32, 4: 87, 5: 40, 6: 30 };
 const devanagariDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-const panjiInventory = panjiInventoryJson as PanjiRecord[];
+
+function loadPanjiInventory(): PanjiRecord[] {
+  const path = inventoryCandidates.find((candidate) => existsSync(candidate));
+  if (!path) return [];
+  const parsed = JSON.parse(readFileSync(path, 'utf8')) as PanjiRecord[];
+  return Array.isArray(parsed) ? parsed : [];
+}
 
 function toDevanagari(value: number | string) {
   return String(value)
@@ -29,7 +37,7 @@ function toDevanagari(value: number | string) {
     .join('');
 }
 
-function validateInventory() {
+function validateInventory(panjiInventory: PanjiRecord[]) {
   if (panjiInventory.length !== 247) {
     throw new Error(`Expected 247 Decoding Panji records; found ${panjiInventory.length}.`);
   }
@@ -43,9 +51,10 @@ function validateInventory() {
   }
 }
 
-validateInventory();
-
 export default function PanjiHomeDirectory({ locale }: { locale: Locale }) {
+  const panjiInventory = loadPanjiInventory();
+  validateInventory(panjiInventory);
+
   const isMai = locale === 'mai';
   const display = (value: number | string) => (isMai ? toDevanagari(value) : String(value));
   const copy = isMai
@@ -106,11 +115,10 @@ export default function PanjiHomeDirectory({ locale }: { locale: Locale }) {
     >
       <header className={styles.header}>
         <figure className={styles.cover}>
-          <img
-            src={publicationArt}
-            alt="Decoding the Panji publication artwork"
-            loading="eager"
-            decoding="async"
+          <div
+            className={styles.coverImage}
+            role="img"
+            aria-label="Decoding the Panji publication artwork"
           />
         </figure>
 
