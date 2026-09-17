@@ -23,6 +23,12 @@ function decode(value) {
 function chapterMarker(title) {
   return clean(title).match(/^Chapter\s+(\d+)(?:\s*[.:\-–—]\s*(.+))?$/i);
 }
+function formalTitle(value) {
+  const title = clean(value);
+  const match = CONTAMINATED_TITLE_RE.exec(title);
+  if (!match) return title;
+  return clean(title.slice(0, match.index)).replace(/[,:;\-–—]+$/g, '').trim();
+}
 
 function validateExtractedVolume(records, volume) {
   const expected = EXPECTED_CHAPTERS[volume];
@@ -88,7 +94,7 @@ function buildSourceStructure(details, volume, extractedByChapter) {
       current = {
         chapter,
         anchorLevel: level,
-        sourceTitle: clean(marker[2]),
+        sourceTitle: formalTitle(marker[2]),
         headings: [],
         sourceHeadingAnchor: true,
       };
@@ -109,7 +115,7 @@ function buildSourceStructure(details, volume, extractedByChapter) {
     // source heading is the chapter title. Its depth may equal or exceed the
     // anchor depth, depending on the source volume's DOCX outline structure.
     if (!current.sourceTitle) {
-      current.sourceTitle = title;
+      current.sourceTitle = formalTitle(title);
       continue;
     }
 
@@ -136,13 +142,13 @@ function buildSourceStructure(details, volume, extractedByChapter) {
     const record = extractedByChapter.get(chapter);
     const sourceInfo = anchored.get(chapter);
     if (sourceInfo) {
-      if (!sourceInfo.sourceTitle) sourceInfo.sourceTitle = clean(record.title);
+      if (!sourceInfo.sourceTitle) sourceInfo.sourceTitle = formalTitle(record.title);
       chapters.set(chapter, sourceInfo);
     } else {
       chapters.set(chapter, {
         chapter,
         anchorLevel: null,
-        sourceTitle: clean(record.title),
+        sourceTitle: formalTitle(record.title),
         headings: [],
         sourceHeadingAnchor: false,
       });
@@ -179,8 +185,11 @@ function concordance(text, limit = 80) {
 
 function repairTitle(page, record, sourceInfo) {
   const oldTitle = clean(record.title);
-  const sourceTitle = clean(sourceInfo?.sourceTitle);
-  if (!CONTAMINATED_TITLE_RE.test(oldTitle) || !sourceTitle) return page;
+  const sourceTitle = formalTitle(sourceInfo?.sourceTitle || oldTitle);
+  if (!CONTAMINATED_TITLE_RE.test(oldTitle)) return page;
+  if (!sourceTitle || CONTAMINATED_TITLE_RE.test(sourceTitle)) {
+    throw new Error(`Unable to repair prose-contaminated title: ${record.stable_id} => ${oldTitle}`);
+  }
   record.title = sourceTitle;
   return page.replaceAll(esc(oldTitle), esc(sourceTitle)).replaceAll(oldTitle, sourceTitle);
 }
