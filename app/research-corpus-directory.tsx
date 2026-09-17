@@ -112,23 +112,27 @@ export default function ResearchCorpusDirectory({ locale }: { locale: Locale }) 
           eyebrow: 'पूर्ण प्रत्यक्ष कड़ी-सूची',
           title: '५२२ लाइव शोध-पन्ना',
           intro:
-            'इतिहास आ समानान्तर दर्शनक सभ प्रमाणित लाइव पन्ना एतय एके ठाम देल गेल अछि। कोनो अध्याय छोड़ल नहि गेल अछि।',
+            'इतिहास आ समानान्तर दर्शनक सभ प्रमाणित लाइव पन्ना एतय सुरक्षित अछि। सूची केँ खोलू, फेर आवश्यक corpus खोलू।',
+          foldHint: 'क्लिक कऽ ५२२ कड़ी खोलू',
           total: 'कुल',
           pages: 'पन्ना',
           jump: 'सीधा जाउ',
           volume: 'खण्ड',
           links: 'प्रत्यक्ष कड़ी',
+          openSeries: 'सूची खोलू',
         }
       : {
           eyebrow: 'COMPLETE DIRECT-LINK DIRECTORY',
           title: '522 live research pages',
           intro:
-            'Every verified live page in the History and Parallel Philosophy corpora is linked here. No chapter is omitted.',
+            'All verified History and Parallel Philosophy pages remain available here. Open the directory, then expand only the corpus you need.',
+          foldHint: 'Open the 522-link directory',
           total: 'Total',
           pages: 'pages',
           jump: 'Jump to',
           volume: 'Volume',
           links: 'direct links',
+          openSeries: 'Open list',
         };
 
   return (
@@ -137,95 +141,102 @@ export default function ResearchCorpusDirectory({ locale }: { locale: Locale }) 
       id="research-corpus-522"
       aria-labelledby="research-corpus-522-title"
       lang={locale}
+      data-research-corpus-count="522"
     >
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{copy.eyebrow}</p>
-        <div className={styles.titleRow}>
-          <div>
-            <h2 id="research-corpus-522-title">{copy.title}</h2>
-            <p className={styles.intro}>{copy.intro}</p>
-          </div>
-          <div className={styles.totalBadge} aria-label={`${copy.total}: 522 ${copy.pages}`}>
+      <details className={styles.masterFold}>
+        <summary className={styles.masterSummary}>
+          <span className={styles.chevron} aria-hidden="true">›</span>
+          <span className={styles.summaryCopy}>
+            <span className={styles.eyebrow}>{copy.eyebrow}</span>
+            <strong className={styles.masterTitle} id="research-corpus-522-title">{copy.title}</strong>
+            <span className={styles.summaryIntro}>{copy.intro}</span>
+            <span className={styles.foldHint}>{copy.foldHint}</span>
+          </span>
+          <span className={styles.totalBadge} aria-label={`${copy.total}: 522 ${copy.pages}`}>
             <strong>{locale === 'mai' ? '५२२' : '522'}</strong>
             <span>{copy.pages}</span>
+          </span>
+        </summary>
+
+        <div className={styles.foldBody}>
+          <div className={styles.stats} aria-label={copy.total}>
+            {series.map((item) => (
+              <a className={styles.stat} href={`#corpus-${item.id}`} key={item.id}>
+                <strong>{locale === 'mai' ? toDevanagari(item.count) : item.count}</strong>
+                <span>{item.title[locale]}</span>
+              </a>
+            ))}
+          </div>
+
+          <nav className={styles.jumpNav} aria-label={copy.jump}>
+            <strong>{copy.jump}</strong>
+            {series.map((item) => (
+              <a href={`#corpus-${item.id}`} key={item.id}>
+                {item.title[locale]}
+              </a>
+            ))}
+          </nav>
+
+          <div className={styles.seriesList}>
+            {series.map((item) => (
+              <details className={styles.series} id={`corpus-${item.id}`} key={item.id}>
+                <summary className={styles.seriesHeader}>
+                  <span className={styles.seriesChevron} aria-hidden="true">›</span>
+                  <span className={styles.seriesCopy}>
+                    <span className={styles.seriesKicker}>
+                      {locale === 'mai'
+                        ? `${toDevanagari(item.count)} ${copy.links}`
+                        : `${item.count} ${copy.links}`}
+                    </span>
+                    <strong className={styles.seriesTitle}>{item.title[locale]}</strong>
+                    <span className={styles.seriesDescription}>{item.description[locale]}</span>
+                  </span>
+                  <span className={styles.seriesAction}>{copy.openSeries}</span>
+                  <span className={styles.countPill}>
+                    {locale === 'mai' ? toDevanagari(item.count) : item.count}
+                  </span>
+                </summary>
+
+                <div className={styles.volumeList}>
+                  {item.volumes.map((volume) => (
+                    <section className={styles.volume} key={`${item.id}-${volume.volume}`}>
+                      <header className={styles.volumeHeader}>
+                        <h4>
+                          {locale === 'mai'
+                            ? `${copy.volume} ${toDevanagari(volume.volume)} / Volume ${romanVolume(volume.volume)}`
+                            : `${copy.volume} ${romanVolume(volume.volume)} / खण्ड ${toDevanagari(volume.volume)}`}
+                        </h4>
+                        <span>
+                          {locale === 'mai'
+                            ? `${toDevanagari(volume.count)} ${copy.pages}`
+                            : `${volume.count} ${copy.pages}`}
+                        </span>
+                      </header>
+
+                      <div className={styles.linkGrid}>
+                        {Array.from({ length: volume.count }, (_, index) => index + 1).map((chapter) => (
+                          <a
+                            className={styles.chapterLink}
+                            href={articleUrl(item.id, volume.volume, chapter)}
+                            key={`${item.id}-${volume.volume}-${chapter}`}
+                            aria-label={`${item.title[locale]}, ${copy.volume} ${volume.volume}, ${chapterLabel(
+                              locale,
+                              item.id,
+                              chapter,
+                            )}`}
+                          >
+                            {chapterLabel(locale, item.id, chapter)}
+                          </a>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </details>
+            ))}
           </div>
         </div>
-
-        <div className={styles.stats} aria-label={copy.total}>
-          {series.map((item) => (
-            <a className={styles.stat} href={`#corpus-${item.id}`} key={item.id}>
-              <strong>{locale === 'mai' ? toDevanagari(item.count) : item.count}</strong>
-              <span>{item.title[locale]}</span>
-            </a>
-          ))}
-        </div>
-
-        <nav className={styles.jumpNav} aria-label={copy.jump}>
-          <strong>{copy.jump}</strong>
-          {series.map((item) => (
-            <a href={`#corpus-${item.id}`} key={item.id}>
-              {item.title[locale]}
-            </a>
-          ))}
-        </nav>
-      </header>
-
-      <div className={styles.seriesList}>
-        {series.map((item) => (
-          <article className={styles.series} id={`corpus-${item.id}`} key={item.id}>
-            <header className={styles.seriesHeader}>
-              <div>
-                <p className={styles.seriesKicker}>
-                  {locale === 'mai'
-                    ? `${toDevanagari(item.count)} ${copy.links}`
-                    : `${item.count} ${copy.links}`}
-                </p>
-                <h3>{item.title[locale]}</h3>
-                <p>{item.description[locale]}</p>
-              </div>
-              <span className={styles.countPill}>
-                {locale === 'mai' ? toDevanagari(item.count) : item.count}
-              </span>
-            </header>
-
-            <div className={styles.volumeList}>
-              {item.volumes.map((volume) => (
-                <section className={styles.volume} key={`${item.id}-${volume.volume}`}>
-                  <header className={styles.volumeHeader}>
-                    <h4>
-                      {locale === 'mai'
-                        ? `${copy.volume} ${toDevanagari(volume.volume)} / Volume ${romanVolume(volume.volume)}`
-                        : `${copy.volume} ${romanVolume(volume.volume)} / खण्ड ${toDevanagari(volume.volume)}`}
-                    </h4>
-                    <span>
-                      {locale === 'mai'
-                        ? `${toDevanagari(volume.count)} ${copy.pages}`
-                        : `${volume.count} ${copy.pages}`}
-                    </span>
-                  </header>
-
-                  <div className={styles.linkGrid}>
-                    {Array.from({ length: volume.count }, (_, index) => index + 1).map((chapter) => (
-                      <a
-                        className={styles.chapterLink}
-                        href={articleUrl(item.id, volume.volume, chapter)}
-                        key={`${item.id}-${volume.volume}-${chapter}`}
-                        aria-label={`${item.title[locale]}, ${copy.volume} ${volume.volume}, ${chapterLabel(
-                          locale,
-                          item.id,
-                          chapter,
-                        )}`}
-                      >
-                        {chapterLabel(locale, item.id, chapter)}
-                      </a>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </article>
-        ))}
-      </div>
+      </details>
     </section>
   );
 }
