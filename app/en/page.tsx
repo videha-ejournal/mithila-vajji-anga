@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import ArchiveEnglish from '../archive-english';
+import PanjiHomeDirectory from '../panji-home-directory';
 import ResearchCorpusDirectory from '../research-corpus-directory';
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
@@ -50,7 +51,7 @@ export default function EnglishHome() {
           forms remain in their original language where preserving them is necessary for scholarly use.
         </p>
       </section>
-      <div id="decoding-panji-directory-anchor" aria-hidden="true" />
+      <PanjiHomeDirectory locale="en" />
       <ResearchCorpusDirectory locale="en" />
       <ArchiveEnglish />
     </>
