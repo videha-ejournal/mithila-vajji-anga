@@ -43,7 +43,17 @@ jobs:
           set -euxo pipefail
           npm ci
           npm install --no-save --package-lock=false sharp@0.35.4
-          timeout --signal=TERM --kill-after=30s 15m npm run build
+          mkdir -p .diagnostics-ci
+          timeout --signal=TERM --kill-after=30s 15m npm run build 2>&1 | tee .diagnostics-ci/current-build.log
           node scripts/verify-panji-article-corpus.mjs --dist
           node scripts/verify-panji-duplicate-control.mjs
           echo 'Decoding Panji corrective gate PASS: all known parser, placeholder, duplicate-control, substantive, production-build and dist checks passed.'
+
+      - name: Upload corrective build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: panji-corrective-build-log-${{ github.run_id }}
+          path: .diagnostics-ci/current-build.log
+          if-no-files-found: warn
+          retention-days: 1
