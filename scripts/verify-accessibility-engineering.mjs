@@ -8,11 +8,12 @@ const EN_HTML = join(DIST, 'en/index.html');
 const CSS = join(ROOT, 'app/globals.css');
 const PAGE = join(ROOT, 'app/page.tsx');
 const ARCHIVE = join(ROOT, 'app/archive-english.tsx');
+const PANJI_CSS = join(ROOT, 'app/panji-home-directory.module.css');
 const AUDIT = join(ROOT, 'ACCESSIBILITY-AUDIT.md');
 const OUTPUT = join(DIST, 'data/accessibility-engineering-report.json');
 
 const fail = (message) => { throw new Error(`Accessibility engineering verification failed: ${message}`); };
-for (const path of [ROOT_HTML, EN_HTML, CSS, PAGE, ARCHIVE, AUDIT]) {
+for (const path of [ROOT_HTML, EN_HTML, CSS, PAGE, ARCHIVE, PANJI_CSS, AUDIT]) {
   if (!existsSync(path)) fail(`required file is missing: ${path}`);
 }
 
@@ -21,6 +22,7 @@ const enHtml = readFileSync(EN_HTML, 'utf8');
 const css = readFileSync(CSS, 'utf8');
 const page = readFileSync(PAGE, 'utf8');
 const archive = readFileSync(ARCHIVE, 'utf8');
+const panjiCss = readFileSync(PANJI_CSS, 'utf8');
 const audit = readFileSync(AUDIT, 'utf8');
 
 const checks = [
@@ -86,6 +88,19 @@ const checks = [
     id: 'translation-inventory',
     description: 'The 41-language translation inventory remains present in the shared research surface source.',
     pass: (archive.match(/^\s*\['[^']+',\s*'[^']+'\],?\s*$/gm) ?? []).length >= 41,
+  },
+  {
+    id: 'utility-strip-non-overlap',
+    description: 'Persistent accessibility tools reserve page space instead of floating over readable text.',
+    pass:
+      /body\s*\{[\s\S]*padding-top:\s*56px/i.test(css)
+      && /@media\s*\(min-width:\s*1000px\)[\s\S]*body\s*\{[\s\S]*padding-right:\s*13rem/i.test(css)
+      && /@media\s*\(min-width:\s*1000px\)[\s\S]*\.videha-tools\s*\{[\s\S]*width:\s*11\.5rem/i.test(css),
+  },
+  {
+    id: 'single-utility-positioning-authority',
+    description: 'Feature modules do not override the global accessibility-tool positioning contract.',
+    pass: !panjiCss.includes(':global(.videha-tools'),
   },
   {
     id: 'maithili-wrapper',
