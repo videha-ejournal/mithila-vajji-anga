@@ -62,46 +62,6 @@
 .chapterLink strong { font-size: 0.82rem; line-height: 1.4; }
 .chapterLink small { color: #647069; font-size: 0.7rem; }
 
-/* Keep the existing, tested 41-language translator + Listen + Assistive Tech controls visible from the first viewport. */
-:global(.videha-tools) {
-  position: fixed !important;
-  top: 0.65rem;
-  right: 0.75rem;
-  bottom: auto !important;
-  left: auto;
-  transform: none !important;
-  z-index: 120;
-  width: auto;
-  max-width: calc(100vw - 1.5rem);
-  padding: 0.4rem 0.55rem !important;
-  border: 1px solid #d4c29d;
-  border-radius: 999px;
-  background: rgb(239 228 204 / 96%) !important;
-  box-shadow: 0 10px 28px rgb(16 26 45 / 20%);
-  backdrop-filter: blur(12px);
-}
-
-:global(.videha-tools > button) {
-  min-height: 38px;
-  border-radius: 999px !important;
-  background: #fff !important;
-  padding: 0.38rem 0.62rem !important;
-  box-shadow: inset 0 0 0 1px #d8c9aa;
-}
-
-:global(.videha-tools > button:hover),
-:global(.videha-tools > button:focus-visible) {
-  background: #fff7e5 !important;
-}
-
-:global(.videha-tools .assistive-panel),
-:global(.videha-tools .translate-panel) {
-  top: calc(100% + 0.5rem) !important;
-  right: 0 !important;
-  left: auto !important;
-  transform: none !important;
-}
-
 @media (max-width: 980px) {
   .header { grid-template-columns: 120px minmax(0, 1fr); }
   .totalBadge { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.65rem; }
