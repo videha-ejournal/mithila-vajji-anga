@@ -22,10 +22,7 @@ const series: SeriesSpec[] = [
   {
     id: 'history-en',
     count: 178,
-    title: {
-      en: 'History — English',
-      mai: 'इतिहास — अंग्रेजी',
-    },
+    title: { en: 'History — English', mai: 'इतिहास — अंग्रेजी' },
     description: {
       en: 'Direct links to all 178 History research pages.',
       mai: 'इतिहासक सभ १७८ अंग्रेजी शोध-पन्नाक सीधा कड़ी।',
@@ -38,10 +35,7 @@ const series: SeriesSpec[] = [
   {
     id: 'philosophy-en',
     count: 172,
-    title: {
-      en: 'Parallel Philosophy — English',
-      mai: 'समानान्तर दर्शन — अंग्रेजी',
-    },
+    title: { en: 'Parallel Philosophy — English', mai: 'समानान्तर दर्शन — अंग्रेजी' },
     description: {
       en: 'Direct links to all 172 English Parallel Philosophy research pages.',
       mai: 'समानान्तर दर्शनक सभ १७२ अंग्रेजी शोध-पन्नाक सीधा कड़ी।',
@@ -54,10 +48,7 @@ const series: SeriesSpec[] = [
   {
     id: 'philosophy-mai',
     count: 172,
-    title: {
-      en: 'Parallel Philosophy — Maithili',
-      mai: 'समानान्तर दर्शन — मैथिली',
-    },
+    title: { en: 'Parallel Philosophy — Maithili', mai: 'समानान्तर दर्शन — मैथिली' },
     description: {
       en: 'Direct links to all 172 Maithili Parallel Philosophy research pages.',
       mai: 'समानान्तर दर्शनक सभ १७२ मैथिली शोध-पन्नाक सीधा कड़ी।',
@@ -106,126 +97,99 @@ function chapterLabel(locale: Locale, kind: CorpusKind, chapter: number) {
 }
 
 export default function ResearchCorpusDirectory({ locale }: { locale: Locale }) {
-  const copy =
-    locale === 'mai'
-      ? {
-          eyebrow: 'पूर्ण प्रत्यक्ष कड़ी-सूची',
-          title: '५२२ लाइव शोध-पन्ना',
-          intro:
-            'इतिहास आ समानान्तर दर्शनक सभ प्रमाणित लाइव पन्ना एतय एके ठाम देल गेल अछि। कोनो अध्याय छोड़ल नहि गेल अछि।',
-          total: 'कुल',
-          pages: 'पन्ना',
-          jump: 'सीधा जाउ',
-          volume: 'खण्ड',
-          links: 'प्रत्यक्ष कड़ी',
-        }
-      : {
-          eyebrow: 'COMPLETE DIRECT-LINK DIRECTORY',
-          title: '522 live research pages',
-          intro:
-            'Every verified live page in the History and Parallel Philosophy corpora is linked here. No chapter is omitted.',
-          total: 'Total',
-          pages: 'pages',
-          jump: 'Jump to',
-          volume: 'Volume',
-          links: 'direct links',
-        };
+  const isMai = locale === 'mai';
+  const display = (value: number | string) => (isMai ? toDevanagari(value) : String(value));
+  const copy = isMai
+    ? {
+        eyebrow: 'पूर्ण प्रत्यक्ष कड़ी-सूची',
+        title: '५२२ लाइव शोध-पन्ना',
+        intro:
+          'इतिहास आ समानान्तर दर्शनक सभ प्रमाणित लाइव पन्नाक पूर्ण सूची। मुख्य पन्ना स्वच्छ रखबाक लेल सूची एखन मोड़ल अछि; त्रिकोण पर क्लिक कऽ खोलू।',
+        pages: 'पन्ना',
+        volume: 'खण्ड',
+        links: 'प्रत्यक्ष कड़ी',
+        openAll: '५२२ कड़ीक सूची खोलू / बन्द करू',
+        openSeries: 'श्रृंखला खोलू',
+      }
+    : {
+        eyebrow: 'COMPLETE DIRECT-LINK DIRECTORY',
+        title: '522 live research pages',
+        intro:
+          'The complete verified History and Parallel Philosophy link directory. It stays folded to keep the homepage uncluttered; use the disclosure triangle to open it.',
+        pages: 'pages',
+        volume: 'Volume',
+        links: 'direct links',
+        openAll: 'Open / close the 522-link directory',
+        openSeries: 'Open series',
+      };
 
   return (
-    <section
-      className={styles.directory}
-      id="research-corpus-522"
-      aria-labelledby="research-corpus-522-title"
-      lang={locale}
-    >
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{copy.eyebrow}</p>
-        <div className={styles.titleRow}>
-          <div>
+    <section className={styles.directory} id="research-corpus-522" lang={locale}>
+      <details className={styles.masterDisclosure}>
+        <summary className={styles.masterSummary} aria-label={copy.openAll}>
+          <div className={styles.summaryCopy}>
+            <p className={styles.eyebrow}>{copy.eyebrow}</p>
             <h2 id="research-corpus-522-title">{copy.title}</h2>
             <p className={styles.intro}>{copy.intro}</p>
-          </div>
-          <div className={styles.totalBadge} aria-label={`${copy.total}: 522 ${copy.pages}`}>
-            <strong>{locale === 'mai' ? '५२२' : '522'}</strong>
-            <span>{copy.pages}</span>
-          </div>
-        </div>
-
-        <div className={styles.stats} aria-label={copy.total}>
-          {series.map((item) => (
-            <a className={styles.stat} href={`#corpus-${item.id}`} key={item.id}>
-              <strong>{locale === 'mai' ? toDevanagari(item.count) : item.count}</strong>
-              <span>{item.title[locale]}</span>
-            </a>
-          ))}
-        </div>
-
-        <nav className={styles.jumpNav} aria-label={copy.jump}>
-          <strong>{copy.jump}</strong>
-          {series.map((item) => (
-            <a href={`#corpus-${item.id}`} key={item.id}>
-              {item.title[locale]}
-            </a>
-          ))}
-        </nav>
-      </header>
-
-      <div className={styles.seriesList}>
-        {series.map((item) => (
-          <article className={styles.series} id={`corpus-${item.id}`} key={item.id}>
-            <header className={styles.seriesHeader}>
-              <div>
-                <p className={styles.seriesKicker}>
-                  {locale === 'mai'
-                    ? `${toDevanagari(item.count)} ${copy.links}`
-                    : `${item.count} ${copy.links}`}
-                </p>
-                <h3>{item.title[locale]}</h3>
-                <p>{item.description[locale]}</p>
-              </div>
-              <span className={styles.countPill}>
-                {locale === 'mai' ? toDevanagari(item.count) : item.count}
-              </span>
-            </header>
-
-            <div className={styles.volumeList}>
-              {item.volumes.map((volume) => (
-                <section className={styles.volume} key={`${item.id}-${volume.volume}`}>
-                  <header className={styles.volumeHeader}>
-                    <h4>
-                      {locale === 'mai'
-                        ? `${copy.volume} ${toDevanagari(volume.volume)} / Volume ${romanVolume(volume.volume)}`
-                        : `${copy.volume} ${romanVolume(volume.volume)} / खण्ड ${toDevanagari(volume.volume)}`}
-                    </h4>
-                    <span>
-                      {locale === 'mai'
-                        ? `${toDevanagari(volume.count)} ${copy.pages}`
-                        : `${volume.count} ${copy.pages}`}
-                    </span>
-                  </header>
-
-                  <div className={styles.linkGrid}>
-                    {Array.from({ length: volume.count }, (_, index) => index + 1).map((chapter) => (
-                      <a
-                        className={styles.chapterLink}
-                        href={articleUrl(item.id, volume.volume, chapter)}
-                        key={`${item.id}-${volume.volume}-${chapter}`}
-                        aria-label={`${item.title[locale]}, ${copy.volume} ${volume.volume}, ${chapterLabel(
-                          locale,
-                          item.id,
-                          chapter,
-                        )}`}
-                      >
-                        {chapterLabel(locale, item.id, chapter)}
-                      </a>
-                    ))}
-                  </div>
-                </section>
+            <div className={styles.summaryStats} aria-label={copy.title}>
+              {series.map((item) => (
+                <span key={item.id}>
+                  <strong>{display(item.count)}</strong> {item.title[locale]}
+                </span>
               ))}
             </div>
-          </article>
-        ))}
-      </div>
+          </div>
+          <div className={styles.totalBadge} aria-hidden="true">
+            <strong>{display(522)}</strong>
+            <span>{copy.pages}</span>
+          </div>
+        </summary>
+
+        <div className={styles.directoryBody}>
+          <div className={styles.seriesList}>
+            {series.map((item) => (
+              <details className={styles.series} id={`corpus-${item.id}`} key={item.id}>
+                <summary className={styles.seriesSummary} aria-label={`${copy.openSeries}: ${item.title[locale]}`}>
+                  <div>
+                    <p className={styles.seriesKicker}>{display(item.count)} {copy.links}</p>
+                    <h3>{item.title[locale]}</h3>
+                    <p>{item.description[locale]}</p>
+                  </div>
+                  <span className={styles.countPill}>{display(item.count)}</span>
+                </summary>
+
+                <div className={styles.volumeList}>
+                  {item.volumes.map((volume) => (
+                    <section className={styles.volume} key={`${item.id}-${volume.volume}`}>
+                      <header className={styles.volumeHeader}>
+                        <h4>
+                          {isMai
+                            ? `${copy.volume} ${toDevanagari(volume.volume)} / Volume ${romanVolume(volume.volume)}`
+                            : `${copy.volume} ${romanVolume(volume.volume)} / खण्ड ${toDevanagari(volume.volume)}`}
+                        </h4>
+                        <span>{display(volume.count)} {copy.pages}</span>
+                      </header>
+
+                      <div className={styles.linkGrid}>
+                        {Array.from({ length: volume.count }, (_, index) => index + 1).map((chapter) => (
+                          <a
+                            className={styles.chapterLink}
+                            href={articleUrl(item.id, volume.volume, chapter)}
+                            key={`${item.id}-${volume.volume}-${chapter}`}
+                            aria-label={`${item.title[locale]}, ${copy.volume} ${volume.volume}, ${chapterLabel(locale, item.id, chapter)}`}
+                          >
+                            {chapterLabel(locale, item.id, chapter)}
+                          </a>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </details>
     </section>
   );
 }
