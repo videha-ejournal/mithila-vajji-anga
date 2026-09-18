@@ -67,7 +67,9 @@
   position: fixed !important;
   top: 0.65rem;
   right: 0.75rem;
+  bottom: auto !important;
   left: auto;
+  transform: none !important;
   z-index: 120;
   width: auto;
   max-width: calc(100vw - 1.5rem);
