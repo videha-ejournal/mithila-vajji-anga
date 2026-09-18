@@ -25,7 +25,7 @@ html {
 main[id], section[id], article[id] { scroll-margin-top: 128px; }
 body {
   margin: 0;
-  padding-top: 56px;
+  padding-right: 7.25rem;
   background: var(--paper);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
@@ -211,43 +211,47 @@ main#top > .provenance { order: 11; }
 }
 .videha-tools {
   position: fixed;
-  top: 0;
-  right: 0;
+  top: 88px;
+  right: .65rem;
   bottom: auto;
-  left: 0;
+  left: auto;
   z-index: 120;
   transform: none;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
   flex-wrap: nowrap;
   gap: .35rem;
-  min-height: 56px;
-  width: auto;
-  max-width: none;
-  padding: .42rem .7rem;
-  overflow-x: auto;
-  overflow-y: visible;
+  min-height: 0;
+  width: 6rem;
+  max-width: 6rem;
+  padding: .42rem;
+  overflow: visible;
   background: #efe4cc;
-  border-bottom: 1px solid #cdb98f;
-  box-shadow: 0 4px 18px #101a2d20;
+  border: 1px solid #cdb98f;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px #101a2d20;
 }
 .videha-tools > button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .35rem;
+  gap: .3rem;
   flex: 0 0 auto;
-  min-height: 40px;
+  width: 100%;
+  min-height: 44px;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 10px;
   background: #fffaf0;
   color: #30281d;
+  text-align: center;
   text-decoration: none;
-  padding: .42rem .62rem;
-  font-size: .76rem;
+  padding: .42rem .38rem;
+  font-size: .7rem;
+  line-height: 1.15;
   font-weight: 850;
-  white-space: nowrap;
+  white-space: normal;
 }
 .videha-tools > button:hover,
 .videha-tools > button:focus-visible,
@@ -259,7 +263,7 @@ main#top > .provenance { order: 11; }
 .videha-tools svg { width: 16px; flex: none; }
 .journey-nav {
   position: sticky;
-  top: 128px;
+  top: 72px;
   z-index: 45;
   display: flex;
   align-items: center;
@@ -284,15 +288,17 @@ main#top > .provenance { order: 11; }
 .journey-nav nav a.active b { border-color: #ffffff80; }
 .assistive-panel,
 .translate-panel {
-  position: fixed;
+  position: absolute;
   z-index: 125;
-  top: 60px;
-  right: .5rem;
+  top: 0;
+  right: calc(100% + .55rem);
   bottom: auto;
+  left: auto;
+  transform: none;
   display: grid;
   gap: .4rem;
-  width: min(390px, 94vw);
-  max-height: 72vh;
+  width: min(390px, calc(100vw - 9rem));
+  max-height: 86vh;
   overflow-y: auto;
   padding: .9rem;
   background: #faf6ee;
@@ -302,7 +308,7 @@ main#top > .provenance { order: 11; }
   margin: 0;
   color: #23201b;
 }
-.translate-panel { left: 50%; right: auto; transform: translateX(-50%); }
+.translate-panel { right: calc(100% + .55rem); left: auto; transform: none; }
 .tool-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: .6rem; color: #7b1d1d; }
 .tool-panel-heading > button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; background: transparent; }
 .translate-panel p { margin: .6rem 0; font-size: .82rem; }
@@ -1567,6 +1573,7 @@ footer p {
   }
 }
 @media (max-width: 780px) {
+  body { padding-right: 4rem; }
   .topbar {
     min-height: 68px;
   }
@@ -1589,26 +1596,39 @@ footer p {
   }
   .videha-home { display: none; }
   .videha-tools {
-    justify-content: flex-start;
-    padding-inline: .4rem;
+    top: 78px;
+    right: .35rem;
+    bottom: auto;
+    left: auto;
+    width: 3.2rem;
+    max-width: 3.2rem;
+    gap: .3rem;
+    padding: .3rem;
+    border-radius: 12px;
   }
   .videha-tools > button {
-    font-size: .7rem;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: .35rem;
+    font-size: 0;
+    border-radius: 9px;
   }
   .videha-tools > button span { display: none; }
+  .videha-tools svg { width: 20px; height: 20px; }
   .assistive-panel,
   .translate-panel {
     position: fixed;
-    top: 60px;
-    right: .5rem;
-    bottom: auto;
+    top: .5rem;
+    right: 4.15rem;
+    bottom: .5rem;
     left: .5rem;
     width: auto;
-    max-height: calc(100vh - 4.5rem);
+    max-height: none;
     transform: none;
   }
-  .back-to-top { bottom: 1rem; }
-  .journey-nav { top: 124px; justify-content: flex-start; overflow-x: auto; }
+  .back-to-top { right: auto; left: .75rem; bottom: .75rem; }
+  .journey-nav { top: 68px; justify-content: flex-start; overflow-x: auto; }
   .journey-nav > p { position: sticky; left: 0; z-index: 2; padding-right: .5rem; background: #fffdf8; }
   .journey-nav > p small span { display: none; }
   .journey-nav nav a span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
