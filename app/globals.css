@@ -25,6 +25,7 @@ html {
 main[id], section[id], article[id] { scroll-margin-top: 128px; }
 body {
   margin: 0;
+  padding-top: 56px;
   background: var(--paper);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
@@ -83,7 +84,7 @@ main#top > .provenance { order: 11; }
 .skip-link {
   position: fixed;
   left: -999px;
-  top: 0.5rem;
+  top: 3.9rem;
   background: white;
   padding: 0.75rem 1rem;
   z-index: 100;
@@ -111,7 +112,7 @@ main#top > .provenance { order: 11; }
   justify-content: space-between;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem);
   position: sticky;
-  top: 0;
+  top: 56px;
   z-index: 60;
   box-shadow: 0 2px 8px #0002;
 }
@@ -194,7 +195,7 @@ main#top > .provenance { order: 11; }
 }
 .research-shortcuts {
   position: sticky;
-  top: 0;
+  top: 56px;
   z-index: 50;
   display: flex;
   align-items: center;
@@ -210,33 +211,37 @@ main#top > .provenance { order: 11; }
 }
 .videha-tools {
   position: fixed;
-  left: 50%;
-  bottom: 1rem;
-  z-index: 90;
-  transform: translateX(-50%);
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  z-index: 120;
+  transform: none;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: nowrap;
   gap: .35rem;
-  width: max-content;
-  max-width: calc(100vw - 2rem);
-  padding: .42rem .55rem;
-  background: #efe4ccf7;
-  border: 1px solid #cdb98f;
-  border-radius: 999px;
-  box-shadow: 0 10px 30px #101a2d2b;
-  backdrop-filter: blur(14px);
+  min-height: 56px;
+  width: auto;
+  max-width: none;
+  padding: .42rem .7rem;
+  overflow-x: auto;
+  overflow-y: visible;
+  background: #efe4cc;
+  border-bottom: 1px solid #cdb98f;
+  box-shadow: 0 4px 18px #101a2d20;
 }
 .videha-tools > button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: .35rem;
+  flex: 0 0 auto;
   min-height: 40px;
   border: 1px solid transparent;
   border-radius: 999px;
-  background: transparent;
+  background: #fffaf0;
   color: #30281d;
   text-decoration: none;
   padding: .42rem .62rem;
@@ -247,14 +252,14 @@ main#top > .provenance { order: 11; }
 .videha-tools > button:hover,
 .videha-tools > button:focus-visible,
 .videha-tools > button[aria-expanded='true'] {
-  background: #fffaf0;
+  background: #fff;
   border-color: #c49a3c;
   outline: none;
 }
 .videha-tools svg { width: 16px; flex: none; }
 .journey-nav {
   position: sticky;
-  top: 72px;
+  top: 128px;
   z-index: 45;
   display: flex;
   align-items: center;
@@ -279,11 +284,11 @@ main#top > .provenance { order: 11; }
 .journey-nav nav a.active b { border-color: #ffffff80; }
 .assistive-panel,
 .translate-panel {
-  position: absolute;
-  z-index: 95;
-  top: auto;
-  bottom: calc(100% + .55rem);
-  right: 0;
+  position: fixed;
+  z-index: 125;
+  top: 60px;
+  right: .5rem;
+  bottom: auto;
   display: grid;
   gap: .4rem;
   width: min(390px, 94vw);
@@ -319,7 +324,7 @@ main#top > .provenance { order: 11; }
 .back-to-top {
   position: fixed;
   right: 1rem;
-  bottom: 5rem;
+  bottom: 1rem;
   z-index: 50;
   width: 44px;
   height: 44px;
@@ -1488,6 +1493,56 @@ footer p {
 .place-grid button:hover {
   transform: translateY(-1px);
 }
+
+@media (min-width: 1000px) {
+  body {
+    padding-top: 0;
+    padding-right: 13rem;
+  }
+  .skip-link { top: .5rem; }
+  .topbar { top: 0; }
+  .research-shortcuts { top: 0; }
+  .videha-tools {
+    top: 88px;
+    right: .75rem;
+    bottom: auto;
+    left: auto;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: .4rem;
+    width: 11.5rem;
+    min-height: 0;
+    max-width: 11.5rem;
+    padding: .55rem;
+    overflow: visible;
+    border: 1px solid #cdb98f;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px #101a2d20;
+  }
+  .videha-tools > button {
+    width: 100%;
+    justify-content: flex-start;
+    white-space: normal;
+    text-align: left;
+  }
+  .assistive-panel,
+  .translate-panel {
+    position: absolute;
+    top: 0;
+    right: calc(100% + .55rem);
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: min(390px, calc(100vw - 15rem));
+  }
+  .journey-nav { top: 72px; }
+  .back-to-top {
+    right: 13.75rem;
+    bottom: 1rem;
+  }
+}
+
 @media (max-width: 1100px) {
   .workspace {
     grid-template-columns: 230px 1fr;
@@ -1534,35 +1589,26 @@ footer p {
   }
   .videha-home { display: none; }
   .videha-tools {
-    left: .5rem;
-    right: .5rem;
-    bottom: .5rem;
-    transform: none;
-    width: auto;
-    max-width: none;
-    justify-content: stretch;
-    border-radius: 14px;
-    padding: .35rem;
+    justify-content: flex-start;
+    padding-inline: .4rem;
   }
   .videha-tools > button {
-    flex: 1 1 0;
-    min-width: 0;
-    padding-inline: .4rem;
     font-size: .7rem;
   }
   .videha-tools > button span { display: none; }
   .assistive-panel,
   .translate-panel {
     position: fixed;
-    left: .5rem;
+    top: 60px;
     right: .5rem;
-    bottom: 4.4rem;
+    bottom: auto;
+    left: .5rem;
     width: auto;
-    max-height: calc(100vh - 5.4rem);
+    max-height: calc(100vh - 4.5rem);
     transform: none;
   }
-  .back-to-top { bottom: 4.8rem; }
-  .journey-nav { top: 68px; justify-content: flex-start; overflow-x: auto; }
+  .back-to-top { bottom: 1rem; }
+  .journey-nav { top: 124px; justify-content: flex-start; overflow-x: auto; }
   .journey-nav > p { position: sticky; left: 0; z-index: 2; padding-right: .5rem; background: #fffdf8; }
   .journey-nav > p small span { display: none; }
   .journey-nav nav a span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
