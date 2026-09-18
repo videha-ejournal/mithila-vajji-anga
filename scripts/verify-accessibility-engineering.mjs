@@ -91,11 +91,14 @@ const checks = [
   },
   {
     id: 'utility-strip-non-overlap',
-    description: 'Persistent accessibility tools reserve page space instead of floating over readable text.',
+    description: 'Persistent accessibility tools occupy a reserved side rail instead of floating over readable text at desktop, tablet and mobile widths.',
     pass:
-      /body\s*\{[\s\S]*padding-top:\s*56px/i.test(css)
+      /body\s*\{[\s\S]*padding-right:\s*7\.25rem/i.test(css)
+      && /\.videha-tools\s*\{[\s\S]*right:\s*\.65rem[\s\S]*width:\s*6rem/i.test(css)
       && /@media\s*\(min-width:\s*1000px\)[\s\S]*body\s*\{[\s\S]*padding-right:\s*13rem/i.test(css)
-      && /@media\s*\(min-width:\s*1000px\)[\s\S]*\.videha-tools\s*\{[\s\S]*width:\s*11\.5rem/i.test(css),
+      && /@media\s*\(min-width:\s*1000px\)[\s\S]*\.videha-tools\s*\{[\s\S]*width:\s*11\.5rem/i.test(css)
+      && /@media\s*\(max-width:\s*780px\)[\s\S]*body\s*\{[\s\S]*padding-right:\s*4rem/i.test(css)
+      && /@media\s*\(max-width:\s*780px\)[\s\S]*\.videha-tools\s*\{[\s\S]*width:\s*3\.2rem/i.test(css),
   },
   {
     id: 'single-utility-positioning-authority',
