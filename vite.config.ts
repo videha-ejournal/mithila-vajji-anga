@@ -1,6 +1,21 @@
 import tailwindcss from '@tailwindcss/postcss';
 import vinext from 'vinext';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+
+const githubPagesDevelopmentAssets = (): Plugin => ({
+  name: 'mva-github-pages-development-assets',
+  apply: 'serve',
+  configureServer(server) {
+    server.middlewares.use((request, _response, next) => {
+      // Published artwork uses the GitHub Pages project prefix. Vite serves
+      // this same public directory at the root during local development.
+      if (request.url?.startsWith('/mithila-vajji-anga/assets/')) {
+        request.url = request.url.slice('/mithila-vajji-anga'.length);
+      }
+      next();
+    });
+  },
+});
 
 const pagePerformanceTransform = () => ({
   name: 'mva-page-performance-transform',
@@ -8,7 +23,7 @@ const pagePerformanceTransform = () => ({
   transform(code: string, id: string) {
     if (!/[\\/]app[\\/]archive-english\.tsx(?:\?|$)/.test(id)) return null;
 
-    const next = code
+    const next = code.replace(/\r\n/g, '\n')
       .replace("import collectionDetailsData from './collection-details.json';\n", '')
       .replace(
         "const collectionDetails = collectionDetailsData as Record<\n  string,\n  CollectionDetail\n>;\n",
@@ -71,7 +86,7 @@ const optimizedImageTransform = () => ({
 
 export default defineConfig({
   css: { postcss: { plugins: [tailwindcss()] } },
-  plugins: [pagePerformanceTransform(), optimizedImageTransform(), vinext()],
+  plugins: [githubPagesDevelopmentAssets(), pagePerformanceTransform(), optimizedImageTransform(), vinext()],
   build: {
     cssCodeSplit: true,
     rolldownOptions: {

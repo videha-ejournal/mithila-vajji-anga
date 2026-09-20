@@ -2,6 +2,12 @@
 
 ## Digital Humanities Research Environment for Mithila, Vajji & Anga
 
+### Local development
+
+Run `npm run dev`. Startup exports the ISBN registry, performs the existing strict Panji source audit, prepares the lightweight search index, and applies the homepage performance optimization. Both Windows CRLF and LF source files are supported.
+
+The homepage needs the complete 247-record Panji article inventory. If the local inventory is missing or invalid, development downloads the published source-pinned inventory and validates its six volume counts and unique records before saving it. A valid local inventory works offline; chapter links continue to use their existing canonical URLs. This does not regenerate or edit scholarly text. The full `npm run build` publication pipeline still regenerates its PDF-derived corpus and requires its existing Poppler, Python and Tesseract dependencies.
+
 The **Videha Digital Research Archive** is a responsive, accessible, source-controlled digital humanities research environment for the connected histories, genealogy, literature, philosophy, places, texts and chronology of Mithila, Vajji and Anga across India and Nepal. It is part of the Videha research ecosystem and links to [videha.co.in](https://www.videha.co.in/).
 
 This repository is intentionally positioned as **more than a website associated with the books**. Its records are designed to be **permanent, citable, machine-readable, versioned and independently discoverable**.

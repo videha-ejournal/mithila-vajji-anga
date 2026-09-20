@@ -37,9 +37,8 @@ import deepData from './deep-data.json';
 import collectionDetailsData from './collection-details.json';
 import coverData from './cover-data.json';
 import ideasVolumeTwoData from './ideas-volume2.json';
-import learningData from './learning-data.json';
-import ResearchExpansion from './research-expansion';
-import LearningLab from './learning-lab';
+import specialistSearchData from './generated/specialist-search-lite.json';
+import DeferredResearchRooms from './deferred-research-rooms';
 
 type Chapter = {
   id: string;
@@ -894,9 +893,7 @@ const globalSearchRecords: GlobalSearchRecord[] = [
   ...works.map((work) => ({ id: `global-work-${work.id}`, title: work.title, kind: 'Texts' as const, meta: `${work.sequence} · ${work.shelf}`, text: `${work.description} ${work.structure.join(' ')}`, route: 'library' as const, ref: work.id })),
   ...places.map((place) => ({ id: `global-place-${place.id}`, title: place.name, kind: 'Places' as const, meta: `${place.country} · ${place.region}`, text: `${place.text} ${place.period}`, route: 'places' as const, ref: place.id })),
   ...chronology.map((item, index) => ({ id: `global-chronology-${index}`, title: item.title, kind: 'Chronology' as const, meta: `${item.date} · ${item.region}`, text: `${item.text} ${item.evidence}`, route: 'chronology' as const, year: item.year })),
-  ...learningData.places.map((place) => ({ id: `global-map-${place.id}`, title: place.name, kind: 'Places' as const, meta: `${place.admin} · ${place.countryCode} · sourced map record`, text: `${place.context} ${place.frame}`, route: 'historical-map' as const })),
-  ...learningData.panji.map((entry) => ({ id: `global-panji-${entry.id}`, title: entry.heading, kind: 'Texts' as const, meta: `${entry.volume} · Panji manuscript heading`, text: `${entry.context} ${entry.canSupport}`, route: 'panji' as const })),
-  ...learningData.comparators.map((entry) => ({ id: `global-concept-${entry.id}`, title: entry.name, kind: 'Ideas' as const, meta: 'Parallel Philosophy comparison', text: `${entry.question} ${entry.purvapaksha} ${entry.uttarapaksha} ${entry.synthesis}`, route: 'knowledge-graph' as const })),
+  ...(specialistSearchData.records as GlobalSearchRecord[]),
 ];
 
 export default function Home() {
@@ -1553,9 +1550,7 @@ export default function Home() {
           <a href="./updates/index.html">Read the changelog and roadmap <ChevronRight /></a>
         </section>
 
-        <ResearchExpansion />
-
-        <LearningLab />
+        <DeferredResearchRooms />
 
         <section
           className="cover-showcase"
@@ -1836,7 +1831,7 @@ export default function Home() {
                 figures
               </p>
               <p>
-                <Check size={16} /> Curated explorer: {places.length} places and heritage sites · Map gazetteer: {learningData.places.length} sourced reference points
+                <Check size={16} /> Curated explorer: {places.length} places and heritage sites · Map gazetteer: {specialistSearchData.counts.places} sourced reference points
               </p>
             </article>
           </aside>
