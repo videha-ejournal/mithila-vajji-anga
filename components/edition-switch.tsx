@@ -6,7 +6,7 @@ const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
 
 export default function EditionSwitch() {
   const pathname = usePathname();
-  const active: 'mai' | 'en' = pathname?.includes('/en/') ? 'en' : 'mai';
+  const active: 'mai' | 'en' = /(?:^|\/)en(?:\/|$)/.test(pathname ?? '') ? 'en' : 'mai';
 
   return (
     <nav className="edition-switch" aria-label="Archive edition">
