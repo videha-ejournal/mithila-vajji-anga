@@ -1,0 +1,51 @@
+/* Presentation only. Keep the reading/accessibility toolbars on their own styles. */
+.edition-home-introduction {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 3vw, 2.5rem);
+  border-bottom: 1px solid var(--line);
+}
+.edition-home-introduction h1 {
+  margin: .35rem 0 1rem;
+  font: 700 clamp(1.9rem, 3.6vw, 3.5rem)/1.35 Georgia, serif;
+  text-wrap: balance;
+}
+.edition-home-introduction p:not(.eyebrow) {
+  max-width: 78ch;
+  margin: .75rem 0 0;
+  line-height: 1.8;
+}
+.edition-home-introduction p:last-child { color: var(--muted); }
+.intro h1 { line-height: 1.25; text-wrap: balance; }
+.intro > *, .workspace > *, .studio-doors > * { min-width: 0; }
+.intro-actions { gap: .65rem; }
+.intro-actions a { min-height: 44px; padding: .65rem .9rem; font-size: .875rem; }
+.global-search { border-radius: 12px; }
+.global-search-heading h2 { line-height: 1.4; text-wrap: balance; }
+.global-search-facets { gap: .5rem; }
+.global-search-facets button { min-height: 44px; padding: .55rem .85rem; font-size: .875rem; }
+.global-search-box input { min-width: 0; min-height: 48px; font-size: 1rem; }
+.studio-doors { gap: 1rem; align-items: stretch; }
+.studio-doors article { display: flex; flex-direction: column; }
+.studio-doors article > button { flex: 1; line-height: 1.6; }
+.studio-doors article > nav { margin-top: auto; gap: .5rem; }
+.studio-doors article > nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.journey-nav nav a { min-height: 44px; font-size: .8rem; }
+.footer-links { flex-wrap: wrap; gap: .75rem 1.25rem; }
+.footer-links a { min-height: 44px; display: inline-flex; align-items: center; overflow-wrap: anywhere; }
+main nav[aria-label='Breadcrumb'] { display: flex; flex-wrap: wrap; gap: .5rem .8rem; line-height: 1.7; }
+main nav[aria-label='Breadcrumb'] a { display: inline-flex; align-items: center; min-height: 44px; }
+.edition-home-introduction :is(h1, p), .provenance :is(p, a) { overflow-wrap: anywhere; }
+#decoding-panji-live-directory h2 { line-height: 1.35; text-wrap: balance; }
+#decoding-panji-live-directory a { overflow-wrap: anywhere; }
+#decoding-panji-live-directory summary { min-height: 48px; }
+@media (max-width: 760px) {
+  .intro { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+  .edition-home-introduction { padding-block: 1.5rem; }
+  .global-search-heading { flex-wrap: wrap; gap: .75rem; }
+  .global-search-box kbd { display: none; }
+  .studio-doors { grid-template-columns: minmax(0, 1fr); }
+  .journey-nav { position: static; }
+  .journey-nav > p { min-width: 0; flex-wrap: wrap; }
+  .journey-nav nav { flex-wrap: wrap; overflow: visible; }
+}

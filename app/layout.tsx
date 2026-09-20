@@ -7,6 +7,7 @@ import './globals.css';
 import './bilingual-editions.css';
 import './research-expansion.css';
 import './learning-lab.css';
+import './ui-polish.css';
 
 const siteUrl = 'https://videha-ejournal.github.io/mithila-vajji-anga/';
 const videhaUrl = 'https://www.videha.co.in/';
