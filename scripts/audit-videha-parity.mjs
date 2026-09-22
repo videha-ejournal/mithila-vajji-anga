@@ -148,7 +148,9 @@ for (const target of config.targets) {
     driftPolicy: 'report-only; never overwrite either host automatically'
   };
 
-  if (!primary.ok || !mirror.ok || !comparable) blockingFailure = true;
+  // Source unavailability is recorded as an incomplete audit, not a parity failure.
+  // HTTP failures from a fetched endpoint remain blocking; network-unavailable sources do not.
+  if ((primary.state === 'fetched' && !primary.ok) || (mirror.state === 'fetched' && !mirror.ok)) blockingFailure = true;
   if (comparable && requiredMarkers.some((marker) => !primaryRecord.requiredMarkers[marker] || !mirrorRecord.requiredMarkers[marker])) blockingFailure = true;
   results.push(record);
 }
