@@ -2,6 +2,12 @@ name: Audit Videha primary and GitHub mirror parity
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit-videha-parity.mjs'
+      - 'data/videha-parity-targets.json'
+      - '.github/workflows/videha-parity.yml'
   schedule:
     - cron: '43 3 * * *'
 
