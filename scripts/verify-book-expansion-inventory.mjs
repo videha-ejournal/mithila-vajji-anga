@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const SOURCE_CATALOG = 'dist/client/source-library/catalog.json';
 const INVENTORY = 'dist/client/source-library/article-expansion-inventory.json';
+const PANJI_INVENTORY = 'app/generated/panji-inventory.json';
 const LITERATURE_INVENTORY = 'app/literature-inventory.json';
 const PARALLEL_HISTORY = 'VIDEHA_Parallel_History.pdf';
 const EXPECTED_PARALLEL_HISTORY_UNITS = 100;
@@ -78,6 +79,16 @@ if (articleCount !== EXPECTED_CORE_ARTICLES || inventory.certifiedCoreArticleCou
 const panji = items.filter((item) => /^DECODING_PANJI_[1-6]\.pdf$/i.test(item.filename));
 if (panji.length !== 6) errors.push(`Expected all 6 DECODING PANJI PDFs in source inventory; found ${panji.length}`);
 for (const item of panji) if (!['structure-audited', 'needs-structure-audit'].includes(item.status)) errors.push(`Panji source has unsafe publication status: ${item.filename} → ${item.status}`);
+const panjiUnits = existsSync(PANJI_INVENTORY) ? load(PANJI_INVENTORY) : [];
+for (const item of panji) {
+  const workId = `panji-${Number(/^DECODING_PANJI_([1-6])\.pdf$/i.exec(item.filename)[1])}`;
+  const verifiedCount = (Array.isArray(panjiUnits) ? panjiUnits : [])
+    .filter((unit) => unit?.workId === workId && unit.titleVerifiedFromSource === true).length;
+  const expectedStatus = verifiedCount > 0 ? 'structure-audited' : 'needs-structure-audit';
+  if (item.status !== expectedStatus || item.confirmedUnitCount !== (verifiedCount || null)) {
+    errors.push(`Panji audit mismatch: ${item.filename} must be ${expectedStatus} with ${verifiedCount || 'no'} confirmed units from ${PANJI_INVENTORY}; found ${item.status}/${item.confirmedUnitCount}`);
+  }
+}
 
 // Parallel History is the first post-core source with a complete committed
 // chapter inventory. It must be structurally promoted, but it must not yet
