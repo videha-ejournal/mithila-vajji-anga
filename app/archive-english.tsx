@@ -112,6 +112,7 @@ type Cover = {
   height: number;
 };
 type Tab =
+  // Research rooms are named for their visitor-facing purpose while legacy routes remain supported.
   | 'chronology'
   | 'places'
   | 'chapters'
