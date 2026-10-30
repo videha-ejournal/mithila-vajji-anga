@@ -7,11 +7,16 @@ const site = 'https://videha-ejournal.github.io/mithila-vajji-anga';
 export default function EditionSwitch() {
   const pathname = usePathname();
   const active: 'mai' | 'en' = /(?:^|\/)en(?:\/|$)/.test(pathname ?? '') ? 'en' : 'mai';
+  const pairedPath = (edition: 'mai' | 'en') => {
+    const current = pathname || '/';
+    if (edition === 'en') return /(?:^|\/)en(?:\/|$)/.test(current) ? current : `${site}/en${current === '/' ? '/' : current}`;
+    return current.replace(/^\/en(?=\/|$)/, '') || '/';
+  };
 
   return (
     <nav className="edition-switch" aria-label="Archive edition">
       <a
-        href={`${site}/`}
+        href={active === 'mai' ? `${site}/` : pairedPath('mai')}
         hrefLang="mai"
         lang="mai"
         aria-current={active === 'mai' ? 'page' : undefined}
@@ -20,7 +25,7 @@ export default function EditionSwitch() {
         मैथिली
       </a>
       <a
-        href={`${site}/en/`}
+        href={active === 'en' ? `${site}/en/` : pairedPath('en')}
         hrefLang="en"
         aria-current={active === 'en' ? 'page' : undefined}
         className={active === 'en' ? 'active' : undefined}

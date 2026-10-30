@@ -1425,6 +1425,17 @@ footer p {
   color: #aeb8c8;
   margin: 0;
 }
+
+.site-footer {
+  padding: 1.25rem clamp(1rem, 4vw, 3rem);
+  background: #172333;
+  color: #f8f1e4;
+  text-align: center;
+  font-size: .85rem;
+  line-height: 1.7;
+}
+.site-footer p { margin: 0; }
+.site-footer a { color: #f5ca72; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .footer-links {
   display: flex;
   flex-direction: column;

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import ScholarlyToolbar from '../components/scholarly-toolbar';
 import EditionSwitch from '../components/edition-switch';
 import VidehaPublicationIdentity from '../components/videha-publication-identity';
+import SiteFooter from '../components/site-footer';
 import libraryData from './library-data.json';
 import './globals.css';
 import './bilingual-editions.css';
@@ -197,6 +198,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <VidehaPublicationIdentity />
         <ScholarlyToolbar />
         {children}
+        <SiteFooter />
       </body>
     </html>
   );
