@@ -108,7 +108,7 @@ export default function AboutArchive() {
 
       <footer>
         <a href={`${site}/`}>← Return to the Videha Digital Research Archive</a>
-        <p>© Gajendra Thakur, Editor, Videha Maithili eJournal · ISSN 2229-547X</p>
+        <p>(c) Gajendra Thakur, Editor, Videha, First Maithili Fortnightly eJournal · ISSN 2229-547X · <a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">videha.co.in</a> &amp; <a href="https://videha-ejournal.github.io/videha/" target="_blank" rel="noreferrer">Videha GitHub archive</a></p>
       </footer>
 
       <style>{`

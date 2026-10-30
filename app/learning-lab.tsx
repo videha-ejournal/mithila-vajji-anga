@@ -1268,6 +1268,7 @@ export default function LearningLab() {
           <a href="https://www.geonames.org/" target="_blank" rel="noreferrer">
             GeoNames attribution
           </a>
+          <p>(c) Gajendra Thakur, Editor, Videha, First Maithili Fortnightly eJournal · <a href="https://www.videha.co.in/" target="_blank" rel="noreferrer">videha.co.in</a> &amp; <a href="https://videha-ejournal.github.io/videha/" target="_blank" rel="noreferrer">Videha GitHub archive</a></p>
         </footer>
       </div>
     </section>
