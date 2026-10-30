@@ -119,7 +119,7 @@ export default function PanjiHomeDirectory({ locale }: { locale: Locale }) {
             alt="Decoding the Panji publication artwork"
             width={330}
             height={440}
-            priority
+            preload
             sizes="(max-width: 640px) 86px, (max-width: 980px) 120px, 165px"
           />
         </figure>
