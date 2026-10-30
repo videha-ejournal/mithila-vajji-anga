@@ -116,9 +116,12 @@ type Tab =
   | 'places'
   | 'chapters'
   | 'library'
+  | 'books'
   | 'people'
   | 'ideas'
-  | 'sources';
+  | 'criticism'
+  | 'sources'
+  | 'reading';
 type GlobalSearchRecord = {
   id: string;
   title: string;
@@ -1256,7 +1259,7 @@ export default function Home() {
     chooseTab(record.route);
   };
   const handleResearchTabKeys = (event: KeyboardEvent<HTMLButtonElement>, current: Tab) => {
-    const tabs: Tab[] = ['chronology', 'places', 'chapters', 'library', 'people', 'ideas', 'sources'];
+    const tabs: Tab[] = ['chronology', 'places', 'chapters', 'books', 'people', 'criticism', 'reading'];
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
     const currentIndex = tabs.indexOf(current);
@@ -1265,7 +1268,7 @@ export default function Home() {
     requestAnimationFrame(() => document.getElementById(`research-tab-${tabs[nextIndex]}`)?.focus());
   };
   const openWork = (id: string) => {
-    setActiveTab('library');
+    setActiveTab('books');
     setSelectedWork(id);
     setQuery('');
     requestAnimationFrame(() =>
@@ -1278,7 +1281,7 @@ export default function Home() {
     setShelf(name);
     if (id) openWork(id);
     else {
-      setActiveTab('library');
+      setActiveTab('books');
       setQuery('');
       requestAnimationFrame(() =>
         document
@@ -1495,7 +1498,7 @@ export default function Home() {
             <div className="studio-doors">
               <article><button onClick={() => openShelf('Decoding the Panji', 'panji-1')}><b>01</b><span><strong>Read genealogy</strong><small>Decode people, lineages, villages, and marriage relations</small></span></button><nav aria-label="Genealogy paths"><a href="#wing-1">Six Panji volumes</a><a href="#learning-lab">Panji laboratory</a></nav></article>
               <article><button onClick={() => chooseTab('chronology')}><b>02</b><span><strong>Follow history</strong><small>Move from dated evidence to chapters and changing landscapes</small></span></button><nav aria-label="History paths"><a href="#explorer">178 chapters</a><a href="#wing-2">Historical map</a><a href="./sources/index.html">Cited records</a></nav></article>
-              <article><button onClick={() => chooseTab('ideas')}><b>03</b><span><strong>Enter a debate</strong><small>Compare Pūrvapakṣa, Uttarapakṣa, and parallel conclusions</small></span></button><nav aria-label="Debate paths"><a href="#wing-3">Knowledge graph</a><a href="#wing-4">Multiscript reader</a></nav></article>
+              <article><button onClick={() => chooseTab('criticism')}><b>03</b><span><strong>Enter a debate</strong><small>Compare Pūrvapakṣa, Uttarapakṣa, and parallel conclusions</small></span></button><nav aria-label="Debate paths"><a href="#wing-3">Knowledge graph</a><a href="#wing-4">Multiscript reader</a></nav></article>
               <article><button onClick={() => openShelf('Sanskrit–Maithili Philosophical Texts', 'atmatattvaviveka')}><b>04</b><span><strong>Work with texts</strong><small>Open translations, books, teaching material, and source practice</small></span></button><nav aria-label="Text and learning paths"><a href="#wing-5">Classroom</a><a href="#learning-lab">Research practice</a><a href="#cover-showcase">Library</a></nav></article>
             </div>
           </div>
@@ -1775,7 +1778,7 @@ export default function Home() {
                 </label>
               </>
             )}
-            {activeTab === 'library' && (
+            {(activeTab === 'books' || activeTab === 'library') && (
               <label>
                 Shelf
                 <select
@@ -1877,14 +1880,14 @@ export default function Home() {
               <button
                 id="research-tab-library"
                 role="tab"
-                tabIndex={activeTab === 'library' ? 0 : -1}
-                aria-selected={activeTab === 'library'}
+                tabIndex={activeTab === 'books' ? 0 : -1}
+                aria-selected={activeTab === 'books'}
                 aria-controls="research-panel"
-                className={activeTab === 'library' ? 'active' : ''}
-                onClick={() => chooseTab('library')}
-                onKeyDown={(event) => handleResearchTabKeys(event, 'library')}
+                className={activeTab === 'books' ? 'active' : ''}
+                onClick={() => chooseTab('books')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'books')}
               >
-                <Library /> Library <span>{works.length}</span>
+                <Library /> Books <span>{works.length}</span>
               </button>
               <button
                 id="research-tab-people"
@@ -1899,29 +1902,29 @@ export default function Home() {
                 <Users /> People <span>{people.length}</span>
               </button>
               <button
-                id="research-tab-ideas"
+                id="research-tab-criticism"
                 role="tab"
-                tabIndex={activeTab === 'ideas' ? 0 : -1}
-                aria-selected={activeTab === 'ideas'}
+                tabIndex={activeTab === 'criticism' ? 0 : -1}
+                aria-selected={activeTab === 'criticism'}
                 aria-controls="research-panel"
-                className={activeTab === 'ideas' ? 'active' : ''}
-                onClick={() => chooseTab('ideas')}
-                onKeyDown={(event) => handleResearchTabKeys(event, 'ideas')}
+                className={activeTab === 'criticism' ? 'active' : ''}
+                onClick={() => chooseTab('criticism')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'criticism')}
               >
-                <GitBranch /> Ideas &amp; debates{' '}
+                <GitBranch /> Criticism &amp; debates{' '}
                 <span>{ideas.length}</span>
               </button>
               <button
-                id="research-tab-sources"
+                id="research-tab-reading"
                 role="tab"
-                tabIndex={activeTab === 'sources' ? 0 : -1}
-                aria-selected={activeTab === 'sources'}
+                tabIndex={activeTab === 'reading' ? 0 : -1}
+                aria-selected={activeTab === 'reading'}
                 aria-controls="research-panel"
-                className={activeTab === 'sources' ? 'active' : ''}
-                onClick={() => chooseTab('sources')}
-                onKeyDown={(event) => handleResearchTabKeys(event, 'sources')}
+                className={activeTab === 'reading' ? 'active' : ''}
+                onClick={() => chooseTab('reading')}
+                onKeyDown={(event) => handleResearchTabKeys(event, 'reading')}
               >
-                <FileText /> Sources <span>5</span>
+                <FileText /> Reading room <span>5</span>
               </button>
             </div>
 
@@ -2066,7 +2069,7 @@ export default function Home() {
                 </div>
               </div>
             )}
-            {activeTab === 'library' && (
+            {(activeTab === 'books' || activeTab === 'library') && (
               <div className="tab-content library-view">
                 <div className="result-heading">
                   <div>
@@ -2236,7 +2239,7 @@ export default function Home() {
                 </div>
               </div>
             )}
-            {activeTab === 'ideas' && (
+            {(activeTab === 'criticism' || activeTab === 'ideas') && (
               <div className="tab-content">
                 <div className="result-heading">
                   <div>
@@ -2326,7 +2329,7 @@ export default function Home() {
                 </div>
               </div>
             )}
-            {activeTab === 'sources' && (
+            {(activeTab === 'reading' || activeTab === 'sources') && (
               <div className="tab-content">
                 <div className="result-heading">
                   <div>
@@ -2451,7 +2454,7 @@ export default function Home() {
                 )}
               </>
             )}
-            {activeTab === 'library' && (
+            {(activeTab === 'books' || activeTab === 'library') && (
               <>
                 <p className="detail-kicker">SELECTED LIBRARY RECORD</p>
                 <span className="detail-icon">
@@ -2486,7 +2489,7 @@ export default function Home() {
                 {workDetail.id === 'parallel-philosophy' && (
                   <button
                     className="deep-link"
-                    onClick={() => chooseTab('ideas')}
+                    onClick={() => chooseTab('criticism')}
                   >
                     Open all {ideas.length} ideas and debates <ChevronRight />
                   </button>
@@ -2542,7 +2545,7 @@ export default function Home() {
                 </div>
               </>
             )}
-            {activeTab === 'ideas' && (
+            {(activeTab === 'criticism' || activeTab === 'ideas') && (
               <>
                 <p className="detail-kicker">
                   {ideaDetail.volume.toUpperCase()} · CHAPTER {ideaDetail.number} · {ideaDetail.status.toUpperCase()}
@@ -2590,7 +2593,7 @@ export default function Home() {
                 )}
               </>
             )}
-            {activeTab === 'sources' && (
+            {(activeTab === 'reading' || activeTab === 'sources') && (
               <>
                 <p className="detail-kicker">EDITORIAL METHOD</p>
                 <span className="detail-icon">
